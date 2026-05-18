@@ -8,6 +8,7 @@ This directory is the project record for Duelly.
 - `PR_WORKFLOW.md`: draft PR flow, evidence, and human-controlled merge/close.
 - `WORKTREES.md`: worktree creation, usage, QA, and cleanup.
 - `QA.md`: required QA commands by scope.
+- `EVIDENCE.md`: task evidence folder, artifact naming, redaction, and PR attachment rules.
 - `DEFINITION_OF_DONE.md`: minimum completion criteria.
 - `AGENT_ROSTER.md`: agents and responsibilities.
 

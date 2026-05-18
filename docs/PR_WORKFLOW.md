@@ -25,9 +25,12 @@ scripts/harness/open-draft-pr.sh --title "feat: task"
 - Why they changed.
 - Tests executed.
 - QA result.
+- Evidence folder paths under `evidence/<task-id>/`.
 - Screenshots or logs when applicable.
 - Definition of Done status.
 - Risks and follow-ups.
+
+See `docs/EVIDENCE.md` for evidence naming, redaction, and attachment conventions.
 
 ## Leaving draft
 
