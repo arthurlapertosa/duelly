@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { basename, join, relative } from 'node:path';
+import { isAbsolute, join, relative } from 'node:path';
 
 const DEFAULT_OUTPUT_DIR = 'backlog/github-issue-import';
 
@@ -180,7 +180,7 @@ function buildImport(root = process.cwd()) {
 }
 
 function writeOutputs(root, outputDir, payload) {
-  const destination = join(root, outputDir);
+  const destination = isAbsolute(outputDir) ? outputDir : join(root, outputDir);
   mkdirSync(destination, { recursive: true });
   writeFileSync(join(destination, 'issues.json'), `${JSON.stringify(payload.issues, null, 2)}\n`);
   writeFileSync(join(destination, 'labels.json'), `${JSON.stringify(payload.labels, null, 2)}\n`);
