@@ -19,6 +19,8 @@ const requiredFiles = [
   'docs/FINAL_ARCHITECTURE.md',
   'docs/DEFINITION_OF_DONE.md',
   'docs/PR_WORKFLOW.md',
+  'docs/QA.md',
+  'docs/EVIDENCE.md',
   'docs/BLOCKCHAIN.md',
   'harness/agents/registry.json',
   'frontend/package.json',
@@ -167,7 +169,7 @@ function checkClaudeAgents() {
 
 function checkPrTemplate() {
   const content = read('.github/pull_request_template.md');
-  for (const needle of ['Definition of Done', 'Evidence', 'Local QA', 'HITL', 'draft']) {
+  for (const needle of ['Definition of Done', 'Evidence', 'Evidence paths', 'Local QA', 'HITL', 'draft']) {
     if (!content.includes(needle)) fail(`PR template missing ${needle}`);
   }
 }
@@ -178,6 +180,7 @@ function checkScriptsExecutable() {
     'scripts/harness/open-draft-pr.sh',
     'scripts/harness/close-worktree.sh',
     'scripts/harness/commit-granular.sh',
+    'scripts/harness/qa-check.sh',
     'scripts/blockchain/erc20-inspect.mjs',
     'scripts/blockchain/polymarket-condition-inspect.mjs',
   ];
