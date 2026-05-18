@@ -1,0 +1,21 @@
+{
+  "name": "duelly",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "smartcontract"
+  ],
+  "scripts": {
+    "validate": "node scripts/harness/validate-harness.mjs",
+    "qa": "bash scripts/harness/qa-check.sh",
+    "test": "npm run test:root && npm run test:workspaces",
+    "test:root": "node --test test/*.test.mjs",
+    "test:workspaces": "npm run test --workspaces --if-present",
+    "blockchain:erc20:self-test": "node scripts/blockchain/erc20-inspect.mjs --self-test",
+    "blockchain:polymarket:self-test": "node scripts/blockchain/polymarket-condition-inspect.mjs --self-test",
+    "pr:body:self-test": "node scripts/harness/render-pr-body.mjs --self-test"
+  }
+}

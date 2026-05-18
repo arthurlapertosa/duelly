@@ -1,0 +1,95 @@
+{
+  "project": "duelly",
+  "repository": "https://github.com/arthurlapertosa/duelly",
+  "policy": {
+    "worktreeRequired": true,
+    "draftPrRequired": true,
+    "humanInTheLoopRequired": true,
+    "criticalReasoningEffort": "xhigh",
+    "bestModelForCriticalTasks": true
+  },
+  "agents": [
+    {
+      "name": "harness_pr_coordinator",
+      "scope": [
+        "harness",
+        "github",
+        "worktrees",
+        "prs"
+      ]
+    },
+    {
+      "name": "backend_engineer",
+      "scope": [
+        "backend",
+        "opensource",
+        "apis",
+        "integrations",
+        "relayer"
+      ]
+    },
+    {
+      "name": "frontend_engineer",
+      "scope": [
+        "frontend",
+        "web",
+        "mobile-first",
+        "accessibility"
+      ]
+    },
+    {
+      "name": "product_designer",
+      "scope": [
+        "design",
+        "ux",
+        "copy",
+        "flows"
+      ]
+    },
+    {
+      "name": "blockchain_engineer",
+      "scope": [
+        "smartcontract",
+        "evm",
+        "brl1",
+        "erc2612",
+        "eip712",
+        "ctf"
+      ]
+    },
+    {
+      "name": "blockchain_query_operator",
+      "scope": [
+        "scripts/blockchain",
+        "read-only-rpc",
+        "evidence"
+      ]
+    },
+    {
+      "name": "qa_reviewer",
+      "scope": [
+        "qa",
+        "tests",
+        "dod",
+        "evidence"
+      ]
+    },
+    {
+      "name": "security_reviewer",
+      "scope": [
+        "security",
+        "privacy",
+        "keys",
+        "threats"
+      ]
+    },
+    {
+      "name": "docs_maintainer",
+      "scope": [
+        "docs",
+        "registry",
+        "consistency"
+      ]
+    }
+  ]
+}

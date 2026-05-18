@@ -1,0 +1,11 @@
+{
+  "chainId": 137,
+  "contracts": {
+    "brl1": "set-via-BRL1_ADDRESS_POLYGON",
+    "polymarketConditionalTokens": "0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"
+  },
+  "notes": [
+    "BRL1 address is intentionally configured via environment because token deployments/proxies must be verified before production use.",
+    "Polymarket Conditional Tokens address is documented by Polymarket for Polygon mainnet. Re-verify before production deployment."
+  ]
+}

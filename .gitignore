@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+coverage/
+out/
+cache/
+artifacts/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# Harness generated files
+.pr-body.generated.md
+worktrees/

@@ -1,0 +1,12 @@
+{
+  "name": "duelly",
+  "repository": "https://github.com/arthurlapertosa/duelly",
+  "defaultBaseBranch": "main",
+  "monorepoFolders": [
+    "frontend",
+    "backend",
+    "smartcontract"
+  ],
+  "requiredPrState": "draft",
+  "humanInTheLoopRequired": true
+}
