@@ -1,0 +1,72 @@
+[
+  {
+    "name": "priority:P0",
+    "color": "b60205",
+    "description": "Critical milestone or task priority"
+  },
+  {
+    "name": "priority:P1",
+    "color": "d93f0b",
+    "description": "High milestone or task priority"
+  },
+  {
+    "name": "priority:P2",
+    "color": "fbca04",
+    "description": "Normal milestone or task priority"
+  },
+  {
+    "name": "domain:frontend",
+    "color": "1d76db",
+    "description": "Frontend application work"
+  },
+  {
+    "name": "domain:backend",
+    "color": "0e8a16",
+    "description": "Backend service work"
+  },
+  {
+    "name": "domain:smartcontract",
+    "color": "5319e7",
+    "description": "Smart-contract and blockchain work"
+  },
+  {
+    "name": "domain:harness",
+    "color": "5319e7",
+    "description": "Repository harness, workflow, or governance work"
+  },
+  {
+    "name": "domain:product",
+    "color": "bfd4f2",
+    "description": "Product rules, templates, or policy work"
+  },
+  {
+    "name": "domain:e2e",
+    "color": "006b75",
+    "description": "End-to-end integration work"
+  },
+  {
+    "name": "domain:security",
+    "color": "ee0701",
+    "description": "Security, privacy, or compliance work"
+  },
+  {
+    "name": "qa:playwright",
+    "color": "0052cc",
+    "description": "Requires Playwright evidence"
+  },
+  {
+    "name": "qa:curl",
+    "color": "008672",
+    "description": "Requires curl/API evidence"
+  },
+  {
+    "name": "qa:foundry",
+    "color": "5319e7",
+    "description": "Requires Foundry or smart-contract evidence"
+  },
+  {
+    "name": "qa:e2e",
+    "color": "006b75",
+    "description": "Requires end-to-end evidence"
+  }
+]

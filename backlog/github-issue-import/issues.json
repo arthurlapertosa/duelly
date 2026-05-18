@@ -1,0 +1,1118 @@
+[
+  {
+    "taskId": "M0.T01",
+    "title": "[M0.T01] Create and validate the first monorepo commit",
+    "sourcePath": "milestones-0-repository-harness-foundation/task-01-create-and-validate-the-first-monorepo-commit.md",
+    "milestone": "M0 — Repository & Harness Foundation",
+    "priority": "P0",
+    "type": "Repository / Harness",
+    "status": "Planned",
+    "dependencies": [],
+    "dependenciesText": "",
+    "labels": [
+      "priority:P0",
+      "domain:harness"
+    ],
+    "body": "Source: `milestones-0-repository-harness-foundation/task-01-create-and-validate-the-first-monorepo-commit.md`\n\nTask ID: M0.T01\nPriority: P0\nDependencies: None\n\n# M0.T01 — Create and validate the first monorepo commit\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Repository / Harness  \n**Status:** Planned\n\n## Dependencies\n\n- None\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Apply the approved Duelly bootstrap into the empty GitHub repository.\n- Keep base folders: frontend/, backend/, smartcontract/.\n- Keep root-level harness files, agent files, scripts, and QA config in English.\n- Confirm docs/FINAL_ARCHITECTURE.md is present and in English.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use the existing bootstrap zip as the source of truth for the first commit.\n- Commit message should be `chore(repo): bootstrap duelly monorepo` or equivalent.\n- Do not introduce product code beyond the bootstrap structure.\n\n## Acceptance criteria\n\n- Repository contains frontend/, backend/, smartcontract/, docs/, scripts/, .github/, .codex/, and .claude/.\n- AGENTS.md, CLAUDE.md, and all harness/agent files are in English.\n- The repository root package.json contains scripts for validate, test, and qa.\n- No generated temporary files, local secrets, or machine-specific files are committed.\n\n## Required QA and test plan\n\n- Run `npm run validate` from the repository root.\n- Run `npm test` from the repository root.\n- Run `npm run qa` from the repository root.\n- Run `git status --short` and confirm only intended files are tracked before commit.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T01/root-qa.log containing validate/test/qa command outputs.\n- evidence/M0-T01/repository-tree.txt containing a trimmed `find` or `tree` output.\n- PR evidence section linking the first commit hash and QA logs.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M0.T02",
+    "title": "[M0.T02] Configure GitHub repository safety controls",
+    "sourcePath": "milestones-0-repository-harness-foundation/task-02-configure-github-repository-safety-controls.md",
+    "milestone": "M0 — Repository & Harness Foundation",
+    "priority": "P0",
+    "type": "Repository / Governance",
+    "status": "Planned",
+    "dependencies": [
+      "M0.T01"
+    ],
+    "dependenciesText": "M0.T01",
+    "labels": [
+      "priority:P0",
+      "domain:harness"
+    ],
+    "body": "Source: `milestones-0-repository-harness-foundation/task-02-configure-github-repository-safety-controls.md`\n\nTask ID: M0.T02\nPriority: P0\nDependencies: M0.T01\n\n# M0.T02 — Configure GitHub repository safety controls\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Repository / Governance  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Configure branch protection or rulesets for the default branch.\n- Require PR review before merge.\n- Require status checks from the QA workflow before merge.\n- Document the exact GitHub settings in the PR evidence.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- If GitHub settings cannot be modified by the agent, produce a checklist with exact settings for a human owner.\n- Prefer rulesets if available; branch protection is acceptable for MVP.\n\n## Acceptance criteria\n\n- Default branch cannot be force-pushed by normal contributors.\n- Merges require at least one human approval.\n- GitHub Actions QA workflow is required or explicitly documented as pending human setup.\n- Draft PRs are accepted as the standard implementation entry point.\n\n## Required QA and test plan\n\n- Open a test Draft PR or document a dry-run if repository permissions block the operation.\n- Verify the QA workflow is visible in the PR checks section.\n- Record the repository settings screen or CLI output used for validation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T02/github-settings.md with configured rules or human checklist.\n- evidence/M0-T02/pr-checks-screenshot.png if UI access is available.\n- evidence/M0-T02/gh-cli-output.txt if GitHub CLI is used.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M0.T03",
+    "title": "[M0.T03] Validate worktree and Draft PR harness flow",
+    "sourcePath": "milestones-0-repository-harness-foundation/task-03-validate-worktree-and-draft-pr-harness-flow.md",
+    "milestone": "M0 — Repository & Harness Foundation",
+    "priority": "P0",
+    "type": "Harness / QA",
+    "status": "Planned",
+    "dependencies": [
+      "M0.T01"
+    ],
+    "dependenciesText": "M0.T01",
+    "labels": [
+      "priority:P0",
+      "domain:harness"
+    ],
+    "body": "Source: `milestones-0-repository-harness-foundation/task-03-validate-worktree-and-draft-pr-harness-flow.md`\n\nTask ID: M0.T03\nPriority: P0\nDependencies: M0.T01\n\n# M0.T03 — Validate worktree and Draft PR harness flow\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Harness / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Validate task worktree creation script.\n- Validate granular commit helper script.\n- Validate PR body rendering script.\n- Validate Draft PR opening script in dry-run mode.\n- Validate worktree close/cleanup script.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Run destructive operations only against a temporary branch/worktree.\n- Use dry-run mode when the script supports it.\n\n## Acceptance criteria\n\n- A new worktree can be created from the base branch with a task-specific branch name.\n- The PR body renderer produces a PR body with Definition of Done, QA, and Evidence sections.\n- Draft PR command supports dry-run without requiring a network operation.\n- The worktree cleanup process removes the local worktree without deleting the source branch unexpectedly.\n\n## Required QA and test plan\n\n- Run `scripts/harness/new-task-worktree.sh --dry-run` if available.\n- Run `scripts/harness/new-task-worktree.sh <sample-task>` against a temporary branch.\n- Run `node scripts/harness/render-pr-body.mjs` or the documented command.\n- Run `scripts/harness/open-draft-pr.sh --dry-run`.\n- Run `scripts/harness/close-worktree.sh <sample-worktree>` after validation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T03/worktree-flow.log with every harness command and output.\n- evidence/M0-T03/rendered-pr-body.md with the generated PR body.\n- evidence/M0-T03/cleanup-status.txt with final `git worktree list` and `git status` outputs.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M0.T04",
+    "title": "[M0.T04] Standardize evidence folder and QA artifact conventions",
+    "sourcePath": "milestones-0-repository-harness-foundation/task-04-standardize-evidence-folder-and-qa-artifact-conventions.md",
+    "milestone": "M0 — Repository & Harness Foundation",
+    "priority": "P1",
+    "type": "Harness / QA",
+    "status": "Planned",
+    "dependencies": [
+      "M0.T01"
+    ],
+    "dependenciesText": "M0.T01",
+    "labels": [
+      "priority:P1",
+      "domain:harness"
+    ],
+    "body": "Source: `milestones-0-repository-harness-foundation/task-04-standardize-evidence-folder-and-qa-artifact-conventions.md`\n\nTask ID: M0.T04\nPriority: P1\nDependencies: M0.T01\n\n# M0.T04 — Standardize evidence folder and QA artifact conventions\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P1  \n**Type:** Harness / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- qa-specialist\n- harness-lead\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create or update documentation for evidence/<task-id>/ conventions.\n- Define naming for screenshots, curl outputs, smart-contract logs, and E2E reports.\n- Define when large binary artifacts should be committed versus attached only to PR.\n- Ensure PR template asks for evidence paths and command outputs.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer small text logs committed to the repository and link heavier attachments in the PR.\n- Keep evidence deterministic and reviewable.\n\n## Acceptance criteria\n\n- Evidence conventions are documented in English.\n- Every future task can point to a specific evidence/<task-id>/ folder.\n- PR template includes an Evidence section with checkboxes for frontend, backend, smart-contract, and E2E evidence.\n- No secrets or personal data are allowed in evidence artifacts.\n\n## Required QA and test plan\n\n- Run `npm run validate` to ensure docs/templates are accepted by the repository validators.\n- Create a sample evidence README for a fake task and ensure it matches conventions, then remove or keep it as documented sample.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T04/evidence-convention-check.md summarizing the convention.\n- evidence/M0-T04/validate.log with validation command output.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M0.T05",
+    "title": "[M0.T05] Prepare GitHub issue import metadata for milestones and tasks",
+    "sourcePath": "milestones-0-repository-harness-foundation/task-05-prepare-github-issue-import-metadata-for-milestones-and-tasks.md",
+    "milestone": "M0 — Repository & Harness Foundation",
+    "priority": "P1",
+    "type": "Project Management / Harness",
+    "status": "Planned",
+    "dependencies": [
+      "M0.T01",
+      "Backlog package approved by human owner"
+    ],
+    "dependenciesText": "M0.T01; Backlog package approved by human owner",
+    "labels": [
+      "priority:P1",
+      "domain:harness"
+    ],
+    "body": "Source: `milestones-0-repository-harness-foundation/task-05-prepare-github-issue-import-metadata-for-milestones-and-tasks.md`\n\nTask ID: M0.T05\nPriority: P1\nDependencies: M0.T01; Backlog package approved by human owner\n\n# M0.T05 — Prepare GitHub issue import metadata for milestones and tasks\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P1  \n**Type:** Project Management / Harness  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n- Backlog package approved by human owner\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Convert approved milestone/task markdown into GitHub issue-ready metadata if desired.\n- Preserve task IDs, priorities, dependencies, and QA requirements.\n- Create labels proposal for milestone, priority, domain, and QA type.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Do not create issues automatically unless explicitly instructed by the human owner.\n- A prepared import file or CLI dry-run is sufficient for this task.\n\n## Acceptance criteria\n\n- Task IDs can be traced from markdown files to proposed GitHub issues.\n- Labels include at minimum priority:P0/P1/P2, domain:frontend/backend/smartcontract/harness, qa:playwright/curl/foundry/e2e.\n- Milestone names exactly match the approved milestone names.\n\n## Required QA and test plan\n\n- Run the proposed import generation in dry-run mode.\n- Validate generated issue payloads are valid JSON or valid GitHub CLI commands.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T05/issue-import-dry-run.log.\n- evidence/M0-T05/labels-proposal.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T01",
+    "title": "[M1.T01] Finalize template acceptance policy and initial category decision",
+    "sourcePath": "milestones-1-product-rules-template-system/task-01-finalize-template-acceptance-policy-and-initial-category-decision.md",
+    "milestone": "M1 — Product Rules & Template System",
+    "priority": "P0",
+    "type": "Product Rules",
+    "status": "Planned",
+    "dependencies": [
+      "Polymarket API access confirmed or fixture-only fallback approved",
+      "Human category decision: collectibles or sports fallback"
+    ],
+    "dependenciesText": "Polymarket API access confirmed or fixture-only fallback approved; Human category decision: collectibles or sports fallback",
+    "labels": [
+      "priority:P0",
+      "domain:product"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-01-finalize-template-acceptance-policy-and-initial-category-decision.md`\n\nTask ID: M1.T01\nPriority: P0\nDependencies: Polymarket API access confirmed or fixture-only fallback approved; Human category decision: collectibles or sports fallback\n\n# M1.T01 — Finalize template acceptance policy and initial category decision\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- Polymarket API access confirmed or fixture-only fallback approved\n- Human category decision: collectibles or sports fallback\n\n## Recommended specialist subagents\n\n- product-architect\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Write the product acceptance policy for templates.\n- Define collectibles-first selection rules and sports fallback rules.\n- Define rejection rules for odds/probability-as-result, subjective markets, multi-outcome markets, negative-risk markets, and ambiguous resolution rules.\n- Define how void/ambiguous outcomes are handled.\n- Define how loserFeeBps is selected per template and how the minimum loser fee is anchored to at least 3x estimated gas fee.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- The policy should be strict for MVP and can leave expansion categories for future milestones.\n- Use fixtures if live Polymarket API access is not yet available, but clearly mark live validation as blocked.\n\n## Acceptance criteria\n\n- Policy states that final result must be deterministic and objective.\n- Policy states that Polymarket prices, odds, and probabilities are never accepted as final result.\n- Policy defines accepted market shape: binary, standard, clear conditionId, clear outcome labels, clear close time, clear rules source.\n- Policy defines initial category and fallback decision with explicit human approval reference.\n- Policy defines loserFee formula: `loserFee = max(stake * loserFeeBps / 10_000, minLoserFee)` where `minLoserFee` is configured to cover at least 3x estimated gas fee.\n\n## Required QA and test plan\n\n- Run repository docs validation if available: `npm run validate`.\n- Review the policy against at least five example markets or fixtures and document accepted/rejected decisions.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T01/policy-review.md with example decisions and rejection reasons.\n- evidence/M1-T01/validate.log.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T02",
+    "title": "[M1.T02] Capture Polymarket API configuration and safe fixture strategy",
+    "sourcePath": "milestones-1-product-rules-template-system/task-02-capture-polymarket-api-configuration-and-safe-fixture-strategy.md",
+    "milestone": "M1 — Product Rules & Template System",
+    "priority": "P0",
+    "type": "Backend / Integration",
+    "status": "Planned",
+    "dependencies": [
+      "M1.T01",
+      "Polymarket API key or approved unauthenticated access path"
+    ],
+    "dependenciesText": "M1.T01; Polymarket API key or approved unauthenticated access path",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-02-capture-polymarket-api-configuration-and-safe-fixture-strategy.md`\n\nTask ID: M1.T02\nPriority: P0\nDependencies: M1.T01; Polymarket API key or approved unauthenticated access path\n\n# M1.T02 — Capture Polymarket API configuration and safe fixture strategy\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Integration  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- Polymarket API key or approved unauthenticated access path\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define environment variable names for Polymarket access without committing secrets.\n- Create fixture files for accepted and rejected markets.\n- Create a safe local/mock mode that does not require a live API key.\n- Document how QA should run live API checks when credentials are available.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Never commit the API key.\n- Fixture data should be sanitized and stable enough for deterministic tests.\n\n## Acceptance criteria\n\n- Backend config supports live and fixture modes.\n- Missing API key does not break local tests if fixture mode is enabled.\n- Fixtures include at least one collectibles candidate if available, otherwise at least one sports fallback fixture.\n- Rejected fixtures cover subjective, multi-outcome, missing conditionId, missing rules, and price-only examples.\n\n## Required QA and test plan\n\n- Run backend tests in fixture mode.\n- Run `curl` against the local template discovery fixture endpoint and capture response.\n- If API key is available, run one live discovery curl command and capture sanitized output.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T02/backend-fixture-test.log.\n- evidence/M1-T02/curl-template-fixtures.json.\n- evidence/M1-T02/live-api-check-sanitized.json or evidence note explaining dependency unavailable.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T03",
+    "title": "[M1.T03] Implement Polymarket market discovery adapter",
+    "sourcePath": "milestones-1-product-rules-template-system/task-03-implement-polymarket-market-discovery-adapter.md",
+    "milestone": "M1 — Product Rules & Template System",
+    "priority": "P0",
+    "type": "Backend / Integration",
+    "status": "Planned",
+    "dependencies": [
+      "M1.T01",
+      "M1.T02"
+    ],
+    "dependenciesText": "M1.T01; M1.T02",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-03-implement-polymarket-market-discovery-adapter.md`\n\nTask ID: M1.T03\nPriority: P0\nDependencies: M1.T01; M1.T02\n\n# M1.T03 — Implement Polymarket market discovery adapter\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Integration  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- M1.T02\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement a backend adapter that fetches or loads candidate Polymarket markets.\n- Normalize raw market fields into internal candidate objects.\n- Support category priority: collectibles first, sports fallback.\n- Expose a local endpoint or CLI command to list normalized candidates.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Adapter implementation may use any backend framework selected for the repo, but it must be testable with fixtures.\n- Keep raw provider data separate from normalized template candidates.\n\n## Acceptance criteria\n\n- Adapter returns deterministic normalized objects from fixtures.\n- Adapter never returns odds/probabilities as result fields.\n- Adapter captures conditionId, marketId, questionId, outcomes, close time, category, source URL/reference, and rules text/hash input when available.\n- Adapter surfaces provider errors and missing fields with explicit reasons.\n\n## Required QA and test plan\n\n- Run backend unit tests for adapter fixture normalization.\n- Start backend locally and run `curl -sS http://localhost:<port>/templates/candidates?mode=fixture | jq`.\n- Capture curl output and verify normalized fields are present.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T03/adapter-tests.log.\n- evidence/M1-T03/curl-candidates.json.\n- evidence/M1-T03/normalization-summary.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T04",
+    "title": "[M1.T04] Define deterministic template schema and templateHash",
+    "sourcePath": "milestones-1-product-rules-template-system/task-04-define-deterministic-template-schema-and-templatehash.md",
+    "milestone": "M1 — Product Rules & Template System",
+    "priority": "P0",
+    "type": "Backend / Smart Contract Interface",
+    "status": "Planned",
+    "dependencies": [
+      "M1.T01",
+      "M1.T03"
+    ],
+    "dependenciesText": "M1.T01; M1.T03",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-04-define-deterministic-template-schema-and-templatehash.md`\n\nTask ID: M1.T04\nPriority: P0\nDependencies: M1.T01; M1.T03\n\n# M1.T04 — Define deterministic template schema and templateHash\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Smart Contract Interface  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- M1.T03\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define the canonical Template schema shared by backend and smart contract.\n- Define deterministic templateHash input ordering and encoding.\n- Include loserFeeBps and minLoserFee policy fields where appropriate.\n- Add tests proving equal inputs produce equal hashes and changed fields change the hash.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer an ABI-compatible hash definition that the smart contract can reproduce.\n- Avoid hashing non-canonical JSON serialization unless canonicalization is formally specified and tested.\n\n## Acceptance criteria\n\n- Template schema includes marketId, conditionId, questionId, outcome labels, rulesHash, close time, resolution deadline, category, loserFeeBps, and active status.\n- templateHash is deterministic across backend tests and Solidity tests or documented test vectors.\n- Changing any critical field changes templateHash.\n- Non-critical display metadata is either excluded from hash or explicitly included by design.\n\n## Required QA and test plan\n\n- Run backend hash tests.\n- Run local smart-contract hash vector test or a placeholder contract/vector test if M2 contract is not implemented yet.\n- Run curl endpoint to fetch a template candidate and verify the returned templateHash matches the test vector.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T04/hash-tests.log.\n- evidence/M1-T04/template-hash-vectors.json.\n- evidence/M1-T04/curl-template-hash.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T05",
+    "title": "[M1.T05] Implement strict template filters and rejection reasons",
+    "sourcePath": "milestones-1-product-rules-template-system/task-05-implement-strict-template-filters-and-rejection-reasons.md",
+    "milestone": "M1 — Product Rules & Template System",
+    "priority": "P0",
+    "type": "Backend / Product Rules",
+    "status": "Planned",
+    "dependencies": [
+      "M1.T01",
+      "M1.T03",
+      "M1.T04"
+    ],
+    "dependenciesText": "M1.T01; M1.T03; M1.T04",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-05-implement-strict-template-filters-and-rejection-reasons.md`\n\nTask ID: M1.T05\nPriority: P0\nDependencies: M1.T01; M1.T03; M1.T04\n\n# M1.T05 — Implement strict template filters and rejection reasons\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- M1.T03\n- M1.T04\n\n## Recommended specialist subagents\n\n- backend-specialist\n- product-architect\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement filtering logic for accepted and rejected templates.\n- Produce machine-readable rejection reasons.\n- Prevent near-expiry, ambiguous, multi-outcome, negative-risk, subjective, and price-only markets from being accepted.\n- Expose accepted templates and rejected candidates for QA/debugging.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Be conservative. False negatives are acceptable for MVP; false positives are not.\n- Keep rejection reasons stable for tests and useful for operators.\n\n## Acceptance criteria\n\n- Accepted endpoint returns only templates that satisfy all MVP rules.\n- Rejected endpoint returns rejected candidates with reason codes.\n- Tests cover every rejection reason defined in the policy.\n- No template is accepted if conditionId is missing, outcome count is not exactly two, rules are missing, or result depends on odds/probabilities.\n\n## Required QA and test plan\n\n- Run backend filter unit tests.\n- Run `curl -sS http://localhost:<port>/templates?mode=fixture | jq` and verify only accepted templates appear.\n- Run `curl -sS http://localhost:<port>/templates/rejected?mode=fixture | jq` and verify rejection reasons.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T05/filter-tests.log.\n- evidence/M1-T05/curl-accepted-templates.json.\n- evidence/M1-T05/curl-rejected-candidates.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T06",
+    "title": "[M1.T06] Specify and stub template registry publisher",
+    "sourcePath": "milestones-1-product-rules-template-system/task-06-specify-and-stub-template-registry-publisher.md",
+    "milestone": "M1 — Product Rules & Template System",
+    "priority": "P1",
+    "type": "Backend / Smart Contract Interface",
+    "status": "Planned",
+    "dependencies": [
+      "M1.T04",
+      "M1.T05"
+    ],
+    "dependenciesText": "M1.T04; M1.T05",
+    "labels": [
+      "priority:P1",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-06-specify-and-stub-template-registry-publisher.md`\n\nTask ID: M1.T06\nPriority: P1\nDependencies: M1.T04; M1.T05\n\n# M1.T06 — Specify and stub template registry publisher\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P1  \n**Type:** Backend / Smart Contract Interface  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T04\n- M1.T05\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Specify how accepted templates are published to the smart contract registry.\n- Create a backend publisher interface with mock/local implementation.\n- Define expected contract call data and events for template registration.\n- Ensure the backend cannot publish rejected templates.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- This task can use a stub if the full M2 contract is not ready.\n- Keep interface stable enough for M2 and M3 to consume.\n\n## Acceptance criteria\n\n- Publisher accepts only templates that passed M1 filters.\n- Publisher emits or stores an auditable record of the templateHash and source metadata.\n- Publisher rejects stale, inactive, or missing-field templates before contract interaction.\n- Contract call data or mock call payload is test-covered.\n\n## Required QA and test plan\n\n- Run backend publisher tests.\n- Run smart-contract local stub test if available, or a call-data validation test.\n- Run curl command to request publication of an accepted fixture and a rejected fixture; accepted returns a publishable payload, rejected returns an error.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T06/publisher-tests.log.\n- evidence/M1-T06/curl-publish-accepted.json.\n- evidence/M1-T06/curl-publish-rejected.json.\n- evidence/M1-T06/contract-call-payload.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T07",
+    "title": "[M1.T07] Create template QA fixture and evidence pack",
+    "sourcePath": "milestones-1-product-rules-template-system/task-07-create-template-qa-fixture-and-evidence-pack.md",
+    "milestone": "M1 — Product Rules & Template System",
+    "priority": "P1",
+    "type": "QA / Product Rules",
+    "status": "Planned",
+    "dependencies": [
+      "M1.T02",
+      "M1.T03",
+      "M1.T04",
+      "M1.T05"
+    ],
+    "dependenciesText": "M1.T02; M1.T03; M1.T04; M1.T05",
+    "labels": [
+      "priority:P1",
+      "domain:product",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-07-create-template-qa-fixture-and-evidence-pack.md`\n\nTask ID: M1.T07\nPriority: P1\nDependencies: M1.T02; M1.T03; M1.T04; M1.T05\n\n# M1.T07 — Create template QA fixture and evidence pack\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P1  \n**Type:** QA / Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T02\n- M1.T03\n- M1.T04\n- M1.T05\n\n## Recommended specialist subagents\n\n- qa-specialist\n- backend-specialist\n- product-architect\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create a stable fixture pack for accepted and rejected template scenarios.\n- Document expected outputs for discovery, normalization, filtering, and hashing.\n- Create a repeatable QA script or checklist for template system validation.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Fixture coverage matters more than live API coverage for deterministic CI.\n- Live API checks should be optional and sanitized.\n\n## Acceptance criteria\n\n- Fixture pack includes accepted, rejected, and edge-case templates.\n- Expected outputs are committed and compared in tests or snapshot tests.\n- QA checklist can be followed by a human without relying on hidden agent context.\n- All evidence files avoid secrets and personal data.\n\n## Required QA and test plan\n\n- Run full backend template test suite.\n- Run curl discovery, accepted, rejected, and publish endpoints in fixture mode.\n- If available, run live API discovery and compare category availability without accepting live templates automatically.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T07/template-fixture-qa.log.\n- evidence/M1-T07/curl-fixture-discovery.json.\n- evidence/M1-T07/fixture-coverage.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T01",
+    "title": "[M2.T01] Set up Foundry smart-contract test environment and mocks",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-01-set-up-foundry-smart-contract-test-environment-and-mocks.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Test Infrastructure",
+    "status": "Planned",
+    "dependencies": [],
+    "dependenciesText": "",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-01-set-up-foundry-smart-contract-test-environment-and-mocks.md`\n\nTask ID: M2.T01\nPriority: P0\nDependencies: None\n\n# M2.T01 — Set up Foundry smart-contract test environment and mocks\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Test Infrastructure  \n**Status:** Planned\n\n## Dependencies\n\n- None\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Initialize or complete Foundry configuration in smartcontract/.\n- Add MockBRL1 implementing ERC-20 and ERC-2612 permit for local tests.\n- Add MockPolymarketCTF with configurable payout vectors.\n- Add reusable test base with deterministic maker/taker private keys and addresses.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use local mocks as the CI baseline; no external RPC should be required for normal tests.\n- Keep mock behavior close to the interfaces used by the production contract.\n\n## Acceptance criteria\n\n- smartcontract/foundry.toml exists and is documented.\n- MockBRL1 supports minting in tests, permit signing, nonces, DOMAIN_SEPARATOR, transfer, and transferFrom.\n- MockPolymarketCTF supports unresolved, player A wins, player B wins, and void/ambiguous payout vectors.\n- A smoke test proves `forge test` runs successfully without network access.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test`.\n- Run `cd smartcontract && forge test -vvv --match-test test_MocksSmoke` or equivalent smoke test.\n- Capture mock mint, permit, and payout vector test outcomes in logs.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T01/forge-test.log.\n- evidence/M2-T01/mocks-smoke.log.\n- evidence/M2-T01/mock-capabilities.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T02",
+    "title": "[M2.T02] Implement BetEscrowBRL1 contract skeleton and configuration",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-02-implement-betescrowbrl1-contract-skeleton-and-configuration.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Core",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T01"
+    ],
+    "dependenciesText": "M2.T01",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-02-implement-betescrowbrl1-contract-skeleton-and-configuration.md`\n\nTask ID: M2.T02\nPriority: P0\nDependencies: M2.T01\n\n# M2.T02 — Implement BetEscrowBRL1 contract skeleton and configuration\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Core  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T01\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create BetEscrowBRL1 contract with immutable BRL1 and Polymarket CTF addresses.\n- Add treasury configuration and access control for administrative functions.\n- Define BetStatus, Template, Bet structs, and core events.\n- Add min/max stake and max loserFeeBps configuration.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer simple, explicit storage structures over overly generic abstractions.\n- BRL1 is the only token in MVP; do not build token allowlist complexity unless needed for tests.\n\n## Acceptance criteria\n\n- Contract compiles with no warnings that indicate broken storage, unused critical vars, or missing overrides.\n- Constructor rejects zero addresses for BRL1, CTF, and treasury.\n- Configuration setters are access-controlled and emit events.\n- Initial default limits are test-covered.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*Config*.t.sol\" -vvv` or equivalent.\n- Run full `cd smartcontract && forge test`.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T02/config-tests.log.\n- evidence/M2-T02/contract-storage-summary.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T03",
+    "title": "[M2.T03] Implement EIP-712 BetOffer and BetAcceptance validation",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-03-implement-eip-712-betoffer-and-betacceptance-validation.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Signatures",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T02"
+    ],
+    "dependenciesText": "M2.T02",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-03-implement-eip-712-betoffer-and-betacceptance-validation.md`\n\nTask ID: M2.T03\nPriority: P0\nDependencies: M2.T02\n\n# M2.T03 — Implement EIP-712 BetOffer and BetAcceptance validation\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Signatures  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T02\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define EIP-712 domain for the escrow contract.\n- Define BetOffer and BetAcceptance type hashes.\n- Validate maker and taker signatures, nonces, deadlines, and offerHash reuse.\n- Reject same-player bets, same-outcome bets, tampered fields, and unauthorized takers.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use deterministic test private keys and Foundry vm.sign helpers.\n- Use explicit revert errors to improve QA and backend debugging.\n\n## Acceptance criteria\n\n- Valid BetOffer and BetAcceptance signatures pass.\n- Signature by wrong private key fails.\n- Expired offer or acceptance fails.\n- Reused offerHash or nonce fails.\n- Any tampering with stake, templateHash, conditionId, outcomes, taker, or deadlines invalidates the signature.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*EIP712*.t.sol\" -vvv`.\n- Run full `cd smartcontract && forge test`.\n- Capture digest/test vector values for backend compatibility.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T03/eip712-tests.log.\n- evidence/M2-T03/eip712-test-vectors.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T04",
+    "title": "[M2.T04] Implement ERC-2612 permit-based atomic funding",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-04-implement-erc-2612-permit-based-atomic-funding.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Funding",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T03"
+    ],
+    "dependenciesText": "M2.T03",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-04-implement-erc-2612-permit-based-atomic-funding.md`\n\nTask ID: M2.T04\nPriority: P0\nDependencies: M2.T03\n\n# M2.T04 — Implement ERC-2612 permit-based atomic funding\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Funding  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T03\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement acceptBetWithPermits or equivalent funding entrypoint.\n- Call BRL1 permit for maker and taker.\n- Transfer stake + loserFee from both users into escrow in one transaction.\n- Create betId only after both sides have been successfully funded.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Atomicity is the most important property: if any permit or transfer fails, the transaction must revert with no partial funding.\n- Use SafeERC20-compatible patterns where applicable.\n\n## Acceptance criteria\n\n- Valid permits fund a bet and emit BetFunded.\n- Expired permit fails.\n- Wrong spender permit fails.\n- Permit value lower than deposit requirement fails.\n- Insufficient balance fails without creating a bet.\n- If taker funding fails after maker permit succeeds, final token balances remain unchanged due to transaction revert.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*Funding*.t.sol\" -vvv`.\n- Run full `cd smartcontract && forge test`.\n- Capture pre/post balance assertions for successful and reverted funding cases.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T04/funding-tests.log.\n- evidence/M2-T04/atomicity-outcomes.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T05",
+    "title": "[M2.T05] Implement loserFee formula with gas-anchored minimum",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-05-implement-loserfee-formula-with-gas-anchored-minimum.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Finance",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T02",
+      "M2.T04"
+    ],
+    "dependenciesText": "M2.T02; M2.T04",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-05-implement-loserfee-formula-with-gas-anchored-minimum.md`\n\nTask ID: M2.T05\nPriority: P0\nDependencies: M2.T02; M2.T04\n\n# M2.T05 — Implement loserFee formula with gas-anchored minimum\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Finance  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T02\n- M2.T04\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement on-chain fee validation for `loserFee = max(stake * loserFeeBps / 10_000, minLoserFee)`.\n- Add configurable minLoserFee in BRL1 units controlled by authorized operator/admin.\n- Document that backend/relayer must set minLoserFee to at least 3x estimated gas fee.\n- Reject bets where provided loserFee does not match contract-calculated value.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- The contract should not attempt to calculate live gas cost from chain state.\n- For MVP, minLoserFee is an operator-configured BRL1 value derived from backend gas estimation.\n\n## Acceptance criteria\n\n- Percent fee path works when percentage is above minLoserFee.\n- Minimum fee path works when 3x gas-anchored minLoserFee is above percentage fee.\n- Changing minLoserFee emits an event and is access-controlled.\n- Incorrect loserFee in BetOffer fails validation.\n- maxLoserFeeBps is enforced.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*Fee*.t.sol\" -vvv`.\n- Run full `cd smartcontract && forge test`.\n- Capture fee calculation table for small stake, normal stake, and max stake cases.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T05/fee-tests.log.\n- evidence/M2-T05/fee-calculation-table.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T06",
+    "title": "[M2.T06] Implement on-chain template registry enforcement",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-06-implement-on-chain-template-registry-enforcement.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Product Rules",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T02",
+      "M1.T04 approved schema or compatible local placeholder"
+    ],
+    "dependenciesText": "M2.T02; M1.T04 approved schema or compatible local placeholder",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-06-implement-on-chain-template-registry-enforcement.md`\n\nTask ID: M2.T06\nPriority: P0\nDependencies: M2.T02; M1.T04 approved schema or compatible local placeholder\n\n# M2.T06 — Implement on-chain template registry enforcement\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T02\n- M1.T04 approved schema or compatible local placeholder\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Add template registration, deactivation, and lookup functions.\n- Store conditionId, bettingCloseAt, resolutionDeadline, loserFeeBps, and active flag.\n- Enforce registered and active template use in funding.\n- Reject funding after bettingCloseAt.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Keep registry minimal. Do not store large display metadata on-chain.\n- Use templateHash as primary identifier.\n\n## Acceptance criteria\n\n- Registered active template can be used for a bet.\n- Unregistered, inactive, expired, or mismatched conditionId template fails.\n- Template registration and deactivation are access-controlled.\n- Template events include enough fields for backend indexer to sync.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*Template*.t.sol\" -vvv`.\n- Run full `cd smartcontract && forge test`.\n- Capture event assertions for register/deactivate/funding validation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T06/template-registry-tests.log.\n- evidence/M2-T06/template-events.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T07",
+    "title": "[M2.T07] Implement escrow settlement and payout math",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-07-implement-escrow-settlement-and-payout-math.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Settlement",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T04",
+      "M2.T05",
+      "M2.T06"
+    ],
+    "dependenciesText": "M2.T04; M2.T05; M2.T06",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-07-implement-escrow-settlement-and-payout-math.md`\n\nTask ID: M2.T07\nPriority: P0\nDependencies: M2.T04; M2.T05; M2.T06\n\n# M2.T07 — Implement escrow settlement and payout math\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Settlement  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T04\n- M2.T05\n- M2.T06\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement internal settlement for player A win and player B win.\n- Implement winner payout: `2 * stake + own loserFee`.\n- Implement treasury payout: loserFee of losing player.\n- Implement void/refund path that returns `stake + loserFee` to each player and pays treasury zero.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Update bet status before external token transfers where appropriate to reduce reentrancy risk.\n- Emit complete settlement events for backend indexing.\n\n## Acceptance criteria\n\n- Player A win pays player A exactly `2 * stake + loserFee` and treasury exactly `loserFee`.\n- Player B win pays player B exactly `2 * stake + loserFee` and treasury exactly `loserFee`.\n- Void refunds both players exactly `stake + loserFee`.\n- Double settlement fails.\n- Settlement events contain winner, loser, winningOutcomeIndex, winnerPayout, and treasuryPayout.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*Settlement*.t.sol\" -vvv`.\n- Run full `cd smartcontract && forge test`.\n- Capture balance delta table before and after each settlement scenario.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T07/settlement-tests.log.\n- evidence/M2-T07/balance-delta-table.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T08",
+    "title": "[M2.T08] Implement automatic Polymarket CTF resolution logic",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-08-implement-automatic-polymarket-ctf-resolution-logic.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Resolution",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T06",
+      "M2.T07"
+    ],
+    "dependenciesText": "M2.T06; M2.T07",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-08-implement-automatic-polymarket-ctf-resolution-logic.md`\n\nTask ID: M2.T08\nPriority: P0\nDependencies: M2.T06; M2.T07\n\n# M2.T08 — Implement automatic Polymarket CTF resolution logic\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Resolution  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T06\n- M2.T07\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement resolveFromPolymarket(uint256 betId) or equivalent.\n- Read payoutDenominator and payoutNumerators from the CTF interface.\n- Resolve winner based on payout vector for the two template outcomes.\n- Void/refund ambiguous, equal, or non-strict outcomes according to MVP policy.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Do not read or use odds, probabilities, or API prices.\n- Backend may trigger the function, but contract decides the outcome from CTF state.\n\n## Acceptance criteria\n\n- denominator = 0 reverts as not resolved.\n- payout [1,0] resolves outcome 0 winner.\n- payout [0,1] resolves outcome 1 winner.\n- equal/ambiguous payout vectors produce void/refund.\n- Mismatched outcome indexes or invalid CTF shape fail safely.\n- Any address may trigger resolution or resolver access policy is explicitly documented and tested.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*Resolution*.t.sol\" -vvv`.\n- Run full `cd smartcontract && forge test`.\n- Capture CTF payout vector scenarios and resulting bet outcomes.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T08/resolution-tests.log.\n- evidence/M2-T08/ctf-outcome-matrix.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T09",
+    "title": "[M2.T09] Implement expiry, pause, and security controls",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-09-implement-expiry-pause-and-security-controls.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P0",
+    "type": "Smart Contract / Security",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T07",
+      "M2.T08"
+    ],
+    "dependenciesText": "M2.T07; M2.T08",
+    "labels": [
+      "priority:P0",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-09-implement-expiry-pause-and-security-controls.md`\n\nTask ID: M2.T09\nPriority: P0\nDependencies: M2.T07; M2.T08\n\n# M2.T09 — Implement expiry, pause, and security controls\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P0  \n**Type:** Smart Contract / Security  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T07\n- M2.T08\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- security-reviewer\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Add expiry/void path after resolutionDeadline when CTF resolution is unavailable.\n- Add pause/unpause controls for new funding.\n- Ensure refund/void paths remain available while paused if that is the selected policy.\n- Add reentrancy protections and tests with malicious token or test harness if feasible.\n- Enforce min/max stake and access controls.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer keeping user recovery paths available even when new bets are paused.\n- Document any security tradeoff that cannot be fully tested in MVP.\n\n## Acceptance criteria\n\n- New bets are blocked while paused.\n- Void/refund path works while paused if policy says refunds remain available.\n- Bet can be voided/refunded after resolutionDeadline if unresolved.\n- Before resolutionDeadline, expiry/refund fails unless result is ambiguous/void.\n- Reentrancy test passes or documented threat model explains why it is not applicable.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test --match-path \"test/*Security*.t.sol\" -vvv`.\n- Run full `cd smartcontract && forge test`.\n- Capture pause/refund and expiry state transition outcomes.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T09/security-tests.log.\n- evidence/M2-T09/state-transition-table.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M2.T10",
+    "title": "[M2.T10] Complete smart-contract QA suite and optional Polygon fork compatibility",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/task-10-complete-smart-contract-qa-suite-and-optional-polygon-fork-compatibility.md",
+    "milestone": "M2 — Smart Contract Settlement Core",
+    "priority": "P1",
+    "type": "Smart Contract / QA",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T01",
+      "M2.T02",
+      "M2.T03",
+      "M2.T04",
+      "M2.T05",
+      "M2.T06",
+      "M2.T07",
+      "M2.T08",
+      "M2.T09"
+    ],
+    "dependenciesText": "M2.T01; M2.T02; M2.T03; M2.T04; M2.T05; M2.T06; M2.T07; M2.T08; M2.T09",
+    "labels": [
+      "priority:P1",
+      "domain:smartcontract",
+      "qa:foundry"
+    ],
+    "body": "Source: `milestones-2-smart-contract-settlement-core/task-10-complete-smart-contract-qa-suite-and-optional-polygon-fork-compatibility.md`\n\nTask ID: M2.T10\nPriority: P1\nDependencies: M2.T01; M2.T02; M2.T03; M2.T04; M2.T05; M2.T06; M2.T07; M2.T08; M2.T09\n\n# M2.T10 — Complete smart-contract QA suite and optional Polygon fork compatibility\n\n**Milestone:** M2 — Smart Contract Settlement Core  \n**Priority:** P1  \n**Type:** Smart Contract / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T01\n- M2.T02\n- M2.T03\n- M2.T04\n- M2.T05\n- M2.T06\n- M2.T07\n- M2.T08\n- M2.T09\n\n## Recommended specialist subagents\n\n- blockchain-specialist\n- qa-specialist\n- security-reviewer\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Organize the full smart-contract test suite into meaningful files.\n- Add optional fork test instructions for BRL1 and Polymarket CTF compatibility using POLYGON_RPC_URL.\n- Add gas/reporting output if useful for estimating minLoserFee.\n- Create a final M2 smart-contract QA evidence pack.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Fork tests must not be required for CI if they need external RPC credentials.\n- Fork tests should be safe and read-only or deploy only into local fork state.\n\n## Acceptance criteria\n\n- `forge test` passes without external network access.\n- Optional fork command is documented and either passes or is explicitly marked blocked by missing RPC credential.\n- Test coverage includes all M2 Definition of Done items.\n- Smart-contract README or docs explain local testing commands and expected outcomes.\n\n## Required QA and test plan\n\n- Run `cd smartcontract && forge test`.\n- Run `cd smartcontract && forge test -vvv`.\n- If available, run `cd smartcontract && POLYGON_RPC_URL=... forge test --fork-url \"$POLYGON_RPC_URL\" --match-path \"test/*Fork*.t.sol\" -vvv`.\n- Record gas estimate data relevant to the 3x gasFee loserFee minimum.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M2-T10/forge-test.log.\n- evidence/M2-T10/forge-test-vvv.log.\n- evidence/M2-T10/fork-test.log or fork-test-blocked.md.\n- evidence/M2-T10/gas-estimates.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T01",
+    "title": "[M3.T01] Create backend service skeleton, configuration, and health checks",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-01-create-backend-service-skeleton-configuration-and-health-checks.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Foundation",
+    "status": "Planned",
+    "dependencies": [
+      "M0 completed or repository bootstrap available"
+    ],
+    "dependenciesText": "M0 completed or repository bootstrap available",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-01-create-backend-service-skeleton-configuration-and-health-checks.md`\n\nTask ID: M3.T01\nPriority: P0\nDependencies: M0 completed or repository bootstrap available\n\n# M3.T01 — Create backend service skeleton, configuration, and health checks\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Foundation  \n**Status:** Planned\n\n## Dependencies\n\n- M0 completed or repository bootstrap available\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create backend app structure inside backend/.\n- Add environment config loading and validation.\n- Add health and readiness endpoints.\n- Add test setup and local dev command.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Framework choice can be selected by the agent if it integrates cleanly with the monorepo and tests.\n- Keep a fixture/mock mode available by default.\n\n## Acceptance criteria\n\n- `npm --workspace @duelly/backend test` passes.\n- Backend starts locally without external secrets in mock mode.\n- `GET /health` returns service status and version/build metadata if available.\n- Invalid required environment variables fail fast with clear messages outside mock mode.\n\n## Required QA and test plan\n\n- Run backend tests.\n- Start backend locally.\n- Run `curl -sS http://localhost:<port>/health` and capture response.\n- Run `curl -sS http://localhost:<port>/ready` if readiness endpoint exists.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T01/backend-tests.log.\n- evidence/M3-T01/curl-health.json.\n- evidence/M3-T01/curl-ready.json or readiness-not-applicable.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T02",
+    "title": "[M3.T02] Implement auth, session, and user model for MVP",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-02-implement-auth-session-and-user-model-for-mvp.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Auth",
+    "status": "Planned",
+    "dependencies": [
+      "M3.T01"
+    ],
+    "dependenciesText": "M3.T01",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-02-implement-auth-session-and-user-model-for-mvp.md`\n\nTask ID: M3.T02\nPriority: P0\nDependencies: M3.T01\n\n# M3.T02 — Implement auth, session, and user model for MVP\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Auth  \n**Status:** Planned\n\n## Dependencies\n\n- M3.T01\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n- security-reviewer\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement MVP auth/session model suitable for embedded wallet onboarding.\n- Create user records and stable user identifiers.\n- Add session validation middleware for protected endpoints.\n- Support mock auth mode for local QA.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use mock auth in local tests if a production auth provider is not selected yet.\n- Do not expose secrets or wallet private material through API responses.\n\n## Acceptance criteria\n\n- Unauthenticated protected requests are rejected.\n- Authenticated mock user can call protected endpoints.\n- User model includes id, display identifier, wallet linkage placeholder, and ledger linkage placeholder.\n- Session errors are consistent and machine-readable.\n\n## Required QA and test plan\n\n- Run backend auth tests.\n- Run curl unauthenticated request to a protected endpoint and verify 401/403.\n- Run curl authenticated request using mock token/header and verify 200 response.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T02/auth-tests.log.\n- evidence/M3-T02/curl-unauthenticated.json.\n- evidence/M3-T02/curl-authenticated.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T03",
+    "title": "[M3.T03] Implement wallet abstraction provider interface",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-03-implement-wallet-abstraction-provider-interface.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Wallets",
+    "status": "Planned",
+    "dependencies": [
+      "M3.T02"
+    ],
+    "dependenciesText": "M3.T02",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-03-implement-wallet-abstraction-provider-interface.md`\n\nTask ID: M3.T03\nPriority: P0\nDependencies: M3.T02\n\n# M3.T03 — Implement wallet abstraction provider interface\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Wallets  \n**Status:** Planned\n\n## Dependencies\n\n- M3.T02\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- security-reviewer\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define an interface for embedded wallet provider operations.\n- Support creating or linking a wallet for a user.\n- Support external wallet mode for users who already hold BRL1.\n- Add mock wallet provider for local tests.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Keep provider-specific SDK usage behind an adapter.\n- Never store private keys unless explicitly required by a chosen provider and approved by security review.\n\n## Acceptance criteria\n\n- User can have an embedded wallet address in mock mode.\n- User can link an external wallet address in mock mode.\n- Wallet ownership verification requirement is documented for external wallet mode.\n- API responses show safe public wallet metadata only.\n\n## Required QA and test plan\n\n- Run backend wallet tests.\n- Run curl to create mock embedded wallet.\n- Run curl to link mock external wallet.\n- Run curl to fetch user wallet metadata.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T03/wallet-tests.log.\n- evidence/M3-T03/curl-create-wallet.json.\n- evidence/M3-T03/curl-link-wallet.json.\n- evidence/M3-T03/curl-wallet-metadata.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T04",
+    "title": "[M3.T04] Implement Pix, Stripe, brokerage provider abstractions, and user ledger fees",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-04-implement-pix-stripe-brokerage-provider-abstractions-and-user-ledger-fee.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Payments / Ledger",
+    "status": "Planned",
+    "dependencies": [
+      "M3.T01",
+      "Stripe account",
+      "BRL1 brokerage/provider decision"
+    ],
+    "dependenciesText": "M3.T01; Stripe account; BRL1 brokerage/provider decision",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-04-implement-pix-stripe-brokerage-provider-abstractions-and-user-ledger-fee.md`\n\nTask ID: M3.T04\nPriority: P0\nDependencies: M3.T01; Stripe account; BRL1 brokerage/provider decision\n\n# M3.T04 — Implement Pix, Stripe, brokerage provider abstractions, and user ledger fees\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Payments / Ledger  \n**Status:** Planned\n\n## Dependencies\n\n- M3.T01\n- Stripe account\n- BRL1 brokerage/provider decision\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n- security-reviewer\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create provider interfaces for deposit, withdrawal, and BRL1 purchase/sale operations.\n- Implement mock providers for local testing.\n- Implement user ledger entries for fiat deposit, BRL1 purchase, brokerage transaction fee, BRL1 credit, withdrawal, and withdrawal fee.\n- Ensure brokerage transaction fees are deducted from user balance when money moves into or out of the platform, separate from loserFee.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Real provider integrations may be blocked until credentials and contracts are available; mocks must still be complete.\n- Ledger must be auditable and should not merge brokerage fees with betting fees.\n\n## Acceptance criteria\n\n- Deposit mock flow records gross deposit, brokerage fee, net BRL1 credited, and provider reference.\n- Withdrawal mock flow records withdrawal amount, brokerage/transaction fee, net user payout, and provider reference.\n- Ledger exposes immutable transaction records through a protected API.\n- Fee values are visible to frontend through quote endpoints before user confirmation.\n- Brokerage fees are never paid to the smart-contract treasury unless explicitly configured in a later milestone.\n\n## Required QA and test plan\n\n- Run backend ledger/payment tests.\n- Run curl to request deposit quote and verify brokerage fee field.\n- Run curl to simulate deposit confirmation and verify net BRL1 credit.\n- Run curl to request withdrawal quote and verify fee deduction.\n- Run curl to fetch ledger entries and verify gross/fee/net separation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T04/payment-ledger-tests.log.\n- evidence/M3-T04/curl-deposit-quote.json.\n- evidence/M3-T04/curl-deposit-confirmation.json.\n- evidence/M3-T04/curl-withdrawal-quote.json.\n- evidence/M3-T04/curl-ledger.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T05",
+    "title": "[M3.T05] Implement BRL1 balance service and betting availability checks",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-05-implement-brl1-balance-service-and-betting-availability-checks.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Blockchain",
+    "status": "Planned",
+    "dependencies": [
+      "M3.T03",
+      "M3.T04"
+    ],
+    "dependenciesText": "M3.T03; M3.T04",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-05-implement-brl1-balance-service-and-betting-availability-checks.md`\n\nTask ID: M3.T05\nPriority: P0\nDependencies: M3.T03; M3.T04\n\n# M3.T05 — Implement BRL1 balance service and betting availability checks\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Blockchain  \n**Status:** Planned\n\n## Dependencies\n\n- M3.T03\n- M3.T04\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement BRL1 balance lookup abstraction for embedded and external wallets.\n- Support mock balance mode and optional local Anvil/Foundry mode.\n- Expose available balance and required deposit amount for a bet.\n- Account for stake + loserFee requirement before creating/accepting an invite.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- For MVP UI, present BRL1 as BRL-equivalent balance while preserving exact token units internally.\n- Do not rely on off-chain ledger balance alone for contract funding availability.\n\n## Acceptance criteria\n\n- Balance endpoint returns wallet address, token symbol, raw units, display amount, and availability status.\n- Bet affordability check includes stake + loserFee.\n- Balance service distinguishes on-chain BRL1 balance from off-chain ledger events.\n- Errors for missing wallet or unsupported wallet mode are machine-readable.\n\n## Required QA and test plan\n\n- Run backend balance tests.\n- Run curl to fetch balance for embedded mock wallet.\n- Run curl to fetch affordability quote for a sample stake.\n- If local contract stack exists, run curl against local chain-backed balance mode.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T05/balance-tests.log.\n- evidence/M3-T05/curl-balance.json.\n- evidence/M3-T05/curl-affordability.json.\n- evidence/M3-T05/local-chain-balance.json or local-chain-not-available.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T06",
+    "title": "[M3.T06] Integrate template discovery and template publisher API",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-06-integrate-template-discovery-and-template-publisher-api.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Templates",
+    "status": "Planned",
+    "dependencies": [
+      "M1.T05",
+      "M1.T06",
+      "M3.T01"
+    ],
+    "dependenciesText": "M1.T05; M1.T06; M3.T01",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-06-integrate-template-discovery-and-template-publisher-api.md`\n\nTask ID: M3.T06\nPriority: P0\nDependencies: M1.T05; M1.T06; M3.T01\n\n# M3.T06 — Integrate template discovery and template publisher API\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Templates  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T05\n- M1.T06\n- M3.T01\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Expose APIs for accepted templates, rejected candidates, template details, and publish status.\n- Integrate template discovery/filtering from M1 into the backend service.\n- Integrate template publisher mock or contract-backed implementation.\n- Ensure published template state can be served to frontend.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Support fixture mode as a stable test baseline.\n- Do not expose unpublished/rejected templates as bettable templates.\n\n## Acceptance criteria\n\n- `GET /templates` returns only active accepted templates.\n- `GET /templates/:templateHash` returns normalized details and fee configuration.\n- `POST /templates/:templateHash/publish` only succeeds for accepted templates and authorized user/operator.\n- Rejected templates remain visible only through an internal/debug endpoint.\n\n## Required QA and test plan\n\n- Run backend template API tests.\n- Run curl for accepted templates list.\n- Run curl for rejected candidates endpoint.\n- Run curl to publish accepted fixture and rejected fixture.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T06/template-api-tests.log.\n- evidence/M3-T06/curl-templates.json.\n- evidence/M3-T06/curl-template-detail.json.\n- evidence/M3-T06/curl-publish-template.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T07",
+    "title": "[M3.T07] Implement invite, offer, and EIP-712 payload service",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-07-implement-invite-offer-and-eip-712-payload-service.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Betting",
+    "status": "Planned",
+    "dependencies": [
+      "M3.T02",
+      "M3.T05",
+      "M3.T06",
+      "M2.T03 test vectors or compatible local spec"
+    ],
+    "dependenciesText": "M3.T02; M3.T05; M3.T06; M2.T03 test vectors or compatible local spec",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-07-implement-invite-offer-and-eip-712-payload-service.md`\n\nTask ID: M3.T07\nPriority: P0\nDependencies: M3.T02; M3.T05; M3.T06; M2.T03 test vectors or compatible local spec\n\n# M3.T07 — Implement invite, offer, and EIP-712 payload service\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Betting  \n**Status:** Planned\n\n## Dependencies\n\n- M3.T02\n- M3.T05\n- M3.T06\n- M2.T03 test vectors or compatible local spec\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create invite records for 1x1 bets.\n- Generate BetOffer and BetAcceptance payloads compatible with the smart contract EIP-712 schema.\n- Calculate loserFee using current stake, loserFeeBps, and minLoserFee quote.\n- Manage invite expiration and taker restrictions.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Backend prepares signature payloads; users/wallets sign them.\n- Store offerHash and invite state for traceability.\n\n## Acceptance criteria\n\n- Create invite endpoint validates template active status and user affordability.\n- Create invite endpoint returns EIP-712 BetOffer payload and calculated loserFee.\n- Accept invite endpoint returns EIP-712 BetAcceptance payload and required funding amount.\n- Tampered stake/template/outcome is rejected by backend validation before relayer submission.\n- Expired invite cannot be accepted.\n\n## Required QA and test plan\n\n- Run backend invite tests.\n- Run curl to create invite for accepted template.\n- Run curl to accept invite as second user.\n- Run curl for tampered/expired invite negative cases.\n- Compare payload hash against M2 EIP-712 test vector if available.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T07/invite-tests.log.\n- evidence/M3-T07/curl-create-invite.json.\n- evidence/M3-T07/curl-accept-invite.json.\n- evidence/M3-T07/eip712-payload-vector.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T08",
+    "title": "[M3.T08] Implement relayer service and gas-fee-based minLoserFee quoting",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-08-implement-relayer-service-and-gas-fee-based-minloserfee-quoting.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Blockchain / Relayer",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T04",
+      "M2.T05",
+      "M3.T07"
+    ],
+    "dependenciesText": "M2.T04; M2.T05; M3.T07",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-08-implement-relayer-service-and-gas-fee-based-minloserfee-quoting.md`\n\nTask ID: M3.T08\nPriority: P0\nDependencies: M2.T04; M2.T05; M3.T07\n\n# M3.T08 — Implement relayer service and gas-fee-based minLoserFee quoting\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Blockchain / Relayer  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T04\n- M2.T05\n- M3.T07\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement relayer interface for acceptBetWithPermits and resolveFromPolymarket calls.\n- Implement gas fee estimator used to set or quote minLoserFee as at least 3x estimated gas cost in BRL1 terms.\n- Expose a fee quote endpoint used by frontend before user confirmation.\n- Support local Anvil/Foundry chain for QA.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- For MVP, use a conservative estimate and document assumptions for BRL1 conversion.\n- Relayer must log transaction hash, request id, user ids, bet id when available, and errors.\n\n## Acceptance criteria\n\n- Fee quote endpoint returns stake, percent fee, gas-anchored minimum fee, selected loserFee, and explanation fields.\n- Selected loserFee is never below configured 3x gas fee estimate.\n- Relayer submits local funding transaction successfully when given valid signatures/permits.\n- Relayer rejects missing/invalid signatures before attempting transaction when possible.\n- Relayer logs are queryable for QA.\n\n## Required QA and test plan\n\n- Run backend relayer tests.\n- Run local smart-contract stack or mocked relayer mode.\n- Run curl to fee quote endpoint for small, normal, and high stake values.\n- Run curl to submit a local funding request and capture transaction outcome.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T08/relayer-tests.log.\n- evidence/M3-T08/curl-fee-quote-small.json.\n- evidence/M3-T08/curl-fee-quote-normal.json.\n- evidence/M3-T08/curl-local-funding.json.\n- evidence/M3-T08/relayer-transaction-log.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T09",
+    "title": "[M3.T09] Implement contract event indexer and bet state API",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-09-implement-contract-event-indexer-and-bet-state-api.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P0",
+    "type": "Backend / Indexing",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T06",
+      "M2.T07",
+      "M2.T08",
+      "M3.T08"
+    ],
+    "dependenciesText": "M2.T06; M2.T07; M2.T08; M3.T08",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-09-implement-contract-event-indexer-and-bet-state-api.md`\n\nTask ID: M3.T09\nPriority: P0\nDependencies: M2.T06; M2.T07; M2.T08; M3.T08\n\n# M3.T09 — Implement contract event indexer and bet state API\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P0  \n**Type:** Backend / Indexing  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T06\n- M2.T07\n- M2.T08\n- M3.T08\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Index TemplateRegistered, BetFunded, BetResolved, BetVoided, and relevant config events.\n- Persist derived bet state for frontend queries.\n- Expose bet detail endpoint by betId and invite id when linked.\n- Support local chain reindex from block zero or configured deployment block.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Indexer should be idempotent and safe to restart.\n- Store source transaction hash and block number for auditability.\n\n## Acceptance criteria\n\n- Indexer processes local BetFunded event and creates/updates bet state.\n- Indexer processes local BetResolved and BetVoided events and updates final state.\n- Bet API includes participants, templateHash, stake, loserFee, status, payout fields when resolved, and transaction references.\n- Repeated indexing does not duplicate records.\n\n## Required QA and test plan\n\n- Run backend indexer tests.\n- Generate local contract events using test script or relayer flow.\n- Run curl to fetch indexed bet detail.\n- Run reindex command twice and verify idempotency.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T09/indexer-tests.log.\n- evidence/M3-T09/local-contract-events.log.\n- evidence/M3-T09/curl-bet-detail.json.\n- evidence/M3-T09/reindex-idempotency.log.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M3.T10",
+    "title": "[M3.T10] Implement resolution trigger and backend curl E2E validation",
+    "sourcePath": "milestones-3-backend-core-orchestration/task-10-implement-resolution-trigger-and-backend-curl-e2e-validation.md",
+    "milestone": "M3 — Backend Core Orchestration",
+    "priority": "P1",
+    "type": "Backend / Resolution / QA",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T08",
+      "M3.T09"
+    ],
+    "dependenciesText": "M2.T08; M3.T09",
+    "labels": [
+      "priority:P1",
+      "domain:backend",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-3-backend-core-orchestration/task-10-implement-resolution-trigger-and-backend-curl-e2e-validation.md`\n\nTask ID: M3.T10\nPriority: P1\nDependencies: M2.T08; M3.T09\n\n# M3.T10 — Implement resolution trigger and backend curl E2E validation\n\n**Milestone:** M3 — Backend Core Orchestration  \n**Priority:** P1  \n**Type:** Backend / Resolution / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T08\n- M3.T09\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement a resolution trigger that calls smart-contract resolveFromPolymarket when a bet is eligible.\n- Ensure backend does not decide the winner; it only triggers contract resolution.\n- Expose internal/admin endpoint or scheduled job for resolution attempts.\n- Create curl-based backend E2E checklist covering templates, invites, funding submission, indexing, and resolution trigger.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use MockPolymarketCTF/local chain for deterministic QA.\n- Resolution trigger should record attempts, failures, and successful transaction hashes.\n\n## Acceptance criteria\n\n- Resolution trigger calls contract and records the attempt.\n- If CTF is unresolved, trigger reports pending/not resolved without corrupting bet state.\n- If CTF is resolved, trigger submits resolution and indexer updates final bet state.\n- Curl E2E document includes exact commands and expected response snippets.\n\n## Required QA and test plan\n\n- Run backend resolution tests.\n- Run local contract stack with MockPolymarketCTF unresolved and capture pending response.\n- Set MockPolymarketCTF to player A win, trigger resolution via curl, and fetch final bet state via curl.\n- Repeat for void outcome if feasible.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M3-T10/resolution-tests.log.\n- evidence/M3-T10/curl-resolution-pending.json.\n- evidence/M3-T10/curl-resolution-success.json.\n- evidence/M3-T10/curl-final-bet-state.json.\n- evidence/M3-T10/backend-e2e-curl-checklist.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T01",
+    "title": "[M4.T01] Create frontend app foundation and design primitives",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-01-create-frontend-app-foundation-and-design-primitives.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P0",
+    "type": "Frontend / Design",
+    "status": "Planned",
+    "dependencies": [
+      "M0 completed or repository bootstrap available"
+    ],
+    "dependenciesText": "M0 completed or repository bootstrap available",
+    "labels": [
+      "priority:P0",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-01-create-frontend-app-foundation-and-design-primitives.md`\n\nTask ID: M4.T01\nPriority: P0\nDependencies: M0 completed or repository bootstrap available\n\n# M4.T01 — Create frontend app foundation and design primitives\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P0  \n**Type:** Frontend / Design  \n**Status:** Planned\n\n## Dependencies\n\n- M0 completed or repository bootstrap available\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Set up frontend app architecture inside frontend/.\n- Create base routing/layout structure.\n- Create design primitives for buttons, cards, forms, status badges, and currency display.\n- Add Playwright configuration and a smoke test.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Framework choice can be selected by the agent if it integrates with the monorepo and Playwright.\n- Keep UI copy simple and non-Web3-facing.\n\n## Acceptance criteria\n\n- Frontend app runs locally with a documented command.\n- Base route renders a Duelly landing or app shell.\n- Core components are reusable and tested where practical.\n- Playwright smoke test passes and captures at least one screenshot.\n\n## Required QA and test plan\n\n- Run frontend unit/build tests if configured.\n- Run `npm --workspace @duelly/frontend run test:e2e` or documented Playwright command.\n- Capture Playwright screenshot of app shell.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T01/frontend-tests.log.\n- evidence/M4-T01/playwright-report-summary.md.\n- evidence/M4-T01/screenshots/app-shell.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T02",
+    "title": "[M4.T02] Implement login and wallet onboarding experience",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-02-implement-login-and-wallet-onboarding-experience.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P0",
+    "type": "Frontend / Auth / Wallets",
+    "status": "Planned",
+    "dependencies": [
+      "M4.T01",
+      "M3.T02",
+      "M3.T03"
+    ],
+    "dependenciesText": "M4.T01; M3.T02; M3.T03",
+    "labels": [
+      "priority:P0",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-02-implement-login-and-wallet-onboarding-experience.md`\n\nTask ID: M4.T02\nPriority: P0\nDependencies: M4.T01; M3.T02; M3.T03\n\n# M4.T02 — Implement login and wallet onboarding experience\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P0  \n**Type:** Frontend / Auth / Wallets  \n**Status:** Planned\n\n## Dependencies\n\n- M4.T01\n- M3.T02\n- M3.T03\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement login flow using backend mock/auth endpoints.\n- Display embedded wallet creation/linking state.\n- Support external wallet option at UI level for users with BRL1.\n- Hide raw private key, chain, gas, and ERC terminology from the main flow.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use mocked backend responses if provider integration is not ready.\n- External wallet flow can be a guided placeholder if signing integration is not ready, but must not mislead users.\n\n## Acceptance criteria\n\n- Unauthenticated user is prompted to log in.\n- Authenticated user sees wallet status.\n- Embedded wallet user sees a simple ready/not-ready state.\n- External wallet option communicates BRL1-only support.\n- No main flow copy mentions gas, Polygon, ERC-20, or permit.\n\n## Required QA and test plan\n\n- Run Playwright login/onboarding flow.\n- Run backend curl health/auth checks used by frontend test setup.\n- Capture screenshots for unauthenticated, authenticated, and wallet-ready states.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T02/playwright-login.log.\n- evidence/M4-T02/curl-auth-fixture.json.\n- evidence/M4-T02/screenshots/unauthenticated.png.\n- evidence/M4-T02/screenshots/wallet-ready.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T03",
+    "title": "[M4.T03] Implement balance, deposit quote, and withdrawal quote UI",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-03-implement-balance-deposit-quote-and-withdrawal-quote-ui.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P0",
+    "type": "Frontend / Payments / Ledger",
+    "status": "Planned",
+    "dependencies": [
+      "M4.T02",
+      "M3.T04",
+      "M3.T05"
+    ],
+    "dependenciesText": "M4.T02; M3.T04; M3.T05",
+    "labels": [
+      "priority:P0",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-03-implement-balance-deposit-quote-and-withdrawal-quote-ui.md`\n\nTask ID: M4.T03\nPriority: P0\nDependencies: M4.T02; M3.T04; M3.T05\n\n# M4.T03 — Implement balance, deposit quote, and withdrawal quote UI\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P0  \n**Type:** Frontend / Payments / Ledger  \n**Status:** Planned\n\n## Dependencies\n\n- M4.T02\n- M3.T04\n- M3.T05\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Display user balance in BRL terms backed by BRL1.\n- Show deposit quote including brokerage transaction fee and net credited amount.\n- Show withdrawal quote including brokerage transaction fee and net payout amount.\n- Display ledger rows or recent transactions with gross/fee/net breakdown.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- User-facing copy may say balance in R$ while details can explain token-backed settlement in help text.\n- Fee transparency is mandatory before the user confirms money movement.\n\n## Acceptance criteria\n\n- Balance screen shows available amount and pending/mocked transaction state if applicable.\n- Deposit quote shows gross deposit, transaction fee, and net balance impact.\n- Withdrawal quote shows requested amount, transaction fee, and net payout.\n- Brokerage transaction fees are visually separate from loserFee/betting fees.\n\n## Required QA and test plan\n\n- Run Playwright balance/deposit/withdrawal quote tests.\n- Run curl deposit quote and withdrawal quote commands used by the frontend fixtures.\n- Capture screenshots of balance, deposit quote, withdrawal quote, and ledger state.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T03/playwright-balance-payments.log.\n- evidence/M4-T03/curl-deposit-quote.json.\n- evidence/M4-T03/curl-withdrawal-quote.json.\n- evidence/M4-T03/screenshots/balance.png.\n- evidence/M4-T03/screenshots/deposit-quote.png.\n- evidence/M4-T03/screenshots/withdrawal-quote.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T04",
+    "title": "[M4.T04] Implement template browsing and selection UI",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-04-implement-template-browsing-and-selection-ui.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P0",
+    "type": "Frontend / Templates",
+    "status": "Planned",
+    "dependencies": [
+      "M4.T01",
+      "M3.T06"
+    ],
+    "dependenciesText": "M4.T01; M3.T06",
+    "labels": [
+      "priority:P0",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-04-implement-template-browsing-and-selection-ui.md`\n\nTask ID: M4.T04\nPriority: P0\nDependencies: M4.T01; M3.T06\n\n# M4.T04 — Implement template browsing and selection UI\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P0  \n**Type:** Frontend / Templates  \n**Status:** Planned\n\n## Dependencies\n\n- M4.T01\n- M3.T06\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Display available bet templates returned by backend.\n- Show category, outcome labels, close time, rules summary, and fee estimate entry point.\n- Clearly indicate collectibles-first or sports fallback source where relevant.\n- Prevent selection of inactive or unavailable templates.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Rules summary should be concise but include a link/modal to full rules.\n- Do not display Polymarket odds/probabilities as the basis for resolution.\n\n## Acceptance criteria\n\n- Template list only displays backend-accepted templates.\n- Template detail page shows deterministic outcome labels and rules source.\n- Unavailable templates cannot be selected.\n- UI copy does not imply odds/probabilities decide the winner.\n\n## Required QA and test plan\n\n- Run Playwright template list/detail tests.\n- Run curl templates and template detail endpoints.\n- Capture screenshots of template list and template detail.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T04/playwright-templates.log.\n- evidence/M4-T04/curl-templates.json.\n- evidence/M4-T04/curl-template-detail.json.\n- evidence/M4-T04/screenshots/template-list.png.\n- evidence/M4-T04/screenshots/template-detail.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T05",
+    "title": "[M4.T05] Implement create invite flow with fee preview",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-05-implement-create-invite-flow-with-fee-preview.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P0",
+    "type": "Frontend / Betting",
+    "status": "Planned",
+    "dependencies": [
+      "M4.T03",
+      "M4.T04",
+      "M3.T07",
+      "M3.T08"
+    ],
+    "dependenciesText": "M4.T03; M4.T04; M3.T07; M3.T08",
+    "labels": [
+      "priority:P0",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-05-implement-create-invite-flow-with-fee-preview.md`\n\nTask ID: M4.T05\nPriority: P0\nDependencies: M4.T03; M4.T04; M3.T07; M3.T08\n\n# M4.T05 — Implement create invite flow with fee preview\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P0  \n**Type:** Frontend / Betting  \n**Status:** Planned\n\n## Dependencies\n\n- M4.T03\n- M4.T04\n- M3.T07\n- M3.T08\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Allow user A to choose outcome, stake, and optional taker restriction.\n- Show loserFee calculation using percent fee and gas-anchored minimum.\n- Show required deposit amount: stake + loserFee.\n- Create invite via backend and display/share invite link.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Explain loserFee as a fee paid only by the losing side, while both sides reserve/deposit it upfront.\n- Keep transaction/gas details abstracted but show fee calculation clearly.\n\n## Acceptance criteria\n\n- User cannot create invite with stake below/above configured limits.\n- User cannot create invite if balance is insufficient for stake + loserFee.\n- Fee preview displays percent fee, minimum fee adjustment when applicable, and total required amount.\n- Successful invite creation returns an invite link and a pending signature/funding state as designed.\n\n## Required QA and test plan\n\n- Run Playwright create invite tests for normal stake and small stake where minLoserFee applies.\n- Run curl fee quote and create invite endpoints.\n- Capture screenshots of fee preview and invite created states.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T05/playwright-create-invite.log.\n- evidence/M4-T05/curl-fee-quote.json.\n- evidence/M4-T05/curl-create-invite.json.\n- evidence/M4-T05/screenshots/fee-preview.png.\n- evidence/M4-T05/screenshots/invite-created.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T06",
+    "title": "[M4.T06] Implement accept invite and signing flow",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-06-implement-accept-invite-and-signing-flow.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P0",
+    "type": "Frontend / Betting / Wallets",
+    "status": "Planned",
+    "dependencies": [
+      "M4.T05",
+      "M3.T07",
+      "M3.T08",
+      "M2.T04"
+    ],
+    "dependenciesText": "M4.T05; M3.T07; M3.T08; M2.T04",
+    "labels": [
+      "priority:P0",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-06-implement-accept-invite-and-signing-flow.md`\n\nTask ID: M4.T06\nPriority: P0\nDependencies: M4.T05; M3.T07; M3.T08; M2.T04\n\n# M4.T06 — Implement accept invite and signing flow\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P0  \n**Type:** Frontend / Betting / Wallets  \n**Status:** Planned\n\n## Dependencies\n\n- M4.T05\n- M3.T07\n- M3.T08\n- M2.T04\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Render invite details for user B.\n- Validate user B has enough balance for stake + loserFee.\n- Guide both EIP-712 bet consent signature and ERC-2612 permit signature through wallet abstraction.\n- Submit signed payloads to backend relayer and show funding state.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- The UI should say “Confirm bet” rather than exposing EIP-712/permit concepts in the primary copy.\n- Technical signature details can live in developer logs or advanced/debug mode only.\n\n## Acceptance criteria\n\n- Invite page shows template, outcome sides, stake, loserFee, and total required amount.\n- Insufficient balance blocks acceptance before signing.\n- Successful acceptance submits payload to backend and transitions to funded/pending confirmation state.\n- Signature rejection or relayer failure shows a recoverable user-friendly error.\n\n## Required QA and test plan\n\n- Run Playwright accept invite flow with mocked signatures.\n- Run curl accept invite and local funding submission endpoints.\n- Capture screenshots of invite details, confirm state, and funded/pending state.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T06/playwright-accept-invite.log.\n- evidence/M4-T06/curl-accept-invite.json.\n- evidence/M4-T06/curl-funding-submit.json.\n- evidence/M4-T06/screenshots/invite-detail.png.\n- evidence/M4-T06/screenshots/funded-state.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T07",
+    "title": "[M4.T07] Implement bet status, result, and payout UI",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-07-implement-bet-status-result-and-payout-ui.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P0",
+    "type": "Frontend / Betting / Results",
+    "status": "Planned",
+    "dependencies": [
+      "M4.T06",
+      "M3.T09",
+      "M3.T10"
+    ],
+    "dependenciesText": "M4.T06; M3.T09; M3.T10",
+    "labels": [
+      "priority:P0",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-07-implement-bet-status-result-and-payout-ui.md`\n\nTask ID: M4.T07\nPriority: P0\nDependencies: M4.T06; M3.T09; M3.T10\n\n# M4.T07 — Implement bet status, result, and payout UI\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P0  \n**Type:** Frontend / Betting / Results  \n**Status:** Planned\n\n## Dependencies\n\n- M4.T06\n- M3.T09\n- M3.T10\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Display bet state from backend indexer: funded, awaiting result, resolved, voided, expired.\n- Display winner, loser, payout, treasury/fee information, and refund status when applicable.\n- Display resolution source summary without implying backend manually chose winner.\n- Poll or subscribe to status updates as selected by implementation.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use human-readable status copy and avoid raw chain jargon.\n- Provide clear void/refund copy for ambiguous outcomes.\n\n## Acceptance criteria\n\n- Funded bet shows awaiting result state.\n- Resolved bet shows winner payout and loser fee outcome accurately.\n- Void bet shows full refund of stake + loserFee for both sides.\n- Expired/unresolved state explains next action or refund policy.\n- Displayed payout matches backend indexed values.\n\n## Required QA and test plan\n\n- Run Playwright status/result tests for funded, A wins, B wins, void, and expired states.\n- Run curl bet detail endpoint for each fixture state.\n- Capture screenshots for each status/result state.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T07/playwright-bet-status.log.\n- evidence/M4-T07/curl-bet-funded.json.\n- evidence/M4-T07/curl-bet-resolved.json.\n- evidence/M4-T07/curl-bet-voided.json.\n- evidence/M4-T07/screenshots/status-funded.png.\n- evidence/M4-T07/screenshots/status-resolved.png.\n- evidence/M4-T07/screenshots/status-voided.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M4.T08",
+    "title": "[M4.T08] Complete frontend Playwright QA suite and accessibility smoke checks",
+    "sourcePath": "milestones-4-frontend-mvp-experience/task-08-complete-frontend-playwright-qa-suite-and-accessibility-smoke-checks.md",
+    "milestone": "M4 — Frontend MVP Experience",
+    "priority": "P1",
+    "type": "Frontend / QA",
+    "status": "Planned",
+    "dependencies": [
+      "M4.T01",
+      "M4.T02",
+      "M4.T03",
+      "M4.T04",
+      "M4.T05",
+      "M4.T06",
+      "M4.T07"
+    ],
+    "dependenciesText": "M4.T01; M4.T02; M4.T03; M4.T04; M4.T05; M4.T06; M4.T07",
+    "labels": [
+      "priority:P1",
+      "domain:frontend",
+      "qa:playwright"
+    ],
+    "body": "Source: `milestones-4-frontend-mvp-experience/task-08-complete-frontend-playwright-qa-suite-and-accessibility-smoke-checks.md`\n\nTask ID: M4.T08\nPriority: P1\nDependencies: M4.T01; M4.T02; M4.T03; M4.T04; M4.T05; M4.T06; M4.T07\n\n# M4.T08 — Complete frontend Playwright QA suite and accessibility smoke checks\n\n**Milestone:** M4 — Frontend MVP Experience  \n**Priority:** P1  \n**Type:** Frontend / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M4.T01\n- M4.T02\n- M4.T03\n- M4.T04\n- M4.T05\n- M4.T06\n- M4.T07\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- designer\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Organize Playwright tests for all MVP user flows.\n- Add screenshot capture and trace/video settings as appropriate.\n- Add basic accessibility checks for primary pages or documented manual checks.\n- Create final frontend QA evidence pack.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer reliable selectors and deterministic fixture data.\n- Keep tests stable in CI and local runs.\n\n## Acceptance criteria\n\n- Playwright suite covers login, balance, template browsing, create invite, accept invite, funded state, resolved state, and void state.\n- At least one test verifies the UI avoids Web3 jargon in the primary flow.\n- Screenshots are captured for key states.\n- Accessibility smoke findings are documented.\n\n## Required QA and test plan\n\n- Run full frontend Playwright suite.\n- Run frontend build/test commands.\n- Review Playwright HTML report locally and capture summary.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M4-T08/playwright-full.log.\n- evidence/M4-T08/playwright-report-summary.md.\n- evidence/M4-T08/accessibility-smoke.md.\n- evidence/M4-T08/screenshots/flow-summary.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M5.T01",
+    "title": "[M5.T01] Create local full-stack orchestration",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/task-01-create-local-full-stack-orchestration.md",
+    "milestone": "M5 — End-to-End MVP Integration",
+    "priority": "P0",
+    "type": "E2E / DevOps",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T10",
+      "M3.T10",
+      "M4.T08"
+    ],
+    "dependenciesText": "M2.T10; M3.T10; M4.T08",
+    "labels": [
+      "priority:P0",
+      "domain:e2e",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-5-end-to-end-mvp-integration/task-01-create-local-full-stack-orchestration.md`\n\nTask ID: M5.T01\nPriority: P0\nDependencies: M2.T10; M3.T10; M4.T08\n\n# M5.T01 — Create local full-stack orchestration\n\n**Milestone:** M5 — End-to-End MVP Integration  \n**Priority:** P0  \n**Type:** E2E / DevOps  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T10\n- M3.T10\n- M4.T08\n\n## Recommended specialist subagents\n\n- backend-specialist\n- frontend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create a local command or script to start smart-contract local chain, backend, and frontend together.\n- Ensure ports, environment variables, and dependencies are documented.\n- Provide clean startup and teardown behavior.\n- Support deterministic fixture mode.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use Docker Compose, npm scripts, or another pragmatic local orchestration approach selected by the agent.\n- Keep commands simple for human QA.\n\n## Acceptance criteria\n\n- One documented command starts the full local stack or a small documented sequence starts it reliably.\n- One documented command tears down the stack and cleans temporary state.\n- Frontend can reach backend, backend can reach local chain, and local chain has deployed mocks/contracts.\n- Health checks confirm all systems are ready before tests run.\n\n## Required QA and test plan\n\n- Run full-stack startup command.\n- Run curl backend health and frontend availability checks.\n- Run smart-contract local chain status command or deployment verification.\n- Run teardown command and verify no stale processes remain.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M5-T01/full-stack-startup.log.\n- evidence/M5-T01/curl-backend-health.json.\n- evidence/M5-T01/frontend-health.txt.\n- evidence/M5-T01/local-chain-deployment.json.\n- evidence/M5-T01/teardown.log.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M5.T02",
+    "title": "[M5.T02] Implement deterministic E2E seed data",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/task-02-implement-deterministic-e2e-seed-data.md",
+    "milestone": "M5 — End-to-End MVP Integration",
+    "priority": "P0",
+    "type": "E2E / Fixtures",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T01"
+    ],
+    "dependenciesText": "M5.T01",
+    "labels": [
+      "priority:P0",
+      "domain:e2e",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-5-end-to-end-mvp-integration/task-02-implement-deterministic-e2e-seed-data.md`\n\nTask ID: M5.T02\nPriority: P0\nDependencies: M5.T01\n\n# M5.T02 — Implement deterministic E2E seed data\n\n**Milestone:** M5 — End-to-End MVP Integration  \n**Priority:** P0  \n**Type:** E2E / Fixtures  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T01\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Seed two or more users with wallets and BRL1 balances.\n- Seed accepted and rejected templates.\n- Seed MockPolymarketCTF conditions for unresolved, A wins, B wins, and void outcomes.\n- Make seed outputs available to frontend/backend tests.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Seeds must be deterministic across local runs.\n- Avoid using real user data or real keys for seed data.\n\n## Acceptance criteria\n\n- Seed script creates users A and B with known balances.\n- Seed script registers at least one accepted template on-chain/local registry.\n- Seed script records conditionIds and expected outcomes.\n- Seed script is idempotent or documents clean reset requirements.\n\n## Required QA and test plan\n\n- Run seed command after local stack startup.\n- Run curl to fetch seeded users/templates.\n- Run local smart-contract read command or test to verify seeded balances and template registration.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M5-T02/seed.log.\n- evidence/M5-T02/curl-seeded-templates.json.\n- evidence/M5-T02/curl-seeded-users.json.\n- evidence/M5-T02/seeded-contract-state.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M5.T03",
+    "title": "[M5.T03] E2E happy path: player A wins",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/task-03-e2e-happy-path-player-a-wins.md",
+    "milestone": "M5 — End-to-End MVP Integration",
+    "priority": "P0",
+    "type": "E2E / Full Stack",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T01",
+      "M5.T02"
+    ],
+    "dependenciesText": "M5.T01; M5.T02",
+    "labels": [
+      "priority:P0",
+      "domain:e2e",
+      "qa:playwright",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-5-end-to-end-mvp-integration/task-03-e2e-happy-path-player-a-wins.md`\n\nTask ID: M5.T03\nPriority: P0\nDependencies: M5.T01; M5.T02\n\n# M5.T03 — E2E happy path: player A wins\n\n**Milestone:** M5 — End-to-End MVP Integration  \n**Priority:** P0  \n**Type:** E2E / Full Stack  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T01\n- M5.T02\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Run full flow from user A login through invite creation, user B acceptance, funding, CTF resolution, settlement, and UI result.\n- Use MockPolymarketCTF outcome where player A selected winning outcome.\n- Capture full evidence across all systems.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer Playwright driving the user flow and curl/smart-contract commands validating backend/contract state after each major step.\n\n## Acceptance criteria\n\n- User A creates an invite from an accepted template.\n- User B accepts the invite and funding succeeds.\n- Contract escrows stake + loserFee from both users.\n- Resolution settles with player A as winner.\n- Player A payout equals `2 * stake + loserFee`; treasury payout equals loserFee of player B.\n- Frontend displays player A as winner and correct payout.\n\n## Required QA and test plan\n\n- Run Playwright full-flow test for player A win.\n- Run curl to fetch bet state before and after resolution.\n- Run smart-contract local read/test command to confirm balances and settlement event.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M5-T03/playwright-a-wins.log.\n- evidence/M5-T03/screenshots/a-create-invite.png.\n- evidence/M5-T03/screenshots/b-accepts.png.\n- evidence/M5-T03/screenshots/a-wins-result.png.\n- evidence/M5-T03/curl-bet-before-resolution.json.\n- evidence/M5-T03/curl-bet-after-resolution.json.\n- evidence/M5-T03/contract-outcome-a-wins.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M5.T04",
+    "title": "[M5.T04] E2E happy path: player B wins",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/task-04-e2e-happy-path-player-b-wins.md",
+    "milestone": "M5 — End-to-End MVP Integration",
+    "priority": "P0",
+    "type": "E2E / Full Stack",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T01",
+      "M5.T02"
+    ],
+    "dependenciesText": "M5.T01; M5.T02",
+    "labels": [
+      "priority:P0",
+      "domain:e2e",
+      "qa:playwright",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-5-end-to-end-mvp-integration/task-04-e2e-happy-path-player-b-wins.md`\n\nTask ID: M5.T04\nPriority: P0\nDependencies: M5.T01; M5.T02\n\n# M5.T04 — E2E happy path: player B wins\n\n**Milestone:** M5 — End-to-End MVP Integration  \n**Priority:** P0  \n**Type:** E2E / Full Stack  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T01\n- M5.T02\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Run full flow where player B selected winning outcome.\n- Validate opposite-side settlement math and UI display.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Reuse the same E2E harness as M5.T03 with different CTF payout vector.\n\n## Acceptance criteria\n\n- Funding succeeds for both users.\n- Resolution settles with player B as winner.\n- Player B payout equals `2 * stake + loserFee`; treasury payout equals loserFee of player A.\n- Frontend displays player B as winner and correct payout.\n\n## Required QA and test plan\n\n- Run Playwright full-flow test for player B win.\n- Run curl to fetch bet state before and after resolution.\n- Run smart-contract local read/test command to confirm balances and settlement event.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M5-T04/playwright-b-wins.log.\n- evidence/M5-T04/screenshots/b-wins-result.png.\n- evidence/M5-T04/curl-bet-after-resolution.json.\n- evidence/M5-T04/contract-outcome-b-wins.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M5.T05",
+    "title": "[M5.T05] E2E void/refund path",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/task-05-e2e-void-refund-path.md",
+    "milestone": "M5 — End-to-End MVP Integration",
+    "priority": "P0",
+    "type": "E2E / Full Stack",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T01",
+      "M5.T02"
+    ],
+    "dependenciesText": "M5.T01; M5.T02",
+    "labels": [
+      "priority:P0",
+      "domain:e2e",
+      "qa:playwright",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-5-end-to-end-mvp-integration/task-05-e2e-void-refund-path.md`\n\nTask ID: M5.T05\nPriority: P0\nDependencies: M5.T01; M5.T02\n\n# M5.T05 — E2E void/refund path\n\n**Milestone:** M5 — End-to-End MVP Integration  \n**Priority:** P0  \n**Type:** E2E / Full Stack  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T01\n- M5.T02\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Run full flow with ambiguous/equal CTF payout vector.\n- Validate void/refund behavior and UI messaging.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Void path must demonstrate that treasury receives zero and both users recover stake + loserFee.\n\n## Acceptance criteria\n\n- Funding succeeds for both users.\n- Ambiguous CTF result leads to void/refund.\n- Both users receive `stake + loserFee` back.\n- Treasury receives zero.\n- Frontend displays void/refund state clearly.\n\n## Required QA and test plan\n\n- Run Playwright void/refund E2E test.\n- Run curl final bet state and ledger/balance endpoints where applicable.\n- Run smart-contract local read/test command to confirm refund balances.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M5-T05/playwright-void-refund.log.\n- evidence/M5-T05/screenshots/void-result.png.\n- evidence/M5-T05/curl-void-bet-state.json.\n- evidence/M5-T05/contract-outcome-void.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M5.T06",
+    "title": "[M5.T06] E2E failure paths and recovery",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/task-06-e2e-failure-paths-and-recovery.md",
+    "milestone": "M5 — End-to-End MVP Integration",
+    "priority": "P1",
+    "type": "E2E / Full Stack / QA",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T01",
+      "M5.T02"
+    ],
+    "dependenciesText": "M5.T01; M5.T02",
+    "labels": [
+      "priority:P1",
+      "domain:e2e",
+      "qa:playwright",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-5-end-to-end-mvp-integration/task-06-e2e-failure-paths-and-recovery.md`\n\nTask ID: M5.T06\nPriority: P1\nDependencies: M5.T01; M5.T02\n\n# M5.T06 — E2E failure paths and recovery\n\n**Milestone:** M5 — End-to-End MVP Integration  \n**Priority:** P1  \n**Type:** E2E / Full Stack / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T01\n- M5.T02\n\n## Recommended specialist subagents\n\n- frontend-specialist\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Validate insufficient balance, invalid template, expired invite, rejected signature, and unresolved CTF scenarios.\n- Ensure failures do not partially fund bets or corrupt backend state.\n- Ensure UI error copy is understandable and recoverable.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer deterministic fixtures and mocked signing failures.\n- Every failure should have a backend curl response and UI screenshot where applicable.\n\n## Acceptance criteria\n\n- Insufficient balance blocks acceptance before funding transaction.\n- Invalid template cannot create or fund a bet.\n- Expired invite cannot be accepted.\n- Rejected signature does not submit relayer transaction.\n- Unresolved CTF leaves bet awaiting result without settlement.\n- No partial funding occurs in any failure path.\n\n## Required QA and test plan\n\n- Run Playwright failure-path suite.\n- Run curl commands for each failure endpoint/action.\n- Run smart-contract local check showing no partial escrow for failed funding cases.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M5-T06/playwright-failure-paths.log.\n- evidence/M5-T06/curl-insufficient-balance.json.\n- evidence/M5-T06/curl-invalid-template.json.\n- evidence/M5-T06/curl-expired-invite.json.\n- evidence/M5-T06/contract-no-partial-funding.md.\n- evidence/M5-T06/screenshots/error-states.png.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M5.T07",
+    "title": "[M5.T07] Create final E2E evidence bundle and QA approval gate",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/task-07-create-final-e2e-evidence-bundle-and-qa-approval-gate.md",
+    "milestone": "M5 — End-to-End MVP Integration",
+    "priority": "P1",
+    "type": "E2E / QA",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T03",
+      "M5.T04",
+      "M5.T05",
+      "M5.T06"
+    ],
+    "dependenciesText": "M5.T03; M5.T04; M5.T05; M5.T06",
+    "labels": [
+      "priority:P1",
+      "domain:e2e",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-5-end-to-end-mvp-integration/task-07-create-final-e2e-evidence-bundle-and-qa-approval-gate.md`\n\nTask ID: M5.T07\nPriority: P1\nDependencies: M5.T03; M5.T04; M5.T05; M5.T06\n\n# M5.T07 — Create final E2E evidence bundle and QA approval gate\n\n**Milestone:** M5 — End-to-End MVP Integration  \n**Priority:** P1  \n**Type:** E2E / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T03\n- M5.T04\n- M5.T05\n- M5.T06\n\n## Recommended specialist subagents\n\n- qa-specialist\n- frontend-specialist\n- backend-specialist\n- blockchain-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Aggregate E2E evidence from all full-stack scenarios.\n- Create a human-readable QA summary with pass/fail status.\n- Document known limitations and deferred items.\n- Define the human approval checkpoint before moving to launch readiness.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- This task is evidence-heavy and should not change product code unless fixing an identified blocker.\n\n## Acceptance criteria\n\n- Evidence bundle includes frontend screenshots, curl outputs, and smart-contract outcomes for A wins, B wins, void, and failure paths.\n- QA summary explicitly maps outcomes to milestone Definition of Done.\n- Any failed or skipped check has a clear owner and follow-up issue/task.\n- Human QA reviewer approves or blocks the milestone in the PR.\n\n## Required QA and test plan\n\n- Run all E2E suites again from a clean local stack.\n- Verify evidence paths exist and are linked from PR description.\n- Have human QA follow the runbook and record approval/blocking notes.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M5-T07/e2e-final-run.log.\n- evidence/M5-T07/qa-summary.md.\n- evidence/M5-T07/evidence-index.md.\n- evidence/M5-T07/hitl-qa-approval.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M6.T01",
+    "title": "[M6.T01] Implement operational limits and risk configuration",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/task-01-implement-operational-limits-and-risk-configuration.md",
+    "milestone": "M6 — Launch Readiness & Controlled Pilot",
+    "priority": "P0",
+    "type": "Backend / Smart Contract / Risk",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T09",
+      "M3.T08",
+      "M5.T07"
+    ],
+    "dependenciesText": "M2.T09; M3.T08; M5.T07",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-6-launch-readiness-controlled-pilot/task-01-implement-operational-limits-and-risk-configuration.md`\n\nTask ID: M6.T01\nPriority: P0\nDependencies: M2.T09; M3.T08; M5.T07\n\n# M6.T01 — Implement operational limits and risk configuration\n\n**Milestone:** M6 — Launch Readiness & Controlled Pilot  \n**Priority:** P0  \n**Type:** Backend / Smart Contract / Risk  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T09\n- M3.T08\n- M5.T07\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- security-reviewer\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define and enforce stake minimum/maximum, user exposure limit, global exposure limit, daily limits, and fee bounds.\n- Expose limits to frontend/backend quote flows.\n- Ensure limits are consistent with smart-contract configuration where applicable.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- For MVP, conservative limits are preferred.\n- Smart contract should enforce the limits that protect funds; backend can enforce additional operational limits.\n\n## Acceptance criteria\n\n- Backend rejects bets exceeding user/global/daily risk limits.\n- Smart contract enforces stake and fee bounds.\n- Frontend can display limit-related errors.\n- Limit changes are auditable.\n\n## Required QA and test plan\n\n- Run backend risk-limit tests and curl rejection cases.\n- Run smart-contract local tests for stake/fee bounds.\n- Run Playwright limit-error UI test if frontend is touched.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M6-T01/risk-limit-tests.log.\n- evidence/M6-T01/curl-risk-limit-rejection.json.\n- evidence/M6-T01/contract-limit-tests.log.\n- evidence/M6-T01/screenshots/limit-error.png or frontend-not-touched.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M6.T02",
+    "title": "[M6.T02] Create staging/control deployment runbook",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/task-02-create-staging-control-deployment-runbook.md",
+    "milestone": "M6 — Launch Readiness & Controlled Pilot",
+    "priority": "P0",
+    "type": "DevOps / Release",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T07"
+    ],
+    "dependenciesText": "M5.T07",
+    "labels": [
+      "priority:P0",
+      "domain:harness",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-6-launch-readiness-controlled-pilot/task-02-create-staging-control-deployment-runbook.md`\n\nTask ID: M6.T02\nPriority: P0\nDependencies: M5.T07\n\n# M6.T02 — Create staging/control deployment runbook\n\n**Milestone:** M6 — Launch Readiness & Controlled Pilot  \n**Priority:** P0  \n**Type:** DevOps / Release  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T07\n\n## Recommended specialist subagents\n\n- harness-lead\n- backend-specialist\n- frontend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Document deployment steps for frontend, backend, and smart-contract environment selected for pilot.\n- Document environment variables, secrets handling, rollback, and smoke tests.\n- Define deployment evidence requirements.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- If no staging environment exists, create a local/staging-equivalent runbook and mark real deployment as blocked.\n- Do not include secrets in docs or evidence.\n\n## Acceptance criteria\n\n- Runbook includes prerequisites, deploy commands, verification commands, rollback, and owner responsibilities.\n- Smoke tests include frontend Playwright, backend curl, and smart-contract local or staging validation.\n- Runbook identifies what remains blocked by provider credentials or compliance.\n\n## Required QA and test plan\n\n- Execute runbook in local/staging-equivalent environment or document blocked steps.\n- Run frontend smoke Playwright, backend curl health, and smart-contract verification commands.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M6-T02/deployment-runbook-execution.md.\n- evidence/M6-T02/curl-staging-health.json.\n- evidence/M6-T02/playwright-staging-smoke.log.\n- evidence/M6-T02/contract-verification.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M6.T03",
+    "title": "[M6.T03] Implement monitoring, error tracking, and operational logs",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/task-03-implement-monitoring-error-tracking-and-operational-logs.md",
+    "milestone": "M6 — Launch Readiness & Controlled Pilot",
+    "priority": "P0",
+    "type": "Backend / Observability",
+    "status": "Planned",
+    "dependencies": [
+      "M3.T08",
+      "M3.T09",
+      "M3.T10"
+    ],
+    "dependenciesText": "M3.T08; M3.T09; M3.T10",
+    "labels": [
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-6-launch-readiness-controlled-pilot/task-03-implement-monitoring-error-tracking-and-operational-logs.md`\n\nTask ID: M6.T03\nPriority: P0\nDependencies: M3.T08; M3.T09; M3.T10\n\n# M6.T03 — Implement monitoring, error tracking, and operational logs\n\n**Milestone:** M6 — Launch Readiness & Controlled Pilot  \n**Priority:** P0  \n**Type:** Backend / Observability  \n**Status:** Planned\n\n## Dependencies\n\n- M3.T08\n- M3.T09\n- M3.T10\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n- security-reviewer\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Add structured logs for relayer, indexer, resolution trigger, payment provider mocks/real adapters, and critical API actions.\n- Define metrics or health signals for pending bets, failed relayer txs, unresolved bets, and failed provider operations.\n- Add error tracking integration or documented placeholder if provider not selected.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Avoid logging secrets, private keys, raw signed payloads when not needed, or personal data beyond what is approved.\n- Make logs useful for investigating money movement and settlement issues.\n\n## Acceptance criteria\n\n- Relayer logs include request id, transaction hash, status, and error reason when failed.\n- Resolution trigger logs pending/success/failure attempts.\n- Indexer logs processed block/event and idempotency behavior.\n- Health/metrics endpoint or documented dashboard query exists.\n\n## Required QA and test plan\n\n- Run backend observability tests if implemented.\n- Run curl to trigger relayer/resolution/indexer flows and capture logs.\n- Run curl to health/metrics endpoint.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M6-T03/observability-tests.log.\n- evidence/M6-T03/relayer-log-sample.jsonl.\n- evidence/M6-T03/resolution-log-sample.jsonl.\n- evidence/M6-T03/curl-metrics.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M6.T04",
+    "title": "[M6.T04] Implement minimal admin controls and status view",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/task-04-implement-minimal-admin-controls-and-status-view.md",
+    "milestone": "M6 — Launch Readiness & Controlled Pilot",
+    "priority": "P1",
+    "type": "Backend / Frontend / Operations",
+    "status": "Planned",
+    "dependencies": [
+      "M6.T01",
+      "M6.T03"
+    ],
+    "dependenciesText": "M6.T01; M6.T03",
+    "labels": [
+      "priority:P1",
+      "domain:frontend",
+      "qa:playwright",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-6-launch-readiness-controlled-pilot/task-04-implement-minimal-admin-controls-and-status-view.md`\n\nTask ID: M6.T04\nPriority: P1\nDependencies: M6.T01; M6.T03\n\n# M6.T04 — Implement minimal admin controls and status view\n\n**Milestone:** M6 — Launch Readiness & Controlled Pilot  \n**Priority:** P1  \n**Type:** Backend / Frontend / Operations  \n**Status:** Planned\n\n## Dependencies\n\n- M6.T01\n- M6.T03\n\n## Recommended specialist subagents\n\n- backend-specialist\n- frontend-specialist\n- designer\n- qa-specialist\n- security-reviewer\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create minimal admin APIs and/or UI for viewing templates, bets, relayer attempts, resolution attempts, and pause/limit state.\n- Support pause new bets and inspect recovery/refund status.\n- Protect admin access with appropriate authorization.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Admin UI can be basic, but it must be safe and clear.\n- Do not build broad internal tooling beyond launch readiness needs.\n\n## Acceptance criteria\n\n- Admin can view current operational status and recent failures.\n- Admin can pause/unpause new bets or see smart-contract pause state if controlled elsewhere.\n- Admin cannot access private wallet secrets or sensitive user data not required for operations.\n- Admin actions are logged and auditable.\n\n## Required QA and test plan\n\n- Run backend admin curl authorization tests.\n- Run Playwright admin status/pause flow if UI is implemented.\n- Run smart-contract local pause/refund validation if pause touches contract state.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M6-T04/admin-api-tests.log.\n- evidence/M6-T04/curl-admin-status.json.\n- evidence/M6-T04/curl-admin-pause.json.\n- evidence/M6-T04/screenshots/admin-status.png or admin-ui-not-implemented.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M6.T05",
+    "title": "[M6.T05] Create compliance and regulatory readiness checklist",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/task-05-create-compliance-and-regulatory-readiness-checklist.md",
+    "milestone": "M6 — Launch Readiness & Controlled Pilot",
+    "priority": "P0",
+    "type": "Compliance / Product",
+    "status": "Planned",
+    "dependencies": [
+      "M5.T07"
+    ],
+    "dependenciesText": "M5.T07",
+    "labels": [
+      "priority:P0",
+      "domain:security"
+    ],
+    "body": "Source: `milestones-6-launch-readiness-controlled-pilot/task-05-create-compliance-and-regulatory-readiness-checklist.md`\n\nTask ID: M6.T05\nPriority: P0\nDependencies: M5.T07\n\n# M6.T05 — Create compliance and regulatory readiness checklist\n\n**Milestone:** M6 — Launch Readiness & Controlled Pilot  \n**Priority:** P0  \n**Type:** Compliance / Product  \n**Status:** Planned\n\n## Dependencies\n\n- M5.T07\n\n## Recommended specialist subagents\n\n- product-architect\n- security-reviewer\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create a checklist of legal/regulatory questions for betting operations, payment processing, custody/wallet model, KYC/AML, and Brazilian market constraints.\n- Document which decisions require human/legal approval before pilot.\n- Define product limits for any internal controlled pilot.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Agents do not provide legal signoff. The task produces a checklist and evidence of review needs.\n- Use explicit unknown/pending status rather than guessing.\n\n## Acceptance criteria\n\n- Checklist covers betting authorization, payment/on-ramp provider terms, wallet custody model, user eligibility, KYC/AML, data privacy, tax/accounting, and terms of service needs.\n- Each item has status: approved, pending human review, blocked, or not applicable.\n- Public launch is explicitly blocked until human/legal approval is recorded.\n\n## Required QA and test plan\n\n- Have human product/legal owner review the checklist and record notes.\n- Run docs validation if available.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M6-T05/compliance-checklist.md.\n- evidence/M6-T05/human-review-notes.md.\n- evidence/M6-T05/validate.log.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M6.T06",
+    "title": "[M6.T06] Run security review and create incident runbook",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/task-06-run-security-review-and-create-incident-runbook.md",
+    "milestone": "M6 — Launch Readiness & Controlled Pilot",
+    "priority": "P0",
+    "type": "Security / Operations",
+    "status": "Planned",
+    "dependencies": [
+      "M2.T10",
+      "M3.T10",
+      "M5.T07"
+    ],
+    "dependenciesText": "M2.T10; M3.T10; M5.T07",
+    "labels": [
+      "priority:P0",
+      "domain:security"
+    ],
+    "body": "Source: `milestones-6-launch-readiness-controlled-pilot/task-06-run-security-review-and-create-incident-runbook.md`\n\nTask ID: M6.T06\nPriority: P0\nDependencies: M2.T10; M3.T10; M5.T07\n\n# M6.T06 — Run security review and create incident runbook\n\n**Milestone:** M6 — Launch Readiness & Controlled Pilot  \n**Priority:** P0  \n**Type:** Security / Operations  \n**Status:** Planned\n\n## Dependencies\n\n- M2.T10\n- M3.T10\n- M5.T07\n\n## Recommended specialist subagents\n\n- security-reviewer\n- blockchain-specialist\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Review smart-contract, backend, frontend, wallet, relayer, and payment threat model.\n- Create incident runbook for failed funding, stuck resolution, wrong template, provider failure, suspected exploit, and user refund issue.\n- Document severity levels, owners, and communication steps.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- This is not a substitute for an external audit, but it should catch MVP-level operational risks.\n- Prioritize user funds and recovery paths.\n\n## Acceptance criteria\n\n- Threat model identifies assets, trust boundaries, and top risks.\n- Incident runbook includes detection, triage, mitigation, rollback/pause, user communication, and postmortem steps.\n- Open security issues are tracked with severity and owner.\n- No critical unowned security issue remains before pilot signoff.\n\n## Required QA and test plan\n\n- Run smart-contract test suite.\n- Run backend auth/security tests.\n- Run a tabletop incident exercise for at least one stuck-resolution and one relayer-failure scenario.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M6-T06/security-review.md.\n- evidence/M6-T06/incident-runbook.md.\n- evidence/M6-T06/tabletop-exercise-notes.md.\n- evidence/M6-T06/security-test-logs.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M6.T07",
+    "title": "[M6.T07] Controlled pilot readiness review and human signoff",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/task-07-controlled-pilot-readiness-review-and-human-signoff.md",
+    "milestone": "M6 — Launch Readiness & Controlled Pilot",
+    "priority": "P0",
+    "type": "Launch / QA / HITL",
+    "status": "Planned",
+    "dependencies": [
+      "M6.T01",
+      "M6.T02",
+      "M6.T03",
+      "M6.T04",
+      "M6.T05",
+      "M6.T06"
+    ],
+    "dependenciesText": "M6.T01; M6.T02; M6.T03; M6.T04; M6.T05; M6.T06",
+    "labels": [
+      "priority:P0",
+      "domain:harness",
+      "qa:playwright",
+      "qa:curl",
+      "qa:e2e"
+    ],
+    "body": "Source: `milestones-6-launch-readiness-controlled-pilot/task-07-controlled-pilot-readiness-review-and-human-signoff.md`\n\nTask ID: M6.T07\nPriority: P0\nDependencies: M6.T01; M6.T02; M6.T03; M6.T04; M6.T05; M6.T06\n\n# M6.T07 — Controlled pilot readiness review and human signoff\n\n**Milestone:** M6 — Launch Readiness & Controlled Pilot  \n**Priority:** P0  \n**Type:** Launch / QA / HITL  \n**Status:** Planned\n\n## Dependencies\n\n- M6.T01\n- M6.T02\n- M6.T03\n- M6.T04\n- M6.T05\n- M6.T06\n\n## Recommended specialist subagents\n\n- qa-specialist\n- product-architect\n- harness-lead\n- security-reviewer\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Aggregate readiness evidence across risk, deployment, monitoring, admin, compliance, and security.\n- Run final controlled pilot checklist.\n- Require human approval before any real-money or public pilot activity.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- This task should not implement major features; it should validate readiness and block if gaps remain.\n\n## Acceptance criteria\n\n- Readiness checklist maps every M6 Definition of Done item to evidence.\n- All blockers have owners and decisions.\n- Human owner signs off for controlled pilot or explicitly blocks launch with reasons.\n- PR remains Draft until QA and human signoff are recorded.\n\n## Required QA and test plan\n\n- Run final local or staging smoke suite: frontend Playwright, backend curl, smart-contract tests, and E2E selected scenarios.\n- Review monitoring/logging/admin evidence.\n- Record human signoff or block decision.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M6-T07/final-smoke.log.\n- evidence/M6-T07/readiness-checklist.md.\n- evidence/M6-T07/evidence-index.md.\n- evidence/M6-T07/human-signoff.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "M0",
+    "title": "M0 — Repository & Harness Foundation",
+    "sourcePath": "milestones-0-repository-harness-foundation/milestone.md"
+  },
+  {
+    "id": "M1",
+    "title": "M1 — Product Rules & Template System",
+    "sourcePath": "milestones-1-product-rules-template-system/milestone.md"
+  },
+  {
+    "id": "M2",
+    "title": "M2 — Smart Contract Settlement Core",
+    "sourcePath": "milestones-2-smart-contract-settlement-core/milestone.md"
+  },
+  {
+    "id": "M3",
+    "title": "M3 — Backend Core Orchestration",
+    "sourcePath": "milestones-3-backend-core-orchestration/milestone.md"
+  },
+  {
+    "id": "M4",
+    "title": "M4 — Frontend MVP Experience",
+    "sourcePath": "milestones-4-frontend-mvp-experience/milestone.md"
+  },
+  {
+    "id": "M5",
+    "title": "M5 — End-to-End MVP Integration",
+    "sourcePath": "milestones-5-end-to-end-mvp-integration/milestone.md"
+  },
+  {
+    "id": "M6",
+    "title": "M6 — Launch Readiness & Controlled Pilot",
+    "sourcePath": "milestones-6-launch-readiness-controlled-pilot/milestone.md"
+  }
+]

@@ -37,6 +37,7 @@ const requiredFiles = [
   'scripts/harness/new-task-worktree.sh',
   'scripts/harness/open-draft-pr.sh',
   'scripts/harness/qa-check.sh',
+  'scripts/harness/generate-issue-import.mjs',
   'scripts/blockchain/erc20-inspect.mjs',
   'scripts/blockchain/polymarket-condition-inspect.mjs',
 ];
@@ -181,6 +182,7 @@ function checkScriptsExecutable() {
     'scripts/harness/close-worktree.sh',
     'scripts/harness/commit-granular.sh',
     'scripts/harness/qa-check.sh',
+    'scripts/harness/generate-issue-import.mjs',
     'scripts/blockchain/erc20-inspect.mjs',
     'scripts/blockchain/polymarket-condition-inspect.mjs',
   ];
@@ -194,6 +196,7 @@ function runSelfTests() {
   execFileSync('node', ['scripts/blockchain/erc20-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/blockchain/polymarket-condition-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/harness/render-pr-body.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
+  execFileSync('node', ['scripts/harness/generate-issue-import.mjs', '--dry-run', '--output-dir', 'cache/issue-import-self-test'], { cwd: root, stdio: 'pipe' });
 }
 
 function main() {
