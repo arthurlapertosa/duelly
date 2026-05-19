@@ -50,204 +50,210 @@ TAP version 13
 # Subtest: backlog status manifest maps all current milestones and tasks
 ok 1 - backlog status manifest maps all current milestones and tasks
   ---
-  duration_ms: 12.876321
+  duration_ms: 22.010263
   type: 'test'
   ...
 # Subtest: backlog status relationships and markdown paths are valid
 ok 2 - backlog status relationships and markdown paths are valid
   ---
-  duration_ms: 5.208508
+  duration_ms: 4.458971
   type: 'test'
   ...
 # Subtest: backlog status manifest is generated from markdown
 ok 3 - backlog status manifest is generated from markdown
   ---
-  duration_ms: 26.507978
+  duration_ms: 56.008257
   type: 'test'
   ...
 # Subtest: backlog status generator rejects unsupported markdown status values
 ok 4 - backlog status generator rejects unsupported markdown status values
   ---
-  duration_ms: 3.835353
+  duration_ms: 10.064037
   type: 'test'
   ...
 # Subtest: backlog status generator only writes the canonical status path
 ok 5 - backlog status generator only writes the canonical status path
   ---
-  duration_ms: 0.241001
+  duration_ms: 0.476862
   type: 'test'
   ...
 # Subtest: backlog status validator rejects invalid status values
 ok 6 - backlog status validator rejects invalid status values
   ---
-  duration_ms: 3.166839
+  duration_ms: 5.078476
   type: 'test'
   ...
 # Subtest: backlog server serves the status page and mapped markdown
 ok 7 - backlog server serves the status page and mapped markdown
   ---
-  duration_ms: 61.10993
+  duration_ms: 116.612372
   type: 'test'
   ...
 # Subtest: sync planner creates missing M1.T00 and updates stale M1 metadata
 ok 8 - sync planner creates missing M1.T00 and updates stale M1 metadata
   ---
-  duration_ms: 28.21993
+  duration_ms: 55.160921
   type: 'test'
   ...
 # Subtest: sync planner preserves issue state and human labels while replacing generated labels
 ok 9 - sync planner preserves issue state and human labels while replacing generated labels
   ---
-  duration_ms: 1.367866
+  duration_ms: 2.155984
   type: 'test'
   ...
 # Subtest: sync planner rejects duplicate GitHub task ids
 ok 10 - sync planner rejects duplicate GitHub task ids
   ---
-  duration_ms: 0.577604
+  duration_ms: 1.561343
   type: 'test'
   ...
 # Subtest: sync planner rejects orphan GitHub task ids
 ok 11 - sync planner rejects orphan GitHub task ids
   ---
-  duration_ms: 0.296685
+  duration_ms: 0.862889
   type: 'test'
   ...
 # Subtest: sync planner ignores unmanaged issues with task-like text
 ok 12 - sync planner ignores unmanaged issues with task-like text
   ---
-  duration_ms: 0.278024
+  duration_ms: 0.708855
   type: 'test'
   ...
 # Subtest: sync planner trusts repo-tracked issue map for legacy imported issues
 ok 13 - sync planner trusts repo-tracked issue map for legacy imported issues
   ---
-  duration_ms: 0.469128
+  duration_ms: 0.48875
   type: 'test'
   ...
 # Subtest: sync planner rejects mapped issues without matching body metadata
 ok 14 - sync planner rejects mapped issues without matching body metadata
   ---
-  duration_ms: 0.704141
+  duration_ms: 1.04882
   type: 'test'
   ...
 # Subtest: sync planner rejects duplicate issue numbers in github map
 ok 15 - sync planner rejects duplicate issue numbers in github map
   ---
-  duration_ms: 0.266847
+  duration_ms: 0.279144
   type: 'test'
   ...
 # Subtest: sync planner rejects milestone title collisions without source mapping
 ok 16 - sync planner rejects milestone title collisions without source mapping
   ---
-  duration_ms: 0.425917
+  duration_ms: 0.421886
   type: 'test'
   ...
 # Subtest: sync CLI apply mode requires an explicit token
 ok 17 - sync CLI apply mode requires an explicit token
   ---
-  duration_ms: 73.671178
+  duration_ms: 127.02778
   type: 'test'
   ...
 # Subtest: sync CLI rejects github map repository drift before reading GitHub
 ok 18 - sync CLI rejects github map repository drift before reading GitHub
   ---
-  duration_ms: 75.422505
+  duration_ms: 128.325741
   type: 'test'
   ...
 # Subtest: apply plan mutates labels, milestones, and issues through GitHub requests
 ok 19 - apply plan mutates labels, milestones, and issues through GitHub requests
   ---
-  duration_ms: 1.166101
+  duration_ms: 2.530202
   type: 'test'
   ...
 # Subtest: apply plan refuses stale issue updates
 ok 20 - apply plan refuses stale issue updates
   ---
-  duration_ms: 0.374077
+  duration_ms: 1.396862
   type: 'test'
   ...
 # Subtest: harness validator passes
 ok 21 - harness validator passes
   ---
-  duration_ms: 546.645851
+  duration_ms: 800.190511
   type: 'test'
   ...
 # Subtest: PR body renderer includes mandatory sections
 ok 22 - PR body renderer includes mandatory sections
   ---
-  duration_ms: 56.153625
+  duration_ms: 55.459395
   type: 'test'
   ...
 # Subtest: PR body renderer can link evidence paths
 ok 23 - PR body renderer can link evidence paths
   ---
-  duration_ms: 57.649237
+  duration_ms: 62.380321
   type: 'test'
   ...
 # Subtest: PR template contains HITL guardrail
 ok 24 - PR template contains HITL guardrail
   ---
-  duration_ms: 0.49671
+  duration_ms: 0.240292
   type: 'test'
   ...
 # Subtest: issue import dry run preserves backlog task metadata
 ok 25 - issue import dry run preserves backlog task metadata
   ---
-  duration_ms: 73.61238
+  duration_ms: 132.46593
   type: 'test'
   ...
 # Subtest: issue import dry run emits required labels and milestone names
 ok 26 - issue import dry run emits required labels and milestone names
   ---
-  duration_ms: 81.183652
+  duration_ms: 121.01724
   type: 'test'
   ...
 # Subtest: issue import committed metadata check detects no drift
 ok 27 - issue import committed metadata check detects no drift
   ---
-  duration_ms: 74.116233
+  duration_ms: 140.055616
   type: 'test'
   ...
 # Subtest: keccak256 matches Ethereum empty hash
 ok 28 - keccak256 matches Ethereum empty hash
   ---
-  duration_ms: 3.225821
+  duration_ms: 4.525535
   type: 'test'
   ...
 # Subtest: known ERC selectors are stable
 ok 29 - known ERC selectors are stable
   ---
-  duration_ms: 12.477664
+  duration_ms: 7.256945
   type: 'test'
   ...
 # Subtest: calldata encoding pads values correctly
 ok 30 - calldata encoding pads values correctly
   ---
-  duration_ms: 2.01326
+  duration_ms: 0.981964
+  type: 'test'
+  ...
+# Subtest: rpc url redaction hides path and query credentials
+ok 31 - rpc url redaction hides path and query credentials
+  ---
+  duration_ms: 0.617987
   type: 'test'
   ...
 # Subtest: monorepo folders exist
-ok 31 - monorepo folders exist
+ok 32 - monorepo folders exist
   ---
-  duration_ms: 1.322732
+  duration_ms: 2.043778
   type: 'test'
   ...
 # Subtest: repository config points to final repo
-ok 32 - repository config points to final repo
+ok 33 - repository config points to final repo
   ---
-  duration_ms: 0.917547
+  duration_ms: 1.237857
   type: 'test'
   ...
-1..32
-# tests 32
+1..33
+# tests 33
 # suites 0
-# pass 32
+# pass 33
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 769.244709
+# duration_ms 1060.417019
 [qa] workspace tests
 
 > duelly@0.1.0 test:workspaces
@@ -261,7 +267,7 @@ TAP version 13
 # Subtest: frontend workspace has expected bootstrap files
 ok 1 - frontend workspace has expected bootstrap files
   ---
-  duration_ms: 1.030653
+  duration_ms: 2.384294
   type: 'test'
   ...
 1..1
@@ -272,7 +278,7 @@ ok 1 - frontend workspace has expected bootstrap files
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 66.428627
+# duration_ms 169.160104
 
 > @duelly/backend@0.1.0 test
 > node --import tsx --test test/unit/*.test.ts test/integration/*.test.ts
@@ -281,55 +287,55 @@ TAP version 13
 # Subtest: TypeORM repositories persist M1 template records in PostgreSQL
 ok 1 - TypeORM repositories persist M1 template records in PostgreSQL # SKIP
   ---
-  duration_ms: 0.895981
+  duration_ms: 0.90449
   type: 'test'
   ...
 # Subtest: loadAppConfig supports explicit DB variables and fixture mode defaults
 ok 2 - loadAppConfig supports explicit DB variables and fixture mode defaults
   ---
-  duration_ms: 1.739707
+  duration_ms: 1.263044
   type: 'test'
   ...
 # Subtest: health and readiness routes work without database configuration
 ok 3 - health and readiness routes work without database configuration
   ---
-  duration_ms: 93.14988
+  duration_ms: 162.195876
   type: 'test'
   ...
 # Subtest: template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
 ok 4 - template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
   ---
-  duration_ms: 72.952183
+  duration_ms: 89.2128
   type: 'test'
   ...
 # Subtest: fixture filter accepts only approved M1 sports templates
 ok 5 - fixture filter accepts only approved M1 sports templates
   ---
-  duration_ms: 65.795297
+  duration_ms: 59.470118
   type: 'test'
   ...
 # Subtest: fixture rejection matrix covers every required M1 reason code
 ok 6 - fixture rejection matrix covers every required M1 reason code
   ---
-  duration_ms: 17.901694
+  duration_ms: 24.041192
   type: 'test'
   ...
 # Subtest: template hash vectors are deterministic
 ok 7 - template hash vectors are deterministic
   ---
-  duration_ms: 39.47453
+  duration_ms: 50.606301
   type: 'test'
   ...
 # Subtest: critical template field changes alter hash while active does not alter identity
 ok 8 - critical template field changes alter hash while active does not alter identity
   ---
-  duration_ms: 13.958542
+  duration_ms: 15.774046
   type: 'test'
   ...
 # Subtest: publisher builds compact on-chain payload from accepted templates
 ok 9 - publisher builds compact on-chain payload from accepted templates
   ---
-  duration_ms: 31.871571
+  duration_ms: 28.758925
   type: 'test'
   ...
 1..9
@@ -340,7 +346,7 @@ ok 9 - publisher builds compact on-chain payload from accepted templates
 # cancelled 0
 # skipped 1
 # todo 0
-# duration_ms 2358.30422
+# duration_ms 2661.405833
 
 > @duelly/smartcontract@0.1.0 test
 > npm run test:node && npm run test:forge
@@ -353,7 +359,7 @@ TAP version 13
 # Subtest: smartcontract workspace has expected bootstrap files
 ok 1 - smartcontract workspace has expected bootstrap files
   ---
-  duration_ms: 1.105742
+  duration_ms: 1.029035
   type: 'test'
   ...
 1..1
@@ -364,23 +370,16 @@ ok 1 - smartcontract workspace has expected bootstrap files
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 67.46288
+# duration_ms 62.569071
 
 > @duelly/smartcontract@0.1.0 test:forge
 > PATH="$HOME/.foundry/bin:$PATH" forge test
 
 No files changed, compilation skipped
 
-Ran 1 test for test/Mocks.t.sol:MocksTest
-[PASS] test_MocksSmoke() (gas: 213680)
-Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.69ms (636.46µs CPU time)
-
-Ran 4 tests for test/Fee.t.sol:FeeTest
-[PASS] test_FeeMaxLoserFeeBpsIsEnforcedAtRegistration() (gas: 40008)
-[PASS] test_FeeRejectsIncorrectSignedLoserFee() (gas: 272915)
-[PASS] test_FeeUsesGasAnchoredMinimumWhenAbovePercentage() (gas: 31945)
-[PASS] test_FeeUsesPercentageWhenAboveMinimum() (gas: 31961)
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 2.13ms (1.13ms CPU time)
+Ran 1 test for test/PolygonForkCompatibility.t.sol:PolygonForkCompatibilityTest
+[PASS] test_PolygonForkLiveReadCompatibility() (gas: 164)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 306.58µs (54.84µs CPU time)
 
 Ran 7 tests for test/Config.t.sol:ConfigTest
 [PASS] test_ConfigConstructorRejectsZeroAddresses() (gas: 449403)
@@ -390,32 +389,18 @@ Ran 7 tests for test/Config.t.sol:ConfigTest
 [PASS] test_ConfigOwnershipTransferRemovesOldOwnerOperationalAccess() (gas: 51610)
 [PASS] test_ConfigRoleProtectedSettersRejectUnauthorized() (gas: 21689)
 [PASS] test_ConfigSettersAreRoleControlledAndEmit() (gas: 77491)
-Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 3.16ms (1.72ms CPU time)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 1.57ms (621.37µs CPU time)
 
-Ran 6 tests for test/Resolution.t.sol:ResolutionTest
-[PASS] test_ResolutionDenominatorZeroRevertsUnresolved() (gas: 655613)
-[PASS] test_ResolutionEqualPartialAndBothNonZeroVoid() (gas: 1156352)
-[PASS] test_ResolutionInvalidSlotCountVoids() (gas: 761343)
-[PASS] test_ResolutionStrictOutcomeOneWins() (gas: 795601)
-[PASS] test_ResolutionStrictOutcomeZeroWins() (gas: 795575)
-[PASS] test_ResolutionVoidsWhenSlotCountCallUnavailable() (gas: 717459)
-Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 10.06ms (9.34ms CPU time)
+Ran 4 tests for test/Fee.t.sol:FeeTest
+[PASS] test_FeeMaxLoserFeeBpsIsEnforcedAtRegistration() (gas: 40008)
+[PASS] test_FeeRejectsIncorrectSignedLoserFee() (gas: 272915)
+[PASS] test_FeeUsesGasAnchoredMinimumWhenAbovePercentage() (gas: 31945)
+[PASS] test_FeeUsesPercentageWhenAboveMinimum() (gas: 31961)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 1.92ms (1.04ms CPU time)
 
-Ran 4 tests for test/Settlement.t.sol:SettlementTest
-[PASS] test_SettlementDoubleSettlementFails() (gas: 789287)
-[PASS] test_SettlementPlayerAWinsPaysWinnerAndTreasury() (gas: 802243)
-[PASS] test_SettlementPlayerBWinsPaysWinnerAndTreasury() (gas: 795883)
-[PASS] test_SettlementVoidRefundsBothPlayersAndTreasuryZero() (gas: 794351)
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 6.79ms (5.85ms CPU time)
-
-Ran 6 tests for test/Security.t.sol:SecurityTest
-[PASS] test_SecurityExpiryFailsWhenCtfResolutionIsAvailable() (gas: 798050)
-[PASS] test_SecurityExpiryRefundsAfterDeadlineOnly() (gas: 651472)
-[PASS] test_SecurityMinMaxStakeEnforced() (gas: 281993)
-[PASS] test_SecurityPauseBlocksNewFundingButAllowsResolution() (gas: 832640)
-[PASS] test_SecurityReentrantTokenCannotEnterEscrow() (gas: 4634129)
-[PASS] test_SecurityRefundWorksWhilePaused() (gas: 650866)
-Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 14.46ms (13.40ms CPU time)
+Ran 1 test for test/Mocks.t.sol:MocksTest
+[PASS] test_MocksSmoke() (gas: 213680)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 933.59µs (276.58µs CPU time)
 
 Ran 7 tests for test/EIP712.t.sol:EIP712Test
 [PASS] test_EIP712CancelledNonceFails() (gas: 276190)
@@ -425,15 +410,7 @@ Ran 7 tests for test/EIP712.t.sol:EIP712Test
 [PASS] test_EIP712UnauthorizedTakerAndSameOutcomeFail() (gas: 313133)
 [PASS] test_EIP712ValidSignaturesFundBet() (gas: 650574)
 [PASS] test_EIP712WrongMakerSignerFails() (gas: 262196)
-Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 11.81ms (16.62ms CPU time)
-
-Ran 5 tests for test/Template.t.sol:TemplateTest
-[PASS] test_TemplateHashMatchesM1BackendVector() (gas: 12505)
-[PASS] test_TemplateRegistersAndReturnsActiveTemplate() (gas: 199076)
-[PASS] test_TemplateRejectsDuplicateInactiveAndMismatchedConditionFunding() (gas: 282431)
-[PASS] test_TemplateRejectsHashMismatch() (gas: 25229)
-[PASS] test_TemplateRejectsUnregisteredClosedAndInvalidOutcomeIndexes() (gas: 376334)
-Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 8.23ms (9.94ms CPU time)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 10.06ms (7.93ms CPU time)
 
 Ran 7 tests for test/Funding.t.sol:FundingTest
 [PASS] test_FundingExpiredPermitFailsWithoutBet() (gas: 343209)
@@ -443,7 +420,40 @@ Ran 7 tests for test/Funding.t.sol:FundingTest
 [PASS] test_FundingPermitValueTooLowFails() (gas: 336355)
 [PASS] test_FundingValidPermitsPullExactEscrowAndEmitBet() (gas: 657938)
 [PASS] test_FundingWrongSpenderPermitFails() (gas: 341826)
-Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 18.89ms (17.30ms CPU time)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 7.44ms (6.77ms CPU time)
 
-Ran 9 test suites in 22.64ms (77.21ms CPU time): 47 tests passed, 0 failed, 0 skipped (47 total tests)
+Ran 4 tests for test/Settlement.t.sol:SettlementTest
+[PASS] test_SettlementDoubleSettlementFails() (gas: 789287)
+[PASS] test_SettlementPlayerAWinsPaysWinnerAndTreasury() (gas: 802243)
+[PASS] test_SettlementPlayerBWinsPaysWinnerAndTreasury() (gas: 795883)
+[PASS] test_SettlementVoidRefundsBothPlayersAndTreasuryZero() (gas: 794351)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 5.85ms (5.21ms CPU time)
+
+Ran 6 tests for test/Resolution.t.sol:ResolutionTest
+[PASS] test_ResolutionDenominatorZeroRevertsUnresolved() (gas: 655613)
+[PASS] test_ResolutionEqualPartialAndBothNonZeroVoid() (gas: 1156352)
+[PASS] test_ResolutionInvalidSlotCountVoids() (gas: 761343)
+[PASS] test_ResolutionStrictOutcomeOneWins() (gas: 795601)
+[PASS] test_ResolutionStrictOutcomeZeroWins() (gas: 795575)
+[PASS] test_ResolutionVoidsWhenSlotCountCallUnavailable() (gas: 717459)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 12.65ms (17.56ms CPU time)
+
+Ran 6 tests for test/Security.t.sol:SecurityTest
+[PASS] test_SecurityExpiryFailsWhenCtfResolutionIsAvailable() (gas: 798050)
+[PASS] test_SecurityExpiryRefundsAfterDeadlineOnly() (gas: 651472)
+[PASS] test_SecurityMinMaxStakeEnforced() (gas: 281993)
+[PASS] test_SecurityPauseBlocksNewFundingButAllowsResolution() (gas: 832640)
+[PASS] test_SecurityReentrantTokenCannotEnterEscrow() (gas: 4634129)
+[PASS] test_SecurityRefundWorksWhilePaused() (gas: 650866)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 8.64ms (8.97ms CPU time)
+
+Ran 5 tests for test/Template.t.sol:TemplateTest
+[PASS] test_TemplateHashMatchesM1BackendVector() (gas: 12505)
+[PASS] test_TemplateRegistersAndReturnsActiveTemplate() (gas: 199076)
+[PASS] test_TemplateRejectsDuplicateInactiveAndMismatchedConditionFunding() (gas: 282431)
+[PASS] test_TemplateRejectsHashMismatch() (gas: 25229)
+[PASS] test_TemplateRejectsUnregisteredClosedAndInvalidOutcomeIndexes() (gas: 376334)
+Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 3.68ms (3.04ms CPU time)
+
+Ran 10 test suites in 15.69ms (53.04ms CPU time): 48 tests passed, 0 failed, 0 skipped (48 total tests)
 [qa] ok

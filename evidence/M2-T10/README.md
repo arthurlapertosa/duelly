@@ -14,12 +14,16 @@
 - `npm-test.log`: `npm test`.
 - `qa.log`: `npm run qa`.
 - `qa-check-direct.log`: direct harness QA.
-- `fork-test-blocked.md`: optional fork QA blocker.
+- `polygon-rpc-block-number.log`: Polygon RPC connectivity check.
+- `polygon-erc20-inspect.log`: sanitized BRL1 live-read output.
+- `polymarket-condition-inspect.log`: sanitized Polymarket CTF live-read output.
+- `fork-test.log`: optional Polygon fork compatibility smoke test.
 - `git-diff-check.log`: whitespace diff check.
 - `git-status-short.log`: working tree state at evidence capture time.
+- `secret-scan.log`: exact RPC URL and Alchemy URL redaction scan.
 - `package-qa-setup.md`: package and CI setup summary.
 - `definition-of-done-status.md`: M2 DoD status.
 
 ## Result
 
-Pass locally. Optional Polygon fork QA was not run because `POLYGON_RPC_URL` was not set.
+Pass locally. Optional Polygon live-read and fork QA passed with sanitized RPC output.

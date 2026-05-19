@@ -1,0 +1,23 @@
+{
+  "rpcUrl": "https://polygon-mainnet.g.alchemy.com/v2/***",
+  "block": "latest",
+  "ctf": "0x4D97DCd97eC945f40cF65F87097ACe5EA0476045",
+  "conditionId": "0x7976b8dbacf9077eb1453a62bcefd6ab2df199acd28aad276ff0d920d6992892",
+  "selectors": {
+    "payoutDenominator": "0xdd34de67",
+    "payoutNumerators": "0x0504c814",
+    "getOutcomeSlotCount": "0xd42dc0c2"
+  },
+  "outcomeSlotCount": 2,
+  "payoutDenominator": "0",
+  "payoutNumerators": [
+    "0",
+    "0"
+  ],
+  "interpretation": {
+    "status": "unresolved",
+    "winnerIndex": null,
+    "voidLike": false
+  },
+  "errors": []
+}

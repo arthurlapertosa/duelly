@@ -8,7 +8,7 @@
 - [x] `npm test` executed.
 - [x] `npm run qa` executed.
 - [x] Smart-contract evidence captured under `evidence/M2-T01/` through `evidence/M2-T10/`.
-- [x] Optional fork QA documented as blocked by missing `POLYGON_RPC_URL`.
+- [x] Optional Polygon live-read and fork QA executed with sanitized RPC evidence.
 - [x] No secrets intentionally committed; live signatures/private keys are not included in evidence.
 - [x] Agent did not merge or mark final approval.
 
