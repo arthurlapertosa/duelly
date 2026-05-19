@@ -1,0 +1,617 @@
+{
+  "version": 1,
+  "milestones": {
+    "milestone_000": {
+      "id": "milestone_000",
+      "title": "M0 - Repository & Harness Foundation",
+      "description": "Prepare the Duelly monorepo for agentic development with worktrees, draft PRs, QA evidence, and specialist subagents.",
+      "status": "done",
+      "progress": 100,
+      "markdown": "./milestones-0-repository-harness-foundation/milestone.md",
+      "tasks": [
+        "m0_t01",
+        "m0_t02",
+        "m0_t03",
+        "m0_t04",
+        "m0_t05"
+      ]
+    },
+    "milestone_001": {
+      "id": "milestone_001",
+      "title": "M1 - Product Rules & Template System",
+      "description": "Define the deterministic product rules and template system used to create valid Duelly bets.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/milestone.md",
+      "tasks": [
+        "m1_t01",
+        "m1_t02",
+        "m1_t03",
+        "m1_t04",
+        "m1_t05",
+        "m1_t06",
+        "m1_t07"
+      ]
+    },
+    "milestone_002": {
+      "id": "milestone_002",
+      "title": "M2 - Smart Contract Settlement Core",
+      "description": "Implement the smart contract core for BRL1 escrow, atomic funding, and deterministic settlement.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/milestone.md",
+      "tasks": [
+        "m2_t01",
+        "m2_t02",
+        "m2_t03",
+        "m2_t04",
+        "m2_t05",
+        "m2_t06",
+        "m2_t07",
+        "m2_t08",
+        "m2_t09",
+        "m2_t10"
+      ]
+    },
+    "milestone_003": {
+      "id": "milestone_003",
+      "title": "M3 - Backend Core Orchestration",
+      "description": "Build the backend orchestration layer for auth, wallets, templates, relayer, indexing, and resolution triggers.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/milestone.md",
+      "tasks": [
+        "m3_t01",
+        "m3_t02",
+        "m3_t03",
+        "m3_t04",
+        "m3_t05",
+        "m3_t06",
+        "m3_t07",
+        "m3_t08",
+        "m3_t09",
+        "m3_t10"
+      ]
+    },
+    "milestone_004": {
+      "id": "milestone_004",
+      "title": "M4 - Frontend MVP Experience",
+      "description": "Build the mobile-first MVP frontend experience while hiding Web3 complexity from regular users.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/milestone.md",
+      "tasks": [
+        "m4_t01",
+        "m4_t02",
+        "m4_t03",
+        "m4_t04",
+        "m4_t05",
+        "m4_t06",
+        "m4_t07",
+        "m4_t08"
+      ]
+    },
+    "milestone_005": {
+      "id": "milestone_005",
+      "title": "M5 - End-to-End MVP Integration",
+      "description": "Integrate the full MVP flow across frontend, backend, and smart contracts.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/milestone.md",
+      "tasks": [
+        "m5_t01",
+        "m5_t02",
+        "m5_t03",
+        "m5_t04",
+        "m5_t05",
+        "m5_t06",
+        "m5_t07"
+      ]
+    },
+    "milestone_006": {
+      "id": "milestone_006",
+      "title": "M6 - Launch Readiness & Controlled Pilot",
+      "description": "Prepare the controlled pilot through operations, monitoring, compliance, security, and human signoff.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/milestone.md",
+      "tasks": [
+        "m6_t01",
+        "m6_t02",
+        "m6_t03",
+        "m6_t04",
+        "m6_t05",
+        "m6_t06",
+        "m6_t07"
+      ]
+    }
+  },
+  "tasks": {
+    "m0_t01": {
+      "id": "m0_t01",
+      "milestone": "milestone_000",
+      "title": "M0.T01 - Create and validate the first monorepo commit",
+      "description": "Apply and validate the initial Duelly monorepo bootstrap.",
+      "status": "done",
+      "progress": 100,
+      "markdown": "./milestones-0-repository-harness-foundation/task-01-create-and-validate-the-first-monorepo-commit.md"
+    },
+    "m0_t02": {
+      "id": "m0_t02",
+      "milestone": "milestone_000",
+      "title": "M0.T02 - Configure GitHub repository safety controls",
+      "description": "Configure repository controls required for safe draft PR development.",
+      "status": "done",
+      "progress": 100,
+      "markdown": "./milestones-0-repository-harness-foundation/task-02-configure-github-repository-safety-controls.md"
+    },
+    "m0_t03": {
+      "id": "m0_t03",
+      "milestone": "milestone_000",
+      "title": "M0.T03 - Validate worktree and Draft PR harness flow",
+      "description": "Validate the worktree and draft PR workflow used by agents.",
+      "status": "done",
+      "progress": 100,
+      "markdown": "./milestones-0-repository-harness-foundation/task-03-validate-worktree-and-draft-pr-harness-flow.md"
+    },
+    "m0_t04": {
+      "id": "m0_t04",
+      "milestone": "milestone_000",
+      "title": "M0.T04 - Standardize evidence folder and QA artifact conventions",
+      "description": "Define evidence folder and QA artifact conventions for future tasks.",
+      "status": "done",
+      "progress": 100,
+      "markdown": "./milestones-0-repository-harness-foundation/task-04-standardize-evidence-folder-and-qa-artifact-conventions.md"
+    },
+    "m0_t05": {
+      "id": "m0_t05",
+      "milestone": "milestone_000",
+      "title": "M0.T05 - Prepare GitHub issue import metadata for milestones and tasks",
+      "description": "Prepare metadata for importing backlog milestones and tasks into GitHub issues.",
+      "status": "done",
+      "progress": 100,
+      "markdown": "./milestones-0-repository-harness-foundation/task-05-prepare-github-issue-import-metadata-for-milestones-and-tasks.md"
+    },
+    "m1_t01": {
+      "id": "m1_t01",
+      "milestone": "milestone_001",
+      "title": "M1.T01 - Finalize template acceptance policy and initial category decision",
+      "description": "Finalize the acceptance policy and first category decision for templates.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-01-finalize-template-acceptance-policy-and-initial-category-decision.md"
+    },
+    "m1_t02": {
+      "id": "m1_t02",
+      "milestone": "milestone_001",
+      "title": "M1.T02 - Capture Polymarket API configuration and safe fixture strategy",
+      "description": "Document Polymarket API configuration and a safe fixture strategy.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-02-capture-polymarket-api-configuration-and-safe-fixture-strategy.md"
+    },
+    "m1_t03": {
+      "id": "m1_t03",
+      "milestone": "milestone_001",
+      "title": "M1.T03 - Implement Polymarket market discovery adapter",
+      "description": "Implement the adapter that discovers candidate Polymarket markets.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-03-implement-polymarket-market-discovery-adapter.md"
+    },
+    "m1_t04": {
+      "id": "m1_t04",
+      "milestone": "milestone_001",
+      "title": "M1.T04 - Define deterministic template schema and templateHash",
+      "description": "Define the deterministic template schema and template hash.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-04-define-deterministic-template-schema-and-templatehash.md"
+    },
+    "m1_t05": {
+      "id": "m1_t05",
+      "milestone": "milestone_001",
+      "title": "M1.T05 - Implement strict template filters and rejection reasons",
+      "description": "Implement strict filtering and explicit rejection reasons for templates.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-05-implement-strict-template-filters-and-rejection-reasons.md"
+    },
+    "m1_t06": {
+      "id": "m1_t06",
+      "milestone": "milestone_001",
+      "title": "M1.T06 - Specify and stub template registry publisher",
+      "description": "Specify and stub the template registry publisher.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-06-specify-and-stub-template-registry-publisher.md"
+    },
+    "m1_t07": {
+      "id": "m1_t07",
+      "milestone": "milestone_001",
+      "title": "M1.T07 - Create template QA fixture and evidence pack",
+      "description": "Create the template QA fixture and evidence package.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-07-create-template-qa-fixture-and-evidence-pack.md"
+    },
+    "m2_t01": {
+      "id": "m2_t01",
+      "milestone": "milestone_002",
+      "title": "M2.T01 - Set up Foundry smart-contract test environment and mocks",
+      "description": "Set up Foundry tests and mocks for smart contract development.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-01-set-up-foundry-smart-contract-test-environment-and-mocks.md"
+    },
+    "m2_t02": {
+      "id": "m2_t02",
+      "milestone": "milestone_002",
+      "title": "M2.T02 - Implement BetEscrowBRL1 contract skeleton and configuration",
+      "description": "Implement the BetEscrowBRL1 contract skeleton and configuration.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-02-implement-betescrowbrl1-contract-skeleton-and-configuration.md"
+    },
+    "m2_t03": {
+      "id": "m2_t03",
+      "milestone": "milestone_002",
+      "title": "M2.T03 - Implement EIP-712 BetOffer and BetAcceptance validation",
+      "description": "Implement EIP-712 validation for bet offers and acceptances.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-03-implement-eip-712-betoffer-and-betacceptance-validation.md"
+    },
+    "m2_t04": {
+      "id": "m2_t04",
+      "milestone": "milestone_002",
+      "title": "M2.T04 - Implement ERC-2612 permit-based atomic funding",
+      "description": "Implement permit-based atomic funding with ERC-2612.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-04-implement-erc-2612-permit-based-atomic-funding.md"
+    },
+    "m2_t05": {
+      "id": "m2_t05",
+      "milestone": "milestone_002",
+      "title": "M2.T05 - Implement loserFee formula with gas-anchored minimum",
+      "description": "Implement the loser fee formula with a gas-anchored minimum.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-05-implement-loserfee-formula-with-gas-anchored-minimum.md"
+    },
+    "m2_t06": {
+      "id": "m2_t06",
+      "milestone": "milestone_002",
+      "title": "M2.T06 - Implement on-chain template registry enforcement",
+      "description": "Enforce the on-chain template registry.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-06-implement-on-chain-template-registry-enforcement.md"
+    },
+    "m2_t07": {
+      "id": "m2_t07",
+      "milestone": "milestone_002",
+      "title": "M2.T07 - Implement escrow settlement and payout math",
+      "description": "Implement escrow settlement and payout math.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-07-implement-escrow-settlement-and-payout-math.md"
+    },
+    "m2_t08": {
+      "id": "m2_t08",
+      "milestone": "milestone_002",
+      "title": "M2.T08 - Implement automatic Polymarket CTF resolution logic",
+      "description": "Implement automatic Polymarket CTF resolution logic.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-08-implement-automatic-polymarket-ctf-resolution-logic.md"
+    },
+    "m2_t09": {
+      "id": "m2_t09",
+      "milestone": "milestone_002",
+      "title": "M2.T09 - Implement expiry, pause, and security controls",
+      "description": "Implement expiry, pause, and security controls.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-09-implement-expiry-pause-and-security-controls.md"
+    },
+    "m2_t10": {
+      "id": "m2_t10",
+      "milestone": "milestone_002",
+      "title": "M2.T10 - Complete smart-contract QA suite and optional Polygon fork compatibility",
+      "description": "Complete the smart-contract QA suite and optional Polygon fork compatibility.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-2-smart-contract-settlement-core/task-10-complete-smart-contract-qa-suite-and-optional-polygon-fork-compatibility.md"
+    },
+    "m3_t01": {
+      "id": "m3_t01",
+      "milestone": "milestone_003",
+      "title": "M3.T01 - Create backend service skeleton, configuration, and health checks",
+      "description": "Create the backend service skeleton, configuration, and health checks.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-01-create-backend-service-skeleton-configuration-and-health-checks.md"
+    },
+    "m3_t02": {
+      "id": "m3_t02",
+      "milestone": "milestone_003",
+      "title": "M3.T02 - Implement auth, session, and user model for MVP",
+      "description": "Implement auth, session, and user model for the MVP.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-02-implement-auth-session-and-user-model-for-mvp.md"
+    },
+    "m3_t03": {
+      "id": "m3_t03",
+      "milestone": "milestone_003",
+      "title": "M3.T03 - Implement wallet abstraction provider interface",
+      "description": "Implement the wallet abstraction provider interface.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-03-implement-wallet-abstraction-provider-interface.md"
+    },
+    "m3_t04": {
+      "id": "m3_t04",
+      "milestone": "milestone_003",
+      "title": "M3.T04 - Implement Pix, Stripe, brokerage provider abstractions, and user ledger fees",
+      "description": "Implement Pix, Stripe, brokerage abstractions, and user ledger fees.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-04-implement-pix-stripe-brokerage-provider-abstractions-and-user-ledger-fee.md"
+    },
+    "m3_t05": {
+      "id": "m3_t05",
+      "milestone": "milestone_003",
+      "title": "M3.T05 - Implement BRL1 balance service and betting availability checks",
+      "description": "Implement BRL1 balance service and betting availability checks.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-05-implement-brl1-balance-service-and-betting-availability-checks.md"
+    },
+    "m3_t06": {
+      "id": "m3_t06",
+      "milestone": "milestone_003",
+      "title": "M3.T06 - Integrate template discovery and template publisher API",
+      "description": "Integrate template discovery with the template publisher API.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-06-integrate-template-discovery-and-template-publisher-api.md"
+    },
+    "m3_t07": {
+      "id": "m3_t07",
+      "milestone": "milestone_003",
+      "title": "M3.T07 - Implement invite, offer, and EIP-712 payload service",
+      "description": "Implement invite, offer, and EIP-712 payload services.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-07-implement-invite-offer-and-eip-712-payload-service.md"
+    },
+    "m3_t08": {
+      "id": "m3_t08",
+      "milestone": "milestone_003",
+      "title": "M3.T08 - Implement relayer service and gas-fee-based minLoserFee quoting",
+      "description": "Implement the relayer service and minimum loser fee quoting.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-08-implement-relayer-service-and-gas-fee-based-minloserfee-quoting.md"
+    },
+    "m3_t09": {
+      "id": "m3_t09",
+      "milestone": "milestone_003",
+      "title": "M3.T09 - Implement contract event indexer and bet state API",
+      "description": "Implement contract event indexing and the bet state API.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-09-implement-contract-event-indexer-and-bet-state-api.md"
+    },
+    "m3_t10": {
+      "id": "m3_t10",
+      "milestone": "milestone_003",
+      "title": "M3.T10 - Implement resolution trigger and backend curl E2E validation",
+      "description": "Implement the resolution trigger and backend curl E2E validation.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-backend-core-orchestration/task-10-implement-resolution-trigger-and-backend-curl-e2e-validation.md"
+    },
+    "m4_t01": {
+      "id": "m4_t01",
+      "milestone": "milestone_004",
+      "title": "M4.T01 - Create frontend app foundation and design primitives",
+      "description": "Create the frontend app foundation and design primitives.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-01-create-frontend-app-foundation-and-design-primitives.md"
+    },
+    "m4_t02": {
+      "id": "m4_t02",
+      "milestone": "milestone_004",
+      "title": "M4.T02 - Implement login and wallet onboarding experience",
+      "description": "Implement login and wallet onboarding experience.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-02-implement-login-and-wallet-onboarding-experience.md"
+    },
+    "m4_t03": {
+      "id": "m4_t03",
+      "milestone": "milestone_004",
+      "title": "M4.T03 - Implement balance, deposit quote, and withdrawal quote UI",
+      "description": "Implement balance, deposit quote, and withdrawal quote UI.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-03-implement-balance-deposit-quote-and-withdrawal-quote-ui.md"
+    },
+    "m4_t04": {
+      "id": "m4_t04",
+      "milestone": "milestone_004",
+      "title": "M4.T04 - Implement template browsing and selection UI",
+      "description": "Implement template browsing and selection UI.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-04-implement-template-browsing-and-selection-ui.md"
+    },
+    "m4_t05": {
+      "id": "m4_t05",
+      "milestone": "milestone_004",
+      "title": "M4.T05 - Implement create invite flow with fee preview",
+      "description": "Implement create invite flow with fee preview.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-05-implement-create-invite-flow-with-fee-preview.md"
+    },
+    "m4_t06": {
+      "id": "m4_t06",
+      "milestone": "milestone_004",
+      "title": "M4.T06 - Implement accept invite and signing flow",
+      "description": "Implement accept invite and signing flow.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-06-implement-accept-invite-and-signing-flow.md"
+    },
+    "m4_t07": {
+      "id": "m4_t07",
+      "milestone": "milestone_004",
+      "title": "M4.T07 - Implement bet status, result, and payout UI",
+      "description": "Implement bet status, result, and payout UI.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-07-implement-bet-status-result-and-payout-ui.md"
+    },
+    "m4_t08": {
+      "id": "m4_t08",
+      "milestone": "milestone_004",
+      "title": "M4.T08 - Complete frontend Playwright QA suite and accessibility smoke checks",
+      "description": "Complete frontend Playwright QA and accessibility smoke checks.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-4-frontend-mvp-experience/task-08-complete-frontend-playwright-qa-suite-and-accessibility-smoke-checks.md"
+    },
+    "m5_t01": {
+      "id": "m5_t01",
+      "milestone": "milestone_005",
+      "title": "M5.T01 - Create local full-stack orchestration",
+      "description": "Create local full-stack orchestration for E2E validation.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/task-01-create-local-full-stack-orchestration.md"
+    },
+    "m5_t02": {
+      "id": "m5_t02",
+      "milestone": "milestone_005",
+      "title": "M5.T02 - Implement deterministic E2E seed data",
+      "description": "Implement deterministic seed data for E2E tests.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/task-02-implement-deterministic-e2e-seed-data.md"
+    },
+    "m5_t03": {
+      "id": "m5_t03",
+      "milestone": "milestone_005",
+      "title": "M5.T03 - E2E happy path: player A wins",
+      "description": "Validate the E2E happy path where player A wins.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/task-03-e2e-happy-path-player-a-wins.md"
+    },
+    "m5_t04": {
+      "id": "m5_t04",
+      "milestone": "milestone_005",
+      "title": "M5.T04 - E2E happy path: player B wins",
+      "description": "Validate the E2E happy path where player B wins.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/task-04-e2e-happy-path-player-b-wins.md"
+    },
+    "m5_t05": {
+      "id": "m5_t05",
+      "milestone": "milestone_005",
+      "title": "M5.T05 - E2E void/refund path",
+      "description": "Validate the E2E void and refund path.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/task-05-e2e-void-refund-path.md"
+    },
+    "m5_t06": {
+      "id": "m5_t06",
+      "milestone": "milestone_005",
+      "title": "M5.T06 - E2E failure paths and recovery",
+      "description": "Validate E2E failure paths and recovery behavior.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/task-06-e2e-failure-paths-and-recovery.md"
+    },
+    "m5_t07": {
+      "id": "m5_t07",
+      "milestone": "milestone_005",
+      "title": "M5.T07 - Create final E2E evidence bundle and QA approval gate",
+      "description": "Create the final E2E evidence bundle and QA approval gate.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-5-end-to-end-mvp-integration/task-07-create-final-e2e-evidence-bundle-and-qa-approval-gate.md"
+    },
+    "m6_t01": {
+      "id": "m6_t01",
+      "milestone": "milestone_006",
+      "title": "M6.T01 - Implement operational limits and risk configuration",
+      "description": "Implement operational limits and risk configuration.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-01-implement-operational-limits-and-risk-configuration.md"
+    },
+    "m6_t02": {
+      "id": "m6_t02",
+      "milestone": "milestone_006",
+      "title": "M6.T02 - Create staging/control deployment runbook",
+      "description": "Create the staging and controlled deployment runbook.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-02-create-staging-control-deployment-runbook.md"
+    },
+    "m6_t03": {
+      "id": "m6_t03",
+      "milestone": "milestone_006",
+      "title": "M6.T03 - Implement monitoring, error tracking, and operational logs",
+      "description": "Implement monitoring, error tracking, and operational logs.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-03-implement-monitoring-error-tracking-and-operational-logs.md"
+    },
+    "m6_t04": {
+      "id": "m6_t04",
+      "milestone": "milestone_006",
+      "title": "M6.T04 - Implement minimal admin controls and status view",
+      "description": "Implement minimal admin controls and status view.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-04-implement-minimal-admin-controls-and-status-view.md"
+    },
+    "m6_t05": {
+      "id": "m6_t05",
+      "milestone": "milestone_006",
+      "title": "M6.T05 - Create compliance and regulatory readiness checklist",
+      "description": "Create the compliance and regulatory readiness checklist.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-05-create-compliance-and-regulatory-readiness-checklist.md"
+    },
+    "m6_t06": {
+      "id": "m6_t06",
+      "milestone": "milestone_006",
+      "title": "M6.T06 - Run security review and create incident runbook",
+      "description": "Run security review and create the incident runbook.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-06-run-security-review-and-create-incident-runbook.md"
+    },
+    "m6_t07": {
+      "id": "m6_t07",
+      "milestone": "milestone_006",
+      "title": "M6.T07 - Controlled pilot readiness review and human signoff",
+      "description": "Run the controlled pilot readiness review and collect human signoff.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-07-controlled-pilot-readiness-review-and-human-signoff.md"
+    }
+  }
+}

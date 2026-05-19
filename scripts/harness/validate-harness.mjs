@@ -13,6 +13,9 @@ const requiredFiles = [
   '.codex/config.toml',
   '.github/pull_request_template.md',
   '.github/workflows/qa.yml',
+  'backlog/status.json',
+  'backlog/server.mjs',
+  'backlog/README.md',
   'docs/OPERATING_MODEL.md',
   'docs/MONOREPO.md',
   'docs/ARCHITECTURE.md',
@@ -38,6 +41,7 @@ const requiredFiles = [
   'scripts/harness/open-draft-pr.sh',
   'scripts/harness/qa-check.sh',
   'scripts/harness/generate-issue-import.mjs',
+  'scripts/harness/validate-backlog-status.mjs',
   'scripts/blockchain/erc20-inspect.mjs',
   'scripts/blockchain/polymarket-condition-inspect.mjs',
 ];
@@ -183,16 +187,34 @@ function checkScriptsExecutable() {
     'scripts/harness/commit-granular.sh',
     'scripts/harness/qa-check.sh',
     'scripts/harness/generate-issue-import.mjs',
+    'scripts/harness/validate-backlog-status.mjs',
     'scripts/blockchain/erc20-inspect.mjs',
     'scripts/blockchain/polymarket-condition-inspect.mjs',
   ];
   for (const script of scripts) {
     const mode = statSync(join(root, script)).mode;
-    if ((mode & 0o111) === 0) fail(`${script} is not executable`);
+    let gitMode = '';
+    try {
+      gitMode = execFileSync('git', ['ls-files', '--stage', '--', script], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      })
+        .trim()
+        .split(/\s+/)[0];
+    } catch {
+      gitMode = '';
+    }
+
+    const hasShebang = read(script).startsWith('#!');
+    if ((mode & 0o111) === 0 && gitMode !== '100755' && !hasShebang) {
+      fail(`${script} is not executable`);
+    }
   }
 }
 
 function runSelfTests() {
+  execFileSync('node', ['scripts/harness/validate-backlog-status.mjs'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/blockchain/erc20-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/blockchain/polymarket-condition-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/harness/render-pr-body.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
@@ -223,6 +245,7 @@ function main() {
       'claude-agents',
       'pr-template',
       'scripts',
+      'backlog-status',
       'self-tests'
     ]
   }, null, 2));
