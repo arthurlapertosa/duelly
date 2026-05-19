@@ -1,0 +1,108 @@
+== new-task-worktree dry-run ==
+bash scripts/harness/new-task-worktree.sh --task "import prototype and enforce frontend parity" --base origin/main --dry-run
+
+{
+  "repoRoot": "/mnt/c/Users/carlos.fonseca/Documents/Firma/GIT/duelly",
+  "base": "origin/main",
+  "branch": "task/import-prototype-and-enforce-frontend-parity",
+  "worktreePath": "../worktrees/duelly-import-prototype-and-enforce-frontend-parity"
+}
+
+== git worktree list ==
+git worktree list
+
+/mnt/c/Users/carlos.fonseca/Documents/Firma/GIT/duelly                                                         cb03d82 [main]
+/mnt/c/Users/carlos.fonseca/Documents/Firma/GIT/worktrees/duelly-backlog-status-interface                      fca9291 [codex/backlog-status-interface]
+/mnt/c/Users/carlos.fonseca/Documents/Firma/GIT/worktrees/duelly-import-prototype-and-enforce-frontend-parity  c33ae21 [task/import-prototype-and-enforce-frontend-parity]
+
+== render-pr-body ==
+node scripts/harness/render-pr-body.mjs --task "M4.T01" --summary "Import .prototype as the frontend reference app, enforce 1:1 parity rules in the harness, and attach the full prototype flow screenshot baseline." --qa "npm run validate / npm test / npm run qa / npm --prefix .prototype run build" --evidence evidence/M4-T01 --output .pr-body.generated.md
+
+# Summary
+
+Import .prototype as the frontend reference app, enforce 1:1 parity rules in the harness, and attach the full prototype flow screenshot baseline.
+
+## Task
+
+M4.T01
+
+## Scope
+
+- [x] PR opened as draft.
+- [x] Work completed in an independent worktree.
+- [ ] Scope validated by QA/HITL.
+
+## Definition of Done
+
+- [ ] Tests added/updated when behavior changed.
+- [ ] Documentation updated when needed.
+- [ ] No secrets were committed.
+- [ ] Frontend parity with .prototype is documented or explicitly waived by a human.
+- [ ] Risks and follow-ups are explicit.
+- [ ] Agent did not merge or mark final approval.
+
+## Evidence
+
+### Evidence paths
+
+- evidence/M4-T01
+
+### Commands executed
+
+```bash
+npm run validate
+npm test
+npm run qa
+npm --prefix .prototype run build
+```
+
+### Test results
+
+```text
+Pending: paste real QA output from the worktree.
+```
+
+### Area evidence
+
+- [ ] Frontend evidence included or not applicable.
+- [ ] Frontend parity with .prototype documented or not applicable.
+- [ ] Backend evidence included or not applicable.
+- [ ] Smart-contract evidence included or not applicable.
+- [ ] End-to-end evidence included or not applicable.
+
+### Visual or blockchain evidence, when applicable
+
+```text
+Pending or not applicable. If frontend changed, list the .prototype parity screenshots.
+```
+
+## Local QA
+
+- [ ] npm run validate
+npm test
+npm run qa
+npm --prefix .prototype run build
+
+## Risks / follow-ups
+
+- Pending human review.
+
+## HITL
+
+- [ ] Human QA approved.
+- [ ] PR can leave draft.
+- [ ] Merge/close decision was made by a human.
+
+---
+Generated at 2026-05-19T18:20:42.987Z
+
+== open-draft-pr dry-run ==
+bash scripts/harness/open-draft-pr.sh --title "chore(frontend): import prototype baseline and parity rules" --dry-run
+
+{
+  "title": "chore(frontend): import prototype baseline and parity rules",
+  "base": "main",
+  "head": "task/import-prototype-and-enforce-frontend-parity",
+  "bodyFile": ".pr-body.generated.md",
+  "draft": true
+}
