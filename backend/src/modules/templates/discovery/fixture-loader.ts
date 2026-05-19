@@ -1,11 +1,11 @@
 import { access, readFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hashJson } from '../hashing/template-hash.service.js';
 import type { NormalizedMarketCandidate, Outcome, Sport } from '../domain/types.js';
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
-const fixtureRelativePath = 'fixtures/polymarket/sports/markets.json';
+const fixturePathFromWorkspaceRoot = 'backend/fixtures/polymarket/sports/markets.json';
 
 type FixtureMarket = Omit<NormalizedMarketCandidate, 'provider' | 'outcomes' | 'rawProviderPayloadHash' | 'rawProviderPayload'> & {
   outcomes: string[];
@@ -21,23 +21,40 @@ export async function loadFixtureCandidates(sport?: Sport): Promise<NormalizedMa
 }
 
 async function resolveFixturePath(): Promise<string> {
-  const candidates = [
-    resolve(process.cwd(), fixtureRelativePath),
-    resolve(process.cwd(), 'backend', fixtureRelativePath),
-    resolve(currentDir, '../../../../', fixtureRelativePath),
-    resolve(currentDir, '../../../../../', fixtureRelativePath),
-  ];
+  const workspaceRoot = await findWorkspaceRoot([process.cwd(), currentDir]);
+  if (!workspaceRoot) {
+    throw new Error(`Could not find workspace root containing ${fixturePathFromWorkspaceRoot}`);
+  }
+  return join(workspaceRoot, fixturePathFromWorkspaceRoot);
+}
 
-  for (const candidate of candidates) {
-    try {
-      await access(candidate);
-      return candidate;
-    } catch {
-      // Try the next location. This supports source, dist, repo-root, and workspace-root execution.
+async function findWorkspaceRoot(startDirectories: string[]): Promise<string | undefined> {
+  const visited = new Set<string>();
+
+  for (const startDirectory of startDirectories) {
+    let directory = resolve(startDirectory);
+
+    while (!visited.has(directory)) {
+      visited.add(directory);
+      const fixturePath = join(directory, fixturePathFromWorkspaceRoot);
+      if (await pathExists(fixturePath)) return directory;
+
+      const parentDirectory = dirname(directory);
+      if (parentDirectory === directory) break;
+      directory = parentDirectory;
     }
   }
 
-  throw new Error(`Could not find fixture file ${fixtureRelativePath}`);
+  return undefined;
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function normalizeFixture(fixture: FixtureMarket): NormalizedMarketCandidate {

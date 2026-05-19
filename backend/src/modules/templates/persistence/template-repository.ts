@@ -7,7 +7,7 @@ import type {
   RejectedCandidateRecord,
   SportsTemplateRecord,
   TemplatePublishAuditRecord,
-} from './entities.js';
+} from './entities/index.js';
 import type { CanonicalSportsTemplate, NormalizedMarketCandidate, PublishableTemplatePayload, RejectedCandidate } from '../domain/types.js';
 
 export class TemplateRepository {

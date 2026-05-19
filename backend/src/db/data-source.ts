@@ -6,7 +6,7 @@ import {
   RejectedCandidateEntity,
   SportsTemplateEntity,
   TemplatePublishAuditEntity,
-} from '../modules/templates/persistence/entities.js';
+} from '../modules/templates/persistence/entities/index.js';
 import { CreateM1TemplateTables1716100000000 } from './migrations/1716100000000-CreateM1TemplateTables.js';
 
 export function createDataSource(config: AppConfig = loadAppConfig()): DataSource {
