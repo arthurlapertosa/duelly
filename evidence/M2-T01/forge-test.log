@@ -1,0 +1,7 @@
+No files changed, compilation skipped
+
+Ran 1 test for test/Mocks.t.sol:MocksTest
+[PASS] test_MocksSmoke() (gas: 213680)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.87ms (675.50µs CPU time)
+
+Ran 1 test suite in 10.28ms (1.87ms CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)

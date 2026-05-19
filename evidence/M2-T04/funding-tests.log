@@ -1,0 +1,13 @@
+No files changed, compilation skipped
+
+Ran 7 tests for test/Funding.t.sol:FundingTest
+[PASS] test_FundingExpiredPermitFailsWithoutBet() (gas: 343209)
+[PASS] test_FundingInsufficientBalanceRevertsAtomically() (gas: 494365)
+[PASS] test_FundingInvalidPermitFailsEvenWithStaleAllowance() (gas: 373741)
+[PASS] test_FundingPermitFrontRunFallsBackToExistingAllowance() (gas: 646919)
+[PASS] test_FundingPermitValueTooLowFails() (gas: 336355)
+[PASS] test_FundingValidPermitsPullExactEscrowAndEmitBet() (gas: 657938)
+[PASS] test_FundingWrongSpenderPermitFails() (gas: 341826)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 4.51ms (11.42ms CPU time)
+
+Ran 1 test suite in 9.71ms (4.51ms CPU time): 7 tests passed, 0 failed, 0 skipped (7 total tests)

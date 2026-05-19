@@ -1,0 +1,15 @@
+# Definition of Done Status
+
+- [x] Implemented in independent worktree: `../worktrees/duelly-m2-smart-contract-settlement-core`.
+- [ ] Draft PR opened.
+- [x] Granular commits created.
+- [x] Behavior changes covered by tests.
+- [x] `npm run validate` executed.
+- [x] `npm test` executed.
+- [x] `npm run qa` executed.
+- [x] Smart-contract evidence captured under `evidence/M2-T01/` through `evidence/M2-T10/`.
+- [x] Optional fork QA documented as blocked by missing `POLYGON_RPC_URL`.
+- [x] No secrets intentionally committed; live signatures/private keys are not included in evidence.
+- [x] Agent did not merge or mark final approval.
+
+Draft PR is completed after this evidence pack is committed, pushed, and opened through the harness.
