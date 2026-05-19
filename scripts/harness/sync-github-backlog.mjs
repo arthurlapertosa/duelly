@@ -78,6 +78,12 @@ function readGithubIssueMap(root = process.cwd()) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
+function validateGithubIssueMap({ githubIssueMap, repo }) {
+  if (githubIssueMap.repository && githubIssueMap.repository !== repo) {
+    throw new Error(`github-map.json repository mismatch: expected ${repo}, found ${githubIssueMap.repository}`);
+  }
+}
+
 export async function githubRequest({ token, method = 'GET', path, body }) {
   const response = await fetch(`https://api.github.com${path}`, {
     method,
@@ -257,6 +263,7 @@ export async function main() {
   const backlog = buildImport(process.cwd(), args.repo ? { repository: args.repo } : undefined);
   const repo = args.repo || backlog.repository;
   const githubIssueMap = readGithubIssueMap();
+  validateGithubIssueMap({ githubIssueMap, repo });
   const token = resolveToken({ apply: args.apply });
   const github = await fetchGithubState({ token, repo });
   const plan = planGithubBacklogSync({ backlog, github, githubIssueMap });

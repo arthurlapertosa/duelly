@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { isAbsolute, join, relative } from 'node:path';
+import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { isAbsolute, join, relative, sep } from 'node:path';
 
 export const DEFAULT_REPOSITORY = 'arthurlapertosa/duelly';
 export const DEFAULT_OUTPUT_DIR = 'backlog/github-issue-import';
@@ -26,6 +26,22 @@ export const labelCatalog = [
 function firstMatch(content, pattern) {
   const match = content.match(pattern);
   return match ? match[1].trim() : '';
+}
+
+function isInside(parent, child) {
+  const rel = relative(parent, child);
+  return rel === '' || (!rel.startsWith('..') && !rel.includes(`..${sep}`));
+}
+
+function readBacklogMarkdown(root, dir, file) {
+  const sourcePath = `${dir}/${file}`;
+  const path = join(root, dir, file);
+  const stat = lstatSync(path);
+  if (!stat.isFile()) throw new Error(`${sourcePath} must be a regular markdown file`);
+  if (!isInside(realpathSync(root), realpathSync(path))) {
+    throw new Error(`${sourcePath} resolves outside backlog`);
+  }
+  return readFileSync(path, 'utf8');
 }
 
 function section(content, heading) {
@@ -76,8 +92,7 @@ function renderIssueBody(task, content) {
 }
 
 function readMilestone(root, dir) {
-  const path = join(root, dir, 'milestone.md');
-  const content = readFileSync(path, 'utf8');
+  const content = readBacklogMarkdown(root, dir, 'milestone.md');
   const titleLine = firstMatch(content, /^#\s+(.+)$/m);
   const id = firstMatch(titleLine, /^(M\d+)/);
   return {
@@ -88,9 +103,8 @@ function readMilestone(root, dir) {
 }
 
 function readTask(root, dir, file, milestone) {
-  const path = join(root, dir, file);
   const sourcePath = `${dir}/${file}`;
-  const content = readFileSync(path, 'utf8');
+  const content = readBacklogMarkdown(root, dir, file);
   const heading = firstMatch(content, /^#\s+(.+)$/m);
   const taskId = firstMatch(heading, /^(M\d+\.T\d+)/);
   const title = firstMatch(heading, /^M\d+\.T\d+\s+—\s+(.+)$/);
@@ -132,16 +146,18 @@ function readTask(root, dir, file, milestone) {
 
 export function buildImport(root = process.cwd(), { repository = DEFAULT_REPOSITORY } = {}) {
   const backlogRoot = join(root, 'backlog');
-  const milestoneDirs = readdirSync(backlogRoot)
-    .filter((entry) => entry.startsWith('milestones-'))
+  const milestoneDirs = readdirSync(backlogRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith('milestones-'))
+    .map((entry) => entry.name)
     .sort();
   const milestones = milestoneDirs.map((dir) => readMilestone(backlogRoot, dir));
   const milestoneByDir = new Map(milestoneDirs.map((dir, index) => [dir, milestones[index]]));
   const issues = [];
 
   for (const dir of milestoneDirs) {
-    const taskFiles = readdirSync(join(backlogRoot, dir))
-      .filter((entry) => /^task-\d+-.+\.md$/.test(entry))
+    const taskFiles = readdirSync(join(backlogRoot, dir), { withFileTypes: true })
+      .filter((entry) => entry.isFile() && /^task-\d+-.+\.md$/.test(entry.name))
+      .map((entry) => entry.name)
       .sort();
     for (const file of taskFiles) {
       issues.push(readTask(backlogRoot, dir, file, milestoneByDir.get(dir)));

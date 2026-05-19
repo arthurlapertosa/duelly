@@ -246,6 +246,7 @@ test('sync planner trusts repo-tracked issue map for legacy imported issues', ()
       taskId: 'M1.T01',
       title: '[M1.T01] Updated task',
       body: 'Source: `milestones-1-product-rules-template-system/task-01.md`\n\nTask ID: M1.T01',
+      sourcePath: 'milestones-1-product-rules-template-system/task-01.md',
       labels: [syncManagedLabel],
       milestone: 'M1 — Product Rules',
     }],
@@ -260,7 +261,7 @@ test('sync planner trusts repo-tracked issue map for legacy imported issues', ()
     issues: [{
       number: 7,
       title: '[M1.T01] Stale task',
-      body: 'Task ID: M1.T01\nold body',
+      body: 'Source: `milestones-1-product-rules-template-system/task-01.md`\n\nTask ID: M1.T01\nold body',
       labels: [{ name: 'priority:P0' }],
       milestone: { number: 1 },
       updated_at: '2026-05-19T00:00:00Z',
@@ -277,6 +278,130 @@ test('sync planner trusts repo-tracked issue map for legacy imported issues', ()
   assert.equal(plan.ok, true);
   assert.equal(operation.action, 'updateIssue');
   assert.equal(operation.number, 7);
+});
+
+test('sync planner rejects mapped issues without matching body metadata', () => {
+  const backlog = {
+    milestones: [{
+      id: 'M1',
+      title: 'M1 — Product Rules',
+      sourcePath: 'milestones-1-product-rules-template-system/milestone.md',
+    }],
+    labels: [{ name: syncManagedLabel, color: '0e8a16', description: 'Managed' }],
+    issues: [{
+      taskId: 'M1.T01',
+      title: '[M1.T01] Updated task',
+      body: 'Source: `milestones-1-product-rules-template-system/task-01.md`\n\nTask ID: M1.T01',
+      sourcePath: 'milestones-1-product-rules-template-system/task-01.md',
+      labels: [syncManagedLabel],
+      milestone: 'M1 — Product Rules',
+    }],
+  };
+
+  const baseGithub = {
+    milestones: [{
+      number: 1,
+      title: 'M1 — Product Rules',
+      description: milestoneDescription('milestones-1-product-rules-template-system/milestone.md'),
+    }],
+    labels: [],
+  };
+
+  const wrongTask = planGithubBacklogSync({
+    backlog,
+    github: {
+      ...baseGithub,
+      issues: [{
+        number: 7,
+        title: '[M1.T99] Unrelated task',
+        body: 'Source: `milestones-1-product-rules-template-system/task-01.md`\n\nTask ID: M1.T99',
+        labels: [],
+        milestone: { number: 1 },
+      }],
+    },
+    githubIssueMap: { taskIssues: { 'M1.T01': 7 } },
+  });
+  assert.equal(wrongTask.ok, false);
+  assert.ok(wrongTask.errors.some((item) => item.code === 'MAPPED_ISSUE_TASK_ID_DRIFT'));
+
+  const wrongSource = planGithubBacklogSync({
+    backlog,
+    github: {
+      ...baseGithub,
+      issues: [{
+        number: 7,
+        title: '[M1.T01] Wrong source',
+        body: 'Source: `docs/README.md`\n\nTask ID: M1.T01',
+        labels: [],
+        milestone: { number: 1 },
+      }],
+    },
+    githubIssueMap: { taskIssues: { 'M1.T01': 7 } },
+  });
+  assert.equal(wrongSource.ok, false);
+  assert.ok(wrongSource.errors.some((item) => item.code === 'MAPPED_ISSUE_SOURCE_DRIFT'));
+
+  const titleOnlyTaskId = planGithubBacklogSync({
+    backlog,
+    github: {
+      ...baseGithub,
+      issues: [{
+        number: 7,
+        title: '[M1.T01] Title-only task id',
+        body: 'Source: `milestones-1-product-rules-template-system/task-01.md`',
+        labels: [],
+        milestone: { number: 1 },
+      }],
+    },
+    githubIssueMap: { taskIssues: { 'M1.T01': 7 } },
+  });
+  assert.equal(titleOnlyTaskId.ok, false);
+  assert.ok(titleOnlyTaskId.errors.some((item) => item.code === 'MAPPED_ISSUE_TASK_ID_DRIFT'));
+});
+
+test('sync planner rejects duplicate issue numbers in github map', () => {
+  const backlog = {
+    milestones: [{
+      id: 'M1',
+      title: 'M1 — Product Rules',
+      sourcePath: 'milestones-1-product-rules-template-system/milestone.md',
+    }],
+    labels: [],
+    issues: [
+      {
+        taskId: 'M1.T01',
+        title: '[M1.T01] Task 1',
+        body: 'Source: `milestones-1-product-rules-template-system/task-01.md`\n\nTask ID: M1.T01',
+        sourcePath: 'milestones-1-product-rules-template-system/task-01.md',
+        labels: [],
+        milestone: 'M1 — Product Rules',
+      },
+      {
+        taskId: 'M1.T02',
+        title: '[M1.T02] Task 2',
+        body: 'Source: `milestones-1-product-rules-template-system/task-02.md`\n\nTask ID: M1.T02',
+        sourcePath: 'milestones-1-product-rules-template-system/task-02.md',
+        labels: [],
+        milestone: 'M1 — Product Rules',
+      },
+    ],
+  };
+  const plan = planGithubBacklogSync({
+    backlog,
+    github: {
+      milestones: [{
+        number: 1,
+        title: 'M1 — Product Rules',
+        description: milestoneDescription('milestones-1-product-rules-template-system/milestone.md'),
+      }],
+      labels: [],
+      issues: [],
+    },
+    githubIssueMap: { taskIssues: { 'M1.T01': 7, 'M1.T02': 7 } },
+  });
+
+  assert.equal(plan.ok, false);
+  assert.ok(plan.errors.some((item) => item.code === 'DUPLICATE_GITHUB_MAP_ISSUE_NUMBER'));
 });
 
 test('sync planner rejects milestone title collisions without source mapping', () => {
@@ -321,6 +446,26 @@ test('sync CLI apply mode requires an explicit token', () => {
       stdio: ['ignore', 'pipe', 'pipe'],
     }),
     /--apply requires GITHUB_TOKEN or GH_TOKEN/,
+  );
+});
+
+test('sync CLI rejects github map repository drift before reading GitHub', () => {
+  assert.throws(
+    () => execFileSync('node', [
+      'scripts/harness/sync-github-backlog.mjs',
+      '--repo',
+      'example/other',
+      '--dry-run',
+    ], {
+      env: {
+        ...process.env,
+        GITHUB_TOKEN: '',
+        GH_TOKEN: '',
+      },
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }),
+    /github-map\.json repository mismatch/,
   );
 });
 

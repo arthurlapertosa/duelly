@@ -14,6 +14,8 @@
     "test": "npm run test:root && npm run test:workspaces",
     "test:root": "node --test test/*.test.mjs",
     "test:workspaces": "npm run test --workspaces --if-present",
+    "backlog:status": "node scripts/harness/generate-backlog-status.mjs --write",
+    "backlog:status:check": "node scripts/harness/generate-backlog-status.mjs --check",
     "blockchain:erc20:self-test": "node scripts/blockchain/erc20-inspect.mjs --self-test",
     "blockchain:polymarket:self-test": "node scripts/blockchain/polymarket-condition-inspect.mjs --self-test",
     "pr:body:self-test": "node scripts/harness/render-pr-body.mjs --self-test"

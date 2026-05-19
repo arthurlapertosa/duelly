@@ -12,10 +12,15 @@ export function milestoneSourceFromDescription(description = '') {
 }
 
 export function taskIdFromIssue(issue) {
-  const bodyMatch = String(issue.body || '').match(/^Task ID:\s+(M\d+\.T\d+)/m);
-  if (bodyMatch) return bodyMatch[1];
+  const bodyTaskId = taskIdFromIssueBody(issue);
+  if (bodyTaskId) return bodyTaskId;
   const titleMatch = String(issue.title || '').match(/^\[(M\d+\.T\d+)\]/);
   return titleMatch ? titleMatch[1] : '';
+}
+
+export function taskIdFromIssueBody(issue) {
+  const bodyMatch = String(issue.body || '').match(/^Task ID:\s+(M\d+\.T\d+)/m);
+  return bodyMatch ? bodyMatch[1] : '';
 }
 
 export function sourcePathFromIssue(issue) {
@@ -99,12 +104,25 @@ function buildDesiredMaps(backlog, errors) {
   return { milestonesBySource, milestonesByTitle, issuesByTaskId };
 }
 
-function mappedTaskByIssueNumber(githubIssueMap) {
+function mappedTaskByIssueNumber(githubIssueMap, errors) {
   const map = new Map();
   for (const [taskId, issueNumber] of Object.entries(githubIssueMap.taskIssues || {})) {
-    if (Number.isInteger(issueNumber)) {
-      map.set(issueNumber, taskId);
+    if (!Number.isInteger(issueNumber) || issueNumber <= 0) {
+      errors.push(error('INVALID_GITHUB_MAP_ISSUE_NUMBER', `GitHub issue map has invalid issue number for ${taskId}`, {
+        taskId,
+        issueNumber,
+      }));
+      continue;
     }
+
+    if (map.has(issueNumber)) {
+      errors.push(error('DUPLICATE_GITHUB_MAP_ISSUE_NUMBER', `GitHub issue map assigns issue #${issueNumber} to multiple task ids`, {
+        number: issueNumber,
+        taskIds: [map.get(issueNumber), taskId],
+      }));
+      continue;
+    }
+    map.set(issueNumber, taskId);
   }
   return map;
 }
@@ -114,7 +132,7 @@ function buildGithubMaps(github, desired, errors, warnings, githubIssueMap = {})
   const milestonesByTitle = new Map();
   const issuesByTaskId = new Map();
   const labelsByName = new Map();
-  const taskByMappedIssueNumber = mappedTaskByIssueNumber(githubIssueMap);
+  const taskByMappedIssueNumber = mappedTaskByIssueNumber(githubIssueMap, errors);
   const foundMappedIssueNumbers = new Set();
 
   for (const milestone of github.milestones || []) {
@@ -153,7 +171,8 @@ function buildGithubMaps(github, desired, errors, warnings, githubIssueMap = {})
 
     if (mappedTaskId) {
       foundMappedIssueNumbers.add(issue.number);
-      if (!desired.issuesByTaskId.has(mappedTaskId)) {
+      const desiredIssue = desired.issuesByTaskId.get(mappedTaskId);
+      if (!desiredIssue) {
         errors.push(error('ORPHAN_MAPPED_GITHUB_ISSUE', `GitHub issue map references a task id not present in backlog: ${mappedTaskId}`, {
           taskId: mappedTaskId,
           number: issue.number,
@@ -161,16 +180,24 @@ function buildGithubMaps(github, desired, errors, warnings, githubIssueMap = {})
         }));
         continue;
       }
-      if (taskId && taskId !== mappedTaskId) {
-        warnings.push({
-          code: 'MAPPED_ISSUE_TASK_ID_DRIFT',
-          message: `GitHub issue #${issue.number} body maps to ${taskId}, but github-map.json maps it to ${mappedTaskId}`,
-          details: {
-            issueTaskId: taskId,
-            mappedTaskId,
-            number: issue.number,
-          },
-        });
+      const bodyTaskId = taskIdFromIssueBody(issue);
+      if (bodyTaskId !== mappedTaskId) {
+        errors.push(error('MAPPED_ISSUE_TASK_ID_DRIFT', `GitHub issue #${issue.number} body maps to ${bodyTaskId || '(missing)'}, but github-map.json maps it to ${mappedTaskId}`, {
+          issueTaskId: bodyTaskId || '',
+          mappedTaskId,
+          number: issue.number,
+        }));
+        continue;
+      }
+      const sourcePath = sourcePathFromIssue(issue);
+      if (sourcePath !== desiredIssue.sourcePath) {
+        errors.push(error('MAPPED_ISSUE_SOURCE_DRIFT', `GitHub issue #${issue.number} source maps to ${sourcePath || '(missing)'}, but ${mappedTaskId} expects ${desiredIssue.sourcePath}`, {
+          issueSourcePath: sourcePath || '',
+          expectedSourcePath: desiredIssue.sourcePath,
+          mappedTaskId,
+          number: issue.number,
+        }));
+        continue;
       }
       pushMapValue(issuesByTaskId, mappedTaskId, issue);
       continue;

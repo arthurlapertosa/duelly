@@ -4,7 +4,9 @@ The backlog status files make the milestone and task plan readable by agents and
 
 ## status.json
 
-`status.json` is the source of truth for machine-readable backlog status. It maps every milestone and task to its markdown source file and stores:
+`backlog/**/*.md` is the source of truth. Edit milestone and task markdown files when backlog scope, titles, status, progress, or acceptance details change.
+
+`status.json` is generated from that markdown for the local backlog browser and other machine-readable tooling. Do not edit it by hand. It maps every milestone and task to its markdown source file and stores:
 
 - `id`: stable machine-readable identifier.
 - `title`: human-readable title.
@@ -15,7 +17,7 @@ The backlog status files make the milestone and task plan readable by agents and
 - `tasks`: milestone-only list of task IDs.
 - `milestone`: task-only parent milestone ID.
 
-Agents should update `status` and `progress` when work moves forward. Do not mark work as done unless the related implementation and QA evidence are complete and human review can verify it. If a markdown checklist is partially complete, use it to estimate progress. If progress cannot be inferred, keep `progress = 0`.
+Agents should update the task markdown `**Status:**` field when work moves forward. Do not mark work as done unless the related implementation and QA evidence are complete and human review can verify it. Add an optional markdown `**Progress:** 0-100` field only when status alone is not precise enough; otherwise progress is derived deterministically from status.
 
 Valid statuses:
 
@@ -24,6 +26,20 @@ Valid statuses:
 - `blocked`
 - `review`
 - `done`
+
+Markdown status aliases are normalized during generation. For example, `Planned` becomes `todo`, `In Progress` becomes `in_progress`, and `Done` becomes `done`.
+
+Regenerate the committed manifest from the repository root with:
+
+```bash
+npm run backlog:status
+```
+
+Check for drift without writing files with:
+
+```bash
+npm run backlog:status:check
+```
 
 ## Backlog server
 
@@ -53,13 +69,13 @@ Opening local HTML with `file://` is not supported for this viewer. Use the Node
 
 ## Validation
 
-From the repository root, validate the backlog manifest with:
+From the repository root, validate the backlog manifest structure and generated-output drift with:
 
 ```bash
 node scripts/harness/validate-backlog-status.mjs
 ```
 
-The root harness also runs this validation through:
+The root harness also checks that `status.json` matches the markdown-generated output:
 
 ```bash
 npm run validate

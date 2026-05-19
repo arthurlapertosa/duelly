@@ -42,8 +42,10 @@ const requiredFiles = [
   'scripts/harness/new-task-worktree.sh',
   'scripts/harness/open-draft-pr.sh',
   'scripts/harness/qa-check.sh',
+  'scripts/harness/generate-backlog-status.mjs',
   'scripts/harness/generate-issue-import.mjs',
   'scripts/harness/sync-github-backlog.mjs',
+  'scripts/harness/lib/backlog-status.mjs',
   'scripts/harness/lib/backlog-import.mjs',
   'scripts/harness/lib/github-backlog-sync.mjs',
   'scripts/harness/validate-backlog-status.mjs',
@@ -191,6 +193,7 @@ function checkScriptsExecutable() {
     'scripts/harness/close-worktree.sh',
     'scripts/harness/commit-granular.sh',
     'scripts/harness/qa-check.sh',
+    'scripts/harness/generate-backlog-status.mjs',
     'scripts/harness/generate-issue-import.mjs',
     'scripts/harness/sync-github-backlog.mjs',
     'scripts/harness/validate-backlog-status.mjs',
@@ -220,6 +223,7 @@ function checkScriptsExecutable() {
 }
 
 function runSelfTests() {
+  execFileSync('node', ['scripts/harness/generate-backlog-status.mjs', '--check'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/harness/validate-backlog-status.mjs'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/blockchain/erc20-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/blockchain/polymarket-condition-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
