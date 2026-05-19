@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkBacklogStatusDrift } from './lib/backlog-status.mjs';
 
 const allowedStatuses = new Set(['todo', 'in_progress', 'blocked', 'review', 'done']);
 
@@ -43,6 +44,30 @@ function isInside(parent, child) {
   return rel === '' || (!rel.startsWith('..') && !rel.includes(`..${sep}`));
 }
 
+function validateRegularFileInside(errors, backlogDir, kind, tableKey, markdownPath, resolved) {
+  if (!existsSync(resolved)) {
+    errors.push(`${kind}.${tableKey} markdown does not exist: ${markdownPath}`);
+    return;
+  }
+
+  let stat;
+  try {
+    stat = lstatSync(resolved);
+  } catch {
+    errors.push(`${kind}.${tableKey} markdown cannot be inspected: ${markdownPath}`);
+    return;
+  }
+
+  if (!stat.isFile()) {
+    errors.push(`${kind}.${tableKey} markdown must be a regular file: ${markdownPath}`);
+    return;
+  }
+
+  if (!isInside(realpathSync(backlogDir), realpathSync(resolved))) {
+    errors.push(`${kind}.${tableKey} markdown resolves outside backlog: ${markdownPath}`);
+  }
+}
+
 function validateCommonItem(errors, backlogDir, kind, tableKey, item) {
   for (const key of ['id', 'title', 'description', 'status', 'markdown']) {
     if (typeof item[key] !== 'string' || item[key].trim() === '') {
@@ -66,8 +91,8 @@ function validateCommonItem(errors, backlogDir, kind, tableKey, item) {
     const resolved = resolveBacklogPath(backlogDir, item.markdown);
     if (!isInside(backlogDir, resolved)) {
       errors.push(`${kind}.${tableKey} markdown path escapes backlog: ${item.markdown}`);
-    } else if (!existsSync(resolved)) {
-      errors.push(`${kind}.${tableKey} markdown does not exist: ${item.markdown}`);
+    } else {
+      validateRegularFileInside(errors, backlogDir, kind, tableKey, item.markdown, resolved);
     }
   }
 }
@@ -138,7 +163,14 @@ export function validateBacklogStatus({ root = process.cwd() } = {}) {
 
 function main() {
   const result = validateBacklogStatus();
-  console.log(JSON.stringify(result, null, 2));
+  const generated = checkBacklogStatusDrift();
+  if (!generated.ok) {
+    throw new Error(`Generated backlog status is stale: ${generated.file} (${generated.reason})`);
+  }
+  console.log(JSON.stringify({
+    ...result,
+    generated: generated.reason,
+  }, null, 2));
 }
 
 const currentFile = fileURLToPath(import.meta.url);

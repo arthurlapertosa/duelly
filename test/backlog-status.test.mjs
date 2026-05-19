@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { mkdtempSync } from 'node:fs';
 import { parseStatusJson, validateBacklogStatus } from '../scripts/harness/validate-backlog-status.mjs';
+import { buildBacklogStatus, checkBacklogStatusDrift, writeBacklogStatus } from '../scripts/harness/lib/backlog-status.mjs';
 import { createBacklogServer } from '../backlog/server.mjs';
 
 test('backlog status manifest maps all current milestones and tasks', () => {
@@ -12,8 +12,8 @@ test('backlog status manifest maps all current milestones and tasks', () => {
   assert.deepEqual(summary, {
     ok: true,
     milestones: 7,
-    tasks: 54,
-    markdownFiles: 61,
+    tasks: 55,
+    markdownFiles: 62,
   });
 });
 
@@ -35,6 +35,62 @@ test('backlog status relationships and markdown paths are valid', () => {
     assert.equal(existsSync(join('backlog', task.markdown)), true, task.markdown);
     assert.equal(milestones[task.milestone].tasks.includes(taskId), true);
   }
+});
+
+test('backlog status manifest is generated from markdown', () => {
+  const committed = parseStatusJson(readFileSync('backlog/status.json', 'utf8'));
+  const generated = buildBacklogStatus();
+  assert.deepEqual(generated, committed);
+  assert.deepEqual(checkBacklogStatusDrift(), {
+    ok: true,
+    file: 'backlog/status.json',
+    reason: 'current',
+  });
+  assert.equal(generated.tasks.m0_t01.status, 'done');
+  assert.equal(generated.tasks.m0_t01.progress, 100);
+  assert.equal(generated.tasks.m1_t00.status, 'todo');
+});
+
+test('backlog status generator rejects unsupported markdown status values', () => {
+  const root = mkdtempSync(join(tmpdir(), 'duelly-backlog-status-generator-'));
+  try {
+    mkdirSync(join(root, 'backlog', 'milestones-0-demo'), { recursive: true });
+    writeFileSync(join(root, 'backlog', 'milestones-0-demo', 'milestone.md'), [
+      '# M0 — Demo',
+      '',
+      '## Goal',
+      '',
+      'Demo milestone.',
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'backlog', 'milestones-0-demo', 'task-01-demo.md'), [
+      '# M0.T01 — Demo task',
+      '',
+      '**Milestone:** M0 — Demo  ',
+      '**Priority:** P0  ',
+      '**Type:** Harness  ',
+      '**Status:** Waiting',
+      '',
+      '## Scope',
+      '',
+      '- Demonstrate status validation.',
+      '',
+    ].join('\n'), 'utf8');
+
+    assert.throws(
+      () => buildBacklogStatus(root),
+      /unsupported Status value: Waiting/,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('backlog status generator only writes the canonical status path', () => {
+  assert.throws(
+    () => writeBacklogStatus(process.cwd(), '../status.json'),
+    /status path must be backlog\/status\.json/,
+  );
 });
 
 test('backlog status validator rejects invalid status values', () => {

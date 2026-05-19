@@ -6,14 +6,15 @@
     "milestone": "M0 — Repository & Harness Foundation",
     "priority": "P0",
     "type": "Repository / Harness",
-    "status": "Planned",
+    "status": "Done",
     "dependencies": [],
     "dependenciesText": "",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:harness"
     ],
-    "body": "Source: `milestones-0-repository-harness-foundation/task-01-create-and-validate-the-first-monorepo-commit.md`\n\nTask ID: M0.T01\nPriority: P0\nDependencies: None\n\n# M0.T01 — Create and validate the first monorepo commit\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Repository / Harness  \n**Status:** Planned\n\n## Dependencies\n\n- None\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Apply the approved Duelly bootstrap into the empty GitHub repository.\n- Keep base folders: frontend/, backend/, smartcontract/.\n- Keep root-level harness files, agent files, scripts, and QA config in English.\n- Confirm docs/FINAL_ARCHITECTURE.md is present and in English.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use the existing bootstrap zip as the source of truth for the first commit.\n- Commit message should be `chore(repo): bootstrap duelly monorepo` or equivalent.\n- Do not introduce product code beyond the bootstrap structure.\n\n## Acceptance criteria\n\n- Repository contains frontend/, backend/, smartcontract/, docs/, scripts/, .github/, .codex/, and .claude/.\n- AGENTS.md, CLAUDE.md, and all harness/agent files are in English.\n- The repository root package.json contains scripts for validate, test, and qa.\n- No generated temporary files, local secrets, or machine-specific files are committed.\n\n## Required QA and test plan\n\n- Run `npm run validate` from the repository root.\n- Run `npm test` from the repository root.\n- Run `npm run qa` from the repository root.\n- Run `git status --short` and confirm only intended files are tracked before commit.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T01/root-qa.log containing validate/test/qa command outputs.\n- evidence/M0-T01/repository-tree.txt containing a trimmed `find` or `tree` output.\n- PR evidence section linking the first commit hash and QA logs.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-0-repository-harness-foundation/task-01-create-and-validate-the-first-monorepo-commit.md`\n\nTask ID: M0.T01\nPriority: P0\nDependencies: None\n\n# M0.T01 — Create and validate the first monorepo commit\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Repository / Harness  \n**Status:** Done\n\n## Dependencies\n\n- None\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Apply the approved Duelly bootstrap into the empty GitHub repository.\n- Keep base folders: frontend/, backend/, smartcontract/.\n- Keep root-level harness files, agent files, scripts, and QA config in English.\n- Confirm docs/FINAL_ARCHITECTURE.md is present and in English.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Use the existing bootstrap zip as the source of truth for the first commit.\n- Commit message should be `chore(repo): bootstrap duelly monorepo` or equivalent.\n- Do not introduce product code beyond the bootstrap structure.\n\n## Acceptance criteria\n\n- Repository contains frontend/, backend/, smartcontract/, docs/, scripts/, .github/, .codex/, and .claude/.\n- AGENTS.md, CLAUDE.md, and all harness/agent files are in English.\n- The repository root package.json contains scripts for validate, test, and qa.\n- No generated temporary files, local secrets, or machine-specific files are committed.\n\n## Required QA and test plan\n\n- Run `npm run validate` from the repository root.\n- Run `npm test` from the repository root.\n- Run `npm run qa` from the repository root.\n- Run `git status --short` and confirm only intended files are tracked before commit.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T01/root-qa.log containing validate/test/qa command outputs.\n- evidence/M0-T01/repository-tree.txt containing a trimmed `find` or `tree` output.\n- PR evidence section linking the first commit hash and QA logs.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M0.T02",
@@ -22,16 +23,17 @@
     "milestone": "M0 — Repository & Harness Foundation",
     "priority": "P0",
     "type": "Repository / Governance",
-    "status": "Planned",
+    "status": "Done",
     "dependencies": [
       "M0.T01"
     ],
     "dependenciesText": "M0.T01",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:harness"
     ],
-    "body": "Source: `milestones-0-repository-harness-foundation/task-02-configure-github-repository-safety-controls.md`\n\nTask ID: M0.T02\nPriority: P0\nDependencies: M0.T01\n\n# M0.T02 — Configure GitHub repository safety controls\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Repository / Governance  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Configure branch protection or rulesets for the default branch.\n- Require PR review before merge.\n- Require status checks from the QA workflow before merge.\n- Document the exact GitHub settings in the PR evidence.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- If GitHub settings cannot be modified by the agent, produce a checklist with exact settings for a human owner.\n- Prefer rulesets if available; branch protection is acceptable for MVP.\n\n## Acceptance criteria\n\n- Default branch cannot be force-pushed by normal contributors.\n- Merges require at least one human approval.\n- GitHub Actions QA workflow is required or explicitly documented as pending human setup.\n- Draft PRs are accepted as the standard implementation entry point.\n\n## Required QA and test plan\n\n- Open a test Draft PR or document a dry-run if repository permissions block the operation.\n- Verify the QA workflow is visible in the PR checks section.\n- Record the repository settings screen or CLI output used for validation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T02/github-settings.md with configured rules or human checklist.\n- evidence/M0-T02/pr-checks-screenshot.png if UI access is available.\n- evidence/M0-T02/gh-cli-output.txt if GitHub CLI is used.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-0-repository-harness-foundation/task-02-configure-github-repository-safety-controls.md`\n\nTask ID: M0.T02\nPriority: P0\nDependencies: M0.T01\n\n# M0.T02 — Configure GitHub repository safety controls\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Repository / Governance  \n**Status:** Done\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Configure branch protection or rulesets for the default branch.\n- Require PR review before merge.\n- Require status checks from the QA workflow before merge.\n- Document the exact GitHub settings in the PR evidence.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- If GitHub settings cannot be modified by the agent, produce a checklist with exact settings for a human owner.\n- Prefer rulesets if available; branch protection is acceptable for MVP.\n\n## Acceptance criteria\n\n- Default branch cannot be force-pushed by normal contributors.\n- Merges require at least one human approval.\n- GitHub Actions QA workflow is required or explicitly documented as pending human setup.\n- Draft PRs are accepted as the standard implementation entry point.\n\n## Required QA and test plan\n\n- Open a test Draft PR or document a dry-run if repository permissions block the operation.\n- Verify the QA workflow is visible in the PR checks section.\n- Record the repository settings screen or CLI output used for validation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T02/github-settings.md with configured rules or human checklist.\n- evidence/M0-T02/pr-checks-screenshot.png if UI access is available.\n- evidence/M0-T02/gh-cli-output.txt if GitHub CLI is used.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M0.T03",
@@ -40,16 +42,17 @@
     "milestone": "M0 — Repository & Harness Foundation",
     "priority": "P0",
     "type": "Harness / QA",
-    "status": "Planned",
+    "status": "Done",
     "dependencies": [
       "M0.T01"
     ],
     "dependenciesText": "M0.T01",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:harness"
     ],
-    "body": "Source: `milestones-0-repository-harness-foundation/task-03-validate-worktree-and-draft-pr-harness-flow.md`\n\nTask ID: M0.T03\nPriority: P0\nDependencies: M0.T01\n\n# M0.T03 — Validate worktree and Draft PR harness flow\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Harness / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Validate task worktree creation script.\n- Validate granular commit helper script.\n- Validate PR body rendering script.\n- Validate Draft PR opening script in dry-run mode.\n- Validate worktree close/cleanup script.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Run destructive operations only against a temporary branch/worktree.\n- Use dry-run mode when the script supports it.\n\n## Acceptance criteria\n\n- A new worktree can be created from the base branch with a task-specific branch name.\n- The PR body renderer produces a PR body with Definition of Done, QA, and Evidence sections.\n- Draft PR command supports dry-run without requiring a network operation.\n- The worktree cleanup process removes the local worktree without deleting the source branch unexpectedly.\n\n## Required QA and test plan\n\n- Run `scripts/harness/new-task-worktree.sh --dry-run` if available.\n- Run `scripts/harness/new-task-worktree.sh <sample-task>` against a temporary branch.\n- Run `node scripts/harness/render-pr-body.mjs` or the documented command.\n- Run `scripts/harness/open-draft-pr.sh --dry-run`.\n- Run `scripts/harness/close-worktree.sh <sample-worktree>` after validation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T03/worktree-flow.log with every harness command and output.\n- evidence/M0-T03/rendered-pr-body.md with the generated PR body.\n- evidence/M0-T03/cleanup-status.txt with final `git worktree list` and `git status` outputs.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-0-repository-harness-foundation/task-03-validate-worktree-and-draft-pr-harness-flow.md`\n\nTask ID: M0.T03\nPriority: P0\nDependencies: M0.T01\n\n# M0.T03 — Validate worktree and Draft PR harness flow\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P0  \n**Type:** Harness / QA  \n**Status:** Done\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Validate task worktree creation script.\n- Validate granular commit helper script.\n- Validate PR body rendering script.\n- Validate Draft PR opening script in dry-run mode.\n- Validate worktree close/cleanup script.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Run destructive operations only against a temporary branch/worktree.\n- Use dry-run mode when the script supports it.\n\n## Acceptance criteria\n\n- A new worktree can be created from the base branch with a task-specific branch name.\n- The PR body renderer produces a PR body with Definition of Done, QA, and Evidence sections.\n- Draft PR command supports dry-run without requiring a network operation.\n- The worktree cleanup process removes the local worktree without deleting the source branch unexpectedly.\n\n## Required QA and test plan\n\n- Run `scripts/harness/new-task-worktree.sh --dry-run` if available.\n- Run `scripts/harness/new-task-worktree.sh <sample-task>` against a temporary branch.\n- Run `node scripts/harness/render-pr-body.mjs` or the documented command.\n- Run `scripts/harness/open-draft-pr.sh --dry-run`.\n- Run `scripts/harness/close-worktree.sh <sample-worktree>` after validation.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T03/worktree-flow.log with every harness command and output.\n- evidence/M0-T03/rendered-pr-body.md with the generated PR body.\n- evidence/M0-T03/cleanup-status.txt with final `git worktree list` and `git status` outputs.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M0.T04",
@@ -58,16 +61,17 @@
     "milestone": "M0 — Repository & Harness Foundation",
     "priority": "P1",
     "type": "Harness / QA",
-    "status": "Planned",
+    "status": "Done",
     "dependencies": [
       "M0.T01"
     ],
     "dependenciesText": "M0.T01",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:harness"
     ],
-    "body": "Source: `milestones-0-repository-harness-foundation/task-04-standardize-evidence-folder-and-qa-artifact-conventions.md`\n\nTask ID: M0.T04\nPriority: P1\nDependencies: M0.T01\n\n# M0.T04 — Standardize evidence folder and QA artifact conventions\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P1  \n**Type:** Harness / QA  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- qa-specialist\n- harness-lead\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create or update documentation for evidence/<task-id>/ conventions.\n- Define naming for screenshots, curl outputs, smart-contract logs, and E2E reports.\n- Define when large binary artifacts should be committed versus attached only to PR.\n- Ensure PR template asks for evidence paths and command outputs.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer small text logs committed to the repository and link heavier attachments in the PR.\n- Keep evidence deterministic and reviewable.\n\n## Acceptance criteria\n\n- Evidence conventions are documented in English.\n- Every future task can point to a specific evidence/<task-id>/ folder.\n- PR template includes an Evidence section with checkboxes for frontend, backend, smart-contract, and E2E evidence.\n- No secrets or personal data are allowed in evidence artifacts.\n\n## Required QA and test plan\n\n- Run `npm run validate` to ensure docs/templates are accepted by the repository validators.\n- Create a sample evidence README for a fake task and ensure it matches conventions, then remove or keep it as documented sample.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T04/evidence-convention-check.md summarizing the convention.\n- evidence/M0-T04/validate.log with validation command output.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-0-repository-harness-foundation/task-04-standardize-evidence-folder-and-qa-artifact-conventions.md`\n\nTask ID: M0.T04\nPriority: P1\nDependencies: M0.T01\n\n# M0.T04 — Standardize evidence folder and QA artifact conventions\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P1  \n**Type:** Harness / QA  \n**Status:** Done\n\n## Dependencies\n\n- M0.T01\n\n## Recommended specialist subagents\n\n- qa-specialist\n- harness-lead\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create or update documentation for evidence/<task-id>/ conventions.\n- Define naming for screenshots, curl outputs, smart-contract logs, and E2E reports.\n- Define when large binary artifacts should be committed versus attached only to PR.\n- Ensure PR template asks for evidence paths and command outputs.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer small text logs committed to the repository and link heavier attachments in the PR.\n- Keep evidence deterministic and reviewable.\n\n## Acceptance criteria\n\n- Evidence conventions are documented in English.\n- Every future task can point to a specific evidence/<task-id>/ folder.\n- PR template includes an Evidence section with checkboxes for frontend, backend, smart-contract, and E2E evidence.\n- No secrets or personal data are allowed in evidence artifacts.\n\n## Required QA and test plan\n\n- Run `npm run validate` to ensure docs/templates are accepted by the repository validators.\n- Create a sample evidence README for a fake task and ensure it matches conventions, then remove or keep it as documented sample.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T04/evidence-convention-check.md summarizing the convention.\n- evidence/M0-T04/validate.log with validation command output.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M0.T05",
@@ -76,159 +80,194 @@
     "milestone": "M0 — Repository & Harness Foundation",
     "priority": "P1",
     "type": "Project Management / Harness",
-    "status": "Planned",
+    "status": "Done",
     "dependencies": [
       "M0.T01",
       "Backlog package approved by human owner"
     ],
     "dependenciesText": "M0.T01; Backlog package approved by human owner",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:harness"
     ],
-    "body": "Source: `milestones-0-repository-harness-foundation/task-05-prepare-github-issue-import-metadata-for-milestones-and-tasks.md`\n\nTask ID: M0.T05\nPriority: P1\nDependencies: M0.T01; Backlog package approved by human owner\n\n# M0.T05 — Prepare GitHub issue import metadata for milestones and tasks\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P1  \n**Type:** Project Management / Harness  \n**Status:** Planned\n\n## Dependencies\n\n- M0.T01\n- Backlog package approved by human owner\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Convert approved milestone/task markdown into GitHub issue-ready metadata if desired.\n- Preserve task IDs, priorities, dependencies, and QA requirements.\n- Create labels proposal for milestone, priority, domain, and QA type.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Do not create issues automatically unless explicitly instructed by the human owner.\n- A prepared import file or CLI dry-run is sufficient for this task.\n\n## Acceptance criteria\n\n- Task IDs can be traced from markdown files to proposed GitHub issues.\n- Labels include at minimum priority:P0/P1/P2, domain:frontend/backend/smartcontract/harness, qa:playwright/curl/foundry/e2e.\n- Milestone names exactly match the approved milestone names.\n\n## Required QA and test plan\n\n- Run the proposed import generation in dry-run mode.\n- Validate generated issue payloads are valid JSON or valid GitHub CLI commands.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T05/issue-import-dry-run.log.\n- evidence/M0-T05/labels-proposal.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-0-repository-harness-foundation/task-05-prepare-github-issue-import-metadata-for-milestones-and-tasks.md`\n\nTask ID: M0.T05\nPriority: P1\nDependencies: M0.T01; Backlog package approved by human owner\n\n# M0.T05 — Prepare GitHub issue import metadata for milestones and tasks\n\n**Milestone:** M0 — Repository & Harness Foundation  \n**Priority:** P1  \n**Type:** Project Management / Harness  \n**Status:** Done\n\n## Dependencies\n\n- M0.T01\n- Backlog package approved by human owner\n\n## Recommended specialist subagents\n\n- harness-lead\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Convert approved milestone/task markdown into GitHub issue-ready metadata if desired.\n- Preserve task IDs, priorities, dependencies, and QA requirements.\n- Create labels proposal for milestone, priority, domain, and QA type.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Do not create issues automatically unless explicitly instructed by the human owner.\n- A prepared import file or CLI dry-run is sufficient for this task.\n\n## Acceptance criteria\n\n- Task IDs can be traced from markdown files to proposed GitHub issues.\n- Labels include at minimum priority:P0/P1/P2, domain:frontend/backend/smartcontract/harness, qa:playwright/curl/foundry/e2e.\n- Milestone names exactly match the approved milestone names.\n\n## Required QA and test plan\n\n- Run the proposed import generation in dry-run mode.\n- Validate generated issue payloads are valid JSON or valid GitHub CLI commands.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M0-T05/issue-import-dry-run.log.\n- evidence/M0-T05/labels-proposal.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+  },
+  {
+    "taskId": "M1.T00",
+    "title": "[M1.T00] Establish backend framework foundation for M1",
+    "sourcePath": "milestones-1-product-rules-template-system/task-00-establish-backend-framework-foundation-for-m1.md",
+    "milestone": "M1 — Product Rules & Sports Template System",
+    "priority": "P0",
+    "type": "Backend / Foundation",
+    "status": "Planned",
+    "dependencies": [
+      "M0 repository and harness foundation completed.",
+      "Monorepo workspace `backend/` exists."
+    ],
+    "dependenciesText": "M0 repository and harness foundation completed.; Monorepo workspace `backend/` exists.",
+    "labels": [
+      "sync:backlog",
+      "priority:P0",
+      "domain:backend",
+      "qa:curl"
+    ],
+    "body": "Source: `milestones-1-product-rules-template-system/task-00-establish-backend-framework-foundation-for-m1.md`\n\nTask ID: M1.T00\nPriority: P0\nDependencies: M0 repository and harness foundation completed.; Monorepo workspace `backend/` exists.\n\n# M1.T00 — Establish backend framework foundation for M1\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P0  \n**Type:** Backend / Foundation  \n**Status:** Planned\n\n## Dependencies\n\n- M0 repository and harness foundation completed.\n- Monorepo workspace `backend/` exists.\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Establish the required M1 backend implementation stack:\n  - Node.js.\n  - TypeScript.\n  - Fastify for HTTP APIs.\n  - PostgreSQL for persistence.\n  - TypeORM for database access, entities, repositories, and migrations.\n- Configure the `backend/` workspace to run locally and in CI with deterministic commands.\n- Add a minimal Fastify application shell with health/readiness endpoints.\n- Add PostgreSQL connection configuration and TypeORM DataSource setup.\n- Add migration infrastructure for future M1 entities.\n- Add test infrastructure for unit and integration tests.\n- Add local development support for PostgreSQL through Docker Compose or an equivalent documented local setup.\n\n## Non-goals\n\n- Do not implement Polymarket discovery logic; M1.T03 owns discovery.\n- Do not implement strict sports template filters; M1.T05 owns filtering.\n- Do not implement smart-contract registry publishing; M1.T06 owns publisher behavior.\n- Do not introduce Prisma, Sequelize, NestJS, Express, MongoDB, SQLite, or other framework/database substitutes unless explicitly approved by a human reviewer.\n\n## Implementation guidance\n\n- Keep the backend service small and framework-native. Prefer Fastify plugins, explicit route modules, and TypeScript types over large abstractions.\n- TypeORM must use PostgreSQL as the runtime database. SQLite or in-memory substitutes are not acceptable for integration tests that validate persistence behavior.\n- Suggested backend structure:\n\n```text\nbackend/\n├── src/\n│   ├── app.ts\n│   ├── server.ts\n│   ├── config/\n│   │   └── env.ts\n│   ├── db/\n│   │   ├── data-source.ts\n│   │   └── migrations/\n│   ├── routes/\n│   │   └── health.routes.ts\n│   └── modules/\n│       └── templates/\n├── test/\n│   ├── unit/\n│   └── integration/\n└── package.json\n```\n\n- Required environment variables should be documented and validated at startup:\n  - `NODE_ENV`\n  - `PORT`\n  - `DATABASE_URL` or explicit PostgreSQL connection variables\n  - `POLYMARKET_GAMMA_BASE_URL`\n  - `POLYMARKET_DISCOVERY_MODE`\n- Health endpoints should not require Polymarket access.\n- Readiness should validate database connectivity when PostgreSQL is enabled.\n\n## Required backend endpoints\n\nAt minimum, this task must provide:\n\n- `GET /health` — returns service liveness.\n- `GET /ready` — returns readiness and database connectivity status.\n\nSuggested successful response shape:\n\n```json\n{\n  \"status\": \"ok\",\n  \"service\": \"duelly-backend\",\n  \"database\": \"connected\"\n}\n```\n\n## Acceptance criteria\n\n- `backend/` uses Node.js, TypeScript, Fastify, PostgreSQL, and TypeORM.\n- No competing backend framework or database ORM is introduced.\n- The Fastify app boots locally without Polymarket access.\n- PostgreSQL connectivity is validated through TypeORM.\n- TypeORM migration commands are available from the backend workspace.\n- Unit tests and at least one database-backed integration test pass.\n- `GET /health` and `GET /ready` can be validated with `curl`.\n- All configuration is documented without committing secrets.\n\n## Required QA and test plan\n\n- Install dependencies.\n- Start local PostgreSQL through the documented local workflow.\n- Run backend typecheck, unit tests, and integration tests.\n- Start the backend and validate endpoints with `curl`.\n\nSuggested commands:\n\n```bash\nnpm install\nnpm --workspace @duelly/backend run typecheck\nnpm --workspace @duelly/backend test\nnpm --workspace @duelly/backend run test:integration\nnpm --workspace @duelly/backend run db:migration:show\nnpm --workspace @duelly/backend run dev\ncurl -sS \"http://localhost:<port>/health\" | jq\ncurl -sS \"http://localhost:<port>/ready\" | jq\n```\n\nIf Docker Compose is used for local PostgreSQL:\n\n```bash\ndocker compose up -d postgres\nnpm --workspace @duelly/backend run db:migration:run\n```\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T00/backend-typecheck.log`.\n- `evidence/M1-T00/backend-tests.log`.\n- `evidence/M1-T00/backend-integration-tests.log`.\n- `evidence/M1-T00/typeorm-migration-status.log`.\n- `evidence/M1-T00/curl-health.json`.\n- `evidence/M1-T00/curl-ready.json`.\n- `evidence/M1-T00/postgres-local-setup.md`.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes `curl` responses for backend flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M1.T01",
-    "title": "[M1.T01] Finalize template acceptance policy and initial category decision",
+    "title": "[M1.T01] Finalize sports template acceptance policy and binary market rules",
     "sourcePath": "milestones-1-product-rules-template-system/task-01-finalize-template-acceptance-policy-and-initial-category-decision.md",
-    "milestone": "M1 — Product Rules & Template System",
+    "milestone": "M1 — Product Rules & Sports Template System",
     "priority": "P0",
     "type": "Product Rules",
     "status": "Planned",
     "dependencies": [
-      "Polymarket API access confirmed or fixture-only fallback approved",
-      "Human category decision: collectibles or sports fallback"
+      "Human decision confirmed: sports-first scope.",
+      "Polymarket public Gamma API access confirmed or fixture-only fallback approved."
     ],
-    "dependenciesText": "Polymarket API access confirmed or fixture-only fallback approved; Human category decision: collectibles or sports fallback",
+    "dependenciesText": "Human decision confirmed: sports-first scope.; Polymarket public Gamma API access confirmed or fixture-only fallback approved.",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:product"
     ],
-    "body": "Source: `milestones-1-product-rules-template-system/task-01-finalize-template-acceptance-policy-and-initial-category-decision.md`\n\nTask ID: M1.T01\nPriority: P0\nDependencies: Polymarket API access confirmed or fixture-only fallback approved; Human category decision: collectibles or sports fallback\n\n# M1.T01 — Finalize template acceptance policy and initial category decision\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- Polymarket API access confirmed or fixture-only fallback approved\n- Human category decision: collectibles or sports fallback\n\n## Recommended specialist subagents\n\n- product-architect\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Write the product acceptance policy for templates.\n- Define collectibles-first selection rules and sports fallback rules.\n- Define rejection rules for odds/probability-as-result, subjective markets, multi-outcome markets, negative-risk markets, and ambiguous resolution rules.\n- Define how void/ambiguous outcomes are handled.\n- Define how loserFeeBps is selected per template and how the minimum loser fee is anchored to at least 3x estimated gas fee.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- The policy should be strict for MVP and can leave expansion categories for future milestones.\n- Use fixtures if live Polymarket API access is not yet available, but clearly mark live validation as blocked.\n\n## Acceptance criteria\n\n- Policy states that final result must be deterministic and objective.\n- Policy states that Polymarket prices, odds, and probabilities are never accepted as final result.\n- Policy defines accepted market shape: binary, standard, clear conditionId, clear outcome labels, clear close time, clear rules source.\n- Policy defines initial category and fallback decision with explicit human approval reference.\n- Policy defines loserFee formula: `loserFee = max(stake * loserFeeBps / 10_000, minLoserFee)` where `minLoserFee` is configured to cover at least 3x estimated gas fee.\n\n## Required QA and test plan\n\n- Run repository docs validation if available: `npm run validate`.\n- Review the policy against at least five example markets or fixtures and document accepted/rejected decisions.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T01/policy-review.md with example decisions and rejection reasons.\n- evidence/M1-T01/validate.log.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-1-product-rules-template-system/task-01-finalize-template-acceptance-policy-and-initial-category-decision.md`\n\nTask ID: M1.T01\nPriority: P0\nDependencies: Human decision confirmed: sports-first scope.; Polymarket public Gamma API access confirmed or fixture-only fallback approved.\n\n# M1.T01 — Finalize sports template acceptance policy and binary market rules\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P0  \n**Type:** Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- Human decision confirmed: sports-first scope.\n- Polymarket public Gamma API access confirmed or fixture-only fallback approved.\n\n## Recommended specialist subagents\n\n- product-architect\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- State that M1 backend implementation must use Node.js, TypeScript, Fastify, PostgreSQL, and TypeORM.\n- Write the product acceptance policy for sports templates.\n- Replace the previous collectibles-oriented policy with sports-first policy.\n- Define accepted sports coverage:\n  - Football/Soccer: world championships, including FIFA World Cup, plus Brasileirão and Copa Libertadores.\n  - Tennis: ATP 250+ tournaments (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams), including individual matches.\n    - Accepted tennis scope is ATP 250+: ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams. Grand Slams include Australian Open, Roland Garros/French Open, Wimbledon, and US Open.\n  - UFC: main events only.\n  - Formula 1: Grand Prix races and sprint races.\n- Define binary-only acceptance rules for each sport.\n- Define rejection rules for odds/probability-as-result, subjective markets, multi-outcome markets, negative-risk markets, unsupported sports, unsupported competitions, and ambiguous resolution rules.\n- Define how void/ambiguous/cancelled outcomes are handled.\n- Define how `loserFeeBps` is selected per template and how the minimum loser fee is anchored to at least 3x estimated gas fee.\n\n## Tennis ATP 250+ definition\n\nFor this milestone, `ATP 250+` means ATP 250+ tournaments (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams). Tennis templates may include individual match winners and binary tournament winner markets when the Polymarket market is objective, binary, deterministic, and has explicit resolution rules.\n\n## Non-goals\n\n- Do not implement backend code in this task unless needed to support docs validation.\n- Do not include collectibles, NFT floor price, Pokémon cards, politics, crypto prices, or entertainment markets in M1.\n- Do not accept free-form user-created bets.\n\n## Implementation guidance\n\n- The policy should be strict for MVP and can leave expansion categories for future milestones.\n- Prefer false negatives over false positives. A valid market can be skipped; an invalid market must not be accepted.\n- For football/soccer, be especially strict because many match outcomes are not naturally binary due to draws.\n- For tournament/championship markets, only accept a single binary market if Polymarket exposes it as a standalone binary `conditionId` with clear Yes/No resolution.\n- Use fixtures if live Polymarket public access is not yet available, but clearly mark live validation as blocked.\n\n## Acceptance criteria\n\n- The policy states that M1 backend implementation uses Node.js, TypeScript, Fastify, PostgreSQL, and TypeORM.\n- Policy states that final result must be deterministic and objective.\n- Policy states that Polymarket prices, odds, and probabilities are never accepted as final result.\n- Policy defines accepted market shape: binary, standard, clear `conditionId`, clear `questionId`, clear outcome labels, clear close time, clear rules source, and explicit resolution handling.\n- Policy defines the sports-first category decision with explicit human approval reference.\n- Policy defines accepted sports and competitions exactly:\n  - Football/Soccer: world championships including FIFA World Cup, Brasileirão, Copa Libertadores.\n  - Tennis: ATP 250+ tournaments (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams), including individual matches.\n    - Accepted tennis scope is ATP 250+: ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams. Grand Slams include Australian Open, Roland Garros/French Open, Wimbledon, and US Open.\n  - UFC: main events.\n  - Formula 1: races and sprint races.\n- Policy defines disallowed market shapes by sport.\n- Policy defines void rules for ambiguous outcomes, cancelled events, unresolved CTF conditions after deadline, no-contests, or results not matching either side.\n- Policy defines loser fee formula: `loserFee = max(stake * loserFeeBps / 10_000, minLoserFee)` where `minLoserFee` is configured to cover at least 3x estimated gas fee.\n\n## Required QA and test plan\n\n- Run repository docs validation if available: `npm run validate`.\n- Review the policy against at least twelve example markets or fixtures:\n  - at least two football/soccer fixtures;\n  - at least two tennis fixtures;\n  - at least two UFC fixtures;\n  - at least two F1 fixtures;\n  - at least four rejected edge cases.\n- Document every accepted/rejected decision with reason codes.\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T01/sports-policy-review.md` with example decisions and rejection reasons.\n- `evidence/M1-T01/validate.log`.\n- `evidence/M1-T01/accepted-sports-scope.md` summarizing the final human-approved sports scope.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes curl responses for backend flows if backend endpoints are touched.\n- PR includes local smart-contract outcomes if smart-contract interfaces are touched.\n- PR includes Playwright screenshots if frontend flows are touched.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M1.T02",
-    "title": "[M1.T02] Capture Polymarket API configuration and safe fixture strategy",
+    "title": "[M1.T02] Capture Polymarket public API configuration and sports fixture strategy",
     "sourcePath": "milestones-1-product-rules-template-system/task-02-capture-polymarket-api-configuration-and-safe-fixture-strategy.md",
-    "milestone": "M1 — Product Rules & Template System",
+    "milestone": "M1 — Product Rules & Sports Template System",
     "priority": "P0",
     "type": "Backend / Integration",
     "status": "Planned",
     "dependencies": [
-      "M1.T01",
-      "Polymarket API key or approved unauthenticated access path"
+      "M1.T00",
+      "M1.T01"
     ],
-    "dependenciesText": "M1.T01; Polymarket API key or approved unauthenticated access path",
+    "dependenciesText": "M1.T00; M1.T01",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
     ],
-    "body": "Source: `milestones-1-product-rules-template-system/task-02-capture-polymarket-api-configuration-and-safe-fixture-strategy.md`\n\nTask ID: M1.T02\nPriority: P0\nDependencies: M1.T01; Polymarket API key or approved unauthenticated access path\n\n# M1.T02 — Capture Polymarket API configuration and safe fixture strategy\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Integration  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- Polymarket API key or approved unauthenticated access path\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define environment variable names for Polymarket access without committing secrets.\n- Create fixture files for accepted and rejected markets.\n- Create a safe local/mock mode that does not require a live API key.\n- Document how QA should run live API checks when credentials are available.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Never commit the API key.\n- Fixture data should be sanitized and stable enough for deterministic tests.\n\n## Acceptance criteria\n\n- Backend config supports live and fixture modes.\n- Missing API key does not break local tests if fixture mode is enabled.\n- Fixtures include at least one collectibles candidate if available, otherwise at least one sports fallback fixture.\n- Rejected fixtures cover subjective, multi-outcome, missing conditionId, missing rules, and price-only examples.\n\n## Required QA and test plan\n\n- Run backend tests in fixture mode.\n- Run `curl` against the local template discovery fixture endpoint and capture response.\n- If API key is available, run one live discovery curl command and capture sanitized output.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T02/backend-fixture-test.log.\n- evidence/M1-T02/curl-template-fixtures.json.\n- evidence/M1-T02/live-api-check-sanitized.json or evidence note explaining dependency unavailable.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-1-product-rules-template-system/task-02-capture-polymarket-api-configuration-and-safe-fixture-strategy.md`\n\nTask ID: M1.T02\nPriority: P0\nDependencies: M1.T00; M1.T01\n\n# M1.T02 — Capture Polymarket public API configuration and sports fixture strategy\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P0  \n**Type:** Backend / Integration  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T00\n- M1.T01\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Configure Polymarket discovery settings inside the Node.js/TypeScript Fastify backend.\n- Store fixture metadata and discovery configuration through PostgreSQL/TypeORM where persistence is required for the M1 flow.\n- Define environment variable names for Polymarket public Gamma API access without committing secrets.\n- Support public unauthenticated mode as the default M1 path.\n- Create deterministic sports fixture files for accepted, rejected, and edge-case markets.\n- Wire fixture loading into the Node.js + Fastify + TypeScript backend created in M1.T00.\n- Ensure fixture mode can run with PostgreSQL and TypeORM repositories when the backend persists candidates or fixture-derived records.\n- Create a safe local/mock mode that does not require live API access.\n- Document how QA should run live public API checks when internet access is available.\n- Ensure fixture strategy covers the human-approved M1 sports scope.\n\n## Non-goals\n\n- Do not require a Polymarket API key for M1.\n- Do not commit credentials or user-specific secrets.\n- Do not implement trading, authenticated CLOB operations, or Polymarket order placement.\n\n## Implementation guidance\n\n- Implement the configuration in the `backend/` workspace using Node.js, TypeScript, Fastify, PostgreSQL, and TypeORM.\n- Any persisted fixture/discovery metadata must use TypeORM entities or migrations.\n- Suggested config names:\n  - `POLYMARKET_GAMMA_BASE_URL`\n  - `POLYMARKET_DISCOVERY_MODE=fixture|live`\n  - `POLYMARKET_DISCOVERY_TIMEOUT_MS`\n  - `POLYMARKET_DISCOVERY_MAX_RESULTS`\n- Fixture data should be sanitized, stable, and deterministic.\n- Live API checks must never be required for CI unless explicitly approved.\n- Fixture files should represent normalized inputs from Gamma API plus expected filter outputs.\n- Fastify route handlers must remain thin and delegate fixture/config behavior to typed services.\n- Any persisted fixture-derived state must use TypeORM repositories and PostgreSQL-compatible schemas.\n\n## Required fixture coverage\n\nFixtures must include at least:\n\n- Football/Soccer accepted or candidate fixture:\n  - FIFA World Cup, Brasileirão, Copa Libertadores, or approved world-level football competition.\n  - Binary tournament/championship winner market preferred.\n- Football/Soccer rejected fixtures:\n  - 3-way match result without explicit binary resolution.\n  - handicap/spread/totals or player prop.\n- Tennis accepted or candidate fixture:\n  - Fixture coverage should include at least two accepted tennis levels when practical, such as ATP 250 plus Grand Slam or ATP Masters 1000.\n  - ATP 250+ individual match winner (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, or Grand Slam).\n  - ATP 250+ tournament winner binary market (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, or Grand Slam) if available.\n- Tennis rejected fixtures:\n  - set spread, game total, handicap, retirement-ambiguous fixture without rules.\n- UFC accepted or candidate fixture:\n  - main event fight winner.\n- UFC rejected fixtures:\n  - method of victory, round, undercard, no-contest-ambiguous fixture.\n- F1 accepted or candidate fixture:\n  - race winner or sprint winner binary market.\n- F1 rejected fixtures:\n  - qualifying, fastest lap, podium, DNF, season championship.\n- Generic rejected fixtures:\n  - missing `conditionId`;\n  - missing `questionId`;\n  - missing rules;\n  - non-binary outcome count;\n  - negative-risk market;\n  - odds/probability-as-result market;\n  - unsupported sport or unsupported competition.\n\n## Acceptance criteria\n\n- Backend config supports live public mode and fixture mode.\n- Missing Polymarket API key does not break local tests because no key is required for fixture or public Gamma discovery.\n- Fixtures include target sport coverage and explicit expected decisions.\n- Rejected fixtures cover subjective, multi-outcome, missing `conditionId`, missing rules, disallowed competition, disallowed market type, and price-only examples.\n- Fixture names are stable and map to task evidence files.\n\n## Required QA and test plan\n\n- Start the Fastify backend locally and validate fixture discovery configuration with `curl`.\n- Validate TypeORM/PostgreSQL connectivity if any fixture metadata is persisted.\n- Run backend tests in fixture mode.\n- Run `curl` against the local template discovery fixture endpoint and capture response.\n- If live public API access is available, run one live discovery `curl` command per target sport and capture sanitized output.\n\nSuggested commands:\n\n```bash\ndocker compose up -d postgres\nnpm --workspace @duelly/backend run db:migration:run\nnpm --workspace @duelly/backend run typecheck\nnpm --workspace @duelly/backend test\nnpm --workspace @duelly/backend run dev\ncurl -sS \"http://localhost:<port>/ready\" | jq\ncurl -sS \"http://localhost:<port>/templates/candidates?mode=fixture\" | jq\ncurl -sS \"http://localhost:<port>/templates/rejected?mode=fixture\" | jq\n```\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T02/backend-typecheck.log`.\n- `evidence/M1-T02/backend-fixture-test.log`.\n- `evidence/M1-T02/typeorm-fixture-db-validation.log`.\n- `evidence/M1-T02/curl-ready.json`.\n- `evidence/M1-T02/curl-template-fixtures.json`.\n- `evidence/M1-T02/live-football-check-sanitized.json` or dependency note.\n- `evidence/M1-T02/live-tennis-check-sanitized.json` or dependency note.\n- `evidence/M1-T02/live-ufc-check-sanitized.json` or dependency note.\n- `evidence/M1-T02/live-f1-check-sanitized.json` or dependency note.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes curl responses for backend flows if backend endpoints are touched.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M1.T03",
-    "title": "[M1.T03] Implement Polymarket market discovery adapter",
+    "title": "[M1.T03] Implement Polymarket sports market discovery adapter",
     "sourcePath": "milestones-1-product-rules-template-system/task-03-implement-polymarket-market-discovery-adapter.md",
-    "milestone": "M1 — Product Rules & Template System",
+    "milestone": "M1 — Product Rules & Sports Template System",
     "priority": "P0",
     "type": "Backend / Integration",
     "status": "Planned",
     "dependencies": [
+      "M1.T00",
       "M1.T01",
       "M1.T02"
     ],
-    "dependenciesText": "M1.T01; M1.T02",
+    "dependenciesText": "M1.T00; M1.T01; M1.T02",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
     ],
-    "body": "Source: `milestones-1-product-rules-template-system/task-03-implement-polymarket-market-discovery-adapter.md`\n\nTask ID: M1.T03\nPriority: P0\nDependencies: M1.T01; M1.T02\n\n# M1.T03 — Implement Polymarket market discovery adapter\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Integration  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- M1.T02\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement a backend adapter that fetches or loads candidate Polymarket markets.\n- Normalize raw market fields into internal candidate objects.\n- Support category priority: collectibles first, sports fallback.\n- Expose a local endpoint or CLI command to list normalized candidates.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Adapter implementation may use any backend framework selected for the repo, but it must be testable with fixtures.\n- Keep raw provider data separate from normalized template candidates.\n\n## Acceptance criteria\n\n- Adapter returns deterministic normalized objects from fixtures.\n- Adapter never returns odds/probabilities as result fields.\n- Adapter captures conditionId, marketId, questionId, outcomes, close time, category, source URL/reference, and rules text/hash input when available.\n- Adapter surfaces provider errors and missing fields with explicit reasons.\n\n## Required QA and test plan\n\n- Run backend unit tests for adapter fixture normalization.\n- Start backend locally and run `curl -sS http://localhost:<port>/templates/candidates?mode=fixture | jq`.\n- Capture curl output and verify normalized fields are present.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T03/adapter-tests.log.\n- evidence/M1-T03/curl-candidates.json.\n- evidence/M1-T03/normalization-summary.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-1-product-rules-template-system/task-03-implement-polymarket-market-discovery-adapter.md`\n\nTask ID: M1.T03\nPriority: P0\nDependencies: M1.T00; M1.T01; M1.T02\n\n# M1.T03 — Implement Polymarket sports market discovery adapter\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P0  \n**Type:** Backend / Integration  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T00\n- M1.T01\n- M1.T02\n\n## Recommended specialist subagents\n\n- backend-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement the adapter inside the Fastify/TypeScript backend and expose fixture/live discovery endpoints.\n- Persist normalized discovery runs or candidate snapshots with PostgreSQL/TypeORM when the service stores discovery state.\n- Implement the backend adapter that retrieves candidate sports markets from Polymarket Gamma API or fixture mode inside the Node.js + Fastify + TypeScript backend.\n- Use typed services/repositories and TypeORM-backed persistence where candidate snapshots are stored.\n- Normalize provider-specific market/event fields into internal candidate records.\n- Support search/discovery strategies for the approved M1 sports scope.\n- Do not use odds, prices, probabilities, or liquidity as final result fields.\n- Surface provider errors and missing fields with explicit reasons.\n- Expose adapter output through Fastify endpoints suitable for curl-based QA.\n\n## Non-goals\n\n- Do not implement final template acceptance filters in this task; M1.T05 owns strict filtering.\n- Do not implement on-chain publishing; M1.T06 owns publisher stub.\n- Do not implement Polymarket trading, CLOB operations, or order placement.\n\n## Implementation guidance\n\n- Use Fastify routes or plugins for discovery endpoints; do not introduce another HTTP framework.\n- Use TypeORM repositories for any candidate persistence.\nThe adapter should support both fixture and live modes behind the same interface. It must be implemented as a TypeScript service consumed by Fastify routes. If candidate data is persisted, it must use PostgreSQL through TypeORM repositories, not ad-hoc JSON files as the runtime source of truth.\n\nSuggested discovery strategies:\n\n- Football/Soccer:\n  - search terms: `FIFA World Cup`, `World Cup`, `Club World Cup`, `Brasileirão`, `Brazil Serie A`, `Brazilian Serie A`, `Libertadores`, `Copa Libertadores`.\n  - event/market tags may be used when available, but the adapter must not rely only on tag names.\n- Tennis:\n  - Tennis discovery must treat ATP 250+ as the accepted scope: ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams.\n  - search terms: `ATP 250`, `ATP250`, `ATP 500`, `ATP500`, `ATP Masters 1000`, `Masters 1000`, `ATP Finals`, `Grand Slam`, `Australian Open`, `Roland Garros`, `French Open`, `Wimbledon`, `US Open`, and known tournament names when applicable.\n  - individual match candidates should be classified separately from tournament winner candidates.\n- UFC:\n  - search terms: `UFC main event`, `UFC`, fighter names when fixtures provide them.\n  - adapter must capture whether the market appears to be a main event or an undercard/prop candidate.\n- Formula 1:\n  - search terms: `Formula 1`, `F1`, `Grand Prix`, `race winner`, `sprint winner`, `sprint race`.\n\nNormalized candidate fields should include at minimum:\n\n- `provider = polymarket`\n- `providerEventId`\n- `providerMarketId`\n- `slug`\n- `question`\n- `conditionId`\n- `questionId`\n- `outcomes`\n- `outcomeTokenIds` when available\n- `active`\n- `closed`\n- `archived`\n- `acceptingOrders`\n- `negRisk`\n- `endDate`\n- `rulesText` or `description`\n- `rulesSourceUrl` or source reference when available\n- `sport`\n- `competition`\n- `eventType`\n- `binaryMarketType`\n- `participants`\n- `rawProviderPayloadHash`\n\n## Acceptance criteria\n\n- Adapter can load sports candidate fixtures without network access.\n- Adapter runs inside the Fastify backend and passes TypeScript type checking.\n- Adapter can call live public Gamma API when configured for live mode.\n- Adapter normalizes football/soccer, tennis, UFC, and F1 candidates into the same internal shape.\n- Tennis candidates include a normalized `competitionLevel` value: `ATP_250`, `ATP_500`, `ATP_MASTERS_1000`, `ATP_FINALS`, or `GRAND_SLAM`.\n- Adapter never marks a candidate as accepted; it only normalizes and classifies candidates for later filtering.\n- Adapter never maps `outcomePrices`, odds, probabilities, or liquidity to final result fields.\n- Adapter captures `conditionId`, `providerMarketId`, `questionId`, outcomes, close time, category/sport, competition, source URL/reference, and rules text/hash input when available.\n- Adapter returns explicit provider or normalization errors for missing critical fields.\n- When persistence is enabled, candidate snapshots can be written to and read from PostgreSQL through TypeORM in tests.\n\n## Required QA and test plan\n\n- Run backend typecheck before adapter tests.\n- Validate discovery endpoints through Fastify with `curl` in fixture mode.\n- Run backend typecheck and unit tests for adapter fixture normalization.\n- Run PostgreSQL/TypeORM integration tests if candidate persistence is implemented.\n- Start backend locally and run `curl -sS http://localhost:<port>/templates/candidates?mode=fixture | jq`.\n- Capture curl output and verify normalized fields are present.\n- If live public API access is available, run one sanitized live discovery command for each target sport.\n\nSuggested commands:\n\n```bash\ndocker compose up -d postgres\nnpm --workspace @duelly/backend run db:migration:run\nnpm --workspace @duelly/backend run typecheck\nnpm --workspace @duelly/backend test -- --runInBand\nnpm --workspace @duelly/backend run dev\ncurl -sS \"http://localhost:<port>/templates/candidates?mode=fixture&sport=football\" | jq\ncurl -sS \"http://localhost:<port>/templates/candidates?mode=fixture&sport=tennis\" | jq\ncurl -sS \"http://localhost:<port>/templates/candidates?mode=fixture&sport=ufc\" | jq\ncurl -sS \"http://localhost:<port>/templates/candidates?mode=fixture&sport=f1\" | jq\n```\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T03/backend-typecheck.log`.\n- `evidence/M1-T03/adapter-tests.log`.\n- `evidence/M1-T03/typeorm-adapter-integration.log`.\n- `evidence/M1-T03/curl-football-candidates.json`.\n- `evidence/M1-T03/curl-tennis-candidates.json`.\n- `evidence/M1-T03/curl-ufc-candidates.json`.\n- `evidence/M1-T03/curl-f1-candidates.json`.\n- `evidence/M1-T03/normalization-summary.md`.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes curl responses for backend flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M1.T04",
-    "title": "[M1.T04] Define deterministic template schema and templateHash",
+    "title": "[M1.T04] Define deterministic sports template schema and templateHash",
     "sourcePath": "milestones-1-product-rules-template-system/task-04-define-deterministic-template-schema-and-templatehash.md",
-    "milestone": "M1 — Product Rules & Template System",
+    "milestone": "M1 — Product Rules & Sports Template System",
     "priority": "P0",
     "type": "Backend / Smart Contract Interface",
     "status": "Planned",
     "dependencies": [
+      "M1.T00",
       "M1.T01",
       "M1.T03"
     ],
-    "dependenciesText": "M1.T01; M1.T03",
+    "dependenciesText": "M1.T00; M1.T01; M1.T03",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
     ],
-    "body": "Source: `milestones-1-product-rules-template-system/task-04-define-deterministic-template-schema-and-templatehash.md`\n\nTask ID: M1.T04\nPriority: P0\nDependencies: M1.T01; M1.T03\n\n# M1.T04 — Define deterministic template schema and templateHash\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Smart Contract Interface  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- M1.T03\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define the canonical Template schema shared by backend and smart contract.\n- Define deterministic templateHash input ordering and encoding.\n- Include loserFeeBps and minLoserFee policy fields where appropriate.\n- Add tests proving equal inputs produce equal hashes and changed fields change the hash.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Prefer an ABI-compatible hash definition that the smart contract can reproduce.\n- Avoid hashing non-canonical JSON serialization unless canonicalization is formally specified and tested.\n\n## Acceptance criteria\n\n- Template schema includes marketId, conditionId, questionId, outcome labels, rulesHash, close time, resolution deadline, category, loserFeeBps, and active status.\n- templateHash is deterministic across backend tests and Solidity tests or documented test vectors.\n- Changing any critical field changes templateHash.\n- Non-critical display metadata is either excluded from hash or explicitly included by design.\n\n## Required QA and test plan\n\n- Run backend hash tests.\n- Run local smart-contract hash vector test or a placeholder contract/vector test if M2 contract is not implemented yet.\n- Run curl endpoint to fetch a template candidate and verify the returned templateHash matches the test vector.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T04/hash-tests.log.\n- evidence/M1-T04/template-hash-vectors.json.\n- evidence/M1-T04/curl-template-hash.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-1-product-rules-template-system/task-04-define-deterministic-template-schema-and-templatehash.md`\n\nTask ID: M1.T04\nPriority: P0\nDependencies: M1.T00; M1.T01; M1.T03\n\n# M1.T04 — Define deterministic sports template schema and templateHash\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P0  \n**Type:** Backend / Smart Contract Interface  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T00\n- M1.T01\n- M1.T03\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Define TypeScript schema/types for the Fastify backend and TypeORM persistence model for canonical templates.\n- Define the canonical Sports Template schema shared by backend and smart contract.\n- Represent backend template schema in TypeScript types and, where persistence is needed, TypeORM entities backed by PostgreSQL.\n- Define deterministic `templateHash` input ordering and encoding.\n- Include sports-specific fields required to preserve binary result semantics.\n- Include `loserFeeBps` and minimum loser fee policy fields where appropriate.\n- Add tests proving equal inputs produce equal hashes and changed critical fields change the hash.\n\n## Non-goals\n\n- Do not implement full smart-contract registry logic; M2 owns contract implementation.\n- Do not hash non-canonical raw provider JSON unless canonicalization is formally specified and tested.\n- Do not include display-only metadata in the hash unless explicitly required.\n\n## Implementation guidance\n\n- Template schema types must be reusable by Fastify route handlers and TypeORM entities.\n- If a database entity is created, add or update a TypeORM migration.\n- Prefer an ABI-compatible hash definition that the smart contract can reproduce.\n- Define the canonical schema in a way that supports on-chain enforcement while keeping provider metadata available off-chain.\n- Normalize string casing and whitespace before hash input where needed, or avoid hashing mutable human-readable strings.\n- Use stable enum-like fields for `sport`, `competition`, `eventType`, and `binaryMarketType`.\n- Keep TypeScript DTOs, domain types, and TypeORM entities aligned without leaking database-only fields into hash inputs.\n\n## Required canonical fields\n\nThe canonical sports template schema must include at least:\n\n- `templateVersion`\n- `provider`\n- `providerMarketId`\n- `conditionId`\n- `questionId`\n- `sport`\n- `competition`\n- `eventType`\n- `binaryMarketType`\n- `outcomeA.label`\n- `outcomeA.providerOutcomeIndex`\n- `outcomeB.label`\n- `outcomeB.providerOutcomeIndex`\n- `rulesHash`\n- `rulesSourceHash` or `rulesSourceUrlHash`\n- `eventStartAt` when available\n- `bettingCloseAt`\n- `resolutionDeadline`\n- `loserFeeBps`\n- `active`\n\nSuggested `binaryMarketType` values:\n\n- `FOOTBALL_TOURNAMENT_WINNER_YES_NO`\n- `FOOTBALL_BINARY_MATCH_CONDITION`\n- `TENNIS_MATCH_WINNER`\n- `TENNIS_TOURNAMENT_WINNER_YES_NO`\n\nFor tennis templates, include `competitionLevel` as one of `ATP_250`, `ATP_500`, `ATP_MASTERS_1000`, `ATP_FINALS`, or `GRAND_SLAM`; for Grand Slams, include `grandSlamName` when available.\n- `UFC_MAIN_EVENT_FIGHT_WINNER`\n- `F1_RACE_WINNER_YES_NO`\n- `F1_SPRINT_WINNER_YES_NO`\n- `F1_RACE_OR_SPRINT_HEAD_TO_HEAD`\n\n## Acceptance criteria\n\n- Template schema includes all required canonical fields above.\n- Backend implementation includes TypeScript domain types and TypeORM-compatible persistence mapping for accepted sports templates.\n- `templateHash` is deterministic across backend tests and Solidity tests or documented test vectors.\n- Changing any critical field changes `templateHash`, including sport, competition, event type, conditionId, questionId, outcomes, rulesHash, close time, resolution deadline, and fee fields.\n- Non-critical display metadata is either excluded from hash or explicitly included by design.\n- Schema supports future on-chain template registry enforcement without relying on raw Polymarket JSON.\n\n## Required QA and test plan\n\n- Run backend typecheck and tests for schema/hash determinism.\n- If TypeORM entities/migrations are added, validate migration status against local PostgreSQL.\n- Run backend typecheck and hash tests.\n- Run local smart-contract hash vector test or a placeholder contract/vector test if M2 contract is not implemented yet.\n- Run curl endpoint to fetch a sports template candidate and verify the returned `templateHash` matches the test vector.\n\nSuggested commands:\n\n```bash\ndocker compose up -d postgres\nnpm --workspace @duelly/backend run db:migration:show\nnpm --workspace @duelly/backend run typecheck\nnpm --workspace @duelly/backend test -- template-hash\nnpm --workspace @duelly/backend run dev\ncurl -sS \"http://localhost:<port>/templates?mode=fixture&sport=football\" | jq '.[0].templateHash'\n# If a smart-contract hash-vector test exists in this PR, run it locally and capture the output as evidence.\n```\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T04/backend-typecheck.log`.\n- `evidence/M1-T04/typeorm-migration-status.log`.\n- `evidence/M1-T04/hash-tests.log`.\n- `evidence/M1-T04/template-hash-vectors.json`.\n- `evidence/M1-T04/curl-template-hash.json`.\n- `evidence/M1-T04/schema-review.md`.\n- `evidence/M1-T04/smartcontract-hash-vector-test.log` if a local contract/vector test is added.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes curl responses for backend flows.\n- PR includes local smart-contract outcomes if contract/vector tests are added.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M1.T05",
-    "title": "[M1.T05] Implement strict template filters and rejection reasons",
+    "title": "[M1.T05] Implement strict sports template filters and rejection reasons",
     "sourcePath": "milestones-1-product-rules-template-system/task-05-implement-strict-template-filters-and-rejection-reasons.md",
-    "milestone": "M1 — Product Rules & Template System",
+    "milestone": "M1 — Product Rules & Sports Template System",
     "priority": "P0",
     "type": "Backend / Product Rules",
     "status": "Planned",
     "dependencies": [
+      "M1.T00",
       "M1.T01",
       "M1.T03",
       "M1.T04"
     ],
-    "dependenciesText": "M1.T01; M1.T03; M1.T04",
+    "dependenciesText": "M1.T00; M1.T01; M1.T03; M1.T04",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
     ],
-    "body": "Source: `milestones-1-product-rules-template-system/task-05-implement-strict-template-filters-and-rejection-reasons.md`\n\nTask ID: M1.T05\nPriority: P0\nDependencies: M1.T01; M1.T03; M1.T04\n\n# M1.T05 — Implement strict template filters and rejection reasons\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P0  \n**Type:** Backend / Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T01\n- M1.T03\n- M1.T04\n\n## Recommended specialist subagents\n\n- backend-specialist\n- product-architect\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement filtering logic for accepted and rejected templates.\n- Produce machine-readable rejection reasons.\n- Prevent near-expiry, ambiguous, multi-outcome, negative-risk, subjective, and price-only markets from being accepted.\n- Expose accepted templates and rejected candidates for QA/debugging.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Be conservative. False negatives are acceptable for MVP; false positives are not.\n- Keep rejection reasons stable for tests and useful for operators.\n\n## Acceptance criteria\n\n- Accepted endpoint returns only templates that satisfy all MVP rules.\n- Rejected endpoint returns rejected candidates with reason codes.\n- Tests cover every rejection reason defined in the policy.\n- No template is accepted if conditionId is missing, outcome count is not exactly two, rules are missing, or result depends on odds/probabilities.\n\n## Required QA and test plan\n\n- Run backend filter unit tests.\n- Run `curl -sS http://localhost:<port>/templates?mode=fixture | jq` and verify only accepted templates appear.\n- Run `curl -sS http://localhost:<port>/templates/rejected?mode=fixture | jq` and verify rejection reasons.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T05/filter-tests.log.\n- evidence/M1-T05/curl-accepted-templates.json.\n- evidence/M1-T05/curl-rejected-candidates.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-1-product-rules-template-system/task-05-implement-strict-template-filters-and-rejection-reasons.md`\n\nTask ID: M1.T05\nPriority: P0\nDependencies: M1.T00; M1.T01; M1.T03; M1.T04\n\n# M1.T05 — Implement strict sports template filters and rejection reasons\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P0  \n**Type:** Backend / Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T00\n- M1.T01\n- M1.T03\n- M1.T04\n\n## Recommended specialist subagents\n\n- backend-specialist\n- product-architect\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement filters as Fastify-accessible backend services and expose accepted/rejected template endpoints.\n- Persist accepted templates, rejected candidates, and rejection reasons through PostgreSQL/TypeORM when they are part of the M1 operational flow.\n- Implement filtering logic for accepted and rejected sports templates inside the Fastify/TypeScript backend.\n- Persist accepted templates and rejected candidates through PostgreSQL/TypeORM when runtime persistence is used.\n- Produce machine-readable rejection reasons.\n- Prevent near-expiry, ambiguous, unsupported, multi-outcome, negative-risk, subjective, and price-only markets from being accepted.\n- Expose accepted templates and rejected candidates through Fastify endpoints for QA/debugging.\n- Ensure the accepted universe is limited to the approved sports scope and binary result shapes.\n\n## Non-goals\n\n- Do not implement provider discovery; M1.T03 owns adapter discovery.\n- Do not implement on-chain publishing; M1.T06 owns publisher stub.\n- Do not loosen filters to increase template count without human approval.\n\n## Implementation guidance\n\n- Keep rejection reason codes stable in TypeScript enums or constant maps.\n- Use TypeORM repositories for persisted accepted/rejected template records.\n- Be conservative. False negatives are acceptable for MVP; false positives are not.\n- Keep rejection reason codes stable for tests and useful for operators.\n- Prefer a composed filter pipeline where every rejection reason can be individually tested.\n- Keep filtering logic in typed services; Fastify routes should delegate to services.\n- Use TypeORM repositories for accepted/rejected template persistence and keep rejection reason codes stable in database records.\n- Do not infer final outcomes from prices, probabilities, liquidity, or odds.\n\n## Required acceptance filters\n\nA candidate can be accepted only if all of the following are true:\n\n- `provider` is `polymarket`.\n- `sport` is one of: `football`, `tennis`, `ufc`, `f1`.\n- `competition` is allowed for the sport:\n  - football: FIFA World Cup, FIFA Club World Cup/world-level approved competition, Brasileirão, Copa Libertadores;\n  - tennis: ATP 250+ only (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams);\n    Tennis aliases must normalize to `ATP_250`, `ATP_500`, `ATP_MASTERS_1000`, `ATP_FINALS`, or `GRAND_SLAM`;\n  - UFC: main event only;\n  - F1: race or sprint race only.\n- Market is active, not closed, not archived, and accepting orders when this field is available.\n- `negRisk` is false.\n- `conditionId` is present.\n- `questionId` is present.\n- Rules or description are present and hashable.\n- Outcome count is exactly two.\n- The two outcomes map to an approved binary result type.\n- The binary market has explicit or inferable final-result semantics from official event/tournament result, not from price/probability.\n- `bettingCloseAt` and `resolutionDeadline` are present and not stale.\n- `loserFeeBps` is within allowed range.\n\n## Required rejection reason codes\n\nImplement stable reason codes including at least:\n\n- `UNSUPPORTED_SPORT`\n- `UNSUPPORTED_COMPETITION`\n- `UNSUPPORTED_EVENT_TYPE`\n- `NON_BINARY_MARKET`\n- `MISSING_CONDITION_ID`\n- `MISSING_QUESTION_ID`\n- `MISSING_RULES`\n- `NEGATIVE_RISK_UNSUPPORTED`\n- `MARKET_INACTIVE`\n- `MARKET_CLOSED`\n- `MARKET_ARCHIVED`\n- `NOT_ACCEPTING_ORDERS`\n- `NEAR_EXPIRY`\n- `AMBIGUOUS_RESOLUTION`\n- `ODDS_OR_PROBABILITY_RESULT`\n- `DISALLOWED_FOOTBALL_MARKET_TYPE`\n- `DISALLOWED_TENNIS_MARKET_TYPE`\n- `ATP_250_PLUS_UNSUPPORTED`\n- `DISALLOWED_UFC_MARKET_TYPE`\n- `DISALLOWED_F1_MARKET_TYPE`\n- `INVALID_LOSER_FEE_BPS`\n\n## Sport-specific rejection examples\n\n- Football/Soccer:\n  - Reject 3-way match winner with draw as third outcome.\n  - Reject spreads, totals, cards, corners, player props.\n  - Reject competitions outside approved scope.\n- Tennis:\n  - Reject tennis tournaments outside ATP 250+ scope (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams).\n  - Reject set spreads, game totals, handicaps, ace props, retirement-ambiguous markets without explicit rules.\n- UFC:\n  - Reject undercard fights.\n  - Reject method, round, distance, significant strike props.\n  - Reject no-contest/draw markets without explicit void handling.\n- F1:\n  - Reject qualifying, fastest lap, podium, DNF, safety-car, and season championship markets.\n  - Reject markets not tied to race or sprint final classification.\n\n## Acceptance criteria\n\n- Accepted endpoint returns only templates that satisfy all MVP sports rules.\n- Accepted/rejected endpoints are served by the Fastify backend and pass curl-based QA.\n- Rejected endpoint returns rejected candidates with stable reason codes.\n- Tests cover every rejection reason defined in the policy.\n- No template is accepted if `conditionId` is missing, outcome count is not exactly two, rules are missing, sport/competition is not allowed, or result depends on odds/probabilities.\n- Accepted templates include sport-specific normalized metadata and `templateHash`.\n\n## Required QA and test plan\n\n- Run backend typecheck before filter tests.\n- Validate accepted/rejected endpoints with `curl` against the Fastify service in fixture mode.\n- Validate persisted rejected reasons against PostgreSQL when persistence is implemented.\n- Run backend typecheck and filter unit tests.\n- Run TypeORM integration tests for accepted/rejected persistence when implemented.\n- Run `curl -sS http://localhost:<port>/templates?mode=fixture | jq` and verify only accepted sports templates appear.\n- Run `curl -sS http://localhost:<port>/templates/rejected?mode=fixture | jq` and verify rejection reasons.\n- Run per-sport curl checks for accepted and rejected endpoints.\n\nSuggested commands:\n\n```bash\ndocker compose up -d postgres\nnpm --workspace @duelly/backend run db:migration:run\nnpm --workspace @duelly/backend run typecheck\nnpm --workspace @duelly/backend test -- template-filter\nnpm --workspace @duelly/backend run dev\ncurl -sS \"http://localhost:<port>/templates?mode=fixture\" | jq\ncurl -sS \"http://localhost:<port>/templates/rejected?mode=fixture\" | jq\ncurl -sS \"http://localhost:<port>/templates?mode=fixture&sport=f1\" | jq\n```\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T05/backend-typecheck.log`.\n- `evidence/M1-T05/filter-tests.log`.\n- `evidence/M1-T05/typeorm-filter-persistence.log`.\n- `evidence/M1-T05/curl-accepted-templates.json`.\n- `evidence/M1-T05/curl-rejected-candidates.json`.\n- `evidence/M1-T05/curl-accepted-by-sport.json`.\n- `evidence/M1-T05/rejection-reason-coverage.md`.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes curl responses for backend flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M1.T06",
-    "title": "[M1.T06] Specify and stub template registry publisher",
+    "title": "[M1.T06] Specify and stub sports template registry publisher",
     "sourcePath": "milestones-1-product-rules-template-system/task-06-specify-and-stub-template-registry-publisher.md",
-    "milestone": "M1 — Product Rules & Template System",
+    "milestone": "M1 — Product Rules & Sports Template System",
     "priority": "P1",
     "type": "Backend / Smart Contract Interface",
     "status": "Planned",
     "dependencies": [
+      "M1.T00",
       "M1.T04",
       "M1.T05"
     ],
-    "dependenciesText": "M1.T04; M1.T05",
+    "dependenciesText": "M1.T00; M1.T04; M1.T05",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:backend",
       "qa:curl"
     ],
-    "body": "Source: `milestones-1-product-rules-template-system/task-06-specify-and-stub-template-registry-publisher.md`\n\nTask ID: M1.T06\nPriority: P1\nDependencies: M1.T04; M1.T05\n\n# M1.T06 — Specify and stub template registry publisher\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P1  \n**Type:** Backend / Smart Contract Interface  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T04\n- M1.T05\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Specify how accepted templates are published to the smart contract registry.\n- Create a backend publisher interface with mock/local implementation.\n- Define expected contract call data and events for template registration.\n- Ensure the backend cannot publish rejected templates.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- This task can use a stub if the full M2 contract is not ready.\n- Keep interface stable enough for M2 and M3 to consume.\n\n## Acceptance criteria\n\n- Publisher accepts only templates that passed M1 filters.\n- Publisher emits or stores an auditable record of the templateHash and source metadata.\n- Publisher rejects stale, inactive, or missing-field templates before contract interaction.\n- Contract call data or mock call payload is test-covered.\n\n## Required QA and test plan\n\n- Run backend publisher tests.\n- Run smart-contract local stub test if available, or a call-data validation test.\n- Run curl command to request publication of an accepted fixture and a rejected fixture; accepted returns a publishable payload, rejected returns an error.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T06/publisher-tests.log.\n- evidence/M1-T06/curl-publish-accepted.json.\n- evidence/M1-T06/curl-publish-rejected.json.\n- evidence/M1-T06/contract-call-payload.json.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-1-product-rules-template-system/task-06-specify-and-stub-template-registry-publisher.md`\n\nTask ID: M1.T06\nPriority: P1\nDependencies: M1.T00; M1.T04; M1.T05\n\n# M1.T06 — Specify and stub sports template registry publisher\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P1  \n**Type:** Backend / Smart Contract Interface  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T00\n- M1.T04\n- M1.T05\n\n## Recommended specialist subagents\n\n- backend-specialist\n- blockchain-specialist\n- qa-specialist\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Implement the publisher stub as a Fastify/TypeScript backend module.\n- Store publish audit records with PostgreSQL/TypeORM.\n- Specify how accepted sports templates are published to the smart contract registry.\n- Create a backend publisher interface with mock/local implementation in the Fastify/TypeScript backend.\n- Store publish attempts or publishable payload records through PostgreSQL/TypeORM.\n- Define expected contract call data and events for sports template registration.\n- Ensure the backend cannot publish rejected templates.\n- Include sports-specific audit metadata in the publish record.\n\n## Non-goals\n\n- Do not implement full M2 smart contract logic.\n- Do not publish to a live chain.\n- Do not allow manual bypass of M1 filters.\n\n## Implementation guidance\n\n- Use TypeORM for publish audit persistence; do not store audit records only in memory except in isolated unit tests.\n- Expose publisher behavior through Fastify endpoints for curl QA.\n- This task can use a stub if the full M2 contract is not ready.\n- Keep interface stable enough for M2 and M3 to consume.\n- The publisher should preserve both the compact on-chain payload and the richer off-chain source metadata.\n- Fastify route handlers should call a typed publisher service, which writes audit records through TypeORM repositories.\n- Ensure that the published payload includes enough data for the smart contract to enforce `templateHash`, `conditionId`, deadlines, and fee policy.\n\n## Required publisher payload fields\n\nThe publishable payload or contract call data must include at least:\n\n- `templateHash`\n- `conditionId`\n- `questionId`\n- `sport`\n- `competition`\n- `eventType`\n- `binaryMarketType`\n- `outcomeAProviderIndex`\n- `outcomeBProviderIndex`\n- `rulesHash`\n- `bettingCloseAt`\n- `resolutionDeadline`\n- `loserFeeBps`\n- `active`\n\nThe audit metadata must include at least:\n\n- `providerMarketId`\n- `providerEventId` when available\n- `slug`\n- `question`\n- `sourceUrl`\n- `rawProviderPayloadHash`\n- `acceptedAt`\n- `publishedBy`\n\n## Acceptance criteria\n\n- Publisher accepts only templates that passed M1 sports filters.\n- Publisher emits or stores an auditable TypeORM-backed record of the `templateHash`, sports scope, provider metadata, and source metadata.\n- Publisher rejects stale, inactive, unsupported, or missing-field templates before contract interaction.\n- Contract call data or mock call payload is test-covered.\n- Publisher cannot publish rejected football, tennis, UFC, F1, or generic invalid fixtures.\n\n## Required QA and test plan\n\n- Run backend typecheck before publisher tests.\n- Validate publish audit persistence through PostgreSQL/TypeORM.\n- Run backend typecheck and publisher tests.\n- Run TypeORM integration tests for publish audit records.\n- Run smart-contract local stub test if available, or a call-data validation test.\n- Run curl command to request publication of an accepted fixture and a rejected fixture; accepted returns a publishable payload, rejected returns an error.\n\nSuggested commands:\n\n```bash\ndocker compose up -d postgres\nnpm --workspace @duelly/backend run db:migration:run\nnpm --workspace @duelly/backend run typecheck\nnpm --workspace @duelly/backend test -- template-publisher\nnpm --workspace @duelly/backend run dev\ncurl -sS -X POST \"http://localhost:<port>/templates/publish?mode=fixture\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"templateId\":\"fixture-football-world-cup-binary-winner\"}' | jq\ncurl -sS -X POST \"http://localhost:<port>/templates/publish?mode=fixture\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"templateId\":\"fixture-football-3way-rejected\"}' | jq\n```\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T06/backend-typecheck.log`.\n- `evidence/M1-T06/publisher-tests.log`.\n- `evidence/M1-T06/typeorm-publish-record.log`.\n- `evidence/M1-T06/curl-publish-accepted.json`.\n- `evidence/M1-T06/curl-publish-rejected.json`.\n- `evidence/M1-T06/contract-call-payload.json`.\n- `evidence/M1-T06/publish-audit-record.json`.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes curl responses for backend flows.\n- PR includes local smart-contract outcomes if call-data validation or stub contract tests are added.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M1.T07",
-    "title": "[M1.T07] Create template QA fixture and evidence pack",
+    "title": "[M1.T07] Create sports template QA fixture and evidence pack",
     "sourcePath": "milestones-1-product-rules-template-system/task-07-create-template-qa-fixture-and-evidence-pack.md",
-    "milestone": "M1 — Product Rules & Template System",
+    "milestone": "M1 — Product Rules & Sports Template System",
     "priority": "P1",
     "type": "QA / Product Rules",
     "status": "Planned",
     "dependencies": [
+      "M1.T00",
       "M1.T02",
       "M1.T03",
       "M1.T04",
       "M1.T05"
     ],
-    "dependenciesText": "M1.T02; M1.T03; M1.T04; M1.T05",
+    "dependenciesText": "M1.T00; M1.T02; M1.T03; M1.T04; M1.T05",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:product",
+      "qa:playwright",
       "qa:curl"
     ],
-    "body": "Source: `milestones-1-product-rules-template-system/task-07-create-template-qa-fixture-and-evidence-pack.md`\n\nTask ID: M1.T07\nPriority: P1\nDependencies: M1.T02; M1.T03; M1.T04; M1.T05\n\n# M1.T07 — Create template QA fixture and evidence pack\n\n**Milestone:** M1 — Product Rules & Template System  \n**Priority:** P1  \n**Type:** QA / Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T02\n- M1.T03\n- M1.T04\n- M1.T05\n\n## Recommended specialist subagents\n\n- qa-specialist\n- backend-specialist\n- product-architect\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Create a stable fixture pack for accepted and rejected template scenarios.\n- Document expected outputs for discovery, normalization, filtering, and hashing.\n- Create a repeatable QA script or checklist for template system validation.\n\n## Non-goals\n\n- Do not expand scope beyond the acceptance criteria without explicit human approval.\n\n## Implementation guidance\n\n- Fixture coverage matters more than live API coverage for deterministic CI.\n- Live API checks should be optional and sanitized.\n\n## Acceptance criteria\n\n- Fixture pack includes accepted, rejected, and edge-case templates.\n- Expected outputs are committed and compared in tests or snapshot tests.\n- QA checklist can be followed by a human without relying on hidden agent context.\n- All evidence files avoid secrets and personal data.\n\n## Required QA and test plan\n\n- Run full backend template test suite.\n- Run curl discovery, accepted, rejected, and publish endpoints in fixture mode.\n- If available, run live API discovery and compare category availability without accepting live templates automatically.\n\n## Required evidence to version and attach to the PR\n\n- evidence/M1-T07/template-fixture-qa.log.\n- evidence/M1-T07/curl-fixture-discovery.json.\n- evidence/M1-T07/fixture-coverage.md.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes screenshots for frontend flows, curl responses for backend flows, and local smart-contract outcomes for smart-contract flows.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
+    "body": "Source: `milestones-1-product-rules-template-system/task-07-create-template-qa-fixture-and-evidence-pack.md`\n\nTask ID: M1.T07\nPriority: P1\nDependencies: M1.T00; M1.T02; M1.T03; M1.T04; M1.T05\n\n# M1.T07 — Create sports template QA fixture and evidence pack\n\n**Milestone:** M1 — Product Rules & Sports Template System  \n**Priority:** P1  \n**Type:** QA / Product Rules  \n**Status:** Planned\n\n## Dependencies\n\n- M1.T00\n- M1.T02\n- M1.T03\n- M1.T04\n- M1.T05\n\n## Recommended specialist subagents\n\n- qa-specialist\n- backend-specialist\n- product-architect\n\n## Execution requirements\n\n- Execute the task in an independent git worktree created from the intended base branch.\n- Open the implementation PR as a Draft PR and keep it in draft until QA evidence is complete.\n- Use granular, descriptive commits. Avoid large mixed commits.\n- Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning `xhigh`.\n- Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.\n\n## Scope\n\n- Validate the full M1 backend path through Fastify routes and PostgreSQL/TypeORM persistence where available.\n- Create a stable fixture pack for accepted, rejected, and edge-case sports template scenarios.\n- Document expected outputs for discovery, normalization, filtering, hashing, and publishable payload generation.\n- Create a repeatable QA script or checklist for sports template system validation.\n- Validate the Fastify backend with PostgreSQL and TypeORM migrations before collecting curl evidence.\n- Ensure evidence is versioned and safe to attach to Draft PRs.\n\n## Non-goals\n\n- Do not require live Polymarket API access for deterministic CI.\n- Do not add frontend UI unless explicitly requested in a separate task.\n- Do not add smart-contract deployment requirements.\n\n## Implementation guidance\n\n- The QA pack must include commands that start the Fastify backend and verify database readiness.\n- Fixture coverage matters more than live API coverage for deterministic CI.\n- Live API checks should be optional and sanitized.\n- Fixtures should include enough raw-like provider data to validate normalization, while remaining stable and safe.\n- Expected outputs should be compared in tests or snapshot tests.\n- QA should run against the Node.js + Fastify service with PostgreSQL available, unless the task explicitly documents a fixture-only exception.\n\n## Required fixture pack coverage\n\nAccepted or candidate fixtures:\n\n- Football/Soccer:\n  - FIFA World Cup or other approved world-level football binary winner market.\n  - Brasileirão binary winner market, if available or represented as a deterministic fixture.\n  - Copa Libertadores binary winner market, if available or represented as a deterministic fixture.\n- Tennis:\n  - ATP 250+ individual match winner (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, or Grand Slam).\n  - ATP 250+ tournament winner binary market (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, or Grand Slam).\n- UFC:\n  - Main event fight winner.\n- Formula 1:\n  - Race winner binary market.\n  - Sprint winner binary market.\n\nRejected fixtures:\n\n- Football 3-way match outcome.\n- Football spread, total, corners/cards, or player prop.\n- Tennis tournament outside ATP 250+ scope (ATP 250, ATP 500, ATP Masters 1000, ATP Finals, and Grand Slams).\n- Tennis spread, total games, or retirement-ambiguous market.\n- UFC undercard or method/round prop.\n- F1 qualifying, fastest lap, podium, DNF, or season championship.\n- Generic missing `conditionId`.\n- Generic missing `questionId`.\n- Generic missing rules.\n- Generic non-binary outcome count.\n- Generic negative-risk market.\n- Generic odds/probability-as-result market.\n- Unsupported sport or unsupported competition.\n\n## Acceptance criteria\n\n- Fixture pack includes accepted, rejected, and edge-case sports templates.\n- Expected outputs are committed and compared in tests or snapshot tests.\n- QA checklist can be followed by a human without relying on hidden agent context.\n- All evidence files avoid secrets and personal data.\n- Evidence includes backend curl responses for discovery, accepted templates, rejected templates, and publishable payloads.\n- If any target sport has no live candidates during QA, the evidence notes this without blocking fixture-mode QA.\n\n## Required QA and test plan\n\n- Validate `GET /health` and `GET /ready` with `curl` before template endpoint QA.\n- Validate that fixture-mode endpoints work against the required Node.js/Fastify/TypeScript backend stack.\n- Run backend typecheck, TypeORM migrations, and full backend template test suite.\n- Run curl discovery, accepted, rejected, and publish endpoints in fixture mode.\n- If available, run live public API discovery and compare category availability without accepting live templates automatically.\n- If frontend is touched, add Playwright coverage and capture screenshots.\n- If smart-contract stubs are touched, run local contract tests.\n\nSuggested commands:\n\n```bash\ndocker compose up -d postgres\nnpm --workspace @duelly/backend run db:migration:run\nnpm --workspace @duelly/backend run typecheck\nnpm --workspace @duelly/backend test\nnpm --workspace @duelly/backend run dev\ncurl -sS \"http://localhost:<port>/health\" | jq\ncurl -sS \"http://localhost:<port>/ready\" | jq\ncurl -sS \"http://localhost:<port>/templates/candidates?mode=fixture\" | jq\ncurl -sS \"http://localhost:<port>/templates?mode=fixture\" | jq\ncurl -sS \"http://localhost:<port>/templates/rejected?mode=fixture\" | jq\ncurl -sS -X POST \"http://localhost:<port>/templates/publish?mode=fixture\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"templateId\":\"fixture-f1-sprint-winner\"}' | jq\n```\n\n## Required evidence to version and attach to the PR\n\n- `evidence/M1-T07/backend-typecheck.log`.\n- `evidence/M1-T07/typeorm-migration-run.log`.\n- `evidence/M1-T07/template-fixture-qa.log`.\n- `evidence/M1-T07/curl-health.json`.\n- `evidence/M1-T07/curl-ready.json`.\n- `evidence/M1-T07/curl-fixture-discovery.json`.\n- `evidence/M1-T07/curl-fixture-accepted.json`.\n- `evidence/M1-T07/curl-fixture-rejected.json`.\n- `evidence/M1-T07/curl-fixture-publish.json`.\n- `evidence/M1-T07/fixture-coverage.md`.\n- `evidence/M1-T07/live-sports-availability.md` or dependency note.\n\n## PR completion requirements\n\n- PR description lists the Definition of Done items and links every evidence artifact.\n- PR contains the exact commands executed and their outputs or summarized logs.\n- PR includes curl responses for backend flows.\n- PR includes screenshots for frontend flows if frontend is touched.\n- PR includes local smart-contract outcomes for smart-contract flows if contracts or stubs are touched.\n- PR remains Draft until QA validates locally. The human reviewer decides when to mark Ready for Review and merge."
   },
   {
     "taskId": "M2.T01",
@@ -241,6 +280,7 @@
     "dependencies": [],
     "dependenciesText": "",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -260,6 +300,7 @@
     ],
     "dependenciesText": "M2.T01",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -279,6 +320,7 @@
     ],
     "dependenciesText": "M2.T02",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -298,6 +340,7 @@
     ],
     "dependenciesText": "M2.T03",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -318,6 +361,7 @@
     ],
     "dependenciesText": "M2.T02; M2.T04",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -338,6 +382,7 @@
     ],
     "dependenciesText": "M2.T02; M1.T04 approved schema or compatible local placeholder",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -359,6 +404,7 @@
     ],
     "dependenciesText": "M2.T04; M2.T05; M2.T06",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -379,6 +425,7 @@
     ],
     "dependenciesText": "M2.T06; M2.T07",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -399,6 +446,7 @@
     ],
     "dependenciesText": "M2.T07; M2.T08",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:smartcontract",
       "qa:foundry"
@@ -426,6 +474,7 @@
     ],
     "dependenciesText": "M2.T01; M2.T02; M2.T03; M2.T04; M2.T05; M2.T06; M2.T07; M2.T08; M2.T09",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:smartcontract",
       "qa:foundry"
@@ -445,6 +494,7 @@
     ],
     "dependenciesText": "M0 completed or repository bootstrap available",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -464,6 +514,7 @@
     ],
     "dependenciesText": "M3.T01",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -483,6 +534,7 @@
     ],
     "dependenciesText": "M3.T02",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -504,6 +556,7 @@
     ],
     "dependenciesText": "M3.T01; Stripe account; BRL1 brokerage/provider decision",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -524,6 +577,7 @@
     ],
     "dependenciesText": "M3.T03; M3.T04",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -545,6 +599,7 @@
     ],
     "dependenciesText": "M1.T05; M1.T06; M3.T01",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -567,6 +622,7 @@
     ],
     "dependenciesText": "M3.T02; M3.T05; M3.T06; M2.T03 test vectors or compatible local spec",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -588,6 +644,7 @@
     ],
     "dependenciesText": "M2.T04; M2.T05; M3.T07",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -610,6 +667,7 @@
     ],
     "dependenciesText": "M2.T06; M2.T07; M2.T08; M3.T08",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -630,6 +688,7 @@
     ],
     "dependenciesText": "M2.T08; M3.T09",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:backend",
       "qa:curl",
@@ -650,6 +709,7 @@
     ],
     "dependenciesText": "M0 completed or repository bootstrap available",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:frontend",
       "qa:playwright",
@@ -672,6 +732,7 @@
     ],
     "dependenciesText": "M4.T01; M3.T02; M3.T03",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:frontend",
       "qa:playwright",
@@ -694,6 +755,7 @@
     ],
     "dependenciesText": "M4.T02; M3.T04; M3.T05",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:frontend",
       "qa:playwright",
@@ -715,6 +777,7 @@
     ],
     "dependenciesText": "M4.T01; M3.T06",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:frontend",
       "qa:playwright",
@@ -738,6 +801,7 @@
     ],
     "dependenciesText": "M4.T03; M4.T04; M3.T07; M3.T08",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:frontend",
       "qa:playwright",
@@ -761,6 +825,7 @@
     ],
     "dependenciesText": "M4.T05; M3.T07; M3.T08; M2.T04",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:frontend",
       "qa:playwright",
@@ -783,6 +848,7 @@
     ],
     "dependenciesText": "M4.T06; M3.T09; M3.T10",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:frontend",
       "qa:playwright",
@@ -809,6 +875,7 @@
     ],
     "dependenciesText": "M4.T01; M4.T02; M4.T03; M4.T04; M4.T05; M4.T06; M4.T07",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:frontend",
       "qa:playwright"
@@ -830,6 +897,7 @@
     ],
     "dependenciesText": "M2.T10; M3.T10; M4.T08",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:e2e",
       "qa:curl",
@@ -850,6 +918,7 @@
     ],
     "dependenciesText": "M5.T01",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:e2e",
       "qa:curl",
@@ -871,6 +940,7 @@
     ],
     "dependenciesText": "M5.T01; M5.T02",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:e2e",
       "qa:playwright",
@@ -893,6 +963,7 @@
     ],
     "dependenciesText": "M5.T01; M5.T02",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:e2e",
       "qa:playwright",
@@ -915,6 +986,7 @@
     ],
     "dependenciesText": "M5.T01; M5.T02",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:e2e",
       "qa:playwright",
@@ -937,6 +1009,7 @@
     ],
     "dependenciesText": "M5.T01; M5.T02",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:e2e",
       "qa:playwright",
@@ -961,6 +1034,7 @@
     ],
     "dependenciesText": "M5.T03; M5.T04; M5.T05; M5.T06",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:e2e",
       "qa:e2e"
@@ -982,6 +1056,7 @@
     ],
     "dependenciesText": "M2.T09; M3.T08; M5.T07",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:playwright",
@@ -1002,6 +1077,7 @@
     ],
     "dependenciesText": "M5.T07",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:harness",
       "qa:playwright",
@@ -1024,6 +1100,7 @@
     ],
     "dependenciesText": "M3.T08; M3.T09; M3.T10",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:backend",
       "qa:curl"
@@ -1044,6 +1121,7 @@
     ],
     "dependenciesText": "M6.T01; M6.T03",
     "labels": [
+      "sync:backlog",
       "priority:P1",
       "domain:frontend",
       "qa:playwright",
@@ -1064,6 +1142,7 @@
     ],
     "dependenciesText": "M5.T07",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:security"
     ],
@@ -1084,6 +1163,7 @@
     ],
     "dependenciesText": "M2.T10; M3.T10; M5.T07",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:security"
     ],
@@ -1107,6 +1187,7 @@
     ],
     "dependenciesText": "M6.T01; M6.T02; M6.T03; M6.T04; M6.T05; M6.T06",
     "labels": [
+      "sync:backlog",
       "priority:P0",
       "domain:harness",
       "qa:playwright",

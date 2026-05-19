@@ -50,6 +50,11 @@
     "description": "Security, privacy, or compliance work"
   },
   {
+    "name": "sync:backlog",
+    "color": "0e8a16",
+    "description": "Issue is managed by the backlog sync workflow"
+  },
+  {
     "name": "qa:playwright",
     "color": "0052cc",
     "description": "Requires Playwright evidence"
