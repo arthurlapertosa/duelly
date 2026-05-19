@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.mjs",
+    "test": "npm run test:node && npm run test:forge",
+    "test:node": "node --test test/*.test.mjs",
+    "test:forge": "PATH=\"$HOME/.foundry/bin:$PATH\" forge test",
     "qa": "npm run test"
   }
 }
