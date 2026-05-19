@@ -1,0 +1,21 @@
+$ npm run validate
+
+> duelly@0.1.0 validate
+> node scripts/harness/validate-harness.mjs
+
+{
+  "ok": true,
+  "project": "duelly",
+  "checks": [
+    "files",
+    "root-package",
+    "repository-config",
+    "workspaces",
+    "agents-md",
+    "codex-agents",
+    "claude-agents",
+    "pr-template",
+    "scripts",
+    "self-tests"
+  ]
+}

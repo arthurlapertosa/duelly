@@ -1,0 +1,365 @@
+$ npm run validate
+
+> duelly@0.1.0 validate
+> node scripts/harness/validate-harness.mjs
+
+{
+  "ok": true,
+  "project": "duelly",
+  "checks": [
+    "files",
+    "root-package",
+    "repository-config",
+    "workspaces",
+    "agents-md",
+    "codex-agents",
+    "claude-agents",
+    "pr-template",
+    "scripts",
+    "self-tests"
+  ]
+}
+
+$ npm test
+
+> duelly@0.1.0 test
+> npm run test:root && npm run test:workspaces
+
+
+> duelly@0.1.0 test:root
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: harness validator passes
+ok 1 - harness validator passes
+  ---
+  duration_ms: 246.733039
+  type: 'test'
+  ...
+# Subtest: PR body renderer includes mandatory sections
+ok 2 - PR body renderer includes mandatory sections
+  ---
+  duration_ms: 36.939103
+  type: 'test'
+  ...
+# Subtest: PR body renderer can link evidence paths
+ok 3 - PR body renderer can link evidence paths
+  ---
+  duration_ms: 38.386543
+  type: 'test'
+  ...
+# Subtest: PR template contains HITL guardrail
+ok 4 - PR template contains HITL guardrail
+  ---
+  duration_ms: 0.22351
+  type: 'test'
+  ...
+# Subtest: issue import dry run preserves backlog task metadata
+ok 5 - issue import dry run preserves backlog task metadata
+  ---
+  duration_ms: 62.391018
+  type: 'test'
+  ...
+# Subtest: issue import dry run emits required labels and milestone names
+ok 6 - issue import dry run emits required labels and milestone names
+  ---
+  duration_ms: 55.681419
+  type: 'test'
+  ...
+# Subtest: keccak256 matches Ethereum empty hash
+ok 7 - keccak256 matches Ethereum empty hash
+  ---
+  duration_ms: 5.495431
+  type: 'test'
+  ...
+# Subtest: known ERC selectors are stable
+ok 8 - known ERC selectors are stable
+  ---
+  duration_ms: 11.343858
+  type: 'test'
+  ...
+# Subtest: calldata encoding pads values correctly
+ok 9 - calldata encoding pads values correctly
+  ---
+  duration_ms: 1.320345
+  type: 'test'
+  ...
+# Subtest: monorepo folders exist
+ok 10 - monorepo folders exist
+  ---
+  duration_ms: 1.690274
+  type: 'test'
+  ...
+# Subtest: repository config points to final repo
+ok 11 - repository config points to final repo
+  ---
+  duration_ms: 1.04524
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 406.948072
+
+> duelly@0.1.0 test:workspaces
+> npm run test --workspaces --if-present
+
+
+> @duelly/frontend@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: frontend workspace has expected bootstrap files
+ok 1 - frontend workspace has expected bootstrap files
+  ---
+  duration_ms: 1.200248
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 82.461738
+
+> @duelly/backend@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: backend workspace has expected bootstrap files
+ok 1 - backend workspace has expected bootstrap files
+  ---
+  duration_ms: 1.645049
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 93.935056
+
+> @duelly/smartcontract@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: smartcontract workspace has expected bootstrap files
+ok 1 - smartcontract workspace has expected bootstrap files
+  ---
+  duration_ms: 1.176046
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 77.591028
+
+$ npm run qa
+
+> duelly@0.1.0 qa
+> bash scripts/harness/qa-check.sh
+
+[qa] validate harness
+{
+  "ok": true,
+  "project": "duelly",
+  "checks": [
+    "files",
+    "root-package",
+    "repository-config",
+    "workspaces",
+    "agents-md",
+    "codex-agents",
+    "claude-agents",
+    "pr-template",
+    "scripts",
+    "self-tests"
+  ]
+}
+[qa] blockchain erc20 self-test
+{
+  "ok": true,
+  "script": "erc20-inspect",
+  "selectors": "validated"
+}
+[qa] polymarket condition self-test
+{
+  "ok": true,
+  "script": "polymarket-condition-inspect",
+  "selectors": {
+    "payoutDenominator": "0xdd34de67",
+    "payoutNumerators": "0x0504c814",
+    "getOutcomeSlotCount": "0xd42dc0c2"
+  }
+}
+[qa] render PR body self-test
+{
+  "ok": true,
+  "script": "render-pr-body"
+}
+[qa] root tests
+
+> duelly@0.1.0 test:root
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: harness validator passes
+ok 1 - harness validator passes
+  ---
+  duration_ms: 282.747821
+  type: 'test'
+  ...
+# Subtest: PR body renderer includes mandatory sections
+ok 2 - PR body renderer includes mandatory sections
+  ---
+  duration_ms: 37.863438
+  type: 'test'
+  ...
+# Subtest: PR body renderer can link evidence paths
+ok 3 - PR body renderer can link evidence paths
+  ---
+  duration_ms: 43.222079
+  type: 'test'
+  ...
+# Subtest: PR template contains HITL guardrail
+ok 4 - PR template contains HITL guardrail
+  ---
+  duration_ms: 0.25386
+  type: 'test'
+  ...
+# Subtest: issue import dry run preserves backlog task metadata
+ok 5 - issue import dry run preserves backlog task metadata
+  ---
+  duration_ms: 83.179935
+  type: 'test'
+  ...
+# Subtest: issue import dry run emits required labels and milestone names
+ok 6 - issue import dry run emits required labels and milestone names
+  ---
+  duration_ms: 63.613118
+  type: 'test'
+  ...
+# Subtest: keccak256 matches Ethereum empty hash
+ok 7 - keccak256 matches Ethereum empty hash
+  ---
+  duration_ms: 5.412819
+  type: 'test'
+  ...
+# Subtest: known ERC selectors are stable
+ok 8 - known ERC selectors are stable
+  ---
+  duration_ms: 13.145033
+  type: 'test'
+  ...
+# Subtest: calldata encoding pads values correctly
+ok 9 - calldata encoding pads values correctly
+  ---
+  duration_ms: 0.888559
+  type: 'test'
+  ...
+# Subtest: monorepo folders exist
+ok 10 - monorepo folders exist
+  ---
+  duration_ms: 2.049601
+  type: 'test'
+  ...
+# Subtest: repository config points to final repo
+ok 11 - repository config points to final repo
+  ---
+  duration_ms: 1.613687
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 466.934339
+[qa] workspace tests
+
+> duelly@0.1.0 test:workspaces
+> npm run test --workspaces --if-present
+
+
+> @duelly/frontend@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: frontend workspace has expected bootstrap files
+ok 1 - frontend workspace has expected bootstrap files
+  ---
+  duration_ms: 1.901914
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 103.794834
+
+> @duelly/backend@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: backend workspace has expected bootstrap files
+ok 1 - backend workspace has expected bootstrap files
+  ---
+  duration_ms: 2.073801
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 126.973528
+
+> @duelly/smartcontract@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: smartcontract workspace has expected bootstrap files
+ok 1 - smartcontract workspace has expected bootstrap files
+  ---
+  duration_ms: 1.22283
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 112.68557
+[qa] ok
+
+$ git status --short
+?? evidence/
