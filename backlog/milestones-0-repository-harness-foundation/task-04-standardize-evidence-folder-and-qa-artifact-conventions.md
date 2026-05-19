@@ -3,7 +3,7 @@
 **Milestone:** M0 — Repository & Harness Foundation  
 **Priority:** P1  
 **Type:** Harness / QA  
-**Status:** Planned
+**Status:** Done
 
 ## Dependencies
 

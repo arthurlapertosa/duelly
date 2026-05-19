@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseStatusJson } from '../scripts/harness/validate-backlog-status.mjs';
@@ -9,6 +9,7 @@ import { parseStatusJson } from '../scripts/harness/validate-backlog-status.mjs'
 const backlogRoot = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(backlogRoot, '..');
 const defaultPort = Number(process.env.PORT || process.argv[2] || 8000);
+const backlogRootReal = realpathSync(backlogRoot);
 
 function isInside(parent, child) {
   const rel = relative(parent, child);
@@ -49,6 +50,14 @@ async function readMappedMarkdown(markdownPath) {
 
   const resolved = resolve(backlogRoot, markdownPath);
   if (!isInside(backlogRoot, resolved) || !existsSync(resolved)) {
+    return { status: 404, payload: { error: 'Markdown file was not found.' } };
+  }
+  try {
+    const stat = lstatSync(resolved);
+    if (!stat.isFile() || !isInside(backlogRootReal, realpathSync(resolved))) {
+      return { status: 404, payload: { error: 'Markdown file was not found.' } };
+    }
+  } catch {
     return { status: 404, payload: { error: 'Markdown file was not found.' } };
   }
 
