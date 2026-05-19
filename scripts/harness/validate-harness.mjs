@@ -12,10 +12,12 @@ const requiredFiles = [
   'config/repository.json',
   '.codex/config.toml',
   '.github/pull_request_template.md',
+  '.github/workflows/backlog-sync.yml',
   '.github/workflows/qa.yml',
   'backlog/status.json',
   'backlog/server.mjs',
   'backlog/README.md',
+  'backlog/github-issue-import/github-map.json',
   'docs/OPERATING_MODEL.md',
   'docs/MONOREPO.md',
   'docs/ARCHITECTURE.md',
@@ -41,6 +43,9 @@ const requiredFiles = [
   'scripts/harness/open-draft-pr.sh',
   'scripts/harness/qa-check.sh',
   'scripts/harness/generate-issue-import.mjs',
+  'scripts/harness/sync-github-backlog.mjs',
+  'scripts/harness/lib/backlog-import.mjs',
+  'scripts/harness/lib/github-backlog-sync.mjs',
   'scripts/harness/validate-backlog-status.mjs',
   'scripts/blockchain/erc20-inspect.mjs',
   'scripts/blockchain/polymarket-condition-inspect.mjs',
@@ -187,6 +192,7 @@ function checkScriptsExecutable() {
     'scripts/harness/commit-granular.sh',
     'scripts/harness/qa-check.sh',
     'scripts/harness/generate-issue-import.mjs',
+    'scripts/harness/sync-github-backlog.mjs',
     'scripts/harness/validate-backlog-status.mjs',
     'scripts/blockchain/erc20-inspect.mjs',
     'scripts/blockchain/polymarket-condition-inspect.mjs',
@@ -218,6 +224,7 @@ function runSelfTests() {
   execFileSync('node', ['scripts/blockchain/erc20-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/blockchain/polymarket-condition-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/harness/render-pr-body.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
+  execFileSync('node', ['scripts/harness/generate-issue-import.mjs', '--check'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/harness/generate-issue-import.mjs', '--dry-run', '--output-dir', 'cache/issue-import-self-test'], { cwd: root, stdio: 'pipe' });
 }
 

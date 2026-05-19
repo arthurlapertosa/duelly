@@ -36,6 +36,11 @@ test('issue import dry run preserves backlog task metadata', () => {
   assert.equal(task.sourcePath, 'milestones-0-repository-harness-foundation/task-02-configure-github-repository-safety-controls.md');
   assert.equal(task.milestone, 'M0 — Repository & Harness Foundation');
   assert.match(task.dependenciesText, /M0\.T01/);
+
+  const m1t00 = issues.find((issue) => issue.taskId === 'M1.T00');
+  assert.ok(m1t00, 'M1.T00 should be present');
+  assert.equal(m1t00.title, '[M1.T00] Establish backend framework foundation for M1');
+  assert.equal(m1t00.milestone, 'M1 — Product Rules & Sports Template System');
 });
 
 test('issue import dry run emits required labels and milestone names', () => {
@@ -56,6 +61,7 @@ test('issue import dry run emits required labels and milestone names', () => {
     'domain:backend',
     'domain:smartcontract',
     'domain:harness',
+    'sync:backlog',
     'qa:playwright',
     'qa:curl',
     'qa:foundry',
@@ -66,5 +72,16 @@ test('issue import dry run emits required labels and milestone names', () => {
 
   const milestones = JSON.parse(readFileSync(join(dir, 'milestones.json'), 'utf8')).map((milestone) => milestone.title);
   assert.ok(milestones.includes('M0 — Repository & Harness Foundation'));
+  assert.ok(milestones.includes('M1 — Product Rules & Sports Template System'));
   assert.ok(milestones.includes('M6 — Launch Readiness & Controlled Pilot'));
+});
+
+test('issue import committed metadata check detects no drift', () => {
+  const output = run('node', [
+    'scripts/harness/generate-issue-import.mjs',
+    '--check',
+  ]);
+  const parsed = JSON.parse(output);
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.issues, taskFileCount());
 });

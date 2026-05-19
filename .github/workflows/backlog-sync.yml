@@ -1,0 +1,46 @@
+name: backlog-sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backlog/**'
+      - 'scripts/harness/**'
+      - '.github/workflows/backlog-sync.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: backlog-sync-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  validate-backlog-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm test
+
+  sync-github-backlog:
+    needs: validate-backlog-sync
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: node scripts/harness/sync-github-backlog.mjs --repo arthurlapertosa/duelly --apply
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
