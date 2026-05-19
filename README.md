@@ -10,6 +10,7 @@ This bootstrap does not implement the product yet. It defines the initial reposi
 frontend/       Web/mobile-first product interface that hides Web3 complexity.
 backend/        APIs, auth, wallet abstraction, Pix/on-ramp, templates, relayer, and indexer.
 smartcontract/  EVM contracts, tests, scripts, and on-chain interfaces.
+.prototype/     Imported frontend reference app used as the 1:1 parity baseline.
 docs/           Project record, architecture, operating model, QA, and workflow documentation.
 scripts/        Harness automation, QA, worktree tools, and blockchain read-only scripts.
 ```
@@ -64,6 +65,7 @@ https://github.com/arthurlapertosa/duelly
 5. Code only moves forward after QA/HITL approval.
 6. Development and critical tasks use the best available model with reasoning/effort `xhigh`.
 7. Subagents must be used whenever work is specialized, parallel, critical, or noisy.
+8. Frontend builds must preserve 1:1 parity with `.prototype/` unless a human explicitly approves divergence.
 
 ## Quick setup
 

@@ -250,6 +250,7 @@ export function writeBacklogStatus(root = process.cwd(), statusPath = DEFAULT_ST
 export function checkBacklogStatusDrift(root = process.cwd(), statusPath = DEFAULT_STATUS_PATH) {
   const destination = resolveStatusPath(root, statusPath);
   const expected = renderBacklogStatus(buildBacklogStatus(root));
+  const relativePath = relative(root, destination).split(sep).join('/');
   let actual = '';
   try {
     actual = readFileSync(destination, 'utf8');
@@ -259,7 +260,7 @@ export function checkBacklogStatusDrift(root = process.cwd(), statusPath = DEFAU
 
   return {
     ok: actual === expected,
-    file: relative(root, destination),
+    file: relativePath,
     reason: actual ? actual === expected ? 'current' : 'content differs' : 'missing',
   };
 }

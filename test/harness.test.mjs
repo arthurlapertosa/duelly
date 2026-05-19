@@ -47,4 +47,5 @@ test('PR template contains HITL guardrail', () => {
   const template = readFileSync('.github/pull_request_template.md', 'utf8');
   assert.match(template, /HITL/);
   assert.match(template, /Human QA approved/);
+  assert.match(template, /\.prototype/);
 });

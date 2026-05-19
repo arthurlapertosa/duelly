@@ -6,6 +6,7 @@
 - Every PR must come from an independent worktree.
 - Every PR must have granular and descriptive commits.
 - Every PR must contain evidence of the work.
+- Frontend PRs must document whether `.prototype/` parity is preserved 1:1 or explicitly waived by a human.
 - A human closes the task.
 
 ## Open PR
@@ -26,6 +27,7 @@ scripts/harness/open-draft-pr.sh --title "feat: task"
 - Tests executed.
 - QA result.
 - Evidence folder paths under `evidence/<task-id>/`.
+- Frontend parity note against `.prototype/` when frontend is touched.
 - Screenshots or logs when applicable.
 - Definition of Done status.
 - Risks and follow-ups.

@@ -28,6 +28,11 @@ const requiredFiles = [
   'docs/EVIDENCE.md',
   'docs/BLOCKCHAIN.md',
   'harness/agents/registry.json',
+  '.prototype/README.md',
+  '.prototype/package.json',
+  '.prototype/src/App.tsx',
+  '.prototype/src/main.tsx',
+  '.prototype/public/favicon.svg',
   'frontend/package.json',
   'frontend/README.md',
   'frontend/src/.gitkeep',
@@ -96,10 +101,12 @@ function checkRootPackage() {
 function checkRepositoryConfig() {
   const config = readJson('config/repository.json');
   if (config.repository !== 'https://github.com/arthurlapertosa/duelly') fail('Repository URL mismatch');
+  if (config.frontendReferenceApp !== '.prototype') fail('frontendReferenceApp must point to .prototype');
   const folders = new Set(config.monorepoFolders || []);
   for (const folder of ['frontend', 'backend', 'smartcontract']) {
     if (!folders.has(folder)) fail(`Repository config missing monorepo folder: ${folder}`);
   }
+  if (folders.has(config.frontendReferenceApp)) fail('frontendReferenceApp must not be a workspace');
   if (!config.draftPrRequired && config.requiredPrState !== 'draft') fail('Draft PR must be required');
   if (!config.humanInTheLoopRequired) fail('HITL must be required');
 }
@@ -119,6 +126,31 @@ function checkAgentsMd() {
   for (const needle of ['worktree', 'draft', 'HITL', 'Subagents', 'frontend', 'backend', 'smartcontract']) {
     if (!content.includes(needle)) fail(`AGENTS.md missing required concept: ${needle}`);
   }
+}
+
+function checkFrontendReferenceApp() {
+  const referenceDocs = [
+    ['README.md', '.prototype/'],
+    ['AGENTS.md', '.prototype/'],
+    ['frontend/README.md', '.prototype/'],
+    ['docs/MONOREPO.md', '.prototype/'],
+    ['docs/OPERATING_MODEL.md', '.prototype/'],
+    ['docs/FRONTEND.md', '.prototype/'],
+    ['docs/PR_WORKFLOW.md', '.prototype/'],
+    ['docs/DEFINITION_OF_DONE.md', '.prototype/'],
+    ['.github/pull_request_template.md', '.prototype/'],
+    ['.codex/agents/frontend-engineer.toml', '.prototype/'],
+    ['.codex/agents/harness-pr-coordinator.toml', '.prototype/'],
+    ['.claude/agents/frontend-engineer.md', '.prototype/'],
+    ['.claude/agents/harness-pr-coordinator.md', '.prototype/'],
+  ];
+
+  for (const [file, needle] of referenceDocs) {
+    if (!read(file).includes(needle)) fail(`${file} must reference ${needle}`);
+  }
+
+  const frontendDocs = read('docs/FRONTEND.md');
+  if (!frontendDocs.includes('1:1')) fail('docs/FRONTEND.md must describe 1:1 parity with .prototype/');
 }
 
 function parseTomlString(content, key) {
@@ -184,6 +216,7 @@ function checkPrTemplate() {
   for (const needle of ['Definition of Done', 'Evidence', 'Evidence paths', 'Local QA', 'HITL', 'draft']) {
     if (!content.includes(needle)) fail(`PR template missing ${needle}`);
   }
+  if (!content.includes('.prototype/')) fail('PR template must mention .prototype parity evidence');
 }
 
 function checkScriptsExecutable() {
@@ -238,6 +271,7 @@ function main() {
   checkRepositoryConfig();
   checkWorkspaces();
   checkAgentsMd();
+  checkFrontendReferenceApp();
   checkCodexAgents();
   checkClaudeAgents();
   checkPrTemplate();
@@ -252,6 +286,7 @@ function main() {
       'repository-config',
       'workspaces',
       'agents-md',
+      'frontend-reference',
       'codex-agents',
       'claude-agents',
       'pr-template',

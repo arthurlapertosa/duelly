@@ -17,6 +17,7 @@ Describe what changed and why.
 - [ ] Tests were added/updated, or an explicit justification is included.
 - [ ] Documentation was updated when needed.
 - [ ] No secrets were committed.
+- [ ] Frontend parity with `.prototype/` is documented or explicitly waived by a human.
 - [ ] Risks and follow-ups are explicit.
 - [ ] Agent did not merge.
 
@@ -26,6 +27,7 @@ Describe what changed and why.
 
 - [ ] `evidence/<task-id>/` folder linked or justified as not applicable.
 - [ ] Frontend evidence included or marked not applicable.
+- [ ] `.prototype/` parity screenshots included or marked not applicable.
 - [ ] Backend evidence included or marked not applicable.
 - [ ] Smart-contract evidence included or marked not applicable.
 - [ ] End-to-end evidence included or marked not applicable.
@@ -48,6 +50,7 @@ Paste the relevant QA output from the worktree.
 
 ```text
 Paste screenshots, logs, calldata, transaction links, or read-only script output.
+For frontend work, state whether the UI preserves `.prototype/` 1:1 and list the screenshot filenames.
 ```
 
 ## Local QA
