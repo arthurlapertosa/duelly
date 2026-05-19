@@ -4,7 +4,7 @@
 
 Duelly is a 1:1 betting MVP with deterministic outcomes, BRL1 funding, and Web3 abstraction for non-technical users.
 
-The MVP is not a generic escrow product. It only supports predefined templates derived from Polymarket markets that can be resolved objectively. The first preferred category is collectibles. If collectible templates are unavailable or insufficient, the fallback category is sports.
+The MVP is not a generic escrow product. It only supports predefined templates derived from Polymarket markets that can be resolved objectively. M1 uses a sports-first scope: football/soccer, ATP 250+ tennis, UFC main events, and Formula 1 races/sprints. Collectibles are outside the M1 target scope.
 
 ## Non-goals for the MVP
 
