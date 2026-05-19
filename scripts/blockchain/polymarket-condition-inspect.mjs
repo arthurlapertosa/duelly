@@ -51,13 +51,21 @@ async function maybeCall(label, call) {
   }
 }
 
-function interpret(denominator, numerators) {
+function interpret(denominator, numerators, { slotCountAvailable, slotCount }) {
   if (denominator === 0n) return { status: 'unresolved', winnerIndex: null, voidLike: false };
-  if (numerators.length === 0) return { status: 'resolved-empty', winnerIndex: null, voidLike: true };
-  const max = numerators.reduce((a, b) => (a > b ? a : b), numerators[0]);
-  const winners = numerators.map((n, i) => (n === max && n > 0n ? i : null)).filter((x) => x !== null);
-  if (winners.length === 1) return { status: 'resolved', winnerIndex: winners[0], voidLike: false };
-  return { status: 'resolved-ambiguous', winnerIndex: null, voidLike: true };
+  if (!slotCountAvailable) {
+    return { status: 'resolved-invalid-shape', reason: 'slot-count-unavailable', winnerIndex: null, voidLike: true };
+  }
+  if (slotCount !== 2 || numerators.length !== 2) {
+    return { status: 'resolved-invalid-shape', reason: 'non-binary-slot-count', winnerIndex: null, voidLike: true };
+  }
+  if (numerators[0] === denominator && numerators[1] === 0n) {
+    return { status: 'resolved-strict-binary', winnerIndex: 0, voidLike: false };
+  }
+  if (numerators[1] === denominator && numerators[0] === 0n) {
+    return { status: 'resolved-strict-binary', winnerIndex: 1, voidLike: false };
+  }
+  return { status: 'resolved-void-or-ambiguous', winnerIndex: null, voidLike: true };
 }
 
 export async function inspectCondition({ rpcUrl, ctf, conditionId, outcomes = 2, block = 'latest' }) {
@@ -111,7 +119,10 @@ export async function inspectCondition({ rpcUrl, ctf, conditionId, outcomes = 2,
     outcomeSlotCount: outcomeCount,
     payoutDenominator: denominator.toString(),
     payoutNumerators: numerators.map((n) => n.toString()),
-    interpretation: interpret(denominator, numerators),
+    interpretation: interpret(denominator, numerators, {
+      slotCountAvailable: slotCountRaw.ok,
+      slotCount: outcomeCount,
+    }),
     errors,
   };
 }
