@@ -106,3 +106,16 @@ bash scripts/harness/open-draft-pr.sh --title "chore(frontend): import prototype
   "bodyFile": ".pr-body.generated.md",
   "draft": true
 }
+
+== push branch ==
+git push -u origin task/import-prototype-and-enforce-frontend-parity
+
+branch pushed to origin/task/import-prototype-and-enforce-frontend-parity
+
+== open draft pr ==
+bash scripts/harness/open-draft-pr.sh --title "chore(frontend): import prototype baseline and parity rules"
+
+fallback used: gh CLI is not available inside the WSL/bash worktree, so Draft PR was opened from the Windows repo root with the same head branch and body file.
+gh pr create --draft --base main --head task/import-prototype-and-enforce-frontend-parity --title "chore(frontend): import prototype baseline and parity rules" --body-file C:\Users\carlos.fonseca\Documents\Firma\GIT\worktrees\duelly-import-prototype-and-enforce-frontend-parity\.pr-body.generated.md
+
+https://github.com/arthurlapertosa/duelly/pull/61

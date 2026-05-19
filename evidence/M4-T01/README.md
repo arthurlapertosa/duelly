@@ -39,6 +39,7 @@ These screenshots are direct `.prototype/` baseline captures from the local prev
 
 ## Notes
 
+- Draft PR: `https://github.com/arthurlapertosa/duelly/pull/61`
 - The `.prototype/` app is a reference artifact, not a monorepo workspace.
 - The repository `npm test` and `npm run qa` suites passed in this worktree.
 - Backend unit/API tests passed; the repository's PostgreSQL integration test remains skipped by design in the logged output.
