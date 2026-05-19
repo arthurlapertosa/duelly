@@ -26,11 +26,17 @@ export function redactRpcUrl(url) {
     const parsed = new URL(url);
     if (parsed.username) parsed.username = '***';
     if (parsed.password) parsed.password = '***';
+    parsed.pathname = parsed.pathname
+      .split('/')
+      .map((segment) => (/^[A-Za-z0-9_-]{12,}$/.test(segment) ? '***' : segment))
+      .join('/');
     for (const key of [...parsed.searchParams.keys()]) {
       if (/key|token|secret|apikey/i.test(key)) parsed.searchParams.set(key, '***');
     }
     return parsed.toString();
   } catch {
-    return url.replace(/([?&](?:key|token|secret|apikey)=)[^&]+/gi, '$1***');
+    return url
+      .replace(/([?&](?:key|token|secret|apikey)=)[^&]+/gi, '$1***')
+      .replace(/\/[A-Za-z0-9_-]{12,}(?=\/|$)/g, '/***');
   }
 }
