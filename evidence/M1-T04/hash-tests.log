@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: template hash vectors are deterministic
+ok 1 - template hash vectors are deterministic
+  ---
+  duration_ms: 92.829477
+  type: 'test'
+  ...
+# Subtest: critical template field changes alter hash while active does not alter identity
+ok 2 - critical template field changes alter hash while active does not alter identity
+  ---
+  duration_ms: 26.239005
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1084.540735

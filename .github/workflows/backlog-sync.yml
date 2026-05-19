@@ -25,6 +25,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - run: npm ci
       - run: npm test
 
   sync-github-backlog:
@@ -41,6 +42,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - run: npm ci
       - run: node scripts/harness/sync-github-backlog.mjs --repo arthurlapertosa/duelly --apply
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

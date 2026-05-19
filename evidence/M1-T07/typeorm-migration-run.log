@@ -1,0 +1,8 @@
+
+> @duelly/backend@0.1.0 db:migration:run
+> tsx src/db/run-migrations.ts
+
+{
+  "ok": true,
+  "migrationsRun": []
+}

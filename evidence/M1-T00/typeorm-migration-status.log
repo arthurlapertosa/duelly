@@ -1,0 +1,8 @@
+
+> @duelly/backend@0.1.0 db:migration:show
+> tsx src/db/show-migrations.ts
+
+{
+  "ok": true,
+  "hasPendingMigrations": false
+}

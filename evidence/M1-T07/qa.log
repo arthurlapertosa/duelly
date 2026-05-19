@@ -1,0 +1,364 @@
+
+> duelly@0.1.0 qa
+> bash scripts/harness/qa-check.sh
+
+[qa] validate harness
+{
+  "ok": true,
+  "project": "duelly",
+  "checks": [
+    "files",
+    "root-package",
+    "repository-config",
+    "workspaces",
+    "agents-md",
+    "codex-agents",
+    "claude-agents",
+    "pr-template",
+    "scripts",
+    "backlog-status",
+    "self-tests"
+  ]
+}
+[qa] blockchain erc20 self-test
+{
+  "ok": true,
+  "script": "erc20-inspect",
+  "selectors": "validated"
+}
+[qa] polymarket condition self-test
+{
+  "ok": true,
+  "script": "polymarket-condition-inspect",
+  "selectors": {
+    "payoutDenominator": "0xdd34de67",
+    "payoutNumerators": "0x0504c814",
+    "getOutcomeSlotCount": "0xd42dc0c2"
+  }
+}
+[qa] render PR body self-test
+{
+  "ok": true,
+  "script": "render-pr-body"
+}
+[qa] root tests
+
+> duelly@0.1.0 test:root
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: backlog status manifest maps all current milestones and tasks
+ok 1 - backlog status manifest maps all current milestones and tasks
+  ---
+  duration_ms: 13.399492
+  type: 'test'
+  ...
+# Subtest: backlog status relationships and markdown paths are valid
+ok 2 - backlog status relationships and markdown paths are valid
+  ---
+  duration_ms: 4.688616
+  type: 'test'
+  ...
+# Subtest: backlog status manifest is generated from markdown
+ok 3 - backlog status manifest is generated from markdown
+  ---
+  duration_ms: 17.68375
+  type: 'test'
+  ...
+# Subtest: backlog status generator rejects unsupported markdown status values
+ok 4 - backlog status generator rejects unsupported markdown status values
+  ---
+  duration_ms: 2.737304
+  type: 'test'
+  ...
+# Subtest: backlog status generator only writes the canonical status path
+ok 5 - backlog status generator only writes the canonical status path
+  ---
+  duration_ms: 0.265802
+  type: 'test'
+  ...
+# Subtest: backlog status validator rejects invalid status values
+ok 6 - backlog status validator rejects invalid status values
+  ---
+  duration_ms: 2.613963
+  type: 'test'
+  ...
+# Subtest: backlog server serves the status page and mapped markdown
+ok 7 - backlog server serves the status page and mapped markdown
+  ---
+  duration_ms: 42.496182
+  type: 'test'
+  ...
+# Subtest: sync planner creates missing M1.T00 and updates stale M1 metadata
+ok 8 - sync planner creates missing M1.T00 and updates stale M1 metadata
+  ---
+  duration_ms: 28.014862
+  type: 'test'
+  ...
+# Subtest: sync planner preserves issue state and human labels while replacing generated labels
+ok 9 - sync planner preserves issue state and human labels while replacing generated labels
+  ---
+  duration_ms: 1.121171
+  type: 'test'
+  ...
+# Subtest: sync planner rejects duplicate GitHub task ids
+ok 10 - sync planner rejects duplicate GitHub task ids
+  ---
+  duration_ms: 0.399253
+  type: 'test'
+  ...
+# Subtest: sync planner rejects orphan GitHub task ids
+ok 11 - sync planner rejects orphan GitHub task ids
+  ---
+  duration_ms: 0.228759
+  type: 'test'
+  ...
+# Subtest: sync planner ignores unmanaged issues with task-like text
+ok 12 - sync planner ignores unmanaged issues with task-like text
+  ---
+  duration_ms: 0.299439
+  type: 'test'
+  ...
+# Subtest: sync planner trusts repo-tracked issue map for legacy imported issues
+ok 13 - sync planner trusts repo-tracked issue map for legacy imported issues
+  ---
+  duration_ms: 0.421478
+  type: 'test'
+  ...
+# Subtest: sync planner rejects mapped issues without matching body metadata
+ok 14 - sync planner rejects mapped issues without matching body metadata
+  ---
+  duration_ms: 0.711807
+  type: 'test'
+  ...
+# Subtest: sync planner rejects duplicate issue numbers in github map
+ok 15 - sync planner rejects duplicate issue numbers in github map
+  ---
+  duration_ms: 0.251786
+  type: 'test'
+  ...
+# Subtest: sync planner rejects milestone title collisions without source mapping
+ok 16 - sync planner rejects milestone title collisions without source mapping
+  ---
+  duration_ms: 0.401455
+  type: 'test'
+  ...
+# Subtest: sync CLI apply mode requires an explicit token
+ok 17 - sync CLI apply mode requires an explicit token
+  ---
+  duration_ms: 55.719073
+  type: 'test'
+  ...
+# Subtest: sync CLI rejects github map repository drift before reading GitHub
+ok 18 - sync CLI rejects github map repository drift before reading GitHub
+  ---
+  duration_ms: 51.928175
+  type: 'test'
+  ...
+# Subtest: apply plan mutates labels, milestones, and issues through GitHub requests
+ok 19 - apply plan mutates labels, milestones, and issues through GitHub requests
+  ---
+  duration_ms: 0.955583
+  type: 'test'
+  ...
+# Subtest: apply plan refuses stale issue updates
+ok 20 - apply plan refuses stale issue updates
+  ---
+  duration_ms: 0.341287
+  type: 'test'
+  ...
+# Subtest: harness validator passes
+ok 21 - harness validator passes
+  ---
+  duration_ms: 499.095464
+  type: 'test'
+  ...
+# Subtest: PR body renderer includes mandatory sections
+ok 22 - PR body renderer includes mandatory sections
+  ---
+  duration_ms: 34.359656
+  type: 'test'
+  ...
+# Subtest: PR body renderer can link evidence paths
+ok 23 - PR body renderer can link evidence paths
+  ---
+  duration_ms: 35.518294
+  type: 'test'
+  ...
+# Subtest: PR template contains HITL guardrail
+ok 24 - PR template contains HITL guardrail
+  ---
+  duration_ms: 0.197609
+  type: 'test'
+  ...
+# Subtest: issue import dry run preserves backlog task metadata
+ok 25 - issue import dry run preserves backlog task metadata
+  ---
+  duration_ms: 63.856699
+  type: 'test'
+  ...
+# Subtest: issue import dry run emits required labels and milestone names
+ok 26 - issue import dry run emits required labels and milestone names
+  ---
+  duration_ms: 61.573811
+  type: 'test'
+  ...
+# Subtest: issue import committed metadata check detects no drift
+ok 27 - issue import committed metadata check detects no drift
+  ---
+  duration_ms: 55.746604
+  type: 'test'
+  ...
+# Subtest: keccak256 matches Ethereum empty hash
+ok 28 - keccak256 matches Ethereum empty hash
+  ---
+  duration_ms: 3.100215
+  type: 'test'
+  ...
+# Subtest: known ERC selectors are stable
+ok 29 - known ERC selectors are stable
+  ---
+  duration_ms: 10.308387
+  type: 'test'
+  ...
+# Subtest: calldata encoding pads values correctly
+ok 30 - calldata encoding pads values correctly
+  ---
+  duration_ms: 0.918942
+  type: 'test'
+  ...
+# Subtest: monorepo folders exist
+ok 31 - monorepo folders exist
+  ---
+  duration_ms: 1.151205
+  type: 'test'
+  ...
+# Subtest: repository config points to final repo
+ok 32 - repository config points to final repo
+  ---
+  duration_ms: 0.772476
+  type: 'test'
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 638.450471
+[qa] workspace tests
+
+> duelly@0.1.0 test:workspaces
+> npm run test --workspaces --if-present
+
+
+> @duelly/frontend@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: frontend workspace has expected bootstrap files
+ok 1 - frontend workspace has expected bootstrap files
+  ---
+  duration_ms: 1.046451
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58.891731
+
+> @duelly/backend@0.1.0 test
+> node --import tsx --test test/unit/*.test.ts test/integration/*.test.ts
+
+TAP version 13
+# Subtest: TypeORM repositories persist M1 template records in PostgreSQL
+ok 1 - TypeORM repositories persist M1 template records in PostgreSQL
+  ---
+  duration_ms: 124.577181
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports explicit DB variables and fixture mode defaults
+ok 2 - loadAppConfig supports explicit DB variables and fixture mode defaults
+  ---
+  duration_ms: 4.624822
+  type: 'test'
+  ...
+# Subtest: health and readiness routes work without database configuration
+ok 3 - health and readiness routes work without database configuration
+  ---
+  duration_ms: 155.717052
+  type: 'test'
+  ...
+# Subtest: template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
+ok 4 - template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
+  ---
+  duration_ms: 62.050215
+  type: 'test'
+  ...
+# Subtest: fixture filter accepts only approved M1 sports templates
+ok 5 - fixture filter accepts only approved M1 sports templates
+  ---
+  duration_ms: 63.895647
+  type: 'test'
+  ...
+# Subtest: fixture rejection matrix covers every required M1 reason code
+ok 6 - fixture rejection matrix covers every required M1 reason code
+  ---
+  duration_ms: 13.093765
+  type: 'test'
+  ...
+# Subtest: template hash vectors are deterministic
+ok 7 - template hash vectors are deterministic
+  ---
+  duration_ms: 46.374983
+  type: 'test'
+  ...
+# Subtest: critical template field changes alter hash while active does not alter identity
+ok 8 - critical template field changes alter hash while active does not alter identity
+  ---
+  duration_ms: 14.667642
+  type: 'test'
+  ...
+# Subtest: publisher builds compact on-chain payload from accepted templates
+ok 9 - publisher builds compact on-chain payload from accepted templates
+  ---
+  duration_ms: 26.340512
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1937.401577
+
+> @duelly/smartcontract@0.1.0 test
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: smartcontract workspace has expected bootstrap files
+ok 1 - smartcontract workspace has expected bootstrap files
+  ---
+  duration_ms: 0.936972
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 58.929263
+[qa] ok

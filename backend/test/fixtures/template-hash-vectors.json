@@ -1,0 +1,51 @@
+[
+  {
+    "templateId": "fixture-football-world-cup-binary-winner",
+    "canonicalInput": {
+      "sport": "football",
+      "competition": "FIFA_WORLD_CUP",
+      "eventType": "TOURNAMENT",
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "conditionId": "0x0101010101010101010101010101010101010101010101010101010101010101"
+    },
+    "abiEncoding": "keccak256(abi.encode(SPORTS_TEMPLATE_V1_TYPEHASH, fixed-size canonical fields))",
+    "expectedTemplateHash": "0x12131b9acc0d4dc79798b683fbd9ecb0b12b709e08fc9378d14825e200858973"
+  },
+  {
+    "templateId": "fixture-tennis-atp250-match-winner",
+    "canonicalInput": {
+      "sport": "tennis",
+      "competition": "ATP_250",
+      "competitionLevel": "ATP_250",
+      "eventType": "MATCH",
+      "binaryMarketType": "TENNIS_MATCH_WINNER",
+      "conditionId": "0x0404040404040404040404040404040404040404040404040404040404040404"
+    },
+    "abiEncoding": "keccak256(abi.encode(SPORTS_TEMPLATE_V1_TYPEHASH, fixed-size canonical fields))",
+    "expectedTemplateHash": "0x8163810127682d0ea34b4adc98e8eeb8fcce34b68be641e01edeff99de60ccf6"
+  },
+  {
+    "templateId": "fixture-ufc-main-event-winner",
+    "canonicalInput": {
+      "sport": "ufc",
+      "competition": "UFC",
+      "eventType": "MAIN_EVENT",
+      "binaryMarketType": "UFC_MAIN_EVENT_FIGHT_WINNER",
+      "conditionId": "0x0606060606060606060606060606060606060606060606060606060606060606"
+    },
+    "abiEncoding": "keccak256(abi.encode(SPORTS_TEMPLATE_V1_TYPEHASH, fixed-size canonical fields))",
+    "expectedTemplateHash": "0x06af3d1e7e9858e2167be9f7d38de4da8c482ab68a8b58150779d6bd534b0a37"
+  },
+  {
+    "templateId": "fixture-f1-sprint-winner",
+    "canonicalInput": {
+      "sport": "f1",
+      "competition": "FORMULA_1",
+      "eventType": "SPRINT",
+      "binaryMarketType": "F1_SPRINT_WINNER_YES_NO",
+      "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808"
+    },
+    "abiEncoding": "keccak256(abi.encode(SPORTS_TEMPLATE_V1_TYPEHASH, fixed-size canonical fields))",
+    "expectedTemplateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f"
+  }
+]

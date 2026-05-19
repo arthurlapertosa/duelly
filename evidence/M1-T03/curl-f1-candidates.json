@@ -1,0 +1,168 @@
+{
+  "candidates": [
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "F1_RACE_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x0707070707070707070707070707070707070707070707070707070707070707",
+      "endDate": "2026-11-08T15:00:00.000Z",
+      "eventStartAt": "2026-11-08T17:00:00.000Z",
+      "eventType": "RACE",
+      "id": "fixture-f1-race-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1013",
+        "1014"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1013"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1014"
+        }
+      ],
+      "participants": [
+        "Driver A"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-f1-brazil-gp-2026",
+      "providerMarketId": "market-f1-brazil-gp-driver-a-2026",
+      "question": "Will Driver A win the 2026 Brazil Grand Prix?",
+      "questionId": "pm-q-f1-brazil-gp-driver-a-2026",
+      "rawProviderPayloadHash": "0x5eb2335a9ea858ff161d2aab8f99b6b38a54359cb53c4ad19c97cf583d8f6638",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/f1-brazil-gp-2026",
+      "rulesText": "This market resolves to Yes if Driver A is classified as the official Formula 1 race winner. Cancelled races or no official classification void the market.",
+      "slug": "will-driver-a-win-the-2026-brazil-grand-prix",
+      "sourceUrl": "https://polymarket.com/event/f1-brazil-gp-2026",
+      "sport": "f1"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "F1_SPRINT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+      "endDate": "2026-06-27T10:00:00.000Z",
+      "eventStartAt": "2026-06-27T12:00:00.000Z",
+      "eventType": "SPRINT",
+      "id": "fixture-f1-sprint-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1015",
+        "1016"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1015"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1016"
+        }
+      ],
+      "participants": [
+        "Driver B"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-f1-austria-sprint-2026",
+      "providerMarketId": "market-f1-austria-sprint-driver-b-2026",
+      "question": "Will Driver B win the 2026 Austria sprint race?",
+      "questionId": "pm-q-f1-austria-sprint-driver-b-2026",
+      "rawProviderPayloadHash": "0xedeae328ae04e6b10870eeeef5af75e5b86a8e83aa948a9c4cb394199ef6d742",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/f1-austria-sprint-2026",
+      "rulesText": "This market resolves to Yes if Driver B is classified as the official Formula 1 sprint race winner. Cancelled sprints or no official classification void the market.",
+      "slug": "will-driver-b-win-the-2026-austria-sprint",
+      "sourceUrl": "https://polymarket.com/event/f1-austria-sprint-2026",
+      "sport": "f1"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_QUALIFYING",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x1515151515151515151515151515151515151515151515151515151515151515",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "QUALIFYING",
+      "id": "fixture-f1-qualifying-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Driver A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-f1-qualifying",
+      "question": "Will Driver A win qualifying?",
+      "questionId": "pm-q-f1-qualifying",
+      "rawProviderPayloadHash": "0xee3902fdeae6afd2218da01ebfb42b0a57cfd626592316148172927f1ca80cc5",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the qualifying winner.",
+      "slug": "f1-qualifying-winner",
+      "sport": "f1"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_FASTEST_LAP",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x1616161616161616161616161616161616161616161616161616161616161616",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "RACE",
+      "id": "fixture-f1-fastest-lap-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Driver A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-f1-fastest-lap",
+      "question": "Will Driver A set fastest lap?",
+      "questionId": "pm-q-f1-fastest-lap",
+      "rawProviderPayloadHash": "0x96da931da8eb2168bfc8b38d7e9676a5b4144575e3134719ae3e4a07aa7f391a",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to fastest lap.",
+      "slug": "f1-fastest-lap",
+      "sport": "f1"
+    }
+  ],
+  "count": 4,
+  "mode": "fixture"
+}

@@ -1,0 +1,50 @@
+{
+  "audit": {
+    "acceptedAt": "2026-05-19T08:48:01.272Z",
+    "provider": "polymarket",
+    "providerEventId": "event-f1-austria-sprint-2026",
+    "providerMarketId": "market-f1-austria-sprint-driver-b-2026",
+    "publishedBy": "local-fixture-qa",
+    "question": "Will Driver B win the 2026 Austria sprint race?",
+    "rawProviderPayloadHash": "0xedeae328ae04e6b10870eeeef5af75e5b86a8e83aa948a9c4cb394199ef6d742",
+    "slug": "will-driver-b-win-the-2026-austria-sprint",
+    "sourceUrl": "https://polymarket.com/event/f1-austria-sprint-2026"
+  },
+  "onChain": {
+    "args": {
+      "active": true,
+      "bettingCloseAt": 1782554400,
+      "binaryMarketType": "F1_SPRINT_WINNER_YES_NO",
+      "binaryMarketTypeCode": 402,
+      "competition": "FORMULA_1",
+      "competitionCode": 401,
+      "competitionDetailHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "competitionLevelCode": 0,
+      "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+      "eventStartAt": 1782561600,
+      "eventType": "SPRINT",
+      "eventTypeCode": 6,
+      "feePolicyVersion": 1,
+      "loserFeeBps": 250,
+      "marketIdHash": "0xf45c28ba6c8c34778482a0b3b8000c81a936f2ce95684b5b45167631e5e7b5b8",
+      "outcomeALabelHash": "0x90dfb8fa37079daea9a1acb3e423e2351f0ba3fb27cf55bfa41ad2f8c58baea9",
+      "outcomeAProviderIndex": 0,
+      "outcomeBLabelHash": "0x7d6119d3ee7f82ee53aac57d4d088f8bbaca5aac3191bb074252c6d760ae4eba",
+      "outcomeBProviderIndex": 1,
+      "providerCode": 1,
+      "questionId": "pm-q-f1-austria-sprint-driver-b-2026",
+      "questionIdHash": "0xa7d0675fc7dabbe5be0756652721066ba29bde412112a422171267b7ed767594",
+      "resolutionDeadline": 1783764000,
+      "rulesHash": "0x2098280747d9fb67a817a39a55b1bc6b98291cf9179da9858f034e9f5eb62a49",
+      "rulesSourceHash": "0x3658f0f83272aabb4050a7eae93ee219af9e916f90f4af84e815b44dcea46ce1",
+      "sport": "f1",
+      "sportCode": 4,
+      "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
+      "templateVersion": 1
+    },
+    "calldata": null,
+    "function": "registerTemplate"
+  },
+  "status": "publishable",
+  "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f"
+}

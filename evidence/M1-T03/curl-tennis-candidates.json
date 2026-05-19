@@ -1,0 +1,174 @@
+{
+  "candidates": [
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "TENNIS_MATCH_WINNER",
+      "closed": false,
+      "competition": "ATP_250",
+      "competitionLevel": "ATP_250",
+      "conditionId": "0x0404040404040404040404040404040404040404040404040404040404040404",
+      "endDate": "2026-07-01T12:00:00.000Z",
+      "eventStartAt": "2026-07-01T13:00:00.000Z",
+      "eventType": "MATCH",
+      "id": "fixture-tennis-atp250-match-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1007",
+        "1008"
+      ],
+      "outcomes": [
+        {
+          "label": "Player A",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1007"
+        },
+        {
+          "label": "Player B",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1008"
+        }
+      ],
+      "participants": [
+        "Player A",
+        "Player B"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-atp250-doha-final",
+      "providerMarketId": "market-atp250-doha-player-a-vs-player-b",
+      "question": "Will Player A defeat Player B at ATP 250 Doha?",
+      "questionId": "pm-q-atp250-doha-player-a-player-b",
+      "rawProviderPayloadHash": "0x647cf9eac0a7787a71c9f706745f216e4aa4bc1500084c09c5f71e0e08603ba4",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/atp-250-doha-final",
+      "rulesText": "This market resolves to the official ATP match winner. If the match is cancelled before a winner is declared, the market is void.",
+      "slug": "will-player-a-defeat-player-b-atp-250-doha",
+      "sourceUrl": "https://polymarket.com/event/atp-250-doha-final",
+      "sport": "tennis"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "TENNIS_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "GRAND_SLAM",
+      "competitionLevel": "GRAND_SLAM",
+      "conditionId": "0x0505050505050505050505050505050505050505050505050505050505050505",
+      "endDate": "2026-07-05T12:00:00.000Z",
+      "eventStartAt": "2026-06-29T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "grandSlamName": "Wimbledon",
+      "id": "fixture-tennis-grand-slam-tournament-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1009",
+        "1010"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1009"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1010"
+        }
+      ],
+      "participants": [
+        "Player C"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-wimbledon-2026",
+      "providerMarketId": "market-wimbledon-player-c-2026",
+      "question": "Will Player C win Wimbledon 2026?",
+      "questionId": "pm-q-wimbledon-player-c-2026",
+      "rawProviderPayloadHash": "0xd9c38a23033f8de7ca6a3f969885dbe737a6fbec06dfc9bd925bf3cb0f8d1490",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/wimbledon-2026",
+      "rulesText": "This market resolves to Yes if Player C is the official Wimbledon 2026 singles champion. Cancelled or unresolved tournaments are void.",
+      "slug": "will-player-c-win-wimbledon-2026",
+      "sourceUrl": "https://polymarket.com/event/wimbledon-2026",
+      "sport": "tennis"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_TOTAL",
+      "closed": false,
+      "competition": "ATP_500",
+      "competitionLevel": "ATP_500",
+      "conditionId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MATCH",
+      "id": "fixture-tennis-total-games-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Player A",
+        "Player B"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-tennis-total-games",
+      "question": "Will the match have over 22.5 games?",
+      "questionId": "pm-q-tennis-total-games",
+      "rawProviderPayloadHash": "0x39c45aa5c3a3a6a9f32e79a1fac53c5d4731345db8744e5f5c02aa573a814f9c",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves based on total games.",
+      "slug": "tennis-total-games",
+      "sport": "tennis"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "TENNIS_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "UNSUPPORTED",
+      "conditionId": "0x1212121212121212121212121212121212121212121212121212121212121212",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-tennis-challenger-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Player D"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-tennis-challenger",
+      "question": "Will Player D win the Challenger event?",
+      "questionId": "pm-q-tennis-challenger",
+      "rawProviderPayloadHash": "0x7861ad870e21abf1bfdb8911b91d4ee8b1412ae4b913eb1fe7accb5ce66dd590",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the tournament winner.",
+      "slug": "tennis-challenger-winner",
+      "sport": "tennis"
+    }
+  ],
+  "count": 4,
+  "mode": "fixture"
+}
