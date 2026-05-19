@@ -12,8 +12,8 @@ test('backlog status manifest maps all current milestones and tasks', () => {
   assert.deepEqual(summary, {
     ok: true,
     milestones: 7,
-    tasks: 54,
-    markdownFiles: 61,
+    tasks: 55,
+    markdownFiles: 62,
   });
 });
 

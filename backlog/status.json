@@ -18,12 +18,13 @@
     },
     "milestone_001": {
       "id": "milestone_001",
-      "title": "M1 - Product Rules & Template System",
-      "description": "Define the deterministic product rules and template system used to create valid Duelly bets.",
+      "title": "M1 - Product Rules & Sports Template System",
+      "description": "Define the deterministic sports product rules and template system used to create valid Duelly bets.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/milestone.md",
       "tasks": [
+        "m1_t00",
         "m1_t01",
         "m1_t02",
         "m1_t03",
@@ -172,11 +173,20 @@
       "progress": 100,
       "markdown": "./milestones-0-repository-harness-foundation/task-05-prepare-github-issue-import-metadata-for-milestones-and-tasks.md"
     },
+    "m1_t00": {
+      "id": "m1_t00",
+      "milestone": "milestone_001",
+      "title": "M1.T00 - Establish backend framework foundation for M1",
+      "description": "Establish the required backend implementation stack and service foundation for M1.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-1-product-rules-template-system/task-00-establish-backend-framework-foundation-for-m1.md"
+    },
     "m1_t01": {
       "id": "m1_t01",
       "milestone": "milestone_001",
-      "title": "M1.T01 - Finalize template acceptance policy and initial category decision",
-      "description": "Finalize the acceptance policy and first category decision for templates.",
+      "title": "M1.T01 - Finalize sports template acceptance policy and binary market rules",
+      "description": "Finalize the sports-first acceptance policy and binary market rules for templates.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/task-01-finalize-template-acceptance-policy-and-initial-category-decision.md"
@@ -184,8 +194,8 @@
     "m1_t02": {
       "id": "m1_t02",
       "milestone": "milestone_001",
-      "title": "M1.T02 - Capture Polymarket API configuration and safe fixture strategy",
-      "description": "Document Polymarket API configuration and a safe fixture strategy.",
+      "title": "M1.T02 - Capture Polymarket public API configuration and sports fixture strategy",
+      "description": "Document Polymarket public API configuration and a safe sports fixture strategy.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/task-02-capture-polymarket-api-configuration-and-safe-fixture-strategy.md"
@@ -193,8 +203,8 @@
     "m1_t03": {
       "id": "m1_t03",
       "milestone": "milestone_001",
-      "title": "M1.T03 - Implement Polymarket market discovery adapter",
-      "description": "Implement the adapter that discovers candidate Polymarket markets.",
+      "title": "M1.T03 - Implement Polymarket sports market discovery adapter",
+      "description": "Implement the adapter that discovers candidate Polymarket sports markets.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/task-03-implement-polymarket-market-discovery-adapter.md"
@@ -202,8 +212,8 @@
     "m1_t04": {
       "id": "m1_t04",
       "milestone": "milestone_001",
-      "title": "M1.T04 - Define deterministic template schema and templateHash",
-      "description": "Define the deterministic template schema and template hash.",
+      "title": "M1.T04 - Define deterministic sports template schema and templateHash",
+      "description": "Define the deterministic sports template schema and template hash.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/task-04-define-deterministic-template-schema-and-templatehash.md"
@@ -211,8 +221,8 @@
     "m1_t05": {
       "id": "m1_t05",
       "milestone": "milestone_001",
-      "title": "M1.T05 - Implement strict template filters and rejection reasons",
-      "description": "Implement strict filtering and explicit rejection reasons for templates.",
+      "title": "M1.T05 - Implement strict sports template filters and rejection reasons",
+      "description": "Implement strict filtering and explicit rejection reasons for sports templates.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/task-05-implement-strict-template-filters-and-rejection-reasons.md"
@@ -220,8 +230,8 @@
     "m1_t06": {
       "id": "m1_t06",
       "milestone": "milestone_001",
-      "title": "M1.T06 - Specify and stub template registry publisher",
-      "description": "Specify and stub the template registry publisher.",
+      "title": "M1.T06 - Specify and stub sports template registry publisher",
+      "description": "Specify and stub the sports template registry publisher.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/task-06-specify-and-stub-template-registry-publisher.md"
@@ -229,8 +239,8 @@
     "m1_t07": {
       "id": "m1_t07",
       "milestone": "milestone_001",
-      "title": "M1.T07 - Create template QA fixture and evidence pack",
-      "description": "Create the template QA fixture and evidence package.",
+      "title": "M1.T07 - Create sports template QA fixture and evidence pack",
+      "description": "Create the sports template QA fixture and evidence package.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-1-product-rules-template-system/task-07-create-template-qa-fixture-and-evidence-pack.md"
