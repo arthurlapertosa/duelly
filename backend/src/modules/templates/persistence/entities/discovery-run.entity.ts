@@ -1,29 +1,31 @@
-import { EntitySchema } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-export interface DiscoveryRunRecord {
-  id: string;
-  mode: string;
+@Entity({ name: 'discovery_runs' })
+export class DiscoveryRunEntity {
+  @PrimaryColumn({ type: 'text' })
+  id!: string;
+
+  @Column({ type: 'text' })
+  mode!: string;
+
+  @Column({ type: 'text', nullable: true })
   sport?: string | null;
-  provider: string;
-  status: string;
+
+  @Column({ type: 'text' })
+  provider!: string;
+
+  @Column({ type: 'text' })
+  status!: string;
+
+  @Column({ type: 'text', name: 'gamma_base_url', nullable: true })
   gammaBaseUrl?: string | null;
-  startedAt: Date;
+
+  @Column({ type: 'timestamptz', name: 'started_at' })
+  startedAt!: Date;
+
+  @Column({ type: 'timestamptz', name: 'finished_at', nullable: true })
   finishedAt?: Date | null;
+
+  @Column({ type: 'text', nullable: true })
   error?: string | null;
 }
-
-export const DiscoveryRunEntity = new EntitySchema<DiscoveryRunRecord>({
-  name: 'DiscoveryRun',
-  tableName: 'discovery_runs',
-  columns: {
-    id: { type: String, primary: true },
-    mode: { type: String },
-    sport: { type: String, nullable: true },
-    provider: { type: String },
-    status: { type: String },
-    gammaBaseUrl: { type: String, name: 'gamma_base_url', nullable: true },
-    startedAt: { type: 'timestamptz', name: 'started_at' },
-    finishedAt: { type: 'timestamptz', name: 'finished_at', nullable: true },
-    error: { type: String, nullable: true },
-  },
-});

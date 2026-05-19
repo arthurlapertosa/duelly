@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { loadAppConfig, type AppConfig } from '../config/env.js';
 import {

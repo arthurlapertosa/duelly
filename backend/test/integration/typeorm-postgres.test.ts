@@ -4,6 +4,12 @@ import { loadAppConfig } from '../../src/config/env.js';
 import { createDataSource } from '../../src/db/data-source.js';
 import { loadFixtureCandidates } from '../../src/modules/templates/discovery/fixture-loader.js';
 import { TemplateFilterService } from '../../src/modules/templates/filtering/template-filter.service.js';
+import {
+  CandidateSnapshotEntity,
+  RejectedCandidateEntity,
+  SportsTemplateEntity,
+  TemplatePublishAuditEntity,
+} from '../../src/modules/templates/persistence/entities/index.js';
 import { TemplateRepository } from '../../src/modules/templates/persistence/template-repository.js';
 import { TemplatePublisherService } from '../../src/modules/templates/publisher/template-publisher.service.js';
 
@@ -29,8 +35,8 @@ test('TypeORM repositories persist M1 template records in PostgreSQL', { skip: !
   await repository.saveRejectedCandidates(result.rejected);
   await repository.savePublishAudit(result.accepted[0], payload);
 
-  assert.ok(await dataSource.getRepository('CandidateSnapshot').count() >= candidates.length);
-  assert.ok(await dataSource.getRepository('SportsTemplate').count() >= result.accepted.length);
-  assert.ok(await dataSource.getRepository('RejectedCandidate').count() >= result.rejected.length);
-  assert.ok(await dataSource.getRepository('TemplatePublishAudit').count() >= 1);
+  assert.ok(await dataSource.getRepository(CandidateSnapshotEntity).count() >= candidates.length);
+  assert.ok(await dataSource.getRepository(SportsTemplateEntity).count() >= result.accepted.length);
+  assert.ok(await dataSource.getRepository(RejectedCandidateEntity).count() >= result.rejected.length);
+  assert.ok(await dataSource.getRepository(TemplatePublishAuditEntity).count() >= 1);
 });

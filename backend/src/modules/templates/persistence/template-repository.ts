@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { DataSource } from 'typeorm';
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity.js';
-import type {
-  CandidateSnapshotRecord,
-  DiscoveryRunRecord,
-  RejectedCandidateRecord,
-  SportsTemplateRecord,
-  TemplatePublishAuditRecord,
+import {
+  CandidateSnapshotEntity,
+  DiscoveryRunEntity,
+  RejectedCandidateEntity,
+  SportsTemplateEntity,
+  TemplatePublishAuditEntity,
 } from './entities/index.js';
 import type { CanonicalSportsTemplate, NormalizedMarketCandidate, PublishableTemplatePayload, RejectedCandidate } from '../domain/types.js';
 
@@ -17,10 +17,10 @@ export class TemplateRepository {
     return Boolean(this.dataSource?.isInitialized);
   }
 
-  async recordDiscoveryRun(input: Pick<DiscoveryRunRecord, 'mode' | 'sport' | 'provider' | 'status' | 'gammaBaseUrl'>): Promise<string | undefined> {
+  async recordDiscoveryRun(input: Pick<DiscoveryRunEntity, 'mode' | 'sport' | 'provider' | 'status' | 'gammaBaseUrl'>): Promise<string | undefined> {
     if (!this.enabled) return undefined;
     const id = `discovery-${randomUUID()}`;
-    await this.dataSource!.getRepository<DiscoveryRunRecord>('DiscoveryRun').save({
+    await this.dataSource!.getRepository(DiscoveryRunEntity).save({
       ...input,
       id,
       startedAt: new Date(),
@@ -32,7 +32,7 @@ export class TemplateRepository {
 
   async saveCandidates(candidates: NormalizedMarketCandidate[], discoveryRunId?: string): Promise<void> {
     if (!this.enabled) return;
-    const records: CandidateSnapshotRecord[] = candidates.map((candidate) => ({
+    const records: CandidateSnapshotEntity[] = candidates.map((candidate) => ({
       id: `candidate-${candidate.id}-${randomUUID()}`,
       discoveryRunId,
       fixtureId: candidate.id.startsWith('fixture-') ? candidate.id : null,
@@ -42,12 +42,12 @@ export class TemplateRepository {
       rawProviderPayloadHash: candidate.rawProviderPayloadHash,
       createdAt: new Date(),
     }));
-    await this.dataSource!.getRepository<CandidateSnapshotRecord>('CandidateSnapshot').save(records);
+    await this.dataSource!.getRepository(CandidateSnapshotEntity).save(records);
   }
 
   async saveAcceptedTemplates(templates: CanonicalSportsTemplate[]): Promise<void> {
     if (!this.enabled) return;
-    const records: SportsTemplateRecord[] = templates.map((template) => ({
+    const records: SportsTemplateEntity[] = templates.map((template) => ({
       templateHash: template.templateHash,
       templateId: template.templateId,
       providerMarketId: template.providerMarketId,
@@ -61,15 +61,15 @@ export class TemplateRepository {
       active: template.active,
       acceptedAt: new Date(),
     }));
-    await this.dataSource!.getRepository<SportsTemplateRecord>('SportsTemplate').upsert(
-      records as QueryDeepPartialEntity<SportsTemplateRecord>[],
+    await this.dataSource!.getRepository(SportsTemplateEntity).upsert(
+      records as QueryDeepPartialEntity<SportsTemplateEntity>[],
       ['templateHash'],
     );
   }
 
   async saveRejectedCandidates(rejected: RejectedCandidate[]): Promise<void> {
     if (!this.enabled) return;
-    const records: RejectedCandidateRecord[] = rejected.map((item) => ({
+    const records: RejectedCandidateEntity[] = rejected.map((item) => ({
       id: `rejected-${item.candidate.id}-${randomUUID()}`,
       candidateId: item.candidate.id,
       fixtureId: item.candidate.id.startsWith('fixture-') ? item.candidate.id : null,
@@ -79,12 +79,12 @@ export class TemplateRepository {
       candidate: item.candidate,
       rejectedAt: new Date(),
     }));
-    await this.dataSource!.getRepository<RejectedCandidateRecord>('RejectedCandidate').save(records);
+    await this.dataSource!.getRepository(RejectedCandidateEntity).save(records);
   }
 
   async savePublishAudit(template: CanonicalSportsTemplate, payload: PublishableTemplatePayload): Promise<void> {
     if (!this.enabled) return;
-    const record: TemplatePublishAuditRecord = {
+    const record: TemplatePublishAuditEntity = {
       id: `publish-${template.templateId}-${randomUUID()}`,
       templateHash: template.templateHash,
       templateId: template.templateId,
@@ -94,6 +94,6 @@ export class TemplateRepository {
       audit: payload.audit,
       createdAt: new Date(),
     };
-    await this.dataSource!.getRepository<TemplatePublishAuditRecord>('TemplatePublishAudit').save(record);
+    await this.dataSource!.getRepository(TemplatePublishAuditEntity).save(record);
   }
 }

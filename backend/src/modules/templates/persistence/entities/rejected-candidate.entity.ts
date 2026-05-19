@@ -1,27 +1,28 @@
-import { EntitySchema } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-export interface RejectedCandidateRecord {
-  id: string;
+@Entity({ name: 'rejected_candidates' })
+export class RejectedCandidateEntity {
+  @PrimaryColumn({ type: 'text' })
+  id!: string;
+
+  @Column({ type: 'text', name: 'candidate_id', nullable: true })
   candidateId?: string | null;
-  fixtureId?: string | null;
-  providerMarketId?: string | null;
-  sport?: string | null;
-  reasons: string[];
-  candidate: unknown;
-  rejectedAt: Date;
-}
 
-export const RejectedCandidateEntity = new EntitySchema<RejectedCandidateRecord>({
-  name: 'RejectedCandidate',
-  tableName: 'rejected_candidates',
-  columns: {
-    id: { type: String, primary: true },
-    candidateId: { type: String, name: 'candidate_id', nullable: true },
-    fixtureId: { type: String, name: 'fixture_id', nullable: true },
-    providerMarketId: { type: String, name: 'provider_market_id', nullable: true },
-    sport: { type: String, nullable: true },
-    reasons: { type: 'text', array: true },
-    candidate: { type: 'jsonb' },
-    rejectedAt: { type: 'timestamptz', name: 'rejected_at' },
-  },
-});
+  @Column({ type: 'text', name: 'fixture_id', nullable: true })
+  fixtureId?: string | null;
+
+  @Column({ type: 'text', name: 'provider_market_id', nullable: true })
+  providerMarketId?: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  sport?: string | null;
+
+  @Column({ type: 'text', array: true })
+  reasons!: string[];
+
+  @Column({ type: 'jsonb' })
+  candidate!: unknown;
+
+  @Column({ type: 'timestamptz', name: 'rejected_at' })
+  rejectedAt!: Date;
+}
