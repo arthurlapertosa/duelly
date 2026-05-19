@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(cd \"C:\\\\Users\\\\carlos.fonseca\\\\Documents\\\\Firma\\\\GIT\" && npm create vite@latest duelly-temp -- --template react-ts 2>&1)",
+      "Bash(cp -r \"C:\\\\Users\\\\carlos.fonseca\\\\Documents\\\\Firma\\\\GIT\\\\duelly-temp\"/* \"C:\\\\Users\\\\carlos.fonseca\\\\Documents\\\\Firma\\\\GIT\\\\duelly-prototype/\")",
+      "Bash(cp \"C:\\\\Users\\\\carlos.fonseca\\\\Documents\\\\Firma\\\\GIT\\\\duelly-temp\"/.gitignore \"C:\\\\Users\\\\carlos.fonseca\\\\Documents\\\\Firma\\\\GIT\\\\duelly-prototype/\")",
+      "Bash(rm -rf \"C:\\\\Users\\\\carlos.fonseca\\\\Documents\\\\Firma\\\\GIT\\\\duelly-temp\")",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_Preview__preview_start",
+      "PowerShell(npx tsc --noEmit 2>&1)"
+    ]
+  }
+}
