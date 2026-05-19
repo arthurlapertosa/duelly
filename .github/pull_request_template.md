@@ -22,6 +22,14 @@ Describe what changed and why.
 
 ## Evidence
 
+### Evidence paths
+
+- [ ] `evidence/<task-id>/` folder linked or justified as not applicable.
+- [ ] Frontend evidence included or marked not applicable.
+- [ ] Backend evidence included or marked not applicable.
+- [ ] Smart-contract evidence included or marked not applicable.
+- [ ] End-to-end evidence included or marked not applicable.
+
 ### Commands executed
 
 ```bash

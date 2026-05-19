@@ -1,0 +1,9 @@
+$ git worktree list
+/home/arthur/lyth/duelly                                             ac7aeb3 [main]
+/home/arthur/lyth/worktrees/duelly-m0-repository-harness-foundation  bc2f29d [task/m0-repository-harness-foundation]
+
+$ git status --short --branch
+## task/m0-repository-harness-foundation
+?? evidence/
+
+$ git branch --list "task/m0-harness-smoke"

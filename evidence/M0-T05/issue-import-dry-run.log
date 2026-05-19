@@ -1,0 +1,14 @@
+$ node scripts/harness/generate-issue-import.mjs --dry-run --output-dir backlog/github-issue-import
+{
+  "ok": true,
+  "dryRunOnly": true,
+  "outputDir": "backlog/github-issue-import",
+  "milestones": 7,
+  "issues": 54,
+  "labels": 14
+}
+
+$ node -e "validate generated JSON"
+issues: 54
+labels: 14
+milestones: 7

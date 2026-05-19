@@ -19,6 +19,8 @@ const requiredFiles = [
   'docs/FINAL_ARCHITECTURE.md',
   'docs/DEFINITION_OF_DONE.md',
   'docs/PR_WORKFLOW.md',
+  'docs/QA.md',
+  'docs/EVIDENCE.md',
   'docs/BLOCKCHAIN.md',
   'harness/agents/registry.json',
   'frontend/package.json',
@@ -35,6 +37,7 @@ const requiredFiles = [
   'scripts/harness/new-task-worktree.sh',
   'scripts/harness/open-draft-pr.sh',
   'scripts/harness/qa-check.sh',
+  'scripts/harness/generate-issue-import.mjs',
   'scripts/blockchain/erc20-inspect.mjs',
   'scripts/blockchain/polymarket-condition-inspect.mjs',
 ];
@@ -167,7 +170,7 @@ function checkClaudeAgents() {
 
 function checkPrTemplate() {
   const content = read('.github/pull_request_template.md');
-  for (const needle of ['Definition of Done', 'Evidence', 'Local QA', 'HITL', 'draft']) {
+  for (const needle of ['Definition of Done', 'Evidence', 'Evidence paths', 'Local QA', 'HITL', 'draft']) {
     if (!content.includes(needle)) fail(`PR template missing ${needle}`);
   }
 }
@@ -178,6 +181,8 @@ function checkScriptsExecutable() {
     'scripts/harness/open-draft-pr.sh',
     'scripts/harness/close-worktree.sh',
     'scripts/harness/commit-granular.sh',
+    'scripts/harness/qa-check.sh',
+    'scripts/harness/generate-issue-import.mjs',
     'scripts/blockchain/erc20-inspect.mjs',
     'scripts/blockchain/polymarket-condition-inspect.mjs',
   ];
@@ -191,6 +196,7 @@ function runSelfTests() {
   execFileSync('node', ['scripts/blockchain/erc20-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/blockchain/polymarket-condition-inspect.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
   execFileSync('node', ['scripts/harness/render-pr-body.mjs', '--self-test'], { cwd: root, stdio: 'pipe' });
+  execFileSync('node', ['scripts/harness/generate-issue-import.mjs', '--dry-run', '--output-dir', 'cache/issue-import-self-test'], { cwd: root, stdio: 'pipe' });
 }
 
 function main() {

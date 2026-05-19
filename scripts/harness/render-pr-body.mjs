@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 
 function usage() {
   console.log(`Usage:
-  node scripts/harness/render-pr-body.mjs --task "Task" --summary "Summary" --qa "npm run qa" [--output .pr-body.generated.md]
+  node scripts/harness/render-pr-body.mjs --task "Task" --summary "Summary" --qa "npm run qa" [--evidence evidence/M0-T01] [--output .pr-body.generated.md]
   node scripts/harness/render-pr-body.mjs --self-test
 `);
 }
@@ -25,25 +25,27 @@ function parseArgs(argv) {
   return args;
 }
 
-export function renderPrBody({ task, summary, qa }) {
+export function renderPrBody({ task, summary, qa, evidence }) {
   const now = new Date().toISOString();
-  return `# Summary\n\n${summary}\n\n## Task\n\n${task}\n\n## Scope\n\n- [x] PR opened as draft.\n- [x] Work completed in an independent worktree.\n- [ ] Scope validated by QA/HITL.\n\n## Definition of Done\n\n- [ ] Tests added/updated when behavior changed.\n- [ ] Documentation updated when needed.\n- [ ] No secrets were committed.\n- [ ] Risks and follow-ups are explicit.\n- [ ] Agent did not merge or mark final approval.\n\n## Evidence\n\n### Commands executed\n\n\`\`\`bash\n${qa}\n\`\`\`\n\n### Test results\n\n\`\`\`text\nPending: paste real QA output from the worktree.\n\`\`\`\n\n### Visual or blockchain evidence, when applicable\n\n\`\`\`text\nPending or not applicable.\n\`\`\`\n\n## Local QA\n\n- [ ] ${qa}\n\n## Risks / follow-ups\n\n- Pending human review.\n\n## HITL\n\n- [ ] Human QA approved.\n- [ ] PR can leave draft.\n- [ ] Merge/close decision was made by a human.\n\n---\nGenerated at ${now}\n`;
+  const evidencePath = evidence || 'Pending or not applicable.';
+  return `# Summary\n\n${summary}\n\n## Task\n\n${task}\n\n## Scope\n\n- [x] PR opened as draft.\n- [x] Work completed in an independent worktree.\n- [ ] Scope validated by QA/HITL.\n\n## Definition of Done\n\n- [ ] Tests added/updated when behavior changed.\n- [ ] Documentation updated when needed.\n- [ ] No secrets were committed.\n- [ ] Risks and follow-ups are explicit.\n- [ ] Agent did not merge or mark final approval.\n\n## Evidence\n\n### Evidence paths\n\n- ${evidencePath}\n\n### Commands executed\n\n\`\`\`bash\n${qa}\n\`\`\`\n\n### Test results\n\n\`\`\`text\nPending: paste real QA output from the worktree.\n\`\`\`\n\n### Area evidence\n\n- [ ] Frontend evidence included or not applicable.\n- [ ] Backend evidence included or not applicable.\n- [ ] Smart-contract evidence included or not applicable.\n- [ ] End-to-end evidence included or not applicable.\n\n### Visual or blockchain evidence, when applicable\n\n\`\`\`text\nPending or not applicable.\n\`\`\`\n\n## Local QA\n\n- [ ] ${qa}\n\n## Risks / follow-ups\n\n- Pending human review.\n\n## HITL\n\n- [ ] Human QA approved.\n- [ ] PR can leave draft.\n- [ ] Merge/close decision was made by a human.\n\n---\nGenerated at ${now}\n`;
 }
 async function main() {
   const args = parseArgs(process.argv);
   if (args.help) return usage();
   if (args.selfTest) {
     const body = renderPrBody({ task: 'self-test', summary: 'render test', qa: 'npm run qa' });
-    if (!body.includes('HITL') || !body.includes('Definition of Done')) throw new Error('render output missing required sections');
+    if (!body.includes('HITL') || !body.includes('Definition of Done') || !body.includes('Evidence paths')) throw new Error('render output missing required sections');
     console.log(JSON.stringify({ ok: true, script: 'render-pr-body' }, null, 2));
     return;
   }
   const task = args.task;
   const summary = args.summary;
   const qa = args.qa || 'npm run qa';
+  const evidence = args.evidence;
   const output = args.output || '.pr-body.generated.md';
   if (!task || !summary) throw new Error('Missing --task or --summary');
-  const body = renderPrBody({ task, summary, qa });
+  const body = renderPrBody({ task, summary, qa, evidence });
   writeFileSync(output, body, 'utf8');
   console.log(`Wrote ${output}`);
 }

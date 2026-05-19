@@ -1,0 +1,40 @@
+$ scripts/harness/new-task-worktree.sh --task "m0 harness smoke" --root /tmp/duelly-m0-harness-worktrees --base task/m0-repository-harness-foundation --dry-run
+{
+  "repoRoot": "/home/arthur/lyth/worktrees/duelly-m0-repository-harness-foundation",
+  "base": "task/m0-repository-harness-foundation",
+  "branch": "task/m0-harness-smoke",
+  "worktreePath": "/tmp/duelly-m0-harness-worktrees/duelly-m0-repository-harness-foundation-m0-harness-smoke"
+}
+
+$ scripts/harness/new-task-worktree.sh --task "m0 harness smoke" --root /tmp/duelly-m0-harness-worktrees --base task/m0-repository-harness-foundation
+Preparing worktree (new branch 'task/m0-harness-smoke')
+HEAD is now at bc2f29d fix(harness): support absolute import output dirs
+Created worktree:
+  branch: task/m0-harness-smoke
+  path:   /tmp/duelly-m0-harness-worktrees/duelly-m0-repository-harness-foundation-m0-harness-smoke
+
+Next:
+  cd "/tmp/duelly-m0-harness-worktrees/duelly-m0-repository-harness-foundation-m0-harness-smoke"
+  npm run qa
+
+$ cd /tmp/duelly-m0-harness-worktrees/duelly-m0-repository-harness-foundation-m0-harness-smoke && node scripts/harness/render-pr-body.mjs --task "M0.T03 smoke" --summary "validate draft PR generation" --qa "npm run qa" --evidence "evidence/M0-T03" --output .pr-body.generated.md
+Wrote .pr-body.generated.md
+
+$ cd /tmp/duelly-m0-harness-worktrees/duelly-m0-repository-harness-foundation-m0-harness-smoke && printf smoke > .smoke && git add .smoke && scripts/harness/commit-granular.sh --message "test(harness): add smoke evidence"
+[task/m0-harness-smoke bf4a61c] test(harness): add smoke evidence
+ 1 file changed, 1 insertion(+)
+ create mode 100644 .smoke
+
+$ cd /tmp/duelly-m0-harness-worktrees/duelly-m0-repository-harness-foundation-m0-harness-smoke && scripts/harness/open-draft-pr.sh --title "test: smoke draft pr" --dry-run
+{
+  "title": "test: smoke draft pr",
+  "base": "main",
+  "head": "task/m0-harness-smoke",
+  "bodyFile": ".pr-body.generated.md",
+  "draft": true
+}
+
+$ scripts/harness/close-worktree.sh --path /tmp/duelly-m0-harness-worktrees/duelly-m0-repository-harness-foundation-m0-harness-smoke
+
+$ git branch -D task/m0-harness-smoke
+Deleted branch task/m0-harness-smoke (was bf4a61c).
