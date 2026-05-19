@@ -1,0 +1,20 @@
+
+> @duelly/backend@0.1.0 test:integration
+> node --import tsx --test test/integration/*.test.ts
+
+TAP version 13
+# Subtest: TypeORM repositories persist M1 template records in PostgreSQL
+ok 1 - TypeORM repositories persist M1 template records in PostgreSQL
+  ---
+  duration_ms: 135.518058
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1121.551071

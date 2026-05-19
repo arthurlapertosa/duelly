@@ -1,0 +1,1155 @@
+{
+  "candidates": [
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      "endDate": "2026-06-11T18:00:00.000Z",
+      "eventStartAt": "2026-06-11T18:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-football-world-cup-binary-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1001",
+        "1002"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1001"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1002"
+        }
+      ],
+      "participants": [
+        "Brazil"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-football-world-cup-2026",
+      "providerMarketId": "market-football-world-cup-brazil-2026",
+      "question": "Will Brazil win the 2026 FIFA World Cup?",
+      "questionId": "pm-q-football-world-cup-brazil-2026",
+      "rawProviderPayloadHash": "0xd475e862b5c22ea80f2c4fca128e338e26640d73f49d6223a235826bfb991484",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/world-cup-2026",
+      "rulesText": "This market resolves to Yes if Brazil is declared the winner of the 2026 FIFA World Cup by the tournament organizer. If the tournament is cancelled or no winner is declared, the market is void.",
+      "slug": "will-brazil-win-the-2026-fifa-world-cup",
+      "sourceUrl": "https://polymarket.com/event/world-cup-2026",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "BRASILEIRAO",
+      "conditionId": "0x0202020202020202020202020202020202020202020202020202020202020202",
+      "endDate": "2026-08-01T15:00:00.000Z",
+      "eventStartAt": "2026-04-10T15:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-football-brasileirao-binary-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1003",
+        "1004"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1003"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1004"
+        }
+      ],
+      "participants": [
+        "Palmeiras"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-brasileirao-2026",
+      "providerMarketId": "market-brasileirao-palmeiras-2026",
+      "question": "Will Palmeiras win Brasileirão 2026?",
+      "questionId": "pm-q-brasileirao-palmeiras-2026",
+      "rawProviderPayloadHash": "0x7461b3b6048b5bf3b6c9f1fe6526a89912f07ef4c3ac5fb847cedf3674a8f26f",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/brasileirao-2026",
+      "rulesText": "This market resolves to Yes if Palmeiras is the official winner of Brasileirão 2026. Cancelled or unresolved seasons are void.",
+      "slug": "will-palmeiras-win-brasileirao-2026",
+      "sourceUrl": "https://polymarket.com/event/brasileirao-2026",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "COPA_LIBERTADORES",
+      "conditionId": "0x0303030303030303030303030303030303030303030303030303030303030303",
+      "endDate": "2026-09-01T15:00:00.000Z",
+      "eventStartAt": "2026-02-10T15:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-football-libertadores-binary-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1005",
+        "1006"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1005"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1006"
+        }
+      ],
+      "participants": [
+        "Flamengo"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-libertadores-2026",
+      "providerMarketId": "market-libertadores-flamengo-2026",
+      "question": "Will Flamengo win Copa Libertadores 2026?",
+      "questionId": "pm-q-libertadores-flamengo-2026",
+      "rawProviderPayloadHash": "0x706728bce4d13b12fb2f3a9155e68e65b4e339fafe0a11a85f7ecf889fd2d853",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/libertadores-2026",
+      "rulesText": "This market resolves to Yes if Flamengo is the official winner of Copa Libertadores 2026. Cancelled or unresolved tournaments are void.",
+      "slug": "will-flamengo-win-copa-libertadores-2026",
+      "sourceUrl": "https://polymarket.com/event/libertadores-2026",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "TENNIS_MATCH_WINNER",
+      "closed": false,
+      "competition": "ATP_250",
+      "competitionLevel": "ATP_250",
+      "conditionId": "0x0404040404040404040404040404040404040404040404040404040404040404",
+      "endDate": "2026-07-01T12:00:00.000Z",
+      "eventStartAt": "2026-07-01T13:00:00.000Z",
+      "eventType": "MATCH",
+      "id": "fixture-tennis-atp250-match-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1007",
+        "1008"
+      ],
+      "outcomes": [
+        {
+          "label": "Player A",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1007"
+        },
+        {
+          "label": "Player B",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1008"
+        }
+      ],
+      "participants": [
+        "Player A",
+        "Player B"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-atp250-doha-final",
+      "providerMarketId": "market-atp250-doha-player-a-vs-player-b",
+      "question": "Will Player A defeat Player B at ATP 250 Doha?",
+      "questionId": "pm-q-atp250-doha-player-a-player-b",
+      "rawProviderPayloadHash": "0x647cf9eac0a7787a71c9f706745f216e4aa4bc1500084c09c5f71e0e08603ba4",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/atp-250-doha-final",
+      "rulesText": "This market resolves to the official ATP match winner. If the match is cancelled before a winner is declared, the market is void.",
+      "slug": "will-player-a-defeat-player-b-atp-250-doha",
+      "sourceUrl": "https://polymarket.com/event/atp-250-doha-final",
+      "sport": "tennis"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "TENNIS_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "GRAND_SLAM",
+      "competitionLevel": "GRAND_SLAM",
+      "conditionId": "0x0505050505050505050505050505050505050505050505050505050505050505",
+      "endDate": "2026-07-05T12:00:00.000Z",
+      "eventStartAt": "2026-06-29T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "grandSlamName": "Wimbledon",
+      "id": "fixture-tennis-grand-slam-tournament-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1009",
+        "1010"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1009"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1010"
+        }
+      ],
+      "participants": [
+        "Player C"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-wimbledon-2026",
+      "providerMarketId": "market-wimbledon-player-c-2026",
+      "question": "Will Player C win Wimbledon 2026?",
+      "questionId": "pm-q-wimbledon-player-c-2026",
+      "rawProviderPayloadHash": "0xd9c38a23033f8de7ca6a3f969885dbe737a6fbec06dfc9bd925bf3cb0f8d1490",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/wimbledon-2026",
+      "rulesText": "This market resolves to Yes if Player C is the official Wimbledon 2026 singles champion. Cancelled or unresolved tournaments are void.",
+      "slug": "will-player-c-win-wimbledon-2026",
+      "sourceUrl": "https://polymarket.com/event/wimbledon-2026",
+      "sport": "tennis"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "UFC_MAIN_EVENT_FIGHT_WINNER",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x0606060606060606060606060606060606060606060606060606060606060606",
+      "endDate": "2026-11-01T02:00:00.000Z",
+      "eventStartAt": "2026-11-01T03:00:00.000Z",
+      "eventType": "MAIN_EVENT",
+      "id": "fixture-ufc-main-event-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1011",
+        "1012"
+      ],
+      "outcomes": [
+        {
+          "label": "Fighter A",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1011"
+        },
+        {
+          "label": "Fighter B",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1012"
+        }
+      ],
+      "participants": [
+        "Fighter A",
+        "Fighter B"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-ufc-400-main-event",
+      "providerMarketId": "market-ufc-400-main-event-fighter-a-vs-fighter-b",
+      "question": "Will Fighter A defeat Fighter B in the UFC 400 main event?",
+      "questionId": "pm-q-ufc400-fighter-a-fighter-b",
+      "rawProviderPayloadHash": "0x0f355bc31e18d618f68052c75cfe6a31974116e72d9111911d0f471794b2f5de",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/ufc-400-main-event",
+      "rulesText": "This market resolves to the official UFC main event winner. Draw, no-contest, cancellation, or no official winner voids the market.",
+      "slug": "will-fighter-a-defeat-fighter-b-ufc-400",
+      "sourceUrl": "https://polymarket.com/event/ufc-400-main-event",
+      "sport": "ufc"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "F1_RACE_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x0707070707070707070707070707070707070707070707070707070707070707",
+      "endDate": "2026-11-08T15:00:00.000Z",
+      "eventStartAt": "2026-11-08T17:00:00.000Z",
+      "eventType": "RACE",
+      "id": "fixture-f1-race-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1013",
+        "1014"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1013"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1014"
+        }
+      ],
+      "participants": [
+        "Driver A"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-f1-brazil-gp-2026",
+      "providerMarketId": "market-f1-brazil-gp-driver-a-2026",
+      "question": "Will Driver A win the 2026 Brazil Grand Prix?",
+      "questionId": "pm-q-f1-brazil-gp-driver-a-2026",
+      "rawProviderPayloadHash": "0x5eb2335a9ea858ff161d2aab8f99b6b38a54359cb53c4ad19c97cf583d8f6638",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/f1-brazil-gp-2026",
+      "rulesText": "This market resolves to Yes if Driver A is classified as the official Formula 1 race winner. Cancelled races or no official classification void the market.",
+      "slug": "will-driver-a-win-the-2026-brazil-grand-prix",
+      "sourceUrl": "https://polymarket.com/event/f1-brazil-gp-2026",
+      "sport": "f1"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "F1_SPRINT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+      "endDate": "2026-06-27T10:00:00.000Z",
+      "eventStartAt": "2026-06-27T12:00:00.000Z",
+      "eventType": "SPRINT",
+      "id": "fixture-f1-sprint-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1015",
+        "1016"
+      ],
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1015"
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1016"
+        }
+      ],
+      "participants": [
+        "Driver B"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-f1-austria-sprint-2026",
+      "providerMarketId": "market-f1-austria-sprint-driver-b-2026",
+      "question": "Will Driver B win the 2026 Austria sprint race?",
+      "questionId": "pm-q-f1-austria-sprint-driver-b-2026",
+      "rawProviderPayloadHash": "0xedeae328ae04e6b10870eeeef5af75e5b86a8e83aa948a9c4cb394199ef6d742",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/f1-austria-sprint-2026",
+      "rulesText": "This market resolves to Yes if Driver B is classified as the official Formula 1 sprint race winner. Cancelled sprints or no official classification void the market.",
+      "slug": "will-driver-b-win-the-2026-austria-sprint",
+      "sourceUrl": "https://polymarket.com/event/f1-austria-sprint-2026",
+      "sport": "f1"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_BINARY_MATCH_CONDITION",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x0909090909090909090909090909090909090909090909090909090909090909",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MATCH",
+      "id": "fixture-football-3way-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Team A",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "Draw",
+          "providerOutcomeIndex": 1
+        },
+        {
+          "label": "Team B",
+          "providerOutcomeIndex": 2
+        }
+      ],
+      "participants": [
+        "Team A",
+        "Team B"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-football-3way",
+      "question": "Team A vs Team B match result",
+      "questionId": "pm-q-football-3way",
+      "rawProviderPayloadHash": "0x9be53e3d228749ce000b41132a2cc6ae448fc8625768dd818ca2dbc14ae254f5",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the 90-minute match result.",
+      "slug": "team-a-vs-team-b-3way",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_SPREAD",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x1010101010101010101010101010101010101010101010101010101010101010",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MATCH",
+      "id": "fixture-football-spread-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-football-spread",
+      "question": "Will Team A cover the spread?",
+      "questionId": "pm-q-football-spread",
+      "rawProviderPayloadHash": "0xa2625e6988be51228f3f542d941628de5fcc1680691273a0602af29b427370bb",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves based on a handicap spread.",
+      "slug": "football-spread",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_TOTAL",
+      "closed": false,
+      "competition": "ATP_500",
+      "competitionLevel": "ATP_500",
+      "conditionId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MATCH",
+      "id": "fixture-tennis-total-games-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Player A",
+        "Player B"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-tennis-total-games",
+      "question": "Will the match have over 22.5 games?",
+      "questionId": "pm-q-tennis-total-games",
+      "rawProviderPayloadHash": "0x39c45aa5c3a3a6a9f32e79a1fac53c5d4731345db8744e5f5c02aa573a814f9c",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves based on total games.",
+      "slug": "tennis-total-games",
+      "sport": "tennis"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "TENNIS_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "UNSUPPORTED",
+      "conditionId": "0x1212121212121212121212121212121212121212121212121212121212121212",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-tennis-challenger-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Player D"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-tennis-challenger",
+      "question": "Will Player D win the Challenger event?",
+      "questionId": "pm-q-tennis-challenger",
+      "rawProviderPayloadHash": "0x7861ad870e21abf1bfdb8911b91d4ee8b1412ae4b913eb1fe7accb5ce66dd590",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the tournament winner.",
+      "slug": "tennis-challenger-winner",
+      "sport": "tennis"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "UFC_MAIN_EVENT_FIGHT_WINNER",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x1313131313131313131313131313131313131313131313131313131313131313",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "UNDERCARD",
+      "id": "fixture-ufc-undercard-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Fighter C",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "Fighter D",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Fighter C",
+        "Fighter D"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-ufc-undercard",
+      "question": "Will Fighter C win this undercard fight?",
+      "questionId": "pm-q-ufc-undercard",
+      "rawProviderPayloadHash": "0xd63daa3b59a1197007d4bd6e68abb68f16f36c925e0c79e7b491e174c3147011",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the fight winner.",
+      "slug": "ufc-undercard-fight",
+      "sport": "ufc"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_METHOD",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x1414141414141414141414141414141414141414141414141414141414141414",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MAIN_EVENT",
+      "id": "fixture-ufc-method-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Fighter A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-ufc-method",
+      "question": "Will Fighter A win by submission?",
+      "questionId": "pm-q-ufc-method",
+      "rawProviderPayloadHash": "0x6c57c85707577f3d1602360df49a44fb816e607441845ffb9356ddb5a7d7900e",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves based on method of victory.",
+      "slug": "ufc-method-victory",
+      "sport": "ufc"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_QUALIFYING",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x1515151515151515151515151515151515151515151515151515151515151515",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "QUALIFYING",
+      "id": "fixture-f1-qualifying-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Driver A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-f1-qualifying",
+      "question": "Will Driver A win qualifying?",
+      "questionId": "pm-q-f1-qualifying",
+      "rawProviderPayloadHash": "0xee3902fdeae6afd2218da01ebfb42b0a57cfd626592316148172927f1ca80cc5",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the qualifying winner.",
+      "slug": "f1-qualifying-winner",
+      "sport": "f1"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_FASTEST_LAP",
+      "closed": false,
+      "competition": "FORMULA_1",
+      "conditionId": "0x1616161616161616161616161616161616161616161616161616161616161616",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "RACE",
+      "id": "fixture-f1-fastest-lap-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Driver A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-f1-fastest-lap",
+      "question": "Will Driver A set fastest lap?",
+      "questionId": "pm-q-f1-fastest-lap",
+      "rawProviderPayloadHash": "0x96da931da8eb2168bfc8b38d7e9676a5b4144575e3134719ae3e4a07aa7f391a",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to fastest lap.",
+      "slug": "f1-fastest-lap",
+      "sport": "f1"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "UNKNOWN",
+      "closed": false,
+      "competition": "UNSUPPORTED",
+      "conditionId": "0x1717171717171717171717171717171717171717171717171717171717171717",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MATCH",
+      "id": "fixture-unsupported-sport-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-basketball",
+      "question": "Will Team A win the basketball game?",
+      "questionId": "pm-q-basketball",
+      "rawProviderPayloadHash": "0xcee59440a582ee093f866e9a4b07a7631eee387cad51fb1841242ac685e0c370",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the game winner.",
+      "slug": "basketball-winner",
+      "sport": "unsupported"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "UNSUPPORTED",
+      "conditionId": "0x1818181818181818181818181818181818181818181818181818181818181818",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-unsupported-competition-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-football-premier-league",
+      "question": "Will Team A win the Premier League?",
+      "questionId": "pm-q-premier-league",
+      "rawProviderPayloadHash": "0xde434e4c3f7f7c52d4c8c515eacd8af15d7fc5e8d786f2b8778fd5d4bf582717",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the league winner.",
+      "slug": "premier-league-winner",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-missing-condition-id-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-missing-condition",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-missing-condition",
+      "rawProviderPayloadHash": "0xb7775c6ff04560de21ae6ef1c80c8e809849438a8e4e527d43bed0ce53c5651d",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "missing-condition",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x1919191919191919191919191919191919191919191919191919191919191919",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-missing-question-id-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-missing-question",
+      "question": "Will Team A win?",
+      "rawProviderPayloadHash": "0xb5e6179a489c5f94e2b3a3e47eaac70571c8b7e4412a834ca11dee51abd5bfb4",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "missing-question",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2020202020202020202020202020202020202020202020202020202020202020",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-missing-rules-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-missing-rules",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-missing-rules",
+      "rawProviderPayloadHash": "0x1662a317fc0b47212f4c06fc583dde48939b914336a3e4f6e50e72b6ef0ada2d",
+      "resultSource": "official_result",
+      "slug": "missing-rules",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2121212121212121212121212121212121212121212121212121212121212121",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-negative-risk-rejected",
+      "negRisk": true,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-negative-risk",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-negative-risk",
+      "rawProviderPayloadHash": "0xfa5aeb8dc6092cf7938f3d64075579f51b17d0657bb0333eb84edc07e9b49279",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "negative-risk",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": false,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-market-inactive-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-inactive",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-inactive",
+      "rawProviderPayloadHash": "0x4c64dd5fe3c8dc8b1568de12dc4f70a7f9e2026a97ba227d82fb0fc4c5487d15",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "inactive",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": true,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2323232323232323232323232323232323232323232323232323232323232323",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-market-closed-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-closed",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-closed",
+      "rawProviderPayloadHash": "0x98a6f10afc21f45fc1b0b4d7ba63bf1509382677eeb6ecdd5085b83ad3f66eed",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "closed",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": true,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2424242424242424242424242424242424242424242424242424242424242424",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-market-archived-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-archived",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-archived",
+      "rawProviderPayloadHash": "0x2f04af28be61d622d9ff43b94dfaec99e3b067e8811277718cafd690bf03e15a",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "archived",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": false,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2525252525252525252525252525252525252525252525252525252525252525",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-not-accepting-orders-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-not-accepting-orders",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-not-accepting-orders",
+      "rawProviderPayloadHash": "0x5dd3dada9d2c5d19190d8109520ce367764fdaa884c5896134f5409eaf8696f6",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "not-accepting-orders",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2626262626262626262626262626262626262626262626262626262626262626",
+      "endDate": "2026-05-20T00:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-near-expiry-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-near-expiry",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-near-expiry",
+      "rawProviderPayloadHash": "0xed5e2965bc2e119eb69fbf4084b898d862a71c29db1d515ea3cde403a38487ce",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "near-expiry",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "UFC_MAIN_EVENT_FIGHT_WINNER",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x2727272727272727272727272727272727272727272727272727272727272727",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MAIN_EVENT",
+      "id": "fixture-ambiguous-resolution-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Fighter A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-ambiguous",
+      "question": "Will Fighter A avoid losing?",
+      "questionId": "pm-q-ambiguous",
+      "rawProviderPayloadHash": "0xf9e5acafc8c87b5bc26bbd2be9527ce36e0dcb688177fb4fbadb00f54e33e1d9",
+      "resultSource": "ambiguous",
+      "rulesText": "This market resolves based on ambiguous wording around no-contest outcomes.",
+      "slug": "ambiguous",
+      "sport": "ufc"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2828282828282828282828282828282828282828282828282828282828282828",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-odds-probability-result-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-price-result",
+      "question": "Will this market trade above 80%?",
+      "questionId": "pm-q-price-result",
+      "rawProviderPayloadHash": "0xec7d20187487e52b3e5101f33290dd5ef0e594afa73e4efe64cd1ae7ce1b70b5",
+      "resultSource": "odds_or_probability",
+      "rulesText": "This market resolves based on market-implied probability.",
+      "slug": "price-result",
+      "sport": "football"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+      "closed": false,
+      "competition": "FIFA_WORLD_CUP",
+      "conditionId": "0x2929292929292929292929292929292929292929292929292929292929292929",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "TOURNAMENT",
+      "id": "fixture-invalid-loser-fee-rejected",
+      "loserFeeBps": 5000,
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Team A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-invalid-fee",
+      "question": "Will Team A win?",
+      "questionId": "pm-q-invalid-fee",
+      "rawProviderPayloadHash": "0xa794612a98e308ec0cec46f1ea2d60b42b8286f6f355f1dcb04fc92d278d84ad",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the official result.",
+      "slug": "invalid-fee",
+      "sport": "football"
+    }
+  ],
+  "count": 30,
+  "mode": "fixture"
+}

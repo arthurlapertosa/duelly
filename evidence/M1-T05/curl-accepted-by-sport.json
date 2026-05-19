@@ -1,0 +1,104 @@
+{
+  "count": 2,
+  "mode": "fixture",
+  "templates": [
+    {
+      "active": true,
+      "bettingCloseAt": 1794150000,
+      "binaryMarketType": "F1_RACE_WINNER_YES_NO",
+      "binaryMarketTypeCode": 401,
+      "competition": "FORMULA_1",
+      "competitionCode": 401,
+      "competitionDetailHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "competitionLevelCode": 0,
+      "conditionId": "0x0707070707070707070707070707070707070707070707070707070707070707",
+      "display": {
+        "providerEventId": "event-f1-brazil-gp-2026",
+        "question": "Will Driver A win the 2026 Brazil Grand Prix?",
+        "rawProviderPayloadHash": "0x5eb2335a9ea858ff161d2aab8f99b6b38a54359cb53c4ad19c97cf583d8f6638",
+        "slug": "will-driver-a-win-the-2026-brazil-grand-prix",
+        "sourceUrl": "https://polymarket.com/event/f1-brazil-gp-2026"
+      },
+      "eventStartAt": 1794157200,
+      "eventType": "RACE",
+      "eventTypeCode": 5,
+      "feePolicyVersion": 1,
+      "loserFeeBps": 250,
+      "outcomeA": {
+        "label": "Yes",
+        "providerOutcomeIndex": 0,
+        "tokenId": "1013"
+      },
+      "outcomeALabelHash": "0x90dfb8fa37079daea9a1acb3e423e2351f0ba3fb27cf55bfa41ad2f8c58baea9",
+      "outcomeB": {
+        "label": "No",
+        "providerOutcomeIndex": 1,
+        "tokenId": "1014"
+      },
+      "outcomeBLabelHash": "0x7d6119d3ee7f82ee53aac57d4d088f8bbaca5aac3191bb074252c6d760ae4eba",
+      "provider": "polymarket",
+      "providerCode": 1,
+      "providerMarketId": "market-f1-brazil-gp-driver-a-2026",
+      "providerMarketIdHash": "0x4d46e91d08562863fe658a9e32019849fd5db7300e56db4c2481d831f5d3573a",
+      "questionId": "pm-q-f1-brazil-gp-driver-a-2026",
+      "questionIdHash": "0x6c4262517977ea5fd634c558718d2060729320242470e28008ce5322ac042385",
+      "resolutionDeadline": 1795359600,
+      "rulesHash": "0x9a2f7180a2aa8354cf5ebf4c99a0c10a69995a2cdbb9001cb036b52b81661e9a",
+      "rulesSourceHash": "0xbc4fe8ff11c8cd1e13babb565e45785ceb69728692fccd4fc7fe59d035614727",
+      "sport": "f1",
+      "sportCode": 4,
+      "templateHash": "0xf288d85e35a7c5ac39eb4720516e3cd49ae5fa2bcb8abd51b77d83c9643c8965",
+      "templateId": "fixture-f1-race-winner",
+      "templateVersion": 1
+    },
+    {
+      "active": true,
+      "bettingCloseAt": 1782554400,
+      "binaryMarketType": "F1_SPRINT_WINNER_YES_NO",
+      "binaryMarketTypeCode": 402,
+      "competition": "FORMULA_1",
+      "competitionCode": 401,
+      "competitionDetailHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "competitionLevelCode": 0,
+      "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+      "display": {
+        "providerEventId": "event-f1-austria-sprint-2026",
+        "question": "Will Driver B win the 2026 Austria sprint race?",
+        "rawProviderPayloadHash": "0xedeae328ae04e6b10870eeeef5af75e5b86a8e83aa948a9c4cb394199ef6d742",
+        "slug": "will-driver-b-win-the-2026-austria-sprint",
+        "sourceUrl": "https://polymarket.com/event/f1-austria-sprint-2026"
+      },
+      "eventStartAt": 1782561600,
+      "eventType": "SPRINT",
+      "eventTypeCode": 6,
+      "feePolicyVersion": 1,
+      "loserFeeBps": 250,
+      "outcomeA": {
+        "label": "Yes",
+        "providerOutcomeIndex": 0,
+        "tokenId": "1015"
+      },
+      "outcomeALabelHash": "0x90dfb8fa37079daea9a1acb3e423e2351f0ba3fb27cf55bfa41ad2f8c58baea9",
+      "outcomeB": {
+        "label": "No",
+        "providerOutcomeIndex": 1,
+        "tokenId": "1016"
+      },
+      "outcomeBLabelHash": "0x7d6119d3ee7f82ee53aac57d4d088f8bbaca5aac3191bb074252c6d760ae4eba",
+      "provider": "polymarket",
+      "providerCode": 1,
+      "providerMarketId": "market-f1-austria-sprint-driver-b-2026",
+      "providerMarketIdHash": "0xf45c28ba6c8c34778482a0b3b8000c81a936f2ce95684b5b45167631e5e7b5b8",
+      "questionId": "pm-q-f1-austria-sprint-driver-b-2026",
+      "questionIdHash": "0xa7d0675fc7dabbe5be0756652721066ba29bde412112a422171267b7ed767594",
+      "resolutionDeadline": 1783764000,
+      "rulesHash": "0x2098280747d9fb67a817a39a55b1bc6b98291cf9179da9858f034e9f5eb62a49",
+      "rulesSourceHash": "0x3658f0f83272aabb4050a7eae93ee219af9e916f90f4af84e815b44dcea46ce1",
+      "sport": "f1",
+      "sportCode": 4,
+      "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
+      "templateId": "fixture-f1-sprint-winner",
+      "templateVersion": 1
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: publisher builds compact on-chain payload from accepted templates
+ok 1 - publisher builds compact on-chain payload from accepted templates
+  ---
+  duration_ms: 44.456283
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1560.12978

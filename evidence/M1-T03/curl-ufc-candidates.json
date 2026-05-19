@@ -1,0 +1,159 @@
+{
+  "candidates": [
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "UFC_MAIN_EVENT_FIGHT_WINNER",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x0606060606060606060606060606060606060606060606060606060606060606",
+      "endDate": "2026-11-01T02:00:00.000Z",
+      "eventStartAt": "2026-11-01T03:00:00.000Z",
+      "eventType": "MAIN_EVENT",
+      "id": "fixture-ufc-main-event-winner",
+      "loserFeeBps": 250,
+      "negRisk": false,
+      "outcomeTokenIds": [
+        "1011",
+        "1012"
+      ],
+      "outcomes": [
+        {
+          "label": "Fighter A",
+          "providerOutcomeIndex": 0,
+          "tokenId": "1011"
+        },
+        {
+          "label": "Fighter B",
+          "providerOutcomeIndex": 1,
+          "tokenId": "1012"
+        }
+      ],
+      "participants": [
+        "Fighter A",
+        "Fighter B"
+      ],
+      "provider": "polymarket",
+      "providerEventId": "event-ufc-400-main-event",
+      "providerMarketId": "market-ufc-400-main-event-fighter-a-vs-fighter-b",
+      "question": "Will Fighter A defeat Fighter B in the UFC 400 main event?",
+      "questionId": "pm-q-ufc400-fighter-a-fighter-b",
+      "rawProviderPayloadHash": "0x0f355bc31e18d618f68052c75cfe6a31974116e72d9111911d0f471794b2f5de",
+      "resultSource": "official_result",
+      "rulesSourceUrl": "https://polymarket.com/event/ufc-400-main-event",
+      "rulesText": "This market resolves to the official UFC main event winner. Draw, no-contest, cancellation, or no official winner voids the market.",
+      "slug": "will-fighter-a-defeat-fighter-b-ufc-400",
+      "sourceUrl": "https://polymarket.com/event/ufc-400-main-event",
+      "sport": "ufc"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "UFC_MAIN_EVENT_FIGHT_WINNER",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x1313131313131313131313131313131313131313131313131313131313131313",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "UNDERCARD",
+      "id": "fixture-ufc-undercard-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Fighter C",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "Fighter D",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Fighter C",
+        "Fighter D"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-ufc-undercard",
+      "question": "Will Fighter C win this undercard fight?",
+      "questionId": "pm-q-ufc-undercard",
+      "rawProviderPayloadHash": "0xd63daa3b59a1197007d4bd6e68abb68f16f36c925e0c79e7b491e174c3147011",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves to the fight winner.",
+      "slug": "ufc-undercard-fight",
+      "sport": "ufc"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "DISALLOWED_METHOD",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x1414141414141414141414141414141414141414141414141414141414141414",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MAIN_EVENT",
+      "id": "fixture-ufc-method-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Fighter A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-ufc-method",
+      "question": "Will Fighter A win by submission?",
+      "questionId": "pm-q-ufc-method",
+      "rawProviderPayloadHash": "0x6c57c85707577f3d1602360df49a44fb816e607441845ffb9356ddb5a7d7900e",
+      "resultSource": "official_result",
+      "rulesText": "This market resolves based on method of victory.",
+      "slug": "ufc-method-victory",
+      "sport": "ufc"
+    },
+    {
+      "acceptingOrders": true,
+      "active": true,
+      "archived": false,
+      "binaryMarketType": "UFC_MAIN_EVENT_FIGHT_WINNER",
+      "closed": false,
+      "competition": "UFC",
+      "conditionId": "0x2727272727272727272727272727272727272727272727272727272727272727",
+      "endDate": "2026-06-20T12:00:00.000Z",
+      "eventType": "MAIN_EVENT",
+      "id": "fixture-ambiguous-resolution-rejected",
+      "negRisk": false,
+      "outcomes": [
+        {
+          "label": "Yes",
+          "providerOutcomeIndex": 0
+        },
+        {
+          "label": "No",
+          "providerOutcomeIndex": 1
+        }
+      ],
+      "participants": [
+        "Fighter A"
+      ],
+      "provider": "polymarket",
+      "providerMarketId": "market-ambiguous",
+      "question": "Will Fighter A avoid losing?",
+      "questionId": "pm-q-ambiguous",
+      "rawProviderPayloadHash": "0xf9e5acafc8c87b5bc26bbd2be9527ce36e0dcb688177fb4fbadb00f54e33e1d9",
+      "resultSource": "ambiguous",
+      "rulesText": "This market resolves based on ambiguous wording around no-contest outcomes.",
+      "slug": "ambiguous",
+      "sport": "ufc"
+    }
+  ],
+  "count": 4,
+  "mode": "fixture"
+}

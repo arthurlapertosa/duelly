@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: fixture filter accepts only approved M1 sports templates
+ok 1 - fixture filter accepts only approved M1 sports templates
+  ---
+  duration_ms: 88.685074
+  type: 'test'
+  ...
+# Subtest: fixture rejection matrix covers every required M1 reason code
+ok 2 - fixture rejection matrix covers every required M1 reason code
+  ---
+  duration_ms: 50.164597
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1305.495781
