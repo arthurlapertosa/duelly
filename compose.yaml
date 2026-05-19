@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: duelly
+      POSTGRES_PASSWORD: duelly_local
+      POSTGRES_DB: duelly
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U duelly -d duelly"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - duelly-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  duelly-postgres-data:
