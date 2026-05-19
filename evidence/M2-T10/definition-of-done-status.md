@@ -1,7 +1,7 @@
 # Definition of Done Status
 
 - [x] Implemented in independent worktree: `../worktrees/duelly-m2-smart-contract-settlement-core`.
-- [ ] Draft PR opened.
+- [x] Draft PR opened: https://github.com/arthurlapertosa/duelly/pull/62.
 - [x] Granular commits created.
 - [x] Behavior changes covered by tests.
 - [x] `npm run validate` executed.
@@ -12,4 +12,4 @@
 - [x] No secrets intentionally committed; live signatures/private keys are not included in evidence.
 - [x] Agent did not merge or mark final approval.
 
-Draft PR is completed after this evidence pack is committed, pushed, and opened through the harness.
+Draft PR is open for human QA/HITL. The agent did not merge, mark ready, or claim final approval.
