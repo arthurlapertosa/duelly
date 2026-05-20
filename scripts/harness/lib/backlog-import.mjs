@@ -91,14 +91,33 @@ function renderIssueBody(task, content) {
   ].join('\n');
 }
 
+function milestoneNumberParts(publicId) {
+  const match = publicId.match(/^M(\d+(?:\.\d+)*)$/);
+  if (!match) throw new Error(`Invalid milestone id: ${publicId}`);
+  return match[1].split('.').map((part) => Number(part));
+}
+
+function compareNumberParts(left, right) {
+  const length = Math.max(left.length, right.length);
+  for (let index = 0; index < length; index++) {
+    const leftPart = left[index] ?? -1;
+    const rightPart = right[index] ?? -1;
+    if (leftPart !== rightPart) return leftPart - rightPart;
+  }
+  return 0;
+}
+
 function readMilestone(root, dir) {
   const content = readBacklogMarkdown(root, dir, 'milestone.md');
   const titleLine = firstMatch(content, /^#\s+(.+)$/m);
-  const id = firstMatch(titleLine, /^(M\d+)/);
+  const match = titleLine.match(/^(M\d+(?:\.\d+)*)\s+—\s+(.+)$/);
+  if (!match) throw new Error(`${dir}/milestone.md has invalid milestone heading`);
+  const id = match[1];
   return {
     id,
     title: titleLine,
     sourcePath: `${dir}/milestone.md`,
+    sortKey: milestoneNumberParts(id),
   };
 }
 
@@ -106,8 +125,13 @@ function readTask(root, dir, file, milestone) {
   const sourcePath = `${dir}/${file}`;
   const content = readBacklogMarkdown(root, dir, file);
   const heading = firstMatch(content, /^#\s+(.+)$/m);
-  const taskId = firstMatch(heading, /^(M\d+\.T\d+)/);
-  const title = firstMatch(heading, /^M\d+\.T\d+\s+—\s+(.+)$/);
+  const match = heading.match(/^((M\d+(?:\.\d+)*)\.T\d+)\s+—\s+(.+)$/);
+  if (!match) throw new Error(`${sourcePath} has invalid task heading`);
+  const taskId = match[1];
+  if (match[2] !== milestone.id) {
+    throw new Error(`${sourcePath} belongs to ${match[2]}, expected ${milestone.id}`);
+  }
+  const title = match[3].trim();
   const priority = firstMatch(content, /\*\*Priority:\*\*\s+([^\n]+)/) || 'P2';
   const type = firstMatch(content, /\*\*Type:\*\*\s+([^\n]+)/);
   const status = firstMatch(content, /\*\*Status:\*\*\s+([^\n]+)/);
@@ -146,21 +170,31 @@ function readTask(root, dir, file, milestone) {
 
 export function buildImport(root = process.cwd(), { repository = DEFAULT_REPOSITORY } = {}) {
   const backlogRoot = join(root, 'backlog');
-  const milestoneDirs = readdirSync(backlogRoot, { withFileTypes: true })
+  const milestoneRecords = readdirSync(backlogRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && entry.name.startsWith('milestones-'))
     .map((entry) => entry.name)
-    .sort();
-  const milestones = milestoneDirs.map((dir) => readMilestone(backlogRoot, dir));
-  const milestoneByDir = new Map(milestoneDirs.map((dir, index) => [dir, milestones[index]]));
+    .map((dir) => ({ dir, milestone: readMilestone(backlogRoot, dir) }))
+    .sort((left, right) => compareNumberParts(left.milestone.sortKey, right.milestone.sortKey) || left.dir.localeCompare(right.dir));
+  const milestones = milestoneRecords.map(({ milestone }) => {
+    const { sortKey: _sortKey, ...publicMilestone } = milestone;
+    return publicMilestone;
+  });
+  const milestoneByDir = new Map(milestoneRecords.map(({ dir, milestone }) => [dir, milestone]));
   const issues = [];
+  const issueByTaskId = new Map();
 
-  for (const dir of milestoneDirs) {
+  for (const { dir } of milestoneRecords) {
     const taskFiles = readdirSync(join(backlogRoot, dir), { withFileTypes: true })
       .filter((entry) => entry.isFile() && /^task-\d+-.+\.md$/.test(entry.name))
       .map((entry) => entry.name)
       .sort();
     for (const file of taskFiles) {
-      issues.push(readTask(backlogRoot, dir, file, milestoneByDir.get(dir)));
+      const issue = readTask(backlogRoot, dir, file, milestoneByDir.get(dir));
+      if (issueByTaskId.has(issue.taskId)) {
+        throw new Error(`${issue.sourcePath} duplicates task id ${issue.taskId} already used by ${issueByTaskId.get(issue.taskId).sourcePath}`);
+      }
+      issueByTaskId.set(issue.taskId, issue);
+      issues.push(issue);
     }
   }
 

@@ -1,6 +1,6 @@
-# M4.T02 — Implement login and wallet onboarding experience
+# M4.T02 — Implement login and private wallet onboarding experience
 
-**Milestone:** M4 — Frontend MVP Experience  
+**Milestone:** M4 — Frontend MVP Experience, Wallet-First Flow  
 **Priority:** P0  
 **Type:** Frontend / Auth / Wallets  
 **Status:** Planned
@@ -26,42 +26,42 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Implement login flow using backend mock/auth endpoints.
-- Display embedded wallet creation/linking state.
-- Support external wallet option at UI level for users with BRL1.
-- Hide raw private key, chain, gas, and ERC terminology from the main flow.
+- Implement login/session UI.
+- Implement private wallet connection or mock connection flow.
+- Show wallet ownership verification challenge/signature flow.
+- Show wallet verification status.
+- Explain BRL1-only MVP support in simple copy.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- Use mocked backend responses if provider integration is not ready.
-- External wallet flow can be a guided placeholder if signing integration is not ready, but must not mislead users.
+- Do not create platform wallets.
+- Do not show Pix/deposit/withdrawal flows.
+- Do not ask users to paste private keys or seed phrases.
 
 ## Acceptance criteria
 
-- Unauthenticated user is prompted to log in.
-- Authenticated user sees wallet status.
-- Embedded wallet user sees a simple ready/not-ready state.
-- External wallet option communicates BRL1-only support.
-- No main flow copy mentions gas, Polygon, ERC-20, or permit.
+- Unauthenticated user sees login state.
+- Authenticated user can connect/verify a private wallet.
+- Invalid wallet verification state is shown clearly.
+- Copy avoids raw technical language in primary flow.
+- Backend fixture calls match M3 wallet-linking API.
 
 ## Required QA and test plan
 
-- Run Playwright login/onboarding flow.
-- Run backend curl health/auth checks used by frontend test setup.
-- Capture screenshots for unauthenticated, authenticated, and wallet-ready states.
+- Run frontend tests.
+- Run Playwright login and wallet onboarding scenario.
+- Run curl commands for wallet challenge/link fixture APIs used by frontend.
+- Capture screenshots for unauthenticated, authenticated, wallet challenge, and wallet verified states.
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M4-T02/playwright-login.log.
-- evidence/M4-T02/curl-auth-fixture.json.
-- evidence/M4-T02/screenshots/unauthenticated.png.
-- evidence/M4-T02/screenshots/wallet-ready.png.
+- evidence/M4-T02/frontend-tests.log
+- evidence/M4-T02/playwright-wallet-onboarding-report/
+- evidence/M4-T02/curl-wallet-fixtures.json
+- evidence/M4-T02/screenshots/wallet-verified.png
 
 ## PR completion requirements
 

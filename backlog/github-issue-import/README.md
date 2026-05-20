@@ -3,8 +3,8 @@
 Generated metadata only. Do not create GitHub issues, labels, or milestones from this folder without human approval.
 
 - Repository: arthurlapertosa/duelly
-- Milestones: 7
-- Issues: 55
+- Milestones: 8
+- Issues: 65
 - Labels: 15
 
 Files:

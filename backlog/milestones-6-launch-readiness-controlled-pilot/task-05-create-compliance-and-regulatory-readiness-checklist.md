@@ -25,7 +25,7 @@
 
 ## Scope
 
-- Create a checklist of legal/regulatory questions for betting operations, payment processing, custody/wallet model, KYC/AML, and Brazilian market constraints.
+- Create a checklist of legal/regulatory questions for betting operations, wallet-first betting operations, optional payment/on-ramp processing, custody/wallet model, KYC/AML, and Brazilian market constraints.
 - Document which decisions require human/legal approval before pilot.
 - Define product limits for any internal controlled pilot.
 
@@ -40,7 +40,7 @@
 
 ## Acceptance criteria
 
-- Checklist covers betting authorization, payment/on-ramp provider terms, wallet custody model, user eligibility, KYC/AML, data privacy, tax/accounting, and terms of service needs.
+- Checklist covers betting authorization, M3.5 payment/on-ramp provider terms if later enabled, wallet custody model, user eligibility, KYC/AML, data privacy, tax/accounting, and terms of service needs.
 - Each item has status: approved, pending human review, blocked, or not applicable.
 - Public launch is explicitly blocked until human/legal approval is recorded.
 

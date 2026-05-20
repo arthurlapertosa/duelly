@@ -37,6 +37,8 @@
 
 ## Non-goals
 
+- Do not make M3.5 platform-wallet, Pix, or exchange automation a prerequisite for wallet-first pilot readiness.
+
 - Do not expand scope beyond the acceptance criteria without explicit human approval.
 
 ## Implementation guidance

@@ -11,9 +11,9 @@ test('backlog status manifest maps all current milestones and tasks', () => {
   const summary = validateBacklogStatus();
   assert.deepEqual(summary, {
     ok: true,
-    milestones: 7,
-    tasks: 55,
-    markdownFiles: 62,
+    milestones: 8,
+    tasks: 65,
+    markdownFiles: 73,
   });
 });
 
@@ -51,6 +51,64 @@ test('backlog status manifest is generated from markdown', () => {
   assert.equal(generated.tasks.m1_t00.status, 'todo');
 });
 
+test('backlog status generator supports dotted milestone ids', () => {
+  const root = mkdtempSync(join(tmpdir(), 'duelly-backlog-status-generator-'));
+  try {
+    mkdirSync(join(root, 'backlog', 'milestones-3-demo'), { recursive: true });
+    writeFileSync(join(root, 'backlog', 'milestones-3-demo', 'milestone.md'), [
+      '# M3 — Demo',
+      '',
+      '## Goal',
+      '',
+      'Demo milestone.',
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'backlog', 'milestones-3-demo', 'task-01-demo.md'), [
+      '# M3.T01 — Demo task',
+      '',
+      '**Milestone:** M3 — Demo  ',
+      '**Priority:** P0  ',
+      '**Type:** Harness  ',
+      '**Status:** Planned',
+      '',
+      '## Scope',
+      '',
+      '- Demonstrate integer milestone support.',
+      '',
+    ].join('\n'), 'utf8');
+
+    mkdirSync(join(root, 'backlog', 'milestones-3-5-demo'), { recursive: true });
+    writeFileSync(join(root, 'backlog', 'milestones-3-5-demo', 'milestone.md'), [
+      '# M3.5 — Dotted Demo',
+      '',
+      '## Goal',
+      '',
+      'Dotted demo milestone.',
+      '',
+    ].join('\n'), 'utf8');
+    writeFileSync(join(root, 'backlog', 'milestones-3-5-demo', 'task-01-dotted-demo.md'), [
+      '# M3.5.T01 — Dotted task',
+      '',
+      '**Milestone:** M3.5 — Dotted Demo  ',
+      '**Priority:** P0  ',
+      '**Type:** Harness  ',
+      '**Status:** Planned',
+      '',
+      '## Scope',
+      '',
+      '- Demonstrate dotted milestone support.',
+      '',
+    ].join('\n'), 'utf8');
+
+    const generated = buildBacklogStatus(root);
+    assert.deepEqual(Object.keys(generated.milestones), ['milestone_003', 'milestone_003_005']);
+    assert.equal(generated.milestones.milestone_003_005.tasks[0], 'm3_5_t01');
+    assert.equal(generated.tasks.m3_5_t01.title, 'M3.5.T01 - Dotted task');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('backlog status generator rejects unsupported markdown status values', () => {
   const root = mkdtempSync(join(tmpdir(), 'duelly-backlog-status-generator-'));
   try {
@@ -80,6 +138,43 @@ test('backlog status generator rejects unsupported markdown status values', () =
     assert.throws(
       () => buildBacklogStatus(root),
       /unsupported Status value: Waiting/,
+    );
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('backlog status generator rejects duplicate task ids', () => {
+  const root = mkdtempSync(join(tmpdir(), 'duelly-backlog-status-generator-'));
+  try {
+    mkdirSync(join(root, 'backlog', 'milestones-0-demo'), { recursive: true });
+    writeFileSync(join(root, 'backlog', 'milestones-0-demo', 'milestone.md'), [
+      '# M0 — Demo',
+      '',
+      '## Goal',
+      '',
+      'Demo milestone.',
+      '',
+    ].join('\n'), 'utf8');
+    for (const file of ['task-01-demo.md', 'task-02-duplicate-demo.md']) {
+      writeFileSync(join(root, 'backlog', 'milestones-0-demo', file), [
+        '# M0.T01 — Demo task',
+        '',
+        '**Milestone:** M0 — Demo  ',
+        '**Priority:** P0  ',
+        '**Type:** Harness  ',
+        '**Status:** Planned',
+        '',
+        '## Scope',
+        '',
+        '- Demonstrate duplicate task validation.',
+        '',
+      ].join('\n'), 'utf8');
+    }
+
+    assert.throws(
+      () => buildBacklogStatus(root),
+      /duplicates task id m0_t01/,
     );
   } finally {
     rmSync(root, { recursive: true, force: true });

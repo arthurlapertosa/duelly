@@ -125,16 +125,41 @@ function resolveStatusPath(root, statusPath) {
   return destination;
 }
 
-function machineMilestoneId(publicId) {
-  const match = publicId.match(/^M(\d+)$/);
+function milestoneNumberParts(publicId) {
+  const match = publicId.match(/^M(\d+(?:\.\d+)*)$/);
   if (!match) throw new Error(`Invalid milestone id: ${publicId}`);
-  return `milestone_${match[1].padStart(3, '0')}`;
+  return match[1].split('.').map((part) => Number(part));
+}
+
+function parseTaskPublicId(publicId) {
+  const match = publicId.match(/^(M\d+(?:\.\d+)*)\.T(\d+)$/);
+  if (!match) throw new Error(`Invalid task id: ${publicId}`);
+  return {
+    milestonePublicId: match[1],
+    milestoneParts: milestoneNumberParts(match[1]),
+    taskNumber: match[2],
+  };
+}
+
+function compareNumberParts(left, right) {
+  const length = Math.max(left.length, right.length);
+  for (let index = 0; index < length; index++) {
+    const leftPart = left[index] ?? -1;
+    const rightPart = right[index] ?? -1;
+    if (leftPart !== rightPart) return leftPart - rightPart;
+  }
+  return 0;
+}
+
+function machineMilestoneId(publicId) {
+  return `milestone_${milestoneNumberParts(publicId)
+    .map((part) => String(part).padStart(3, '0'))
+    .join('_')}`;
 }
 
 function machineTaskId(publicId) {
-  const match = publicId.match(/^M(\d+)\.T(\d+)$/);
-  if (!match) throw new Error(`Invalid task id: ${publicId}`);
-  return `m${Number(match[1])}_t${match[2]}`;
+  const parsed = parseTaskPublicId(publicId);
+  return `m${parsed.milestoneParts.join('_')}_t${parsed.taskNumber}`;
 }
 
 function renderTitle(publicId, title) {
@@ -146,31 +171,39 @@ function readMilestone(backlogRoot, dir) {
   const sourcePath = markdownPath(dir, file);
   const content = readBacklogMarkdown(backlogRoot, dir, file);
   const heading = firstMatch(content, /^#\s+(.+)$/m);
-  const match = heading.match(/^(M\d+)\s+—\s+(.+)$/);
+  const match = heading.match(/^(M\d+(?:\.\d+)*)\s+—\s+(.+)$/);
   if (!match) throw new Error(`${sourcePath} has invalid milestone heading`);
 
   const publicId = match[1];
   const title = match[2].trim();
   return {
-    id: machineMilestoneId(publicId),
-    title: renderTitle(publicId, title),
-    description: firstParagraph(content, 'Goal') || title,
-    status: 'todo',
-    progress: 0,
-    markdown: sourcePath,
-    tasks: [],
+    publicId,
+    sortKey: milestoneNumberParts(publicId),
+    milestone: {
+      id: machineMilestoneId(publicId),
+      title: renderTitle(publicId, title),
+      description: firstParagraph(content, 'Goal') || title,
+      status: 'todo',
+      progress: 0,
+      markdown: sourcePath,
+      tasks: [],
+    },
   };
 }
 
-function readTask(backlogRoot, dir, file, milestoneId) {
+function readTask(backlogRoot, dir, file, milestonePublicId, milestoneId) {
   const sourcePath = markdownPath(dir, file);
   const content = readBacklogMarkdown(backlogRoot, dir, file);
   const heading = firstMatch(content, /^#\s+(.+)$/m);
-  const match = heading.match(/^(M\d+\.T\d+)\s+—\s+(.+)$/);
+  const match = heading.match(/^((M\d+(?:\.\d+)*)\.T\d+)\s+—\s+(.+)$/);
   if (!match) throw new Error(`${sourcePath} has invalid task heading`);
 
   const publicId = match[1];
-  const title = match[2].trim();
+  const taskMilestonePublicId = match[2];
+  const title = match[3].trim();
+  if (taskMilestonePublicId !== milestonePublicId) {
+    throw new Error(`${sourcePath} belongs to ${taskMilestonePublicId}, expected ${milestonePublicId}`);
+  }
   const status = normalizeStatus(markdownField(content, 'Status'), sourcePath);
   const progress = parseProgress(content, status, sourcePath);
   return {
@@ -197,16 +230,19 @@ function summarizeMilestone(taskItems) {
 
 export function buildBacklogStatus(root = process.cwd()) {
   const backlogRoot = join(root, 'backlog');
-  const milestoneDirs = readdirSync(backlogRoot, { withFileTypes: true })
+  const milestoneRecords = readdirSync(backlogRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && entry.name.startsWith('milestones-'))
     .map((entry) => entry.name)
-    .sort();
+    .map((dir) => ({ dir, ...readMilestone(backlogRoot, dir) }))
+    .sort((left, right) => compareNumberParts(left.sortKey, right.sortKey) || left.dir.localeCompare(right.dir));
 
   const milestones = {};
   const tasks = {};
 
-  for (const dir of milestoneDirs) {
-    const milestone = readMilestone(backlogRoot, dir);
+  for (const { dir, publicId, milestone } of milestoneRecords) {
+    if (milestones[milestone.id]) {
+      throw new Error(`${milestone.markdown} duplicates milestone id ${milestone.id}`);
+    }
     const taskFiles = readdirSync(join(backlogRoot, dir), { withFileTypes: true })
       .filter((entry) => entry.isFile() && /^task-\d+-.+\.md$/.test(entry.name))
       .map((entry) => entry.name)
@@ -214,7 +250,10 @@ export function buildBacklogStatus(root = process.cwd()) {
     const milestoneTasks = [];
 
     for (const file of taskFiles) {
-      const task = readTask(backlogRoot, dir, file, milestone.id);
+      const task = readTask(backlogRoot, dir, file, publicId, milestone.id);
+      if (tasks[task.id]) {
+        throw new Error(`${task.markdown} duplicates task id ${task.id} already used by ${tasks[task.id].markdown}`);
+      }
       milestone.tasks.push(task.id);
       tasks[task.id] = task;
       milestoneTasks.push(task);

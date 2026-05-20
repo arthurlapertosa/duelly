@@ -14,12 +14,12 @@ export function milestoneSourceFromDescription(description = '') {
 export function taskIdFromIssue(issue) {
   const bodyTaskId = taskIdFromIssueBody(issue);
   if (bodyTaskId) return bodyTaskId;
-  const titleMatch = String(issue.title || '').match(/^\[(M\d+\.T\d+)\]/);
+  const titleMatch = String(issue.title || '').match(/^\[(M\d+(?:\.\d+)*\.T\d+)\]/);
   return titleMatch ? titleMatch[1] : '';
 }
 
 export function taskIdFromIssueBody(issue) {
-  const bodyMatch = String(issue.body || '').match(/^Task ID:\s+(M\d+\.T\d+)/m);
+  const bodyMatch = String(issue.body || '').match(/^Task ID:\s+(M\d+(?:\.\d+)*\.T\d+)/m);
   return bodyMatch ? bodyMatch[1] : '';
 }
 
