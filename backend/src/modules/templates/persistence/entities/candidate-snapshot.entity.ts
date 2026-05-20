@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'candidate_snapshots' })

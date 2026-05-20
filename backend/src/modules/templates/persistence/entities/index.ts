@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 export {
   CandidateSnapshotEntity,
 } from './candidate-snapshot.entity.js';
