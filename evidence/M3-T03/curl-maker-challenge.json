@@ -1,0 +1,7 @@
+{
+  "id": "challenge-5f6b45fa-e794-4d19-a690-cd4261c869b3",
+  "address": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+  "chainId": 137,
+  "message": "Duelly wallet ownership verification\nUser: user-9739a6fb-0ab3-4c4b-aea8-df4e4a17b713\nWallet: 0xd843019D84A44bb1787A2742D42581569A8f06cA\nChain ID: 137\nNonce: 07e9851a834f3085810dc19eba593c0b\nSign this message to link your wallet. Duelly will never ask for your private key.",
+  "expiresAt": "2026-05-20T19:31:04.429Z"
+}

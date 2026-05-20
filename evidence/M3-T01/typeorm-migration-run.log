@@ -1,0 +1,16 @@
+
+> @duelly/backend@0.1.0 db:migration:run
+> tsx src/db/run-migrations.ts
+
+{
+  "ok": true,
+  "migrationsRun": [
+    "CreateM1TemplateTables1716100000000",
+    "CreateM3BackendTables1716200000000"
+  ]
+}
+npm notice
+npm notice New major version of npm available! 10.9.4 -> 11.14.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
+npm notice To update run: npm install -g npm@11.14.1
+npm notice

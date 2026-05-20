@@ -1,0 +1,57 @@
+{
+  "invite": {
+    "id": "invite-95ff2463-d19b-497b-9636-ba999b40439f",
+    "status": "accepted",
+    "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
+    "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+    "makerAddress": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+    "takerAddress": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+    "makerOutcomeIndex": 0,
+    "takerOutcomeIndex": 1,
+    "stakeRaw": "100000000000000000000",
+    "loserFeeRaw": "3000000000000000000",
+    "expiresAt": "2026-05-20T20:21:05.000Z",
+    "betId": null
+  },
+  "acceptancePayload": {
+    "domain": {
+      "name": "DuellyBetEscrowBRL1",
+      "version": "1",
+      "chainId": 137,
+      "verifyingContract": "0xBFa43c5A715685Ef5867729E40367CB9eb0434e4"
+    },
+    "types": {
+      "BetAcceptance": [
+        {
+          "name": "taker",
+          "type": "address"
+        },
+        {
+          "name": "offerHash",
+          "type": "bytes32"
+        },
+        {
+          "name": "takerOutcomeIndex",
+          "type": "uint8"
+        },
+        {
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint64"
+        }
+      ]
+    },
+    "primaryType": "BetAcceptance",
+    "message": {
+      "taker": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+      "offerHash": "0x557f76d52fb9be89927f91e73cf08eded982f83291c17ceff83f620ea38e01cf",
+      "takerOutcomeIndex": 1,
+      "nonce": "1779304865096022",
+      "deadline": "1779308465"
+    }
+  },
+  "requiredFundingRaw": "103000000000000000000"
+}

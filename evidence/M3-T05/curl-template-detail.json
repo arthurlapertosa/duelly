@@ -1,0 +1,51 @@
+{
+  "template": {
+    "templateId": "fixture-f1-sprint-winner",
+    "templateVersion": 1,
+    "feePolicyVersion": 1,
+    "provider": "polymarket",
+    "providerCode": 1,
+    "providerMarketId": "market-f1-austria-sprint-driver-b-2026",
+    "providerMarketIdHash": "0xf45c28ba6c8c34778482a0b3b8000c81a936f2ce95684b5b45167631e5e7b5b8",
+    "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+    "questionId": "pm-q-f1-austria-sprint-driver-b-2026",
+    "questionIdHash": "0xa7d0675fc7dabbe5be0756652721066ba29bde412112a422171267b7ed767594",
+    "sport": "f1",
+    "sportCode": 4,
+    "competition": "FORMULA_1",
+    "competitionCode": 401,
+    "competitionLevelCode": 0,
+    "competitionDetailHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "eventType": "SPRINT",
+    "eventTypeCode": 6,
+    "binaryMarketType": "F1_SPRINT_WINNER_YES_NO",
+    "binaryMarketTypeCode": 402,
+    "outcomeA": {
+      "label": "Yes",
+      "providerOutcomeIndex": 0,
+      "tokenId": "1015"
+    },
+    "outcomeALabelHash": "0x90dfb8fa37079daea9a1acb3e423e2351f0ba3fb27cf55bfa41ad2f8c58baea9",
+    "outcomeB": {
+      "label": "No",
+      "providerOutcomeIndex": 1,
+      "tokenId": "1016"
+    },
+    "outcomeBLabelHash": "0x7d6119d3ee7f82ee53aac57d4d088f8bbaca5aac3191bb074252c6d760ae4eba",
+    "rulesHash": "0x2098280747d9fb67a817a39a55b1bc6b98291cf9179da9858f034e9f5eb62a49",
+    "rulesSourceHash": "0x3658f0f83272aabb4050a7eae93ee219af9e916f90f4af84e815b44dcea46ce1",
+    "eventStartAt": 1782561600,
+    "bettingCloseAt": 1782554400,
+    "resolutionDeadline": 1783764000,
+    "loserFeeBps": 250,
+    "active": true,
+    "display": {
+      "providerEventId": "event-f1-austria-sprint-2026",
+      "slug": "will-driver-b-win-the-2026-austria-sprint",
+      "question": "Will Driver B win the 2026 Austria sprint race?",
+      "sourceUrl": "https://polymarket.com/event/f1-austria-sprint-2026",
+      "rawProviderPayloadHash": "0xedeae328ae04e6b10870eeeef5af75e5b86a8e83aa948a9c4cb394199ef6d742"
+    },
+    "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f"
+  }
+}

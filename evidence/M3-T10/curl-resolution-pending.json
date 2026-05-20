@@ -1,0 +1,11 @@
+{
+  "attempt": {
+    "id": "resolution-23cefbdc-d642-4231-a6ae-43cd6963ab1c",
+    "betId": "5",
+    "status": "pending",
+    "transactionHash": null,
+    "blockNumber": null,
+    "error": "The contract function \"resolveFromPolymarket\" reverted.\n\nError: ConditionUnresolved()\n \nContract Call:\n  address:   0xBFa43c5A715685Ef5867729E40367CB9eb0434e4\n  function:  resolveFromPolymarket(uint256 betId)\n  args:                           (5)\n  sender:    0xe206686F0f5741A9b3fcDb079f51a8C70FCAcd2A\n\nDocs: https://viem.sh/docs/contract/writeContract\nDetails: execution reverted: %}uN\nVersion: viem@2.50.4",
+    "createdAt": "2026-05-20T19:21:09.993Z"
+  }
+}

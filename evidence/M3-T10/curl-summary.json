@@ -1,0 +1,16 @@
+{
+  "inviteId": "invite-95ff2463-d19b-497b-9636-ba999b40439f",
+  "publishStatus": "already_registered",
+  "fundStatus": "success",
+  "betId": "5",
+  "indexedFunded": "Funded",
+  "pendingResolution": "pending",
+  "resolutionSuccess": "resolved",
+  "resolutionBlock": "87177770",
+  "finalStatus": "Resolved",
+  "winner": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+  "makerBalanceBefore": "10197000000000000000000",
+  "makerBalanceAfter": "10297000000000000000000",
+  "takerBalanceBefore": "9588000000000000000000",
+  "takerBalanceAfter": "9485000000000000000000"
+}

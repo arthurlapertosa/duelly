@@ -1,0 +1,11 @@
+{
+  "attempt": {
+    "id": "resolution-77f96344-5d9d-425e-a4d1-cd970c0c7e99",
+    "betId": "5",
+    "status": "resolved",
+    "transactionHash": "0x49369e458c576cb2c3f28562cd572b9a6f3ddb0c1b0ac595ab27146b5af08877",
+    "blockNumber": "87177770",
+    "error": null,
+    "createdAt": "2026-05-20T19:21:10.309Z"
+  }
+}

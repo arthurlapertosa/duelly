@@ -1,0 +1,10 @@
+{
+  "token": "<redacted>",
+  "user": {
+    "id": "user-9739a6fb-0ab3-4c4b-aea8-df4e4a17b713",
+    "displayIdentifier": "maker-e2e@example.test",
+    "externalWalletLinked": false,
+    "createdAt": "2026-05-20T19:21:04.198Z",
+    "updatedAt": "2026-05-20T19:21:04.198Z"
+  }
+}

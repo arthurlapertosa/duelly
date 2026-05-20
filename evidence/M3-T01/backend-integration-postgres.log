@@ -1,0 +1,31 @@
+
+> @duelly/backend@0.1.0 test:integration
+> node --import reflect-metadata --import tsx --test test/integration/*.test.ts
+
+TAP version 13
+# Subtest: TypeORM repositories persist M1 template records in PostgreSQL
+ok 1 - TypeORM repositories persist M1 template records in PostgreSQL
+  ---
+  duration_ms: 213.566327
+  type: 'test'
+  ...
+# Subtest: TypeORM repositories persist M3 wallet, invite, relayer, indexer, and resolution records in PostgreSQL
+ok 2 - TypeORM repositories persist M3 wallet, invite, relayer, indexer, and resolution records in PostgreSQL
+  ---
+  duration_ms: 138.360393
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2475.674228
+npm notice
+npm notice New major version of npm available! 10.9.4 -> 11.14.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
+npm notice To update run: npm install -g npm@11.14.1
+npm notice
