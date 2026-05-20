@@ -1,6 +1,6 @@
 import type { Hex } from 'viem';
 
-export interface M3User {
+export interface UserAccount {
   id: string;
   email: string;
   displayIdentifier: string;
@@ -9,7 +9,7 @@ export interface M3User {
   updatedAt: Date;
 }
 
-export interface M3Session {
+export interface AuthSession {
   id: string;
   userId: string;
   tokenHash: string;
@@ -18,7 +18,7 @@ export interface M3Session {
   revokedAt: Date | null;
 }
 
-export interface M3WalletChallenge {
+export interface WalletChallenge {
   id: string;
   userId: string;
   address: `0x${string}`;
@@ -30,7 +30,7 @@ export interface M3WalletChallenge {
   usedAt: Date | null;
 }
 
-export interface M3Wallet {
+export interface LinkedWallet {
   id: string;
   userId: string;
   address: `0x${string}`;
@@ -42,7 +42,7 @@ export interface M3Wallet {
 
 export type InviteStatus = 'created' | 'accepted' | 'funding_submitted' | 'funded' | 'expired';
 
-export interface M3Invite {
+export interface BetInvite {
   id: string;
   makerUserId: string;
   takerUserId: string | null;
@@ -66,7 +66,7 @@ export interface M3Invite {
   updatedAt: Date;
 }
 
-export interface M3RelayerAttempt {
+export interface RelayerAttempt {
   id: string;
   requestId: string;
   inviteId: string | null;
@@ -79,7 +79,7 @@ export interface M3RelayerAttempt {
   createdAt: Date;
 }
 
-export interface M3IndexedEvent {
+export interface IndexedChainEvent {
   id: string;
   eventName: string;
   transactionHash: string;
@@ -89,7 +89,7 @@ export interface M3IndexedEvent {
   createdAt: Date;
 }
 
-export interface M3IndexedBet {
+export interface IndexedBet {
   betId: string;
   inviteId: string | null;
   templateHash: Hex;
@@ -109,13 +109,13 @@ export interface M3IndexedBet {
   updatedAt: Date;
 }
 
-export interface M3IndexerCursor {
+export interface IndexerCursor {
   id: string;
   lastBlockNumber: string;
   updatedAt: Date;
 }
 
-export interface M3ResolutionAttempt {
+export interface ResolutionAttempt {
   id: string;
   betId: string;
   status: 'submitted' | 'resolved' | 'pending' | 'failed';

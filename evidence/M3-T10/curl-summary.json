@@ -1,16 +1,16 @@
 {
-  "inviteId": "invite-95ff2463-d19b-497b-9636-ba999b40439f",
+  "inviteId": "invite-242a8bc5-f78a-4e9c-be19-2aa711a656e0",
   "publishStatus": "already_registered",
   "fundStatus": "success",
-  "betId": "5",
+  "betId": "6",
   "indexedFunded": "Funded",
   "pendingResolution": "pending",
   "resolutionSuccess": "resolved",
-  "resolutionBlock": "87177770",
+  "resolutionBlock": "87177774",
   "finalStatus": "Resolved",
   "winner": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
-  "makerBalanceBefore": "10197000000000000000000",
-  "makerBalanceAfter": "10297000000000000000000",
-  "takerBalanceBefore": "9588000000000000000000",
-  "takerBalanceAfter": "9485000000000000000000"
+  "makerBalanceBefore": "10297000000000000000000",
+  "takerBalanceBefore": "9485000000000000000000",
+  "makerBalanceAfter": "10397000000000000000000",
+  "takerBalanceAfter": "9382000000000000000000"
 }

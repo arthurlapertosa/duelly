@@ -1,11 +1,11 @@
 {
   "attempt": {
-    "id": "resolution-77f96344-5d9d-425e-a4d1-cd970c0c7e99",
-    "betId": "5",
+    "id": "resolution-e8684100-ea0c-458a-81b8-0b3e5a056759",
+    "betId": "6",
     "status": "resolved",
-    "transactionHash": "0x49369e458c576cb2c3f28562cd572b9a6f3ddb0c1b0ac595ab27146b5af08877",
-    "blockNumber": "87177770",
+    "transactionHash": "0x94b6bb58f2ab7181cbba64cfb5799c3c65d7c174401ef486c08d4e9054ff97e6",
+    "blockNumber": "87177774",
     "error": null,
-    "createdAt": "2026-05-20T19:21:10.309Z"
+    "createdAt": "2026-05-20T20:44:19.337Z"
   }
 }

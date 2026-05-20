@@ -1,11 +1,11 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateM3BackendTables1716200000000 implements MigrationInterface {
-  name = 'CreateM3BackendTables1716200000000';
+export class CreateOrchestrationTables1716200000000 implements MigrationInterface {
+  name = 'CreateOrchestrationTables1716200000000';
 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      create table if not exists m3_users (
+      create table if not exists user_accounts (
         id text primary key,
         email text not null unique,
         display_identifier text not null,
@@ -15,7 +15,7 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_sessions (
+      create table if not exists auth_sessions (
         id text primary key,
         user_id text not null,
         token_hash text not null unique,
@@ -25,7 +25,7 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_wallet_challenges (
+      create table if not exists wallet_challenges (
         id text primary key,
         user_id text not null,
         address text not null,
@@ -38,7 +38,7 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_wallets (
+      create table if not exists linked_wallets (
         id text primary key,
         user_id text not null,
         address text not null unique,
@@ -49,7 +49,7 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_invites (
+      create table if not exists bet_invites (
         id text primary key,
         maker_user_id text not null,
         taker_user_id text,
@@ -74,7 +74,7 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_relayer_attempts (
+      create table if not exists relayer_attempts (
         id text primary key,
         request_id text not null,
         invite_id text,
@@ -88,7 +88,7 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_indexed_events (
+      create table if not exists indexed_chain_events (
         id text primary key,
         event_name text not null,
         transaction_hash text not null,
@@ -99,7 +99,7 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_indexed_bets (
+      create table if not exists indexed_bets (
         bet_id text primary key,
         invite_id text,
         template_hash text not null,
@@ -120,14 +120,14 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_indexer_cursors (
+      create table if not exists indexer_cursors (
         id text primary key,
         last_block_number text not null,
         updated_at timestamptz not null
       )
     `);
     await queryRunner.query(`
-      create table if not exists m3_resolution_attempts (
+      create table if not exists resolution_attempts (
         id text primary key,
         bet_id text not null,
         status text not null,
@@ -137,22 +137,22 @@ export class CreateM3BackendTables1716200000000 implements MigrationInterface {
         created_at timestamptz not null
       )
     `);
-    await queryRunner.query('create index if not exists idx_m3_invites_template_hash on m3_invites (template_hash)');
-    await queryRunner.query('create index if not exists idx_m3_invites_bet_id on m3_invites (bet_id)');
-    await queryRunner.query('create index if not exists idx_m3_relayer_attempts_request_id on m3_relayer_attempts (request_id)');
-    await queryRunner.query('create unique index if not exists idx_m3_indexed_events_unique on m3_indexed_events (transaction_hash, log_index)');
+    await queryRunner.query('create index if not exists idx_bet_invites_template_hash on bet_invites (template_hash)');
+    await queryRunner.query('create index if not exists idx_bet_invites_bet_id on bet_invites (bet_id)');
+    await queryRunner.query('create index if not exists idx_relayer_attempts_request_id on relayer_attempts (request_id)');
+    await queryRunner.query('create unique index if not exists idx_indexed_chain_events_unique on indexed_chain_events (transaction_hash, log_index)');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('drop table if exists m3_resolution_attempts');
-    await queryRunner.query('drop table if exists m3_indexer_cursors');
-    await queryRunner.query('drop table if exists m3_indexed_bets');
-    await queryRunner.query('drop table if exists m3_indexed_events');
-    await queryRunner.query('drop table if exists m3_relayer_attempts');
-    await queryRunner.query('drop table if exists m3_invites');
-    await queryRunner.query('drop table if exists m3_wallets');
-    await queryRunner.query('drop table if exists m3_wallet_challenges');
-    await queryRunner.query('drop table if exists m3_sessions');
-    await queryRunner.query('drop table if exists m3_users');
+    await queryRunner.query('drop table if exists resolution_attempts');
+    await queryRunner.query('drop table if exists indexer_cursors');
+    await queryRunner.query('drop table if exists indexed_bets');
+    await queryRunner.query('drop table if exists indexed_chain_events');
+    await queryRunner.query('drop table if exists relayer_attempts');
+    await queryRunner.query('drop table if exists bet_invites');
+    await queryRunner.query('drop table if exists linked_wallets');
+    await queryRunner.query('drop table if exists wallet_challenges');
+    await queryRunner.query('drop table if exists auth_sessions');
+    await queryRunner.query('drop table if exists user_accounts');
   }
 }

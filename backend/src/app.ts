@@ -3,7 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import type { DataSource } from 'typeorm';
 import { loadAppConfig, type AppConfig } from './config/env.js';
 import { registerHealthRoutes } from './routes/health.routes.js';
-import { registerM3Routes } from './routes/m3.routes.js';
+import { registerOrchestrationRoutes } from './routes/orchestration.routes.js';
 import { registerTemplateRoutes } from './routes/template.routes.js';
 
 export interface CreateAppOptions {
@@ -24,7 +24,7 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
 
   await registerHealthRoutes(app, { config, dataSource: options.dataSource });
   await registerTemplateRoutes(app, { config, dataSource: options.dataSource });
-  await registerM3Routes(app, { config, dataSource: options.dataSource });
+  await registerOrchestrationRoutes(app, { config, dataSource: options.dataSource });
 
   return app;
 }

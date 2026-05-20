@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
-@Entity({ name: 'm3_users' })
-export class M3UserEntity {
+@Entity({ name: 'user_accounts' })
+export class UserAccountEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -23,8 +23,8 @@ export class M3UserEntity {
   updatedAt!: Date;
 }
 
-@Entity({ name: 'm3_sessions' })
-export class M3SessionEntity {
+@Entity({ name: 'auth_sessions' })
+export class AuthSessionEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -45,8 +45,8 @@ export class M3SessionEntity {
   revokedAt!: Date | null;
 }
 
-@Entity({ name: 'm3_wallet_challenges' })
-export class M3WalletChallengeEntity {
+@Entity({ name: 'wallet_challenges' })
+export class WalletChallengeEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -75,8 +75,8 @@ export class M3WalletChallengeEntity {
   usedAt!: Date | null;
 }
 
-@Entity({ name: 'm3_wallets' })
-export class M3WalletEntity {
+@Entity({ name: 'linked_wallets' })
+export class LinkedWalletEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -100,8 +100,8 @@ export class M3WalletEntity {
   createdAt!: Date;
 }
 
-@Entity({ name: 'm3_invites' })
-export class M3InviteEntity {
+@Entity({ name: 'bet_invites' })
+export class BetInviteEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -166,8 +166,8 @@ export class M3InviteEntity {
   updatedAt!: Date;
 }
 
-@Entity({ name: 'm3_relayer_attempts' })
-export class M3RelayerAttemptEntity {
+@Entity({ name: 'relayer_attempts' })
+export class RelayerAttemptEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -199,8 +199,8 @@ export class M3RelayerAttemptEntity {
   createdAt!: Date;
 }
 
-@Entity({ name: 'm3_indexed_events' })
-export class M3IndexedEventEntity {
+@Entity({ name: 'indexed_chain_events' })
+export class IndexedChainEventEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -223,8 +223,8 @@ export class M3IndexedEventEntity {
   createdAt!: Date;
 }
 
-@Entity({ name: 'm3_indexed_bets' })
-export class M3IndexedBetEntity {
+@Entity({ name: 'indexed_bets' })
+export class IndexedBetEntity {
   @PrimaryColumn({ type: 'text', name: 'bet_id' })
   betId!: string;
 
@@ -277,8 +277,8 @@ export class M3IndexedBetEntity {
   updatedAt!: Date;
 }
 
-@Entity({ name: 'm3_indexer_cursors' })
-export class M3IndexerCursorEntity {
+@Entity({ name: 'indexer_cursors' })
+export class IndexerCursorEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -289,8 +289,8 @@ export class M3IndexerCursorEntity {
   updatedAt!: Date;
 }
 
-@Entity({ name: 'm3_resolution_attempts' })
-export class M3ResolutionAttemptEntity {
+@Entity({ name: 'resolution_attempts' })
+export class ResolutionAttemptEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
@@ -313,15 +313,15 @@ export class M3ResolutionAttemptEntity {
   createdAt!: Date;
 }
 
-export const m3Entities = [
-  M3UserEntity,
-  M3SessionEntity,
-  M3WalletChallengeEntity,
-  M3WalletEntity,
-  M3InviteEntity,
-  M3RelayerAttemptEntity,
-  M3IndexedEventEntity,
-  M3IndexedBetEntity,
-  M3IndexerCursorEntity,
-  M3ResolutionAttemptEntity,
+export const orchestrationEntities = [
+  UserAccountEntity,
+  AuthSessionEntity,
+  WalletChallengeEntity,
+  LinkedWalletEntity,
+  BetInviteEntity,
+  RelayerAttemptEntity,
+  IndexedChainEventEntity,
+  IndexedBetEntity,
+  IndexerCursorEntity,
+  ResolutionAttemptEntity,
 ];

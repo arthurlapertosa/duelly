@@ -3,9 +3,9 @@
   "token": "0x6dDE35A60b27EAD23AcCF40313574cB5BCefdf75",
   "symbol": "BRL1",
   "decimals": 18,
-  "balanceRaw": "9485000000000000000000",
+  "balanceRaw": "9382000000000000000000",
   "allowanceRaw": "0",
-  "permitNonce": "5",
+  "permitNonce": "6",
   "spender": "0xBFa43c5A715685Ef5867729E40367CB9eb0434e4",
   "domainSeparator": "0x16a3ce3b2cc112d978b8f2e1b71765b48ae62766ee5a19959c6d05fc5fabe1dc"
 }

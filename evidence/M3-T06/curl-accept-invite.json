@@ -1,6 +1,6 @@
 {
   "invite": {
-    "id": "invite-95ff2463-d19b-497b-9636-ba999b40439f",
+    "id": "invite-242a8bc5-f78a-4e9c-be19-2aa711a656e0",
     "status": "accepted",
     "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
     "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
@@ -10,7 +10,7 @@
     "takerOutcomeIndex": 1,
     "stakeRaw": "100000000000000000000",
     "loserFeeRaw": "3000000000000000000",
-    "expiresAt": "2026-05-20T20:21:05.000Z",
+    "expiresAt": "2026-05-20T21:38:53.000Z",
     "betId": null
   },
   "acceptancePayload": {
@@ -47,10 +47,10 @@
     "primaryType": "BetAcceptance",
     "message": {
       "taker": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
-      "offerHash": "0x557f76d52fb9be89927f91e73cf08eded982f83291c17ceff83f620ea38e01cf",
+      "offerHash": "0x52505cd9a2e43b9890f532ee2189041f8a68b188aeff57ccd9e7e177ce0c71c9",
       "takerOutcomeIndex": 1,
-      "nonce": "1779304865096022",
-      "deadline": "1779308465"
+      "nonce": "1779309533034772",
+      "deadline": "1779313133"
     }
   },
   "requiredFundingRaw": "103000000000000000000"

@@ -1,10 +1,10 @@
 {
   "token": "<redacted>",
   "user": {
-    "id": "user-aa28a846-9531-4a36-9047-8626932a4e13",
-    "displayIdentifier": "taker-e2e@example.test",
+    "id": "user-022b245b-ab42-47b7-8773-45f3ac5549a4",
+    "displayIdentifier": "taker-e2e-1779309532454@example.test",
     "externalWalletLinked": false,
-    "createdAt": "2026-05-20T19:21:04.258Z",
-    "updatedAt": "2026-05-20T19:21:04.258Z"
+    "createdAt": "2026-05-20T20:38:52.627Z",
+    "updatedAt": "2026-05-20T20:38:52.627Z"
   }
 }

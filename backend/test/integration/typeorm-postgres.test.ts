@@ -12,25 +12,25 @@ import {
   SportsTemplateEntity,
   TemplatePublishAuditEntity,
 } from '../../src/modules/templates/persistence/entities/index.js';
-import { M3Repository } from '../../src/modules/m3/repository.js';
+import { OrchestrationRepository } from '../../src/modules/orchestration/repository.js';
 import { TemplateRepository } from '../../src/modules/templates/persistence/template-repository.js';
 import { TemplatePublisherService } from '../../src/modules/templates/publisher/template-publisher.service.js';
 
 const hasDb = Boolean(process.env.DATABASE_URL || (process.env.DB_HOST && process.env.DB_USERNAME && process.env.DB_DATABASE));
 
-test('M3 auth routes persist users and sessions in PostgreSQL', { skip: !hasDb }, async () => {
+test('Auth routes persist users and sessions in PostgreSQL', { skip: !hasDb }, async () => {
   const config = loadAppConfig();
   const dataSource = createDataSource(config);
   await dataSource.initialize();
   await dataSource.runMigrations();
   const app = await createApp({ config, dataSource });
-  const email = `m3-auth-${randomUUID()}@example.test`;
+  const email = `auth-${randomUUID()}@example.test`;
   let userId: string | undefined;
 
   test.after(async () => {
     if (dataSource.isInitialized) {
-      if (userId) await dataSource.query('delete from m3_sessions where user_id = $1', [userId]);
-      await dataSource.query('delete from m3_users where email = $1', [email]);
+      if (userId) await dataSource.query('delete from auth_sessions where user_id = $1', [userId]);
+      await dataSource.query('delete from user_accounts where email = $1', [email]);
     }
     await app.close();
     if (dataSource.isInitialized) await dataSource.destroy();
@@ -61,8 +61,8 @@ test('M3 auth routes persist users and sessions in PostgreSQL', { skip: !hasDb }
   assert.equal(me.statusCode, 200);
   assert.equal(me.json().user.id, userId);
 
-  const users = await dataSource.query('select id from m3_users where email = $1', [email]);
-  const sessions = await dataSource.query('select id from m3_sessions where user_id = $1', [userId]);
+  const users = await dataSource.query('select id from user_accounts where email = $1', [email]);
+  const sessions = await dataSource.query('select id from auth_sessions where user_id = $1', [userId]);
   assert.equal(users.length, 1);
   assert.equal(sessions.length, 2);
 });
@@ -93,27 +93,38 @@ test('TypeORM repositories persist M1 template records in PostgreSQL', { skip: !
   assert.ok(await dataSource.getRepository(TemplatePublishAuditEntity).count() >= 1);
 });
 
-test('TypeORM repositories persist M3 wallet, invite, relayer, indexer, and resolution records in PostgreSQL', { skip: !hasDb }, async () => {
+test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL', { skip: !hasDb }, async () => {
   const config = loadAppConfig();
   const dataSource = createDataSource(config);
   await dataSource.initialize();
+  const now = new Date();
+  const suffix = randomUUID();
+  const userId = `user-orchestration-integration-maker-${suffix}`;
+  const walletId = `wallet-orchestration-integration-maker-${suffix}`;
+  const inviteId = `invite-orchestration-integration-${suffix}`;
+  const attemptId = `attempt-orchestration-integration-${suffix}`;
+  const requestId = `relayer-orchestration-integration-${suffix}`;
+  const eventId = `event-orchestration-integration-${suffix}`;
+  const cursorId = `cursor-orchestration-integration-${suffix}`;
+  const resolutionAttemptId = `resolution-orchestration-integration-${suffix}`;
+  const betId = String(Date.now());
   test.after(async () => {
-    if (dataSource.isInitialized) await dataSource.destroy();
+    if (dataSource.isInitialized) {
+      await dataSource.query('delete from resolution_attempts where id = $1', [resolutionAttemptId]);
+      await dataSource.query('delete from indexer_cursors where id = $1', [cursorId]);
+      await dataSource.query('delete from indexed_bets where bet_id = $1', [betId]);
+      await dataSource.query('delete from indexed_chain_events where id = $1', [eventId]);
+      await dataSource.query('delete from relayer_attempts where id = $1', [attemptId]);
+      await dataSource.query('delete from bet_invites where id = $1', [inviteId]);
+      await dataSource.query('delete from linked_wallets where id = $1', [walletId]);
+      await dataSource.query('delete from user_accounts where id = $1', [userId]);
+      await dataSource.destroy();
+    }
   });
 
   await dataSource.runMigrations();
 
-  const repository = new M3Repository(dataSource);
-  const now = new Date();
-  const suffix = randomUUID();
-  const userId = `user-m3-integration-maker-${suffix}`;
-  const walletId = `wallet-m3-integration-maker-${suffix}`;
-  const inviteId = `invite-m3-integration-${suffix}`;
-  const attemptId = `attempt-m3-integration-${suffix}`;
-  const requestId = `relayer-m3-integration-${suffix}`;
-  const eventId = `event-m3-integration-${suffix}`;
-  const resolutionAttemptId = `resolution-m3-integration-${suffix}`;
-  const betId = String(Date.now());
+  const repository = new OrchestrationRepository(dataSource);
   const addressSeed = suffix.replaceAll('-', '');
   const maker = `0x${addressSeed.padEnd(40, '0')}` as `0x${string}`;
   const taker = `0x${addressSeed.padEnd(40, '1')}` as `0x${string}`;
@@ -122,8 +133,8 @@ test('TypeORM repositories persist M3 wallet, invite, relayer, indexer, and reso
 
   await repository.saveUser({
     id: userId,
-    email: `m3-maker-${suffix}@example.test`,
-    displayIdentifier: 'm3-maker@example.test',
+    email: `maker-${suffix}@example.test`,
+    displayIdentifier: 'maker@example.test',
     passwordHash: 'scrypt:test:test',
     createdAt: now,
     updatedAt: now,
@@ -204,7 +215,7 @@ test('TypeORM repositories persist M3 wallet, invite, relayer, indexer, and reso
     sourceBlockNumber: '100',
     updatedAt: now,
   });
-  await repository.saveCursor({ id: 'escrow', lastBlockNumber: '100', updatedAt: now });
+  await repository.saveCursor({ id: cursorId, lastBlockNumber: '100', updatedAt: now });
   await repository.saveResolutionAttempt({
     id: resolutionAttemptId,
     betId,
@@ -218,6 +229,6 @@ test('TypeORM repositories persist M3 wallet, invite, relayer, indexer, and reso
   assert.equal((await repository.findInviteByBetId(betId))?.id, inviteId);
   assert.equal((await repository.findRelayerAttemptByRequestId(requestId))?.status, 'succeeded');
   assert.equal((await repository.findIndexedBetByInviteId(inviteId))?.betId, betId);
-  assert.equal((await repository.findCursor('escrow'))?.lastBlockNumber, '100');
+  assert.equal((await repository.findCursor(cursorId))?.lastBlockNumber, '100');
   assert.equal((await repository.findResolutionAttempt(resolutionAttemptId))?.blockNumber, '101');
 });

@@ -33,7 +33,7 @@ function testConfig() {
   };
 }
 
-test('M3 auth protects endpoints and supports local email/password sessions', async () => {
+test('Auth protects endpoints and supports local email/password sessions', async () => {
   const app = await createApp({ config: testConfig() });
   test.after(async () => app.close());
 
@@ -59,7 +59,7 @@ test('M3 auth protects endpoints and supports local email/password sessions', as
   assert.equal(me.json().user.displayIdentifier, 'maker@example.test');
 });
 
-test('M3 wallet challenge links a private wallet without exposing key material', async () => {
+test('Wallet challenge links a private wallet without exposing key material', async () => {
   const app = await createApp({ config: testConfig() });
   test.after(async () => app.close());
 
@@ -100,7 +100,7 @@ test('M3 wallet challenge links a private wallet without exposing key material',
   assert.equal(replay.json().code, 'WALLET_CHALLENGE_REPLAYED');
 });
 
-test('M3 fee quote, template detail, invite, and acceptance payloads are exposed', async () => {
+test('Fee quote, template detail, invite, and acceptance payloads are exposed', async () => {
   const app = await createApp({ config: testConfig() });
   test.after(async () => app.close());
 

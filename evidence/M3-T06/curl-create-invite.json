@@ -1,6 +1,6 @@
 {
   "invite": {
-    "id": "invite-95ff2463-d19b-497b-9636-ba999b40439f",
+    "id": "invite-242a8bc5-f78a-4e9c-be19-2aa711a656e0",
     "status": "created",
     "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
     "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
@@ -10,7 +10,7 @@
     "takerOutcomeIndex": null,
     "stakeRaw": "100000000000000000000",
     "loserFeeRaw": "3000000000000000000",
-    "expiresAt": "2026-05-20T20:21:05.000Z",
+    "expiresAt": "2026-05-20T21:38:53.000Z",
     "betId": null
   },
   "offerPayload": {
@@ -69,8 +69,8 @@
       "makerOutcomeIndex": 0,
       "stake": "100000000000000000000",
       "loserFee": "3000000000000000000",
-      "nonce": "1779304865022351",
-      "deadline": "1779308465"
+      "nonce": "1779309533021391",
+      "deadline": "1779313133"
     }
   },
   "requiredFundingRaw": "103000000000000000000"

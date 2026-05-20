@@ -13,8 +13,8 @@ import {
 import type { AppConfig } from '../../config/env.js';
 import type { CanonicalSportsTemplate } from '../templates/domain/types.js';
 import { ChainService, betAcceptanceTypes, betOfferTypes, brl1Abi, ctfAbi, escrowAbi, type BetAcceptanceMessage, type BetOfferMessage, type PermitData } from './chain.js';
-import type { M3IndexedBet, M3Invite, M3User } from './domain.js';
-import { M3Repository } from './repository.js';
+import type { IndexedBet, BetInvite, UserAccount } from './domain.js';
+import { OrchestrationRepository } from './repository.js';
 
 const scrypt = promisify(scryptCallback);
 const SESSION_BYTES = 32;
@@ -23,19 +23,19 @@ const DEFAULT_LOG_RANGE = 9n;
 const INDEXER_RESCAN_DEPTH = 9n;
 
 export interface AuthenticatedUser {
-  user: M3User;
+  user: UserAccount;
   token?: string;
 }
 
 export class AuthService {
-  constructor(private readonly repository: M3Repository, private readonly config: AppConfig) {}
+  constructor(private readonly repository: OrchestrationRepository, private readonly config: AppConfig) {}
 
   async register(email: string, password: string): Promise<AuthenticatedUser> {
     const normalized = normalizeEmail(email);
     if (password.length < 8) throw httpError(400, 'PASSWORD_TOO_SHORT');
     if (await this.repository.findUserByEmail(normalized)) throw httpError(409, 'EMAIL_ALREADY_REGISTERED');
     const now = new Date();
-    const user: M3User = {
+    const user: UserAccount = {
       id: `user-${randomUUID()}`,
       email: normalized,
       displayIdentifier: normalized,
@@ -85,7 +85,7 @@ export class AuthService {
     if (session) await this.repository.revokeSession(session);
   }
 
-  private async createSession(user: M3User): Promise<AuthenticatedUser> {
+  private async createSession(user: UserAccount): Promise<AuthenticatedUser> {
     const token = randomBytes(SESSION_BYTES).toString('base64url');
     const now = new Date();
     await this.repository.saveSession({
@@ -101,9 +101,9 @@ export class AuthService {
 }
 
 export class WalletService {
-  constructor(private readonly repository: M3Repository, private readonly config: AppConfig, private readonly chain: ChainService) {}
+  constructor(private readonly repository: OrchestrationRepository, private readonly config: AppConfig, private readonly chain: ChainService) {}
 
-  async createChallenge(user: M3User, addressInput: string) {
+  async createChallenge(user: UserAccount, addressInput: string) {
     const address = this.chain.normalizeAddress(addressInput);
     const nonce = randomBytes(16).toString('hex');
     const now = new Date();
@@ -130,7 +130,7 @@ export class WalletService {
     return challenge;
   }
 
-  async link(user: M3User, challengeId: string, signature: Hex) {
+  async link(user: UserAccount, challengeId: string, signature: Hex) {
     const challenge = await this.repository.findWalletChallenge(challengeId);
     if (!challenge || challenge.userId !== user.id) throw httpError(404, 'WALLET_CHALLENGE_NOT_FOUND');
     if (challenge.usedAt) throw httpError(400, 'WALLET_CHALLENGE_REPLAYED');
@@ -156,15 +156,15 @@ export class WalletService {
     return wallet;
   }
 
-  async activeWallet(user: M3User) {
+  async activeWallet(user: UserAccount) {
     return await this.repository.findActiveWalletByUserId(user.id);
   }
 }
 
 export class Brl1Service {
-  constructor(private readonly repository: M3Repository, private readonly chain: ChainService) {}
+  constructor(private readonly repository: OrchestrationRepository, private readonly chain: ChainService) {}
 
-  async balanceForUser(user: M3User) {
+  async balanceForUser(user: UserAccount) {
     const wallet = await this.repository.findActiveWalletByUserId(user.id);
     if (!wallet) throw httpError(404, 'WALLET_NOT_LINKED');
     const balance = await this.chain.readBrl1(wallet.address);
@@ -181,7 +181,7 @@ export class Brl1Service {
     };
   }
 
-  async readiness(user: M3User, stake: bigint, loserFee: bigint) {
+  async readiness(user: UserAccount, stake: bigint, loserFee: bigint) {
     const data = await this.balanceForUser(user);
     const required = stake + loserFee;
     const available = BigInt(data.balanceRaw);
@@ -227,9 +227,9 @@ export class FeeService {
 }
 
 export class InviteService {
-  constructor(private readonly repository: M3Repository, private readonly walletService: WalletService, private readonly chain: ChainService) {}
+  constructor(private readonly repository: OrchestrationRepository, private readonly walletService: WalletService, private readonly chain: ChainService) {}
 
-  async create(user: M3User, template: CanonicalSportsTemplate, stake: bigint, loserFee: bigint, makerOutcomeIndex: number, taker?: string) {
+  async create(user: UserAccount, template: CanonicalSportsTemplate, stake: bigint, loserFee: bigint, makerOutcomeIndex: number, taker?: string) {
     const wallet = await this.walletService.activeWallet(user);
     if (!wallet) throw httpError(404, 'WALLET_NOT_LINKED');
     if (![template.outcomeA.providerOutcomeIndex, template.outcomeB.providerOutcomeIndex].includes(makerOutcomeIndex)) {
@@ -251,7 +251,7 @@ export class InviteService {
     };
     const offerHash = this.chain.hashOffer(offer);
     const now = new Date();
-    const invite: M3Invite = {
+    const invite: BetInvite = {
       id: `invite-${randomUUID()}`,
       makerUserId: user.id,
       takerUserId: null,
@@ -278,7 +278,7 @@ export class InviteService {
     return invite;
   }
 
-  async accept(user: M3User, inviteId: string, takerOutcomeIndex: number) {
+  async accept(user: UserAccount, inviteId: string, takerOutcomeIndex: number) {
     const invite = await this.repository.findInvite(inviteId);
     if (!invite) throw httpError(404, 'INVITE_NOT_FOUND');
     if (invite.expiresAt <= new Date()) throw httpError(400, 'INVITE_EXPIRED');
@@ -320,7 +320,7 @@ export class InviteService {
 }
 
 export class RelayerService {
-  constructor(private readonly repository: M3Repository, private readonly chain: ChainService) {}
+  constructor(private readonly repository: OrchestrationRepository, private readonly chain: ChainService) {}
 
   async fund(input: {
     inviteId: string;
@@ -428,7 +428,7 @@ export class RelayerService {
 }
 
 export class IndexerService {
-  constructor(private readonly repository: M3Repository, private readonly chain: ChainService) {}
+  constructor(private readonly repository: OrchestrationRepository, private readonly chain: ChainService) {}
 
   async reindex(toBlock?: bigint) {
     const { escrowAddress } = this.chain.requireAddresses();
@@ -473,7 +473,7 @@ export class IndexerService {
     if (eventName === 'BetFunded') {
       const betId = (args.betId as bigint).toString();
       const invite = await this.repository.findInviteByBetId(betId);
-      const bet: M3IndexedBet = {
+      const bet: IndexedBet = {
         betId,
         inviteId: invite?.id ?? null,
         templateHash: args.templateHash as Hex,
@@ -522,7 +522,7 @@ export class IndexerService {
 }
 
 export class ResolutionService {
-  constructor(private readonly repository: M3Repository, private readonly chain: ChainService) {}
+  constructor(private readonly repository: OrchestrationRepository, private readonly chain: ChainService) {}
 
   async trigger(betId: string) {
     const { escrowAddress } = this.chain.requireAddresses();
@@ -603,7 +603,7 @@ export function normalizeEmail(email: string): string {
   return normalized;
 }
 
-export function inviteToOffer(invite: M3Invite): BetOfferMessage {
+export function inviteToOffer(invite: BetInvite): BetOfferMessage {
   const message = typedPayloadMessage(invite.offerPayload, 'BetOffer');
   return {
     maker: addressValue(message, 'maker', invite.makerAddress),
@@ -618,7 +618,7 @@ export function inviteToOffer(invite: M3Invite): BetOfferMessage {
   };
 }
 
-export function inviteToAcceptance(invite: M3Invite): BetAcceptanceMessage {
+export function inviteToAcceptance(invite: BetInvite): BetAcceptanceMessage {
   if (!invite.takerAddress || invite.takerOutcomeIndex === null || !invite.acceptanceNonce) throw httpError(400, 'INVITE_NOT_ACCEPTED');
   const message = typedPayloadMessage(invite.acceptancePayload, 'BetAcceptance');
   return {

@@ -3,90 +3,102 @@
 > node --import reflect-metadata --import tsx --test test/unit/*.test.ts test/integration/*.test.ts
 
 TAP version 13
-# Subtest: TypeORM repositories persist M1 template records in PostgreSQL
-ok 1 - TypeORM repositories persist M1 template records in PostgreSQL # SKIP
+# {"level":30,"time":1779309930788,"pid":40547,"hostname":"Arthur-PC","reqId":"req-1","req":{"method":"POST","url":"/auth/register","host":"localhost:80","remoteAddress":"127.0.0.1"},"msg":"incoming request"}
+# {"level":30,"time":1779309930902,"pid":40547,"hostname":"Arthur-PC","reqId":"req-1","res":{"statusCode":200},"responseTime":113.0989819765091,"msg":"request completed"}
+# {"level":30,"time":1779309930904,"pid":40547,"hostname":"Arthur-PC","reqId":"req-2","req":{"method":"POST","url":"/auth/login","host":"localhost:80","remoteAddress":"127.0.0.1"},"msg":"incoming request"}
+# {"level":30,"time":1779309930965,"pid":40547,"hostname":"Arthur-PC","reqId":"req-2","res":{"statusCode":200},"responseTime":60.46645098924637,"msg":"request completed"}
+# {"level":30,"time":1779309930965,"pid":40547,"hostname":"Arthur-PC","reqId":"req-3","req":{"method":"GET","url":"/auth/me","host":"localhost:80","remoteAddress":"127.0.0.1"},"msg":"incoming request"}
+# {"level":30,"time":1779309930975,"pid":40547,"hostname":"Arthur-PC","reqId":"req-3","res":{"statusCode":200},"responseTime":9.282463997602463,"msg":"request completed"}
+# Subtest: Auth routes persist users and sessions in PostgreSQL
+ok 1 - Auth routes persist users and sessions in PostgreSQL
   ---
-  duration_ms: 1.471274
+  duration_ms: 459.865989
   type: 'test'
   ...
-# Subtest: TypeORM repositories persist M3 wallet, invite, relayer, indexer, and resolution records in PostgreSQL
-ok 2 - TypeORM repositories persist M3 wallet, invite, relayer, indexer, and resolution records in PostgreSQL # SKIP
+# Subtest: TypeORM repositories persist M1 template records in PostgreSQL
+ok 2 - TypeORM repositories persist M1 template records in PostgreSQL
   ---
-  duration_ms: 0.247831
+  duration_ms: 90.946815
+  type: 'test'
+  ...
+# Subtest: TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL
+ok 3 - TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL
+  ---
+  duration_ms: 107.109164
   type: 'test'
   ...
 # Subtest: loadAppConfig supports explicit DB variables and fixture mode defaults
-ok 3 - loadAppConfig supports explicit DB variables and fixture mode defaults
+ok 4 - loadAppConfig supports explicit DB variables and fixture mode defaults
   ---
-  duration_ms: 1.776113
+  duration_ms: 1.616469
   type: 'test'
   ...
-# Subtest: M3 auth protects endpoints and supports local email/password sessions
-ok 4 - M3 auth protects endpoints and supports local email/password sessions
+# Subtest: Auth protects endpoints and supports local email/password sessions
+ok 5 - Auth protects endpoints and supports local email/password sessions
   ---
-  duration_ms: 295.793999
+  duration_ms: 149.501921
   type: 'test'
   ...
-# Subtest: M3 wallet challenge links a private wallet without exposing key material
-ok 5 - M3 wallet challenge links a private wallet without exposing key material
+# Subtest: Wallet challenge links a private wallet without exposing key material
+ok 6 - Wallet challenge links a private wallet without exposing key material
   ---
-  duration_ms: 146.30602
+  duration_ms: 95.644189
   type: 'test'
   ...
-# Subtest: M3 fee quote, template detail, invite, and acceptance payloads are exposed
-ok 6 - M3 fee quote, template detail, invite, and acceptance payloads are exposed
+# Subtest: Fee quote, template detail, invite, and acceptance payloads are exposed
+ok 7 - Fee quote, template detail, invite, and acceptance payloads are exposed
   ---
-  duration_ms: 302.838826
+  duration_ms: 215.197804
   type: 'test'
   ...
 # Subtest: health and readiness routes work without database configuration
-ok 7 - health and readiness routes work without database configuration
+ok 8 - health and readiness routes work without database configuration
   ---
-  duration_ms: 190.86543
+  duration_ms: 163.5811
   type: 'test'
   ...
 # Subtest: template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
-ok 8 - template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
+ok 9 - template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
   ---
-  duration_ms: 168.395306
+  duration_ms: 105.315061
   type: 'test'
   ...
 # Subtest: fixture filter accepts only approved M1 sports templates
-ok 9 - fixture filter accepts only approved M1 sports templates
+ok 10 - fixture filter accepts only approved M1 sports templates
   ---
-  duration_ms: 81.804087
+  duration_ms: 36.833361
   type: 'test'
   ...
 # Subtest: fixture rejection matrix covers every required M1 reason code
-ok 10 - fixture rejection matrix covers every required M1 reason code
+ok 11 - fixture rejection matrix covers every required M1 reason code
   ---
-  duration_ms: 29.598624
+  duration_ms: 20.600575
   type: 'test'
   ...
 # Subtest: template hash vectors are deterministic
-ok 11 - template hash vectors are deterministic
+ok 12 - template hash vectors are deterministic
   ---
-  duration_ms: 49.609819
+  duration_ms: 45.000275
   type: 'test'
   ...
 # Subtest: critical template field changes alter hash while active does not alter identity
-ok 12 - critical template field changes alter hash while active does not alter identity
+ok 13 - critical template field changes alter hash while active does not alter identity
   ---
-  duration_ms: 13.289913
+  duration_ms: 10.042179
   type: 'test'
   ...
 # Subtest: publisher builds compact on-chain payload from accepted templates
-ok 13 - publisher builds compact on-chain payload from accepted templates
+ok 14 - publisher builds compact on-chain payload from accepted templates
   ---
-  duration_ms: 33.404227
+  duration_ms: 28.034271
   type: 'test'
   ...
-1..13
-# tests 13
+1..14
+# tests 14
 # suites 0
-# pass 11
+# pass 14
 # fail 0
 # cancelled 0
-# skipped 2
+# skipped 0
 # todo 0
-# duration_ms 4055.578261
+# duration_ms 2971.325362

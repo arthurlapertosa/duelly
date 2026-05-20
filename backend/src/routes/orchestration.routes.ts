@@ -4,8 +4,8 @@ import type { Hex } from 'viem';
 import type { AppConfig } from '../config/env.js';
 import { TemplateControllerContext } from '../controllers/templates/index.js';
 import type { CanonicalSportsTemplate } from '../modules/templates/domain/types.js';
-import { ChainService } from '../modules/m3/chain.js';
-import { M3Repository } from '../modules/m3/repository.js';
+import { ChainService } from '../modules/orchestration/chain.js';
+import { OrchestrationRepository } from '../modules/orchestration/repository.js';
 import {
   AuthService,
   Brl1Service,
@@ -16,21 +16,21 @@ import {
   ResolutionService,
   WalletService,
   httpError,
-} from '../modules/m3/services.js';
-import type { M3User } from '../modules/m3/domain.js';
+} from '../modules/orchestration/services.js';
+import type { UserAccount } from '../modules/orchestration/domain.js';
 
-interface M3RouteOptions {
+interface OrchestrationRouteOptions {
   config: AppConfig;
   dataSource?: DataSource;
 }
 
 interface AuthedRequest extends FastifyRequest {
-  user?: M3User;
+  user?: UserAccount;
   token?: string;
 }
 
-export async function registerM3Routes(app: FastifyInstance, options: M3RouteOptions): Promise<void> {
-  const repository = new M3Repository(options.dataSource);
+export async function registerOrchestrationRoutes(app: FastifyInstance, options: OrchestrationRouteOptions): Promise<void> {
+  const repository = new OrchestrationRepository(options.dataSource);
   const chain = new ChainService(options.config);
   const auth = new AuthService(repository, options.config);
   const wallets = new WalletService(repository, options.config, chain);
@@ -42,7 +42,7 @@ export async function registerM3Routes(app: FastifyInstance, options: M3RouteOpt
   const resolution = new ResolutionService(repository, chain);
   const templates = new TemplateControllerContext(options);
 
-  async function requireUser(request: AuthedRequest, _reply: FastifyReply): Promise<M3User> {
+  async function requireUser(request: AuthedRequest, _reply: FastifyReply): Promise<UserAccount> {
     const authResult = await auth.authenticate(request.headers.authorization);
     if (!authResult) {
       throw httpError(401, 'UNAUTHENTICATED');
@@ -277,7 +277,7 @@ async function wrap(reply: FastifyReply, handler: () => Promise<unknown>) {
   }
 }
 
-function publicUser(user: M3User) {
+function publicUser(user: UserAccount) {
   return {
     id: user.id,
     displayIdentifier: user.displayIdentifier,
