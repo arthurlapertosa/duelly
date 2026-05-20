@@ -1,0 +1,12 @@
+No files changed, compilation skipped
+
+Ran 6 tests for test/Resolution.t.sol:ResolutionTest
+[PASS] test_ResolutionDenominatorZeroRevertsUnresolved() (gas: 655613)
+[PASS] test_ResolutionEqualPartialAndBothNonZeroVoid() (gas: 1156352)
+[PASS] test_ResolutionInvalidSlotCountVoids() (gas: 761343)
+[PASS] test_ResolutionStrictOutcomeOneWins() (gas: 795601)
+[PASS] test_ResolutionStrictOutcomeZeroWins() (gas: 795575)
+[PASS] test_ResolutionVoidsWhenSlotCountCallUnavailable() (gas: 717459)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 4.81ms (11.80ms CPU time)
+
+Ran 1 test suite in 9.89ms (4.81ms CPU time): 6 tests passed, 0 failed, 0 skipped (6 total tests)

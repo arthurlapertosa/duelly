@@ -1,0 +1,10 @@
+No files changed, compilation skipped
+
+Ran 4 tests for test/Fee.t.sol:FeeTest
+[PASS] test_FeeMaxLoserFeeBpsIsEnforcedAtRegistration() (gas: 40008)
+[PASS] test_FeeRejectsIncorrectSignedLoserFee() (gas: 272915)
+[PASS] test_FeeUsesGasAnchoredMinimumWhenAbovePercentage() (gas: 31945)
+[PASS] test_FeeUsesPercentageWhenAboveMinimum() (gas: 31961)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 2.92ms (1.52ms CPU time)
+
+Ran 1 test suite in 9.94ms (2.92ms CPU time): 4 tests passed, 0 failed, 0 skipped (4 total tests)

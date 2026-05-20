@@ -1,0 +1,11 @@
+No files changed, compilation skipped
+
+Ran 5 tests for test/Template.t.sol:TemplateTest
+[PASS] test_TemplateHashMatchesM1BackendVector() (gas: 12505)
+[PASS] test_TemplateRegistersAndReturnsActiveTemplate() (gas: 199076)
+[PASS] test_TemplateRejectsDuplicateInactiveAndMismatchedConditionFunding() (gas: 282431)
+[PASS] test_TemplateRejectsHashMismatch() (gas: 25229)
+[PASS] test_TemplateRejectsUnregisteredClosedAndInvalidOutcomeIndexes() (gas: 376334)
+Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 8.66ms (11.89ms CPU time)
+
+Ran 1 test suite in 15.52ms (8.66ms CPU time): 5 tests passed, 0 failed, 0 skipped (5 total tests)
