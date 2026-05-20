@@ -3,13 +3,23 @@ import assert from 'node:assert/strict';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
 
+function routeTestConfig() {
+  const config = loadAppConfig();
+  return {
+    ...config,
+    nodeEnv: 'test',
+    database: { enabled: false, port: 5432 },
+    polymarket: {
+      ...config.polymarket,
+      discoveryMode: 'fixture' as const,
+      liveDiscoveryEnabled: false,
+    },
+  };
+}
+
 test('health and readiness routes work without database configuration', async () => {
   const app = await createApp({
-    config: {
-      ...loadAppConfig(),
-      nodeEnv: 'test',
-      database: { enabled: false, port: 5432 },
-    },
+    config: routeTestConfig(),
   });
   test.after(async () => app.close());
 
@@ -24,11 +34,7 @@ test('health and readiness routes work without database configuration', async ()
 
 test('template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads', async () => {
   const app = await createApp({
-    config: {
-      ...loadAppConfig(),
-      nodeEnv: 'test',
-      database: { enabled: false, port: 5432 },
-    },
+    config: routeTestConfig(),
   });
   test.after(async () => app.close());
 

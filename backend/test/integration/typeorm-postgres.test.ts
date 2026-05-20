@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
 import { createDataSource } from '../../src/db/data-source.js';
 import { loadFixtureCandidates } from '../../src/modules/templates/discovery/fixture-loader.js';
@@ -16,6 +17,55 @@ import { TemplateRepository } from '../../src/modules/templates/persistence/temp
 import { TemplatePublisherService } from '../../src/modules/templates/publisher/template-publisher.service.js';
 
 const hasDb = Boolean(process.env.DATABASE_URL || (process.env.DB_HOST && process.env.DB_USERNAME && process.env.DB_DATABASE));
+
+test('M3 auth routes persist users and sessions in PostgreSQL', { skip: !hasDb }, async () => {
+  const config = loadAppConfig();
+  const dataSource = createDataSource(config);
+  await dataSource.initialize();
+  await dataSource.runMigrations();
+  const app = await createApp({ config, dataSource });
+  const email = `m3-auth-${randomUUID()}@example.test`;
+  let userId: string | undefined;
+
+  test.after(async () => {
+    if (dataSource.isInitialized) {
+      if (userId) await dataSource.query('delete from m3_sessions where user_id = $1', [userId]);
+      await dataSource.query('delete from m3_users where email = $1', [email]);
+    }
+    await app.close();
+    if (dataSource.isInitialized) await dataSource.destroy();
+  });
+
+  const registered = await app.inject({
+    method: 'POST',
+    url: '/auth/register',
+    payload: { email, password: 'password-123' },
+  });
+  assert.equal(registered.statusCode, 200);
+  assert.match(registered.json().token, /^[A-Za-z0-9_-]+$/);
+  userId = registered.json().user.id;
+
+  const loggedIn = await app.inject({
+    method: 'POST',
+    url: '/auth/login',
+    payload: { email, password: 'password-123' },
+  });
+  assert.equal(loggedIn.statusCode, 200);
+  assert.match(loggedIn.json().token, /^[A-Za-z0-9_-]+$/);
+
+  const me = await app.inject({
+    method: 'GET',
+    url: '/auth/me',
+    headers: { authorization: `Bearer ${loggedIn.json().token}` },
+  });
+  assert.equal(me.statusCode, 200);
+  assert.equal(me.json().user.id, userId);
+
+  const users = await dataSource.query('select id from m3_users where email = $1', [email]);
+  const sessions = await dataSource.query('select id from m3_sessions where user_id = $1', [userId]);
+  assert.equal(users.length, 1);
+  assert.equal(sessions.length, 2);
+});
 
 test('TypeORM repositories persist M1 template records in PostgreSQL', { skip: !hasDb }, async () => {
   const config = loadAppConfig();
