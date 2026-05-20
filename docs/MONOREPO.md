@@ -8,6 +8,14 @@ backend/
 smartcontract/
 ```
 
+An additional top-level reference app exists outside the workspaces:
+
+```text
+.prototype/
+```
+
+`.prototype/` is the imported frontend source-of-truth snapshot. It is not a workspace and must not be added to the root `workspaces` list.
+
 ## frontend/
 
 Responsible for:
@@ -18,6 +26,10 @@ Responsible for:
 - Invite flow.
 - Balance display in BRL.
 - Bet confirmation, status, and result.
+
+Implementation rule:
+
+- Treat `.prototype/` as the mandatory 1:1 visual and structural reference for frontend work unless a human explicitly approves divergence.
 
 Do not expose terms such as `gas`, `ERC-20`, `EIP-712`, `permit`, or `Polygon` to regular users unless the context is technical diagnostics or an advanced settings area.
 

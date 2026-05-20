@@ -16,6 +16,14 @@ Duelly is developed with an agent harness, draft PRs, granular commits, local QA
 9. Worktree is removed only after approval or explicit human decision.
 ```
 
+## Frontend source of truth
+
+When a task touches frontend behavior, copy, layout, or screenshots:
+
+- `.prototype/` is the source of truth.
+- The agent should compare any implementation directly against `.prototype/` before declaring the work ready.
+- The draft PR should include screenshots that show the relevant screens and states still match `.prototype/`, or an explicit human-approved deviation.
+
 ## Required worktree
 
 No task should be implemented directly on the base branch.

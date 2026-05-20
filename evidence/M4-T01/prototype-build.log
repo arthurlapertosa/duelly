@@ -1,0 +1,14 @@
+
+> duelly-temp@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v8.0.13 [32mbuilding client environment for production...[36m[39m
+[2K
+transforming...✓ 2182 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.75 kB │ gzip:   0.40 kB
+dist/assets/index-BcV01Vlt.css   27.98 kB │ gzip:   6.01 kB
+dist/assets/index-Da9jidHd.js   444.36 kB │ gzip: 134.80 kB
+
+[32m✓ built in 619ms[39m

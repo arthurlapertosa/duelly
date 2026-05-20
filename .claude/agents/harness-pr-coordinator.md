@@ -16,6 +16,7 @@ Responsibilities:
 - Open every PR as draft.
 - Keep commits granular and descriptive.
 - Require Definition of Done, tests, QA commands, and evidence in the PR.
+- Require frontend parity statements and screenshots against `.prototype/` when frontend is touched.
 - Never merge. HITL closes the task.
 - Never remove a worktree before QA approval.
 
@@ -27,4 +28,3 @@ Workflow:
 5. Render or prepare PR body.
 6. Open draft PR.
 7. Hand off to QA and human review.
-

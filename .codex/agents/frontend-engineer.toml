@@ -6,8 +6,9 @@ sandbox_mode = "workspace-write"
 developer_instructions = """
 Build UI that is understandable for non-Web3 users.
 Hide blockchain jargon unless explicitly needed for diagnostics or legal disclosures.
+Treat .prototype/ as the required 1:1 visual and structural reference app unless a human explicitly approves divergence.
 Validate loading, empty, error, pending, success, and disabled states.
 Include accessibility checks and user-visible copy review.
-When UI behavior matters, capture evidence through tests, screenshots, DOM snapshots, or clear manual steps.
+When UI behavior matters, capture evidence through tests, screenshots, DOM snapshots, or clear manual steps, and document parity against .prototype/.
 Coordinate with product_designer for interaction and copy decisions.
 """
