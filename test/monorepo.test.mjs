@@ -16,6 +16,12 @@ test('monorepo folders exist', () => {
 test('repository config points to final repo', () => {
   const config = JSON.parse(readFileSync(join(root, 'config/repository.json'), 'utf8'));
   assert.equal(config.repository, 'https://github.com/arthurlapertosa/duelly');
+  assert.equal(config.frontendReferenceApp, '.prototype');
   assert.deepEqual(config.monorepoFolders, ['frontend', 'backend', 'smartcontract']);
   assert.equal(config.humanInTheLoopRequired, true);
+});
+
+test('frontend reference app exists outside workspaces', () => {
+  assert.equal(existsSync(join(root, '.prototype', 'package.json')), true);
+  assert.equal(existsSync(join(root, '.prototype', 'src', 'App.tsx')), true);
 });

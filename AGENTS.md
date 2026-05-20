@@ -18,6 +18,7 @@ Short map for agents working in the Duelly monorepo. The detailed source of trut
 - `frontend/`: web/mobile-first user interface that hides Web3 complexity.
 - `backend/`: APIs, auth, wallet abstraction, Pix/on-ramp, templates, relayer, and indexer.
 - `smartcontract/`: EVM contracts, EIP-712, ERC-2612, BRL1, and Polymarket CTF resolution.
+- `.prototype/`: imported frontend reference app; future frontend work must stay 1:1 with it unless a human approves a deviation.
 
 ## Mandatory operating model
 
@@ -26,6 +27,7 @@ Short map for agents working in the Duelly monorepo. The detailed source of trut
 - Use granular and descriptive commits.
 - Add tests for behavior changes, or include an explicit justification.
 - Include QA commands, evidence, and Definition of Done status in the PR.
+- For frontend work, treat `.prototype/` as the source of truth and attach parity screenshots in the PR evidence.
 - Code only moves forward after QA/HITL.
 - Agents never merge and never mark a task as finally approved.
 

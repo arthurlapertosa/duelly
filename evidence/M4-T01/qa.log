@@ -1,0 +1,143 @@
+
+> duelly@0.1.0 qa
+> bash scripts/harness/qa-check.sh
+
+[qa] validate harness
+{
+  "ok": true,
+  "project": "duelly",
+  "checks": [
+    "files",
+    "root-package",
+    "repository-config",
+    "workspaces",
+    "agents-md",
+    "frontend-reference",
+    "codex-agents",
+    "claude-agents",
+    "pr-template",
+    "scripts",
+    "backlog-status",
+    "self-tests"
+  ]
+}
+[qa] blockchain erc20 self-test
+{
+  "ok": true,
+  "script": "erc20-inspect",
+  "selectors": "validated"
+}
+[qa] polymarket condition self-test
+{
+  "ok": true,
+  "script": "polymarket-condition-inspect",
+  "selectors": {
+    "payoutDenominator": "0xdd34de67",
+    "payoutNumerators": "0x0504c814",
+    "getOutcomeSlotCount": "0xd42dc0c2"
+  }
+}
+[qa] render PR body self-test
+{
+  "ok": true,
+  "script": "render-pr-body"
+}
+[qa] root tests
+
+> duelly@0.1.0 test:root
+> node --test test/*.test.mjs
+
+✔ backlog status manifest maps all current milestones and tasks (37.5379ms)
+✔ backlog status relationships and markdown paths are valid (5.4454ms)
+✔ backlog status manifest is generated from markdown (62.8949ms)
+✔ backlog status generator rejects unsupported markdown status values (5.5342ms)
+✔ backlog status generator only writes the canonical status path (0.3303ms)
+✔ backlog status validator rejects invalid status values (7.3137ms)
+✔ backlog server serves the status page and mapped markdown (62.1737ms)
+✔ sync planner creates missing M1.T00 and updates stale M1 metadata (50.5881ms)
+✔ sync planner preserves issue state and human labels while replacing generated labels (0.8191ms)
+✔ sync planner rejects duplicate GitHub task ids (0.2455ms)
+✔ sync planner rejects orphan GitHub task ids (0.2058ms)
+✔ sync planner ignores unmanaged issues with task-like text (0.2328ms)
+✔ sync planner trusts repo-tracked issue map for legacy imported issues (0.3438ms)
+✔ sync planner rejects mapped issues without matching body metadata (0.3823ms)
+✔ sync planner rejects duplicate issue numbers in github map (0.1841ms)
+✔ sync planner rejects milestone title collisions without source mapping (0.2189ms)
+✔ sync CLI apply mode requires an explicit token (102.0185ms)
+✔ sync CLI rejects github map repository drift before reading GitHub (124.0729ms)
+✔ apply plan mutates labels, milestones, and issues through GitHub requests (1.343ms)
+✔ apply plan refuses stale issue updates (0.4326ms)
+✔ harness validator passes (998.8764ms)
+✔ PR body renderer includes mandatory sections (47.4407ms)
+✔ PR body renderer can link evidence paths (50.9083ms)
+✔ PR template contains HITL guardrail (0.2694ms)
+✔ issue import dry run preserves backlog task metadata (112.519ms)
+✔ issue import dry run emits required labels and milestone names (123.5712ms)
+✔ issue import committed metadata check detects no drift (101.3421ms)
+✔ keccak256 matches Ethereum empty hash (2.5518ms)
+✔ known ERC selectors are stable (4.7103ms)
+✔ calldata encoding pads values correctly (0.8619ms)
+✔ monorepo folders exist (1.7381ms)
+✔ repository config points to final repo (3.1871ms)
+✔ frontend reference app exists outside workspaces (0.5778ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1199.1227
+[qa] workspace tests
+
+> duelly@0.1.0 test:workspaces
+> npm run test --workspaces --if-present
+
+
+> @duelly/frontend@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ frontend workspace has expected bootstrap files (0.9511ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 74.6652
+
+> @duelly/backend@0.1.0 test
+> node --import tsx --test test/unit/*.test.ts test/integration/*.test.ts
+
+﹣ TypeORM repositories persist M1 template records in PostgreSQL (1.0224ms) # SKIP
+✔ loadAppConfig supports explicit DB variables and fixture mode defaults (1.8512ms)
+✔ health and readiness routes work without database configuration (115.0303ms)
+✔ template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads (43.33ms)
+✔ fixture filter accepts only approved M1 sports templates (29.0077ms)
+✔ fixture rejection matrix covers every required M1 reason code (9.3444ms)
+✔ template hash vectors are deterministic (30.8215ms)
+✔ critical template field changes alter hash while active does not alter identity (6.6401ms)
+✔ publisher builds compact on-chain payload from accepted templates (29.0558ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 1531.4729
+
+> @duelly/smartcontract@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ smartcontract workspace has expected bootstrap files (1.5285ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 80.5577
+[qa] ok

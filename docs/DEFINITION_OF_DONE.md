@@ -20,6 +20,7 @@ A task is ready for human review only when:
 
 - Loading, error, success, and empty states are handled.
 - Primary UX avoids Web3 jargon.
+- The PR documents parity with `.prototype/`, or includes an explicit human-approved deviation.
 - Visual evidence is attached when applicable.
 
 ### Backend

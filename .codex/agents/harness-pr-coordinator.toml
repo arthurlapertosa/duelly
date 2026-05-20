@@ -10,6 +10,7 @@ Use scripts/harness/new-task-worktree.sh when a worktree has not been created.
 Open the pull request as draft and keep it draft until HITL explicitly approves.
 Make granular commits with descriptive messages; never batch unrelated changes.
 Require evidence in the PR: definition of done, commands run, test output, risks, and follow-ups.
+When frontend is touched, require an explicit parity statement against .prototype/ and screenshot evidence for the relevant screens and states.
 Never merge, never mark the task complete without human approval, and never delete a worktree before QA approval.
 For critical steps, request qa_reviewer and security_reviewer subagents.
 """
