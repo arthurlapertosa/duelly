@@ -1,0 +1,13 @@
+No files changed, compilation skipped
+
+Ran 7 tests for test/EIP712.t.sol:EIP712Test
+[PASS] test_EIP712CancelledNonceFails() (gas: 276190)
+[PASS] test_EIP712ExpiredOfferFails() (gas: 249889)
+[PASS] test_EIP712ReusedOfferHashAndNonceFail() (gas: 672824)
+[PASS] test_EIP712TamperedStakeInvalidatesSignature() (gas: 265408)
+[PASS] test_EIP712UnauthorizedTakerAndSameOutcomeFail() (gas: 313133)
+[PASS] test_EIP712ValidSignaturesFundBet() (gas: 650574)
+[PASS] test_EIP712WrongMakerSignerFails() (gas: 262196)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 9.38ms (19.73ms CPU time)
+
+Ran 1 test suite in 16.55ms (9.38ms CPU time): 7 tests passed, 0 failed, 0 skipped (7 total tests)

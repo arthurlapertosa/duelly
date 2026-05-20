@@ -1,0 +1,13 @@
+No files changed, compilation skipped
+
+Ran 7 tests for test/Config.t.sol:ConfigTest
+[PASS] test_ConfigConstructorRejectsZeroAddresses() (gas: 449403)
+[PASS] test_ConfigInitialDefaults() (gas: 34456)
+[PASS] test_ConfigInvalidLimitsFail() (gas: 18572)
+[PASS] test_ConfigOnlyOwnerCanSetRoles() (gas: 46240)
+[PASS] test_ConfigOwnershipTransferRemovesOldOwnerOperationalAccess() (gas: 51610)
+[PASS] test_ConfigRoleProtectedSettersRejectUnauthorized() (gas: 21689)
+[PASS] test_ConfigSettersAreRoleControlledAndEmit() (gas: 77491)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 2.03ms (1.07ms CPU time)
+
+Ran 1 test suite in 9.72ms (2.03ms CPU time): 7 tests passed, 0 failed, 0 skipped (7 total tests)

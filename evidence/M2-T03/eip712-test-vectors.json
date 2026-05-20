@@ -1,0 +1,49 @@
+{
+  "domain": {
+    "name": "DuellyBetEscrowBRL1",
+    "version": "1",
+    "chainId": "runtime block.chainid",
+    "verifyingContract": "BetEscrowBRL1 address"
+  },
+  "typeHashes": {
+    "BetOffer": "keccak256(\"BetOffer(address maker,address taker,bytes32 templateHash,bytes32 conditionId,uint8 makerOutcomeIndex,uint256 stake,uint256 loserFee,uint256 nonce,uint64 deadline)\")",
+    "BetAcceptance": "keccak256(\"BetAcceptance(address taker,bytes32 offerHash,uint8 takerOutcomeIndex,uint256 nonce,uint64 deadline)\")",
+    "Permit": "keccak256(\"Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)\")"
+  },
+  "testKeys": {
+    "makerPrivateKey": "0xA11CE",
+    "takerPrivateKey": "0xB0B",
+    "otherPrivateKey": "0xCAFE"
+  },
+  "sampleOffer": {
+    "maker": "vm.addr(0xA11CE)",
+    "taker": "vm.addr(0xB0B)",
+    "templateHash": "computed with SportsTemplateV1 canonical hash",
+    "conditionId": "0x0101010101010101010101010101010101010101010101010101010101010101",
+    "makerOutcomeIndex": 0,
+    "stake": "100e18",
+    "loserFee": "2.5e18 when loserFeeBps=250 and minLoserFee=0",
+    "nonce": 1,
+    "deadline": "block.timestamp + 1 hour"
+  },
+  "sampleAcceptance": {
+    "taker": "vm.addr(0xB0B)",
+    "offerHash": "hashOffer(sampleOffer)",
+    "takerOutcomeIndex": 1,
+    "nonce": 2,
+    "deadline": "block.timestamp + 1 hour"
+  },
+  "samplePermit": {
+    "owner": "player wallet",
+    "spender": "BetEscrowBRL1 address",
+    "value": "stake + loserFee",
+    "nonce": "current BRL1 permit nonce for owner",
+    "deadline": "block.timestamp + 1 hour"
+  },
+  "notes": [
+    "hashOffer and hashAcceptance return the full EIP-712 digest.",
+    "Permit fallback validates the permit signature, value, deadline, and expected nonce before accepting already-consumed nonce allowance.",
+    "Every signed field is covered by tamper/replay tests.",
+    "Live private keys or signatures are intentionally not committed."
+  ]
+}

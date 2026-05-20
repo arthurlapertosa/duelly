@@ -1,0 +1,18 @@
+{
+  "rpcUrl": "https://polygon-mainnet.g.alchemy.com/v2/***",
+  "block": "latest",
+  "token": "0x5C067C80C00eCd2345b05E83A3e758eF799C40B5",
+  "erc20": {
+    "symbol": "BRL1",
+    "decimals": 18,
+    "totalSupplyRaw": "7871047540000000000000000",
+    "totalSupplyFormatted": "7871047.54"
+  },
+  "permitSignals": {
+    "domainSeparator": "0x883b7b6bc53d5fe93fe7e7688ce6b7d8aadec4c32568ef98f850b40ed01c340c",
+    "domainSeparatorOk": true,
+    "noncesOk": false
+  },
+  "balances": {},
+  "errors": []
+}

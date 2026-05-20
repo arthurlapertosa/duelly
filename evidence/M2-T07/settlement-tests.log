@@ -1,0 +1,10 @@
+No files changed, compilation skipped
+
+Ran 4 tests for test/Settlement.t.sol:SettlementTest
+[PASS] test_SettlementDoubleSettlementFails() (gas: 789287)
+[PASS] test_SettlementPlayerAWinsPaysWinnerAndTreasury() (gas: 802243)
+[PASS] test_SettlementPlayerBWinsPaysWinnerAndTreasury() (gas: 795883)
+[PASS] test_SettlementVoidRefundsBothPlayersAndTreasuryZero() (gas: 794351)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 3.61ms (7.29ms CPU time)
+
+Ran 1 test suite in 10.12ms (3.61ms CPU time): 4 tests passed, 0 failed, 0 skipped (4 total tests)
