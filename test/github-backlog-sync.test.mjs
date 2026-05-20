@@ -292,6 +292,54 @@ test('sync planner trusts repo-tracked issue map for legacy imported issues', ()
   assert.equal(operation.number, 7);
 });
 
+test('sync planner updates mapped issues after backlog source renames', () => {
+  const backlog = {
+    milestones: [{
+      id: 'M1',
+      title: 'M1 — Product Rules',
+      sourcePath: 'milestones-1-product-rules-template-system/milestone.md',
+    }],
+    labels: [{ name: syncManagedLabel, color: '0e8a16', description: 'Managed' }],
+    issues: [{
+      taskId: 'M1.T01',
+      title: '[M1.T01] Renamed source task',
+      body: 'Source: `milestones-1-product-rules-template-system/task-01-renamed.md`\n\nTask ID: M1.T01',
+      sourcePath: 'milestones-1-product-rules-template-system/task-01-renamed.md',
+      labels: [syncManagedLabel],
+      milestone: 'M1 — Product Rules',
+    }],
+  };
+  const github = {
+    milestones: [{
+      number: 1,
+      title: 'M1 — Product Rules',
+      description: milestoneDescription('milestones-1-product-rules-template-system/milestone.md'),
+    }],
+    labels: [],
+    issues: [{
+      number: 7,
+      title: '[M1.T01] Old source task',
+      body: 'Source: `milestones-1-product-rules-template-system/task-01-old.md`\n\nTask ID: M1.T01\nold body',
+      labels: [],
+      milestone: { number: 1 },
+      updated_at: '2026-05-19T00:00:00Z',
+    }],
+  };
+
+  const plan = planGithubBacklogSync({
+    backlog,
+    github,
+    githubIssueMap: { taskIssues: { 'M1.T01': 7 } },
+  });
+
+  const operation = plan.operations.issues.find((item) => item.taskId === 'M1.T01');
+  assert.equal(plan.ok, true);
+  assert.ok(plan.warnings.some((item) => item.code === 'MAPPED_ISSUE_SOURCE_RENAMED'));
+  assert.equal(operation.action, 'updateIssue');
+  assert.equal(operation.number, 7);
+  assert.equal(operation.changes.body, true);
+});
+
 test('sync planner rejects mapped issues without matching body metadata', () => {
   const backlog = {
     milestones: [{
