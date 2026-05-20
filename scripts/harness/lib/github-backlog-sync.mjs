@@ -28,6 +28,10 @@ export function sourcePathFromIssue(issue) {
   return match ? match[1].trim() : '';
 }
 
+function isBacklogTaskSourcePath(sourcePath) {
+  return /^milestones-[^/]+\/task-[^/]+\.md$/.test(sourcePath);
+}
+
 function labelName(label) {
   return typeof label === 'string' ? label : label.name;
 }
@@ -191,13 +195,25 @@ function buildGithubMaps(github, desired, errors, warnings, githubIssueMap = {})
       }
       const sourcePath = sourcePathFromIssue(issue);
       if (sourcePath !== desiredIssue.sourcePath) {
-        errors.push(error('MAPPED_ISSUE_SOURCE_DRIFT', `GitHub issue #${issue.number} source maps to ${sourcePath || '(missing)'}, but ${mappedTaskId} expects ${desiredIssue.sourcePath}`, {
-          issueSourcePath: sourcePath || '',
-          expectedSourcePath: desiredIssue.sourcePath,
-          mappedTaskId,
-          number: issue.number,
-        }));
-        continue;
+        if (!isBacklogTaskSourcePath(sourcePath)) {
+          errors.push(error('MAPPED_ISSUE_SOURCE_DRIFT', `GitHub issue #${issue.number} source maps to ${sourcePath || '(missing)'}, but ${mappedTaskId} expects ${desiredIssue.sourcePath}`, {
+            issueSourcePath: sourcePath || '',
+            expectedSourcePath: desiredIssue.sourcePath,
+            mappedTaskId,
+            number: issue.number,
+          }));
+          continue;
+        }
+        warnings.push({
+          code: 'MAPPED_ISSUE_SOURCE_RENAMED',
+          message: `GitHub issue #${issue.number} source will be updated from ${sourcePath} to ${desiredIssue.sourcePath}`,
+          details: {
+            issueSourcePath: sourcePath,
+            expectedSourcePath: desiredIssue.sourcePath,
+            mappedTaskId,
+            number: issue.number,
+          },
+        });
       }
       pushMapValue(issuesByTaskId, mappedTaskId, issue);
       continue;
