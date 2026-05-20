@@ -1,8 +1,8 @@
 # M4.T01 — Create frontend app foundation and design primitives
 
-**Milestone:** M4 — Frontend MVP Experience  
+**Milestone:** M4 — Frontend MVP Experience, Wallet-First Flow  
 **Priority:** P0  
-**Type:** Frontend / Design  
+**Type:** Frontend / Foundation  
 **Status:** Planned
 
 ## Dependencies
@@ -23,40 +23,36 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Set up frontend app architecture inside frontend/.
-- Create base routing/layout structure.
-- Create design primitives for buttons, cards, forms, status badges, and currency display.
-- Add Playwright configuration and a smoke test.
+- Create frontend app foundation inside `frontend/`.
+- Add routing, layout shell, shared UI primitives, and test setup.
+- Add Playwright setup and screenshot artifact conventions.
+- Add mock API fixture strategy for wallet-first flows.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- Framework choice can be selected by the agent if it integrates with the monorepo and Playwright.
-- Keep UI copy simple and non-Web3-facing.
+- Do not implement payments, wallet signatures, or betting flow in this task.
 
 ## Acceptance criteria
 
-- Frontend app runs locally with a documented command.
-- Base route renders a Duelly landing or app shell.
-- Core components are reusable and tested where practical.
-- Playwright smoke test passes and captures at least one screenshot.
+- Frontend dev server starts locally.
+- Frontend test command passes.
+- Playwright smoke test can load the app shell.
+- Design primitives are documented or discoverable.
 
 ## Required QA and test plan
 
-- Run frontend unit/build tests if configured.
-- Run `npm --workspace @duelly/frontend run test:e2e` or documented Playwright command.
-- Capture Playwright screenshot of app shell.
+- Run frontend tests.
+- Run Playwright smoke test.
+- Capture app shell screenshot.
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M4-T01/frontend-tests.log.
-- evidence/M4-T01/playwright-report-summary.md.
-- evidence/M4-T01/screenshots/app-shell.png.
+- evidence/M4-T01/frontend-tests.log
+- evidence/M4-T01/playwright-smoke-report/
+- evidence/M4-T01/screenshots/app-shell.png
 
 ## PR completion requirements
 

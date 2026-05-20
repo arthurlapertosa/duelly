@@ -1,6 +1,6 @@
-# M3.T08 — Implement relayer service and gas-fee-based minLoserFee quoting
+# M3.T08 — Implement relayer service for signed wallet-first funding and resolution calls
 
-**Milestone:** M3 — Backend Core Orchestration  
+**Milestone:** M3 — Backend Core Orchestration, Wallet-First Flow  
 **Priority:** P0  
 **Type:** Backend / Blockchain / Relayer  
 **Status:** Planned
@@ -8,7 +8,8 @@
 ## Dependencies
 
 - M2.T04
-- M2.T05
+- M2.T07
+- M3.T06
 - M3.T07
 
 ## Recommended specialist subagents
@@ -25,44 +26,45 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Implement relayer interface for acceptBetWithPermits and resolveFromPolymarket calls.
-- Implement gas fee estimator used to set or quote minLoserFee as at least 3x estimated gas cost in BRL1 terms.
-- Expose a fee quote endpoint used by frontend before user confirmation.
+- Implement relayer interface for `acceptBetWithPermits` and `resolveFromPolymarket` calls.
+- Accept user-provided BetOffer, BetAcceptance, and ERC-2612 permit signatures.
+- Validate payload shape before submitting transactions when possible.
 - Support local Anvil/Foundry chain for QA.
+- Record request id, transaction hash, user ids, invite id, bet id when available, and errors.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- For MVP, use a conservative estimate and document assumptions for BRL1 conversion.
-- Relayer must log transaction hash, request id, user ids, bet id when available, and errors.
+- Do not hold user private keys.
+- Do not sign user permits.
+- Do not perform fiat or exchange operations.
+- Do not bypass smart-contract validation.
 
 ## Acceptance criteria
 
-- Fee quote endpoint returns stake, percent fee, gas-anchored minimum fee, selected loserFee, and explanation fields.
-- Selected loserFee is never below configured 3x gas fee estimate.
 - Relayer submits local funding transaction successfully when given valid signatures/permits.
 - Relayer rejects missing/invalid signatures before attempting transaction when possible.
+- Atomic funding failure leaves no local bet marked as funded.
 - Relayer logs are queryable for QA.
+- Resolution call can be submitted when a local bet is eligible.
 
 ## Required QA and test plan
 
 - Run backend relayer tests.
 - Run local smart-contract stack or mocked relayer mode.
-- Run curl to fee quote endpoint for small, normal, and high stake values.
 - Run curl to submit a local funding request and capture transaction outcome.
+- Run curl to fetch relayer transaction log.
+- Run negative curl with invalid/missing signature.
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M3-T08/relayer-tests.log.
-- evidence/M3-T08/curl-fee-quote-small.json.
-- evidence/M3-T08/curl-fee-quote-normal.json.
-- evidence/M3-T08/curl-local-funding.json.
-- evidence/M3-T08/relayer-transaction-log.json.
+- evidence/M3-T08/relayer-tests.log
+- evidence/M3-T08/curl-local-funding.json
+- evidence/M3-T08/curl-relayer-transaction-log.json
+- evidence/M3-T08/curl-invalid-signature.json
+- evidence/M3-T08/local-contract-outcome.log
 
 ## PR completion requirements
 

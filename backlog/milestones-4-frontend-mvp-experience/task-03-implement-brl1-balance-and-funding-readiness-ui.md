@@ -1,15 +1,15 @@
-# M4.T07 — Implement bet status, result, and payout UI
+# M4.T03 — Implement BRL1 balance and funding-readiness UI
 
 **Milestone:** M4 — Frontend MVP Experience, Wallet-First Flow  
 **Priority:** P0  
-**Type:** Frontend / Betting / Status  
+**Type:** Frontend / Wallet / BRL1  
 **Status:** Planned
 
 ## Dependencies
 
-- M4.T06
-- M3.T09
-- M3.T10
+- M4.T02
+- M3.T04
+- M3.T07
 
 ## Recommended specialist subagents
 
@@ -29,37 +29,38 @@
 
 ## Scope
 
-- Implement bet detail/status page.
-- Show funded, pending resolution, resolved, voided, and expired states.
-- Show winner payout, treasury payout, and refund information when available.
-- Poll or refresh from backend bet state API.
+- Display BRL1 balance for the connected wallet in BRL terms.
+- Display funding readiness for a selected stake and loserFee quote.
+- Show required amount as `stake + loserFee`.
+- Show insufficient balance guidance for wallet-first MVP.
+- Keep money-movement/deposit UI out of M4.
 
 ## Non-goals
 
-- Do not display Polymarket odds as final result.
-- Do not imply a result before contract/indexer confirms it.
+- Do not show deposit quote, withdrawal quote, Pix, Stripe, or brokerage fee UI.
+- Do not merge loserFee with future on-ramp fees.
 
 ## Acceptance criteria
 
-- Bet status renders all supported states from fixtures.
-- Resolved state shows winner and payout math.
-- Voided/refunded state shows refund math.
-- Error/pending states are understandable to non-Web3 users.
+- Balance screen displays available BRL1 and wallet readiness state.
+- Insufficient balance state explains that the user must add BRL1 to their wallet outside the MVP flow.
+- Fee preview clearly explains loserFee and total required amount.
+- Frontend consumes M3 balance/readiness/fee quote fixtures correctly.
 
 ## Required QA and test plan
 
 - Run frontend tests.
-- Run Playwright bet status scenarios for funded, resolved, voided, and expired.
-- Run curl commands for bet state fixtures.
-- Capture screenshots for each final state.
+- Run Playwright balance sufficient and insufficient scenarios.
+- Run curl commands for balance/readiness/fee quote fixtures.
+- Capture screenshots of sufficient and insufficient readiness states.
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M4-T07/frontend-tests.log
-- evidence/M4-T07/playwright-bet-status-report/
-- evidence/M4-T07/curl-bet-state-fixtures.json
-- evidence/M4-T07/screenshots/resolved.png
-- evidence/M4-T07/screenshots/voided.png
+- evidence/M4-T03/frontend-tests.log
+- evidence/M4-T03/playwright-balance-readiness-report/
+- evidence/M4-T03/curl-balance-readiness-fixtures.json
+- evidence/M4-T03/screenshots/balance-sufficient.png
+- evidence/M4-T03/screenshots/balance-insufficient.png
 
 ## PR completion requirements
 

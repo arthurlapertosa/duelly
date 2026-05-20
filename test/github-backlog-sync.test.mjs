@@ -7,6 +7,7 @@ import {
   milestoneDescription,
   planGithubBacklogSync,
   syncManagedLabel,
+  taskIdFromIssue,
 } from '../scripts/harness/lib/github-backlog-sync.mjs';
 
 function githubMilestonesFromBacklog(backlog) {
@@ -75,6 +76,17 @@ test('sync planner creates missing M1.T00 and updates stale M1 metadata', () => 
     && operation.changes.title
     && operation.changes.body
   )));
+});
+
+test('sync planner extracts dotted backlog task ids', () => {
+  assert.equal(taskIdFromIssue({
+    title: '[M3.5.T01] Dotted task title',
+    body: '',
+  }), 'M3.5.T01');
+  assert.equal(taskIdFromIssue({
+    title: 'Fallback title',
+    body: 'Task ID: M3.5.T02\n',
+  }), 'M3.5.T02');
 });
 
 test('sync planner preserves issue state and human labels while replacing generated labels', () => {

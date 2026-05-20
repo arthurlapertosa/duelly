@@ -1,6 +1,6 @@
-# M3.T02 — Implement auth, session, and user model for MVP
+# M3.T02 — Implement auth, session, and wallet-first user model
 
-**Milestone:** M3 — Backend Core Orchestration  
+**Milestone:** M3 — Backend Core Orchestration, Wallet-First Flow  
 **Priority:** P0  
 **Type:** Backend / Auth  
 **Status:** Planned
@@ -23,28 +23,28 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Implement MVP auth/session model suitable for embedded wallet onboarding.
+- Implement MVP auth/session model for wallet-first usage.
 - Create user records and stable user identifiers.
 - Add session validation middleware for protected endpoints.
 - Support mock auth mode for local QA.
+- Represent wallet linkage as an external wallet relationship, not an embedded wallet relationship.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- Use mock auth in local tests if a production auth provider is not selected yet.
-- Do not expose secrets or wallet private material through API responses.
+- Do not create platform wallets.
+- Do not store private keys.
+- Do not implement Pix, deposits, withdrawals, or brokerage ledger entries.
 
 ## Acceptance criteria
 
 - Unauthenticated protected requests are rejected.
 - Authenticated mock user can call protected endpoints.
-- User model includes id, display identifier, wallet linkage placeholder, and ledger linkage placeholder.
+- User model includes id, display identifier, external wallet linkage status, and created/updated timestamps.
 - Session errors are consistent and machine-readable.
+- No response exposes secrets or private key material.
 
 ## Required QA and test plan
 
@@ -54,9 +54,9 @@
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M3-T02/auth-tests.log.
-- evidence/M3-T02/curl-unauthenticated.json.
-- evidence/M3-T02/curl-authenticated.json.
+- evidence/M3-T02/auth-tests.log
+- evidence/M3-T02/curl-unauthenticated.json
+- evidence/M3-T02/curl-authenticated.json
 
 ## PR completion requirements
 

@@ -28,7 +28,7 @@
 
 ## Scope
 
-- Review smart-contract, backend, frontend, wallet, relayer, and payment threat model.
+- Review smart-contract, backend, frontend, private-wallet, relayer, optional M3.5 payment/on-ramp, and platform-wallet threat model.
 - Create incident runbook for failed funding, stuck resolution, wrong template, provider failure, suspected exploit, and user refund issue.
 - Document severity levels, owners, and communication steps.
 

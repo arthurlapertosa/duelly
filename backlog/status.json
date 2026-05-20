@@ -56,8 +56,8 @@
     },
     "milestone_003": {
       "id": "milestone_003",
-      "title": "M3 - Backend Core Orchestration",
-      "description": "Build the backend that abstracts Web3 operations, manages templates and invites, runs relayer/resolution operations, indexes contract events, and handles user balances and money movement fees.",
+      "title": "M3 - Backend Core Orchestration, Wallet-First Flow",
+      "description": "Build the backend required for the MVP using a wallet-first funding model: users bring their own private wallet and BRL1 balance, the backend generates signing payloads, relays valid transactions, indexes contract events, and triggers automatic resolution.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-3-backend-core-orchestration/milestone.md",
@@ -74,10 +74,30 @@
         "m3_t10"
       ]
     },
+    "milestone_003_005": {
+      "id": "milestone_003_005",
+      "title": "M3.5 - Platform Wallet, Pix, and Automated BRL1 Operations",
+      "description": "Add the optional platform-managed funding experience after the wallet-first MVP path is working: platform wallet creation, Pix deposit intake through **Inter PJ**, BRL-to-BRL1 purchase automation through **OKX PJ**, BRL1 credit to user wallets, BRL1 sale, fiat withdrawal, brokerage fee accounting, and reconciliation.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/milestone.md",
+      "tasks": [
+        "m3_5_t01",
+        "m3_5_t02",
+        "m3_5_t03",
+        "m3_5_t04",
+        "m3_5_t05",
+        "m3_5_t06",
+        "m3_5_t07",
+        "m3_5_t08",
+        "m3_5_t09",
+        "m3_5_t10"
+      ]
+    },
     "milestone_004": {
       "id": "milestone_004",
-      "title": "M4 - Frontend MVP Experience",
-      "description": "Deliver the user-facing Duelly flow that hides Web3 complexity while allowing users to deposit/hold BRL1, create 1x1 invites, accept bets, sign required payloads, and view outcomes.",
+      "title": "M4 - Frontend MVP Experience, Wallet-First Flow",
+      "description": "Deliver the user-facing Duelly flow for the wallet-first MVP. Users log in, connect or verify their own private wallet, use existing BRL1 balance, create and accept 1x1 bets, sign required payloads, and view outcomes without needing to understand smart contracts or gas.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-4-frontend-mvp-experience/milestone.md",
@@ -94,8 +114,8 @@
     },
     "milestone_005": {
       "id": "milestone_005",
-      "title": "M5 - End-to-End MVP Integration",
-      "description": "Validate the full Duelly flow with frontend, backend, and smart contract running together locally or in staging-like local mode.",
+      "title": "M5 - End-to-End MVP Integration, Wallet-First Flow",
+      "description": "Validate the full Duelly wallet-first flow with frontend, backend, and smart contract running together locally or in staging-like local mode.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-5-end-to-end-mvp-integration/milestone.md",
@@ -111,8 +131,8 @@
     },
     "milestone_006": {
       "id": "milestone_006",
-      "title": "M6 - Launch Readiness & Controlled Pilot",
-      "description": "Prepare the MVP for a controlled, limited pilot with operational controls, monitoring, runbooks, security checks, and compliance visibility.",
+      "title": "M6 - Launch Readiness & Controlled Pilot, Wallet-First Flow",
+      "description": "Prepare the MVP for a controlled pilot using the wallet-first model: participants bring or receive BRL1 in their own private wallets before using Duelly. The pilot can be run with manual/pre-funded BRL1 and does not require Pix, embedded wallets, exchange automation, or M3.5.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-6-launch-readiness-controlled-pilot/milestone.md",
@@ -339,7 +359,7 @@
       "id": "m3_t01",
       "milestone": "milestone_003",
       "title": "M3.T01 - Create backend service skeleton, configuration, and health checks",
-      "description": "Create backend app structure inside backend/.",
+      "description": "Create backend app structure inside `backend/` using Node.js, TypeScript, Fastify, PostgreSQL, and TypeORM.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-3-backend-core-orchestration/task-01-create-backend-service-skeleton-configuration-and-health-checks.md"
@@ -347,65 +367,65 @@
     "m3_t02": {
       "id": "m3_t02",
       "milestone": "milestone_003",
-      "title": "M3.T02 - Implement auth, session, and user model for MVP",
-      "description": "Implement MVP auth/session model suitable for embedded wallet onboarding.",
+      "title": "M3.T02 - Implement auth, session, and wallet-first user model",
+      "description": "Implement MVP auth/session model for wallet-first usage.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-3-backend-core-orchestration/task-02-implement-auth-session-and-user-model-for-mvp.md"
+      "markdown": "./milestones-3-backend-core-orchestration/task-02-implement-auth-session-and-wallet-first-user-model.md"
     },
     "m3_t03": {
       "id": "m3_t03",
       "milestone": "milestone_003",
-      "title": "M3.T03 - Implement wallet abstraction provider interface",
-      "description": "Define an interface for embedded wallet provider operations.",
+      "title": "M3.T03 - Implement external wallet linking and ownership verification",
+      "description": "Implement wallet-linking endpoints for user-owned private wallets.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-3-backend-core-orchestration/task-03-implement-wallet-abstraction-provider-interface.md"
+      "markdown": "./milestones-3-backend-core-orchestration/task-03-implement-external-wallet-linking-and-ownership-verification.md"
     },
     "m3_t04": {
       "id": "m3_t04",
       "milestone": "milestone_003",
-      "title": "M3.T04 - Implement Pix, Stripe, brokerage provider abstractions, and user ledger fees",
-      "description": "Create provider interfaces for deposit, withdrawal, and BRL1 purchase/sale operations.",
+      "title": "M3.T04 - Implement BRL1 wallet balance and funding-readiness service",
+      "description": "Implement BRL1 read service for linked external wallets.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-3-backend-core-orchestration/task-04-implement-pix-stripe-brokerage-provider-abstractions-and-user-ledger-fee.md"
+      "markdown": "./milestones-3-backend-core-orchestration/task-04-implement-brl1-wallet-balance-and-funding-readiness-service.md"
     },
     "m3_t05": {
       "id": "m3_t05",
       "milestone": "milestone_003",
-      "title": "M3.T05 - Implement BRL1 balance service and betting availability checks",
-      "description": "Implement BRL1 balance lookup abstraction for embedded and external wallets.",
+      "title": "M3.T05 - Integrate template discovery and template publisher API",
+      "description": "Expose backend APIs for accepted sports templates produced by M1.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-3-backend-core-orchestration/task-05-implement-brl1-balance-service-and-betting-availability-checks.md"
+      "markdown": "./milestones-3-backend-core-orchestration/task-05-integrate-template-discovery-and-template-publisher-api.md"
     },
     "m3_t06": {
       "id": "m3_t06",
       "milestone": "milestone_003",
-      "title": "M3.T06 - Integrate template discovery and template publisher API",
-      "description": "Expose APIs for accepted templates, rejected candidates, template details, and publish status.",
+      "title": "M3.T06 - Implement invite, offer, and EIP-712 payload service for private-wallet users",
+      "description": "Implement invite creation for accepted templates.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-3-backend-core-orchestration/task-06-integrate-template-discovery-and-template-publisher-api.md"
+      "markdown": "./milestones-3-backend-core-orchestration/task-06-implement-invite-offer-and-eip-712-payload-service-for-private-wallet-users.md"
     },
     "m3_t07": {
       "id": "m3_t07",
       "milestone": "milestone_003",
-      "title": "M3.T07 - Implement invite, offer, and EIP-712 payload service",
-      "description": "Create invite records for 1x1 bets.",
+      "title": "M3.T07 - Implement loserFee quote and gas-fee-anchored minimum service",
+      "description": "Implement fee quote endpoint used before invite creation and acceptance.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-3-backend-core-orchestration/task-07-implement-invite-offer-and-eip-712-payload-service.md"
+      "markdown": "./milestones-3-backend-core-orchestration/task-07-implement-loserfee-quote-and-gas-fee-anchored-minimum-service.md"
     },
     "m3_t08": {
       "id": "m3_t08",
       "milestone": "milestone_003",
-      "title": "M3.T08 - Implement relayer service and gas-fee-based minLoserFee quoting",
-      "description": "Implement relayer interface for acceptBetWithPermits and resolveFromPolymarket calls.",
+      "title": "M3.T08 - Implement relayer service for signed wallet-first funding and resolution calls",
+      "description": "Implement relayer interface for `acceptBetWithPermits` and `resolveFromPolymarket` calls.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-3-backend-core-orchestration/task-08-implement-relayer-service-and-gas-fee-based-minloserfee-quoting.md"
+      "markdown": "./milestones-3-backend-core-orchestration/task-08-implement-relayer-service-for-signed-wallet-first-funding-and-resolution-calls.md"
     },
     "m3_t09": {
       "id": "m3_t09",
@@ -420,16 +440,106 @@
       "id": "m3_t10",
       "milestone": "milestone_003",
       "title": "M3.T10 - Implement resolution trigger and backend curl E2E validation",
-      "description": "Implement a resolution trigger that calls smart-contract resolveFromPolymarket when a bet is eligible.",
+      "description": "Implement a resolution trigger that calls smart-contract `resolveFromPolymarket` when a bet is eligible.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-3-backend-core-orchestration/task-10-implement-resolution-trigger-and-backend-curl-e2e-validation.md"
+    },
+    "m3_5_t01": {
+      "id": "m3_5_t01",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T01 - Define Inter PJ + OKX PJ architecture, provider policy, and compliance gate",
+      "description": "Document the M3.5 architecture separately from M3.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-01-define-fiat-on-ramp-architecture-provider-policy-and-compliance-gate.md"
+    },
+    "m3_5_t02": {
+      "id": "m3_5_t02",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T02 - Implement auditable ledger and provider interface foundation",
+      "description": "Implement ledger entities and TypeORM migrations for fiat deposits, Inter Pix movements, OKX funding movements, OKX trades, BRL1 withdrawals, wallet credits, BRL1 sells, fiat withdrawals, fees, reversals, and failures.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-02-implement-auditable-ledger-and-provider-interface-foundation.md"
+    },
+    "m3_5_t03": {
+      "id": "m3_5_t03",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T03 - Implement platform wallet provider adapter and wallet creation flow",
+      "description": "Create an embedded/platform wallet provider interface.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-03-implement-platform-wallet-provider-adapter-and-wallet-creation-flow.md"
+    },
+    "m3_5_t04": {
+      "id": "m3_5_t04",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T04 - Implement Inter PJ Pix deposit intake adapter and webhook handling",
+      "description": "Implement `BankingProvider` adapter for Inter PJ Pix deposit intake.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-04-implement-pix-deposit-intake-adapter-and-webhook-handling.md"
+    },
+    "m3_5_t05": {
+      "id": "m3_5_t05",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T05 - Implement OKX PJ BRL1 exchange adapter for PoC automation",
+      "description": "Implement exchange adapter interface for OKX PJ market data, balances, internal transfers, spot orders, order status, fills, and BRL1-Polygon withdrawals.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-05-implement-okx-brl1-exchange-adapter-for-poc-automation.md"
+    },
+    "m3_5_t06": {
+      "id": "m3_5_t06",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T06 - Implement Inter-to-OKX funding, BRL-to-BRL1 purchase, and platform-wallet credit flow",
+      "description": "Implement state machine for:",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-06-implement-brl-to-brl1-purchase-and-platform-wallet-credit-flow.md"
+    },
+    "m3_5_t07": {
+      "id": "m3_5_t07",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T07 - Implement BRL1-to-BRL sale and Inter PJ Pix withdrawal flow",
+      "description": "Implement withdrawal quote and request flow.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-07-implement-brl1-to-brl-sale-and-fiat-withdrawal-flow.md"
+    },
+    "m3_5_t08": {
+      "id": "m3_5_t08",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T08 - Implement fee quotation, reconciliation, and failure recovery",
+      "description": "Implement reconciliation jobs for Inter Pix events, Inter-to-OKX funding events, OKX trades, OKX withdrawals, wallet credits, Inter payouts, and ledger state.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-08-implement-fee-quotation-reconciliation-and-failure-recovery.md"
+    },
+    "m3_5_t09": {
+      "id": "m3_5_t09",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T09 - Implement optional platform-wallet deposit/withdraw frontend experience",
+      "description": "Add optional UI path for platform wallet creation.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-09-implement-optional-platform-wallet-deposit-withdraw-frontend-experience.md"
+    },
+    "m3_5_t10": {
+      "id": "m3_5_t10",
+      "milestone": "milestone_003_005",
+      "title": "M3.5.T10 - Run optional on-ramp/off-ramp E2E QA bundle",
+      "description": "Run full optional M3.5 QA with frontend, backend, mock Inter provider, mock OKX provider, local smart contract, and platform wallet.",
+      "status": "todo",
+      "progress": 0,
+      "markdown": "./milestones-3-5-platform-wallet-fiat-brl1-automation/task-10-run-optional-on-ramp-off-ramp-e2e-qa-bundle.md"
     },
     "m4_t01": {
       "id": "m4_t01",
       "milestone": "milestone_004",
       "title": "M4.T01 - Create frontend app foundation and design primitives",
-      "description": "Set up frontend app architecture inside frontend/.",
+      "description": "Create frontend app foundation inside `frontend/`.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-4-frontend-mvp-experience/task-01-create-frontend-app-foundation-and-design-primitives.md"
@@ -437,26 +547,26 @@
     "m4_t02": {
       "id": "m4_t02",
       "milestone": "milestone_004",
-      "title": "M4.T02 - Implement login and wallet onboarding experience",
-      "description": "Implement login flow using backend mock/auth endpoints.",
+      "title": "M4.T02 - Implement login and private wallet onboarding experience",
+      "description": "Implement login/session UI.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-4-frontend-mvp-experience/task-02-implement-login-and-wallet-onboarding-experience.md"
+      "markdown": "./milestones-4-frontend-mvp-experience/task-02-implement-login-and-private-wallet-onboarding-experience.md"
     },
     "m4_t03": {
       "id": "m4_t03",
       "milestone": "milestone_004",
-      "title": "M4.T03 - Implement balance, deposit quote, and withdrawal quote UI",
-      "description": "Display user balance in BRL terms backed by BRL1.",
+      "title": "M4.T03 - Implement BRL1 balance and funding-readiness UI",
+      "description": "Display BRL1 balance for the connected wallet in BRL terms.",
       "status": "todo",
       "progress": 0,
-      "markdown": "./milestones-4-frontend-mvp-experience/task-03-implement-balance-deposit-quote-and-withdrawal-quote-ui.md"
+      "markdown": "./milestones-4-frontend-mvp-experience/task-03-implement-brl1-balance-and-funding-readiness-ui.md"
     },
     "m4_t04": {
       "id": "m4_t04",
       "milestone": "milestone_004",
       "title": "M4.T04 - Implement template browsing and selection UI",
-      "description": "Display available bet templates returned by backend.",
+      "description": "Display accepted sports templates from backend.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-4-frontend-mvp-experience/task-04-implement-template-browsing-and-selection-ui.md"
@@ -465,7 +575,7 @@
       "id": "m4_t05",
       "milestone": "milestone_004",
       "title": "M4.T05 - Implement create invite flow with fee preview",
-      "description": "Allow user A to choose outcome, stake, and optional taker restriction.",
+      "description": "Implement create invite form for selected template/outcome/stake.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-4-frontend-mvp-experience/task-05-implement-create-invite-flow-with-fee-preview.md"
@@ -474,7 +584,7 @@
       "id": "m4_t06",
       "milestone": "milestone_004",
       "title": "M4.T06 - Implement accept invite and signing flow",
-      "description": "Render invite details for user B.",
+      "description": "Implement invite landing page for opponent.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-4-frontend-mvp-experience/task-06-implement-accept-invite-and-signing-flow.md"
@@ -483,7 +593,7 @@
       "id": "m4_t07",
       "milestone": "milestone_004",
       "title": "M4.T07 - Implement bet status, result, and payout UI",
-      "description": "Display bet state from backend indexer: funded, awaiting result, resolved, voided, expired.",
+      "description": "Implement bet detail/status page.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-4-frontend-mvp-experience/task-07-implement-bet-status-result-and-payout-ui.md"
@@ -492,7 +602,7 @@
       "id": "m4_t08",
       "milestone": "milestone_004",
       "title": "M4.T08 - Complete frontend Playwright QA suite and accessibility smoke checks",
-      "description": "Organize Playwright tests for all MVP user flows.",
+      "description": "Consolidate Playwright suite for wallet-first frontend journey.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-4-frontend-mvp-experience/task-08-complete-frontend-playwright-qa-suite-and-accessibility-smoke-checks.md"
@@ -582,7 +692,7 @@
       "id": "m6_t03",
       "milestone": "milestone_006",
       "title": "M6.T03 - Implement monitoring, error tracking, and operational logs",
-      "description": "Add structured logs for relayer, indexer, resolution trigger, payment provider mocks/real adapters, and critical API actions.",
+      "description": "Add structured logs for relayer, indexer, resolution trigger, wallet-readiness APIs, optional M3.5 provider adapters if enabled, and critical API actions.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-03-implement-monitoring-error-tracking-and-operational-logs.md"
@@ -600,7 +710,7 @@
       "id": "m6_t05",
       "milestone": "milestone_006",
       "title": "M6.T05 - Create compliance and regulatory readiness checklist",
-      "description": "Create a checklist of legal/regulatory questions for betting operations, payment processing, custody/wallet model, KYC/AML, and Brazilian market constraints.",
+      "description": "Create a checklist of legal/regulatory questions for betting operations, wallet-first betting operations, optional payment/on-ramp processing, custody/wallet model, KYC/AML, and Brazilian market constraints.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-05-create-compliance-and-regulatory-readiness-checklist.md"
@@ -609,7 +719,7 @@
       "id": "m6_t06",
       "milestone": "milestone_006",
       "title": "M6.T06 - Run security review and create incident runbook",
-      "description": "Review smart-contract, backend, frontend, wallet, relayer, and payment threat model.",
+      "description": "Review smart-contract, backend, frontend, private-wallet, relayer, optional M3.5 payment/on-ramp, and platform-wallet threat model.",
       "status": "todo",
       "progress": 0,
       "markdown": "./milestones-6-launch-readiness-controlled-pilot/task-06-run-security-review-and-create-incident-runbook.md"

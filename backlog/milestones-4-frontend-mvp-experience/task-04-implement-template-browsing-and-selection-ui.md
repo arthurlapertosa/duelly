@@ -1,6 +1,6 @@
 # M4.T04 — Implement template browsing and selection UI
 
-**Milestone:** M4 — Frontend MVP Experience  
+**Milestone:** M4 — Frontend MVP Experience, Wallet-First Flow  
 **Priority:** P0  
 **Type:** Frontend / Templates  
 **Status:** Planned
@@ -8,7 +8,7 @@
 ## Dependencies
 
 - M4.T01
-- M3.T06
+- M3.T05
 
 ## Recommended specialist subagents
 
@@ -25,42 +25,39 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Display available bet templates returned by backend.
-- Show category, outcome labels, close time, rules summary, and fee estimate entry point.
-- Clearly indicate collectibles-first or sports fallback source where relevant.
-- Prevent selection of inactive or unavailable templates.
+- Display accepted sports templates from backend.
+- Show competition/sport, event, outcomes, close time, and resolution summary.
+- Allow user to select a binary template and a side.
+- Hide rejected/unsupported templates.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- Rules summary should be concise but include a link/modal to full rules.
-- Do not display Polymarket odds/probabilities as the basis for resolution.
+- Do not show odds/probabilities as final result.
+- Do not allow free-form bets.
 
 ## Acceptance criteria
 
-- Template list only displays backend-accepted templates.
-- Template detail page shows deterministic outcome labels and rules source.
-- Unavailable templates cannot be selected.
-- UI copy does not imply odds/probabilities decide the winner.
+- Template list renders backend accepted templates.
+- Template detail shows only binary choices.
+- Unsupported/rejected fixtures are not selectable.
+- Empty state is clear and actionable.
 
 ## Required QA and test plan
 
-- Run Playwright template list/detail tests.
-- Run curl templates and template detail endpoints.
-- Capture screenshots of template list and template detail.
+- Run frontend tests.
+- Run Playwright template list/detail/selection scenario.
+- Run curl command for template fixture API.
+- Capture screenshots for list, detail, and empty state.
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M4-T04/playwright-templates.log.
-- evidence/M4-T04/curl-templates.json.
-- evidence/M4-T04/curl-template-detail.json.
-- evidence/M4-T04/screenshots/template-list.png.
-- evidence/M4-T04/screenshots/template-detail.png.
+- evidence/M4-T04/frontend-tests.log
+- evidence/M4-T04/playwright-template-report/
+- evidence/M4-T04/curl-template-fixtures.json
+- evidence/M4-T04/screenshots/template-detail.png
 
 ## PR completion requirements
 

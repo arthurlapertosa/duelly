@@ -1,15 +1,15 @@
-# M3.T07 — Implement invite, offer, and EIP-712 payload service
+# M3.T06 — Implement invite, offer, and EIP-712 payload service for private-wallet users
 
-**Milestone:** M3 — Backend Core Orchestration  
+**Milestone:** M3 — Backend Core Orchestration, Wallet-First Flow  
 **Priority:** P0  
-**Type:** Backend / Betting  
+**Type:** Backend / Betting / EIP-712  
 **Status:** Planned
 
 ## Dependencies
 
 - M3.T02
+- M3.T04
 - M3.T05
-- M3.T06
 - M2.T03 test vectors or compatible local spec
 
 ## Recommended specialist subagents
@@ -26,27 +26,26 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Create invite records for 1x1 bets.
-- Generate BetOffer and BetAcceptance payloads compatible with the smart contract EIP-712 schema.
-- Calculate loserFee using current stake, loserFeeBps, and minLoserFee quote.
-- Manage invite expiration and taker restrictions.
+- Implement invite creation for accepted templates.
+- Generate EIP-712 BetOffer payload for the maker wallet.
+- Generate EIP-712 BetAcceptance payload for the taker wallet.
+- Store invite state and expiration.
+- Validate stake, loserFee, templateHash, outcomes, counterparty rules, and deadlines before relayer submission.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- Backend prepares signature payloads; users/wallets sign them.
-- Store offerHash and invite state for traceability.
+- Do not accept unregistered templates.
+- Do not create on-chain bets before both users are ready to fund.
+- Do not make backend the final result arbiter.
 
 ## Acceptance criteria
 
-- Create invite endpoint validates template active status and user affordability.
-- Create invite endpoint returns EIP-712 BetOffer payload and calculated loserFee.
-- Accept invite endpoint returns EIP-712 BetAcceptance payload and required funding amount.
+- Create invite endpoint returns BetOffer payload and required funding amount.
+- Accept invite endpoint returns BetAcceptance payload and required funding amount.
+- Payloads match M2 EIP-712 schema/test vectors when available.
 - Tampered stake/template/outcome is rejected by backend validation before relayer submission.
 - Expired invite cannot be accepted.
 
@@ -60,10 +59,11 @@
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M3-T07/invite-tests.log.
-- evidence/M3-T07/curl-create-invite.json.
-- evidence/M3-T07/curl-accept-invite.json.
-- evidence/M3-T07/eip712-payload-vector.json.
+- evidence/M3-T06/invite-tests.log
+- evidence/M3-T06/curl-create-invite.json
+- evidence/M3-T06/curl-accept-invite.json
+- evidence/M3-T06/curl-negative-cases.json
+- evidence/M3-T06/eip712-payload-vector.json
 
 ## PR completion requirements
 

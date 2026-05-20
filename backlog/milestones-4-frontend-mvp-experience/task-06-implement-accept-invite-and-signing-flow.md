@@ -1,14 +1,14 @@
 # M4.T06 — Implement accept invite and signing flow
 
-**Milestone:** M4 — Frontend MVP Experience  
+**Milestone:** M4 — Frontend MVP Experience, Wallet-First Flow  
 **Priority:** P0  
-**Type:** Frontend / Betting / Wallets  
+**Type:** Frontend / Betting / Signing  
 **Status:** Planned
 
 ## Dependencies
 
 - M4.T05
-- M3.T07
+- M3.T06
 - M3.T08
 - M2.T04
 
@@ -28,42 +28,43 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Render invite details for user B.
-- Validate user B has enough balance for stake + loserFee.
-- Guide both EIP-712 bet consent signature and ERC-2612 permit signature through wallet abstraction.
-- Submit signed payloads to backend relayer and show funding state.
+- Implement invite landing page for opponent.
+- Show template, sides, stake, loserFee, total required amount, and connected wallet readiness.
+- Guide BetAcceptance EIP-712 consent signature.
+- Guide ERC-2612 permit signature.
+- Submit signed payloads to backend relayer and show pending/funded state.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- The UI should say “Confirm bet” rather than exposing EIP-712/permit concepts in the primary copy.
-- Technical signature details can live in developer logs or advanced/debug mode only.
+- Do not ask user to approve infinite allowance.
+- Do not show raw transaction details in primary copy unless in advanced/debug mode.
+- Do not use platform wallet or deposit UI.
 
 ## Acceptance criteria
 
-- Invite page shows template, outcome sides, stake, loserFee, and total required amount.
-- Insufficient balance blocks acceptance before signing.
-- Successful acceptance submits payload to backend and transitions to funded/pending confirmation state.
-- Signature rejection or relayer failure shows a recoverable user-friendly error.
+- Opponent can accept a valid invite and sign required payloads.
+- Insufficient BRL1 blocks acceptance before relayer submission.
+- Signature rejection and relayer failure are displayed clearly.
+- Successful relayer submission transitions UI to funded/pending result.
 
 ## Required QA and test plan
 
-- Run Playwright accept invite flow with mocked signatures.
-- Run curl accept invite and local funding submission endpoints.
-- Capture screenshots of invite details, confirm state, and funded/pending state.
+- Run frontend tests.
+- Run Playwright accept invite happy path.
+- Run Playwright insufficient balance path.
+- Run Playwright signature rejected path.
+- Run curl commands for accept/relayer fixture APIs.
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M4-T06/playwright-accept-invite.log.
-- evidence/M4-T06/curl-accept-invite.json.
-- evidence/M4-T06/curl-funding-submit.json.
-- evidence/M4-T06/screenshots/invite-detail.png.
-- evidence/M4-T06/screenshots/funded-state.png.
+- evidence/M4-T06/frontend-tests.log
+- evidence/M4-T06/playwright-accept-invite-report/
+- evidence/M4-T06/curl-accept-relayer-fixtures.json
+- evidence/M4-T06/screenshots/accept-ready.png
+- evidence/M4-T06/screenshots/funded-state.png
 
 ## PR completion requirements
 

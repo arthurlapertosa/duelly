@@ -41,6 +41,11 @@ test('issue import dry run preserves backlog task metadata', () => {
   assert.ok(m1t00, 'M1.T00 should be present');
   assert.equal(m1t00.title, '[M1.T00] Establish backend framework foundation for M1');
   assert.equal(m1t00.milestone, 'M1 — Product Rules & Sports Template System');
+
+  const m35t01 = issues.find((issue) => issue.taskId === 'M3.5.T01');
+  assert.ok(m35t01, 'M3.5.T01 should be present');
+  assert.equal(m35t01.title, '[M3.5.T01] Define Inter PJ + OKX PJ architecture, provider policy, and compliance gate');
+  assert.equal(m35t01.milestone, 'M3.5 — Platform Wallet, Pix, and Automated BRL1 Operations');
 });
 
 test('issue import dry run emits required labels and milestone names', () => {
@@ -73,7 +78,8 @@ test('issue import dry run emits required labels and milestone names', () => {
   const milestones = JSON.parse(readFileSync(join(dir, 'milestones.json'), 'utf8')).map((milestone) => milestone.title);
   assert.ok(milestones.includes('M0 — Repository & Harness Foundation'));
   assert.ok(milestones.includes('M1 — Product Rules & Sports Template System'));
-  assert.ok(milestones.includes('M6 — Launch Readiness & Controlled Pilot'));
+  assert.ok(milestones.includes('M3.5 — Platform Wallet, Pix, and Automated BRL1 Operations'));
+  assert.ok(milestones.includes('M6 — Launch Readiness & Controlled Pilot, Wallet-First Flow'));
 });
 
 test('issue import committed metadata check detects no drift', () => {

@@ -1,6 +1,6 @@
 # M3.T10 — Implement resolution trigger and backend curl E2E validation
 
-**Milestone:** M3 — Backend Core Orchestration  
+**Milestone:** M3 — Backend Core Orchestration, Wallet-First Flow  
 **Priority:** P1  
 **Type:** Backend / Resolution / QA  
 **Status:** Planned
@@ -24,21 +24,18 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Implement a resolution trigger that calls smart-contract resolveFromPolymarket when a bet is eligible.
+- Implement a resolution trigger that calls smart-contract `resolveFromPolymarket` when a bet is eligible.
 - Ensure backend does not decide the winner; it only triggers contract resolution.
 - Expose internal/admin endpoint or scheduled job for resolution attempts.
 - Create curl-based backend E2E checklist covering templates, invites, funding submission, indexing, and resolution trigger.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- Use MockPolymarketCTF/local chain for deterministic QA.
-- Resolution trigger should record attempts, failures, and successful transaction hashes.
+- Do not use Polymarket odds or outcome prices as final result.
+- Do not add manual arbitration in M3.
 
 ## Acceptance criteria
 
@@ -56,11 +53,11 @@
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M3-T10/resolution-tests.log.
-- evidence/M3-T10/curl-resolution-pending.json.
-- evidence/M3-T10/curl-resolution-success.json.
-- evidence/M3-T10/curl-final-bet-state.json.
-- evidence/M3-T10/backend-e2e-curl-checklist.md.
+- evidence/M3-T10/resolution-tests.log
+- evidence/M3-T10/curl-resolution-pending.json
+- evidence/M3-T10/curl-resolution-success.json
+- evidence/M3-T10/curl-final-bet-state.json
+- evidence/M3-T10/backend-e2e-curl-checklist.md
 
 ## PR completion requirements
 

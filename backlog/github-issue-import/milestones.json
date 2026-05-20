@@ -16,22 +16,27 @@
   },
   {
     "id": "M3",
-    "title": "M3 — Backend Core Orchestration",
+    "title": "M3 — Backend Core Orchestration, Wallet-First Flow",
     "sourcePath": "milestones-3-backend-core-orchestration/milestone.md"
   },
   {
+    "id": "M3.5",
+    "title": "M3.5 — Platform Wallet, Pix, and Automated BRL1 Operations",
+    "sourcePath": "milestones-3-5-platform-wallet-fiat-brl1-automation/milestone.md"
+  },
+  {
     "id": "M4",
-    "title": "M4 — Frontend MVP Experience",
+    "title": "M4 — Frontend MVP Experience, Wallet-First Flow",
     "sourcePath": "milestones-4-frontend-mvp-experience/milestone.md"
   },
   {
     "id": "M5",
-    "title": "M5 — End-to-End MVP Integration",
+    "title": "M5 — End-to-End MVP Integration, Wallet-First Flow",
     "sourcePath": "milestones-5-end-to-end-mvp-integration/milestone.md"
   },
   {
     "id": "M6",
-    "title": "M6 — Launch Readiness & Controlled Pilot",
+    "title": "M6 — Launch Readiness & Controlled Pilot, Wallet-First Flow",
     "sourcePath": "milestones-6-launch-readiness-controlled-pilot/milestone.md"
   }
 ]

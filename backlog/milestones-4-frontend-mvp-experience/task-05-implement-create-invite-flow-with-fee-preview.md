@@ -1,16 +1,16 @@
 # M4.T05 — Implement create invite flow with fee preview
 
-**Milestone:** M4 — Frontend MVP Experience  
+**Milestone:** M4 — Frontend MVP Experience, Wallet-First Flow  
 **Priority:** P0  
-**Type:** Frontend / Betting  
+**Type:** Frontend / Betting / Invites  
 **Status:** Planned
 
 ## Dependencies
 
 - M4.T03
 - M4.T04
+- M3.T06
 - M3.T07
-- M3.T08
 
 ## Recommended specialist subagents
 
@@ -27,42 +27,41 @@
 - Use specialist subagents whenever the task touches their domain; critical development or QA decisions must use the best available model with reasoning xhigh.
 - Do not mark the task complete by the agent. Human-in-the-loop approval closes the task after PR review and QA approval.
 
+
 ## Scope
 
-- Allow user A to choose outcome, stake, and optional taker restriction.
-- Show loserFee calculation using percent fee and gas-anchored minimum.
-- Show required deposit amount: stake + loserFee.
-- Create invite via backend and display/share invite link.
+- Implement create invite form for selected template/outcome/stake.
+- Show loserFee quote and total required BRL1 before confirmation.
+- Request maker EIP-712 BetOffer signature through wallet UI or fixture.
+- Show generated invite link.
 
 ## Non-goals
 
-- Do not expand scope beyond the acceptance criteria without explicit human approval.
-
-## Implementation guidance
-
-- Explain loserFee as a fee paid only by the losing side, while both sides reserve/deposit it upfront.
-- Keep transaction/gas details abstracted but show fee calculation clearly.
+- Do not submit funding transaction in create invite step unless the approved M2/M3 flow requires it.
+- Do not show deposit/on-ramp UI.
 
 ## Acceptance criteria
 
-- User cannot create invite with stake below/above configured limits.
-- User cannot create invite if balance is insufficient for stake + loserFee.
-- Fee preview displays percent fee, minimum fee adjustment when applicable, and total required amount.
-- Successful invite creation returns an invite link and a pending signature/funding state as designed.
+- Invite creation requires verified wallet and sufficient readiness information.
+- Fee preview shows stake, loserFee, total required amount, and explanation.
+- Maker signature rejection is handled gracefully.
+- Invite link is generated only after backend accepts the signed offer.
 
 ## Required QA and test plan
 
-- Run Playwright create invite tests for normal stake and small stake where minLoserFee applies.
-- Run curl fee quote and create invite endpoints.
-- Capture screenshots of fee preview and invite created states.
+- Run frontend tests.
+- Run Playwright create invite happy path.
+- Run Playwright signature rejected path.
+- Run curl commands for fee quote and invite creation fixtures.
+- Capture screenshots for fee preview and invite link.
 
 ## Required evidence to version and attach to the PR
 
-- evidence/M4-T05/playwright-create-invite.log.
-- evidence/M4-T05/curl-fee-quote.json.
-- evidence/M4-T05/curl-create-invite.json.
-- evidence/M4-T05/screenshots/fee-preview.png.
-- evidence/M4-T05/screenshots/invite-created.png.
+- evidence/M4-T05/frontend-tests.log
+- evidence/M4-T05/playwright-create-invite-report/
+- evidence/M4-T05/curl-create-invite-fixtures.json
+- evidence/M4-T05/screenshots/fee-preview.png
+- evidence/M4-T05/screenshots/invite-link.png
 
 ## PR completion requirements
 

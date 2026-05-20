@@ -35,6 +35,8 @@
 
 ## Non-goals
 
+- Do not depend on M3.5 platform-wallet, Pix, or exchange automation work.
+
 - Do not expand scope beyond the acceptance criteria without explicit human approval.
 
 ## Implementation guidance

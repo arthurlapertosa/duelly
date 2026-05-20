@@ -27,7 +27,7 @@
 
 ## Scope
 
-- Add structured logs for relayer, indexer, resolution trigger, payment provider mocks/real adapters, and critical API actions.
+- Add structured logs for relayer, indexer, resolution trigger, wallet-readiness APIs, optional M3.5 provider adapters if enabled, and critical API actions.
 - Define metrics or health signals for pending bets, failed relayer txs, unresolved bets, and failed provider operations.
 - Add error tracking integration or documented placeholder if provider not selected.
 
