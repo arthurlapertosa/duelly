@@ -140,6 +140,7 @@ test('invite-only summaries derive non-funded UI statuses', () => {
   } satisfies BetSummaryView;
   assert.equal(deriveBetStatus(summary), 'InviteCreated');
   assert.equal(deriveBetStatus({ ...summary, invite: { ...summary.invite, status: 'funded', betId: '1' } }), 'Funded');
+  assert.equal(deriveBetStatus({ ...summary, invite: { ...summary.invite, status: 'cancelled' } }), 'Expired');
 });
 
 test('pending invite mapper preserves recipient access metadata', () => {
@@ -188,6 +189,8 @@ test('invite UI includes email/link modes, pending inbox, and login return path'
   assert.match(source, /refreshPendingInvites/);
   assert.match(source, /safeReturnTo\(params\.get\('returnTo'\)\)/);
   assert.match(source, /PendingInvitePrompt/);
+  assert.match(source, /cancelInvite\(token, draftInviteId\)/);
+  assert.match(source, /finishAcceptance/);
 });
 
 test('frontend source does not expose M3.5 primary flow labels or raw web3 jargon', () => {

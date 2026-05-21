@@ -50,7 +50,9 @@ export class InvitesController {
   get = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const params = objectBody(request.params);
     const invite = await this.context.repository.findInvite(stringField(params, 'inviteId'));
-    if (!invite || invite.status === 'draft' || !invite.offerSignature || !invite.makerAuthorizedAt) throw httpError(404, 'INVITE_NOT_FOUND');
+    if (!invite || invite.status === 'draft' || invite.status === 'cancelled' || !invite.offerSignature || !invite.makerAuthorizedAt) {
+      throw httpError(404, 'INVITE_NOT_FOUND');
+    }
     const template = await findTemplate(this.context, invite.templateHash, {});
     const authorization = Array.isArray(request.headers.authorization) ? request.headers.authorization[0] : request.headers.authorization;
     const viewer = await this.context.auth.authenticate(authorization);
@@ -89,6 +91,15 @@ export class InvitesController {
       invite: publicInvite(invite, user),
       shareable: true,
       requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
+    };
+  });
+
+  cancel = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
+    const user = request.user!;
+    const params = objectBody(request.params);
+    const invite = await this.context.invites.cancelDraft(user, stringField(params, 'inviteId'));
+    return {
+      invite: publicInvite(invite, user),
     };
   });
 

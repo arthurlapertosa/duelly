@@ -104,6 +104,7 @@ export function deriveBetStatus(summary: BetSummaryView): BetStatus {
   if (summary.invite.status === 'accepted') return 'Accepted';
   if (summary.invite.status === 'funding_submitted') return 'FundingSubmitted';
   if (summary.invite.status === 'expired') return 'Expired';
+  if (summary.invite.status === 'cancelled') return 'Expired';
   return 'InviteCreated';
 }
 

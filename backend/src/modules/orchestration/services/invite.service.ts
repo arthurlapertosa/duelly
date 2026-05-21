@@ -123,11 +123,20 @@ export class InviteService {
     const invite = await this.repository.findInvite(inviteId);
     if (!invite) throw httpError(404, 'INVITE_NOT_FOUND');
     if (invite.expiresAt <= new Date()) throw httpError(400, 'INVITE_EXPIRED');
-    if (invite.status !== 'created') throw httpError(400, 'INVITE_NOT_OPEN');
     if (!invite.offerSignature || !invite.makerPermit || !invite.makerAuthorizedAt) throw httpError(400, 'INVITE_NOT_SHAREABLE');
     if (invite.recipientEmail && invite.recipientEmail !== user.email) throw httpError(403, 'INVITE_RECIPIENT_MISMATCH');
     const wallet = await this.walletService.activeWallet(user);
     if (!wallet) throw httpError(404, 'WALLET_NOT_LINKED');
+    if (invite.status === 'accepted') {
+      if (invite.takerUserId !== user.id) throw httpError(403, 'INVITE_NOT_OWNED_BY_USER');
+      if (!invite.takerAddress || invite.takerOutcomeIndex === null || !invite.acceptancePayload || !invite.acceptanceNonce) {
+        throw httpError(400, 'INVITE_NOT_READY_FOR_TAKER_AUTHORIZATION');
+      }
+      if (wallet.address !== invite.takerAddress) throw httpError(403, 'TAKER_WALLET_MISMATCH');
+      if (takerOutcomeIndex !== invite.takerOutcomeIndex) throw httpError(400, 'TAKER_OUTCOME_MUST_DIFFER');
+      return invite;
+    }
+    if (invite.status !== 'created') throw httpError(400, 'INVITE_NOT_OPEN');
     if (wallet.address === invite.makerAddress) throw httpError(400, 'MAKER_CANNOT_ACCEPT_OWN_INVITE');
     const signedOffer = inviteToOffer(invite);
     if (signedOffer.taker !== ZERO_ADDRESS && signedOffer.taker !== wallet.address) throw httpError(403, 'UNAUTHORIZED_TAKER');
@@ -150,6 +159,18 @@ export class InviteService {
     invite.takerPermit = null;
     invite.takerAuthorizedAt = null;
     invite.status = 'accepted';
+    invite.updatedAt = new Date();
+    await this.repository.saveInvite(invite);
+    return invite;
+  }
+
+  async cancelDraft(user: UserAccount, inviteId: string) {
+    const invite = await this.repository.findInvite(inviteId);
+    if (!invite) throw httpError(404, 'INVITE_NOT_FOUND');
+    if (invite.makerUserId !== user.id) throw httpError(403, 'INVITE_NOT_OWNED_BY_USER');
+    if (invite.status === 'cancelled') return invite;
+    if (invite.status !== 'draft') throw httpError(400, 'INVITE_NOT_DRAFT');
+    invite.status = 'cancelled';
     invite.updatedAt = new Date();
     await this.repository.saveInvite(invite);
     return invite;

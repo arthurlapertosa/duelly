@@ -133,13 +133,14 @@ export class OrchestrationRepository {
     if (this.enabled) {
       return await this.repo(BetInviteEntity)
         .createQueryBuilder('invite')
-        .where('invite.makerUserId = :userId', { userId })
-        .orWhere('invite.takerUserId = :userId', { userId })
+        .where('(invite.makerUserId = :userId or invite.takerUserId = :userId)', { userId })
+        .andWhere('invite.status not in (:...hiddenStatuses)', { hiddenStatuses: ['draft', 'cancelled'] })
         .orderBy('invite.updatedAt', 'DESC')
         .getMany() as BetInvite[];
     }
     return [...this.memory.invites.values()]
       .filter((invite) => invite.makerUserId === userId || invite.takerUserId === userId)
+      .filter((invite) => invite.status !== 'draft' && invite.status !== 'cancelled')
       .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime());
   }
 

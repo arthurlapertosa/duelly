@@ -562,6 +562,8 @@ function CreateInviteScreen() {
   const create = async (reject = false) => {
     if (!recipientReady || busy) return;
     setError(null);
+    let draftInviteId: string | null = null;
+    let makerAuthorized = false;
     try {
       if (reject) throw new Error('USER_REJECTED');
       setCreateState('creating');
@@ -574,15 +576,21 @@ function CreateInviteScreen() {
         makerOutcomeIndex: outcomeIndex,
         recipientEmail: requiresEmail ? normalizedRecipient : undefined,
       });
+      draftInviteId = invite.invite.id;
       setCreateState('signing');
       const offerSignature = await adapter.signTypedData(address, invite.offerPayload);
       const makerPermit = await adapter.signPermit(address, invite.makerPermitPayload);
       const authorized = await api.authorizeMaker(token, invite.invite.id, offerSignature, makerPermit);
+      makerAuthorized = true;
       setCreatedInvite(authorized.invite);
       setCreatedRecipientEmail(requiresEmail ? normalizedRecipient : null);
       await Promise.all([refreshBets(), refreshPendingInvites()]);
       setStep('done');
     } catch (error) {
+      if (draftInviteId && !makerAuthorized) {
+        await api.cancelInvite(token, draftInviteId).catch(() => undefined);
+        await Promise.all([refreshBets(), refreshPendingInvites()]).catch(() => undefined);
+      }
       setError(error);
     } finally {
       setCreateState('idle');
@@ -766,18 +774,36 @@ function BetsListScreen() {
 function BetDetailScreen() {
   const { locale, t } = useI18n();
   const { id } = useParams();
+  const navigate = useNavigate();
+  const token = useAppStore((state) => state.token);
+  const wallet = useAppStore((state) => state.wallet);
   const refreshBets = useAppStore((state) => state.refreshBets);
+  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
   const bets = useAppStore((state) => state.bets);
   const [remoteBet, setRemoteBet] = useState<Awaited<ReturnType<typeof api.getBet>>>(null);
+  const [accepting, setAccepting] = useState(false);
+  const [actionError, setActionError] = useState<unknown | null>(null);
   const summary = bets.find((item) => item.invite.id === id || item.invite.betId === id || item.bet?.betId === id);
   const bet = summary?.bet ?? remoteBet;
   const template = summary?.template;
   const status = summary ? deriveBetStatus(summary) : bet?.status;
 
   useEffect(() => {
+    if (!id || !token || summary) return;
+    void refreshBets();
+  }, [id, refreshBets, summary, token]);
+
+  useEffect(() => {
     if (!id) return;
+    if (summary) {
+      if (summary.bet) setRemoteBet(summary.bet);
+      else if (summary.invite.betId) void api.getBet(summary.invite.betId).then(setRemoteBet).catch(() => undefined);
+      else setRemoteBet(null);
+      return;
+    }
+    if (id.startsWith('invite-')) return;
     void api.getBet(id).then(setRemoteBet).catch(() => undefined);
-  }, [id]);
+  }, [id, summary]);
 
   if (!status || !template) return <Page><BackButton /><EmptyCard title={t('bets.emptyActive')} /></Page>;
 
@@ -786,6 +812,28 @@ function BetDetailScreen() {
     await api.resolveFixtureBet(bet.betId, outcome);
     await refreshBets();
     setRemoteBet(await api.getBet(bet.betId));
+  };
+  const canFinishAcceptance = summary?.role === 'taker' && status === 'Accepted';
+  const finishAcceptance = async () => {
+    if (!summary || !template || !token || !wallet || accepting) return;
+    setActionError(null);
+    try {
+      setAccepting(true);
+      const takerOutcomeIndex = summary.invite.takerOutcomeIndex
+        ?? template.outcomeIndexes.find((index) => index !== summary.invite.makerOutcomeIndex)
+        ?? template.outcomeIndexes[1];
+      const adapter = createWalletAdapter(api.mode);
+      const accepted = await api.acceptInvite(token, summary.invite.id, takerOutcomeIndex);
+      const acceptanceSignature = await adapter.signTypedData(wallet.address, accepted.acceptancePayload);
+      const takerPermit = await adapter.signPermit(wallet.address, accepted.takerPermitPayload);
+      const authorized = await api.authorizeTaker(token, summary.invite.id, acceptanceSignature, takerPermit);
+      await Promise.all([refreshBets(), refreshPendingInvites()]);
+      if (authorized.funding.betId) navigate(`/bets/${authorized.funding.betId}`, { replace: true });
+    } catch (error) {
+      setActionError(error);
+    } finally {
+      setAccepting(false);
+    }
   };
 
   return (
@@ -805,6 +853,19 @@ function BetDetailScreen() {
       </section>
       <AmountBreakdown quote={{ stakeRaw: summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0', loserFeeBps: template.loserFeeBps, percentFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0', gasAnchoredMinimumRaw: '0', selectedLoserFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0', totalRequiredAmountRaw: (BigInt(summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0') + BigInt(summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0')).toString() }} />
       {status === 'InviteCreated' && summary && <InviteLink inviteId={summary.invite.id} />}
+      {canFinishAcceptance && (
+        <>
+          {!wallet && <WalletReadinessCard />}
+          <section className="space-y-3 rounded-3xl border border-green-100 bg-white p-4">
+            <p className="text-sm leading-relaxed text-slate-600">{t('invite.finishAcceptanceBody')}</p>
+            {actionError ? <ErrorBanner message={errorMessage(locale, actionError)} /> : null}
+            <button type="button" disabled={!wallet || accepting} onClick={() => void finishAcceptance()} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 py-3.5 text-base font-semibold text-white disabled:bg-slate-300">
+              {accepting && <LoaderCircle size={18} className="animate-spin" />}
+              {t('invite.finishAcceptance')}
+            </button>
+          </section>
+        </>
+      )}
       {bet?.status === 'Resolved' && (
         <section className="rounded-3xl bg-green-50 p-5 text-center">
           <Trophy className="mx-auto mb-2 text-green-600" size={28} />

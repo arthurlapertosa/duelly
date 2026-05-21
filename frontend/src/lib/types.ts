@@ -58,7 +58,7 @@ export interface FeeQuoteView {
   totalRequiredAmountRaw: string;
 }
 
-export type InviteStatus = 'draft' | 'created' | 'accepted' | 'funding_submitted' | 'funded' | 'expired';
+export type InviteStatus = 'draft' | 'created' | 'accepted' | 'funding_submitted' | 'funded' | 'expired' | 'cancelled';
 
 export interface InviteView {
   id: string;

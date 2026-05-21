@@ -63,6 +63,7 @@ export interface DuellyApi {
   quoteLoserFee(stakeRaw: string, loserFeeBps: number): Promise<FeeQuoteView>;
   createInvite(token: string, input: { templateId: string; stakeRaw: string; loserFeeRaw: string; makerOutcomeIndex: number; recipientEmail?: string }): Promise<InviteCreateResult>;
   authorizeMaker(token: string, inviteId: string, offerSignature: Hex, makerPermit: PermitSubmission): Promise<{ invite: InviteView; requiredFundingRaw: string }>;
+  cancelInvite(token: string, inviteId: string): Promise<InviteView>;
   getInvite(inviteId: string, token?: string | null): Promise<PublicInviteResult | null>;
   acceptInvite(token: string, inviteId: string, takerOutcomeIndex: number): Promise<InviteAcceptResult>;
   authorizeTaker(token: string, inviteId: string, acceptanceSignature: Hex, takerPermit: PermitSubmission): Promise<TakerAuthorizationResult>;
@@ -165,6 +166,10 @@ function createHttpApi(baseUrl: string): DuellyApi {
         body: JSON.stringify({ offerSignature, makerPermit }),
       });
       return { invite: mapInvite(body.invite as Record<string, unknown>), requiredFundingRaw: body.requiredFundingRaw };
+    },
+    cancelInvite: async (token, inviteId) => {
+      const body = await request<{ invite: unknown }>(`/invites/${encodeURIComponent(inviteId)}`, { method: 'DELETE', token });
+      return mapInvite(body.invite as Record<string, unknown>);
     },
     getInvite: async (inviteId, token) => {
       try {
@@ -440,9 +445,18 @@ function createFixtureApi(): DuellyApi {
       writeFixtureState(state);
       return { invite, requiredFundingRaw: (BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw)).toString() };
     },
+    cancelInvite: async (token, inviteId) => {
+      const { state, user } = requireFixtureUser(token);
+      const invite = findFixtureInvite(state, inviteId);
+      if (invite.makerUserId !== user.id) throw new ApiError('INVITE_NOT_OWNED_BY_USER');
+      if (invite.status !== 'draft' && invite.status !== 'cancelled') throw new ApiError('INVITE_NOT_DRAFT');
+      invite.status = 'cancelled';
+      writeFixtureState(state);
+      return invite;
+    },
     getInvite: async (inviteId, token) => {
       const state = readFixtureState();
-      const invite = state.invites.find((item) => item.id === inviteId && item.status !== 'draft');
+      const invite = state.invites.find((item) => item.id === inviteId && item.status !== 'draft' && item.status !== 'cancelled');
       if (!invite) return null;
       const user = token ? state.users.find((item) => item.id === state.sessions[token]) ?? null : null;
       const normalized = normalizeFixtureInvite(invite, user?.email);
@@ -457,6 +471,17 @@ function createFixtureApi(): DuellyApi {
       const invite = findFixtureInvite(state, inviteId);
       if (invite.recipientEmail && invite.recipientEmail !== user.email) throw new ApiError('INVITE_RECIPIENT_MISMATCH');
       if (!user.wallet) throw new ApiError('WALLET_NOT_LINKED');
+      if (invite.status === 'accepted') {
+        if (invite.takerUserId !== user.id) throw new ApiError('INVITE_NOT_OWNED_BY_USER');
+        if (invite.takerOutcomeIndex !== takerOutcomeIndex || !invite.acceptancePayload || !invite.takerPermitPayload) throw new ApiError('INVITE_NOT_READY_FOR_TAKER_AUTHORIZATION');
+        return {
+          invite,
+          acceptancePayload: invite.acceptancePayload,
+          takerPermitPayload: invite.takerPermitPayload,
+          requiredFundingRaw: (BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw)).toString(),
+        };
+      }
+      if (invite.status !== 'created') throw new ApiError('INVITE_NOT_OPEN');
       invite.status = 'accepted';
       invite.takerUserId = user.id;
       invite.takerAddress = user.wallet.address;
@@ -526,6 +551,7 @@ function createFixtureApi(): DuellyApi {
       const { state, user } = requireFixtureUser(token);
       return state.invites
         .filter((invite) => invite.makerUserId === user.id || invite.takerUserId === user.id)
+        .filter((invite) => invite.status !== 'draft' && invite.status !== 'cancelled')
         .map((invite) => {
           const normalized = normalizeFixtureInvite(invite, user.email);
           const bet = invite.betId ? state.bets.find((item) => item.betId === invite.betId) ?? null : null;

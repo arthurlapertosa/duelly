@@ -191,6 +191,28 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   const draftPublicRead = await app.inject({ method: 'GET', url: `/invites/${invite.json().invite.id}` });
   assert.equal(draftPublicRead.statusCode, 404);
 
+  const draftToCancel = await app.inject({
+    method: 'POST',
+    url: '/invites',
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: {
+      templateId: 'fixture-f1-sprint-winner',
+      stake: '100000000000000000000',
+      loserFee: quote.json().selectedLoserFeeRaw,
+      makerOutcomeIndex: 0,
+    },
+  });
+  assert.equal(draftToCancel.statusCode, 200);
+  const cancelledDraft = await app.inject({
+    method: 'DELETE',
+    url: `/invites/${draftToCancel.json().invite.id}`,
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+  });
+  assert.equal(cancelledDraft.statusCode, 200);
+  assert.equal(cancelledDraft.json().invite.status, 'cancelled');
+  const cancelledPublicRead = await app.inject({ method: 'GET', url: `/invites/${draftToCancel.json().invite.id}` });
+  assert.equal(cancelledPublicRead.statusCode, 404);
+
   const invalidMakerAuthorization = await app.inject({
     method: 'POST',
     url: `/invites/${invite.json().invite.id}/maker-authorizations`,
@@ -231,6 +253,16 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   assert.equal(accepted.json().takerPermitPayload.primaryType, 'Permit');
   assert.equal(accepted.json().acceptancePayload.message.deadline, String(detail.json().template.bettingCloseAt));
   assert.equal(accepted.json().invite.status, 'accepted');
+
+  const resumedAcceptance = await app.inject({
+    method: 'POST',
+    url: `/invites/${invite.json().invite.id}/accept`,
+    headers: { authorization: `Bearer ${takerLogin.json().token}` },
+    payload: { takerOutcomeIndex: 1 },
+  });
+  assert.equal(resumedAcceptance.statusCode, 200);
+  assert.equal(resumedAcceptance.json().invite.status, 'accepted');
+  assert.equal(resumedAcceptance.json().acceptancePayload.message.nonce, accepted.json().acceptancePayload.message.nonce);
 
   const missingTakerAuthorization = await app.inject({
     method: 'POST',
