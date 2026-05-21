@@ -34,6 +34,17 @@ async function connectLinkedWallet(adapter: WalletAdapter, linkedAddress: Hex): 
   return address;
 }
 
+function customStakeToRaw(value: string): string {
+  const cleaned = value.replace(/[^\d.,]/g, '');
+  if (!cleaned) return '0';
+  const decimalIndex = Math.max(cleaned.lastIndexOf(','), cleaned.lastIndexOf('.'));
+  const normalized = decimalIndex >= 0
+    ? `${cleaned.slice(0, decimalIndex).replace(/\D/g, '') || '0'}.${cleaned.slice(decimalIndex + 1).replace(/\D/g, '').slice(0, 2)}`
+    : cleaned.replace(/\D/g, '');
+  const amount = Number(normalized);
+  return Number.isFinite(amount) && amount > 0 ? brlToRaw(amount) : '0';
+}
+
 function useI18n() {
   const locale = useAppStore((state) => state.locale);
   return { locale, t: (key: string, params?: Record<string, string | number>) => translate(locale, key, params) };
@@ -475,11 +486,17 @@ function TemplateDetailScreen() {
   const template = templates.find((item) => item.id === id);
   const [outcomeIndex, setOutcomeIndex] = useState<number | null>(null);
   const [stakeRaw, setStakeRaw] = useState(brlToRaw(50));
+  const [customStake, setCustomStake] = useState('');
   const [quote, setQuote] = useState<FeeQuoteView | null>(null);
   const [readiness, setReadiness] = useState<FundingReadinessView | null>(null);
 
   useEffect(() => {
     if (!template || !token) return;
+    if (BigInt(stakeRaw) <= 0n) {
+      setQuote(null);
+      setReadiness(null);
+      return;
+    }
     let active = true;
     void api.quoteLoserFee(stakeRaw, template.loserFeeBps).then(async (fee) => {
       if (!active) return;
@@ -493,6 +510,14 @@ function TemplateDetailScreen() {
 
   const canCreate = Boolean(wallet && quote && readiness?.canAttemptBet && outcomeIndex !== null);
   const createUrl = `/create-invite?templateId=${encodeURIComponent(template.id)}&outcomeIndex=${outcomeIndex ?? 0}&stakeRaw=${stakeRaw}&loserFeeRaw=${quote?.selectedLoserFeeRaw ?? '0'}`;
+  const choosePresetStake = (amount: number) => {
+    setCustomStake('');
+    setStakeRaw(brlToRaw(amount));
+  };
+  const updateCustomStake = (value: string) => {
+    setCustomStake(value);
+    setStakeRaw(customStakeToRaw(value));
+  };
 
   return (
     <Page>
@@ -523,11 +548,24 @@ function TemplateDetailScreen() {
         <h2 className="mb-3 text-base font-semibold text-slate-950">{t('template.amountQuestion')}</h2>
         <div className="grid grid-cols-4 gap-2">
           {stakeOptions.map((amount) => (
-            <button key={amount} type="button" onClick={() => setStakeRaw(brlToRaw(amount))} className={`rounded-xl py-2 text-sm font-semibold ${stakeRaw === brlToRaw(amount) ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+            <button key={amount} type="button" onClick={() => choosePresetStake(amount)} className={`rounded-xl py-2 text-sm font-semibold ${!customStake && stakeRaw === brlToRaw(amount) ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
               {formatBRL(brlToRaw(amount), locale)}
             </button>
           ))}
         </div>
+        <label className="mt-3 block">
+          <span className="mb-1.5 block text-xs font-semibold text-slate-600">{t('template.customAmount')}</span>
+          <span className={`flex items-center rounded-2xl border px-4 py-3 text-sm ${customStake ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500'}`}>
+            <span className="mr-2 font-semibold">R$</span>
+            <input
+              value={customStake}
+              onChange={(event) => updateCustomStake(event.target.value)}
+              inputMode="decimal"
+              placeholder="0.00"
+              className="w-full bg-transparent outline-none"
+            />
+          </span>
+        </label>
       </section>
       {quote && <AmountBreakdown quote={quote} />}
       <WalletReadinessCard readiness={readiness} />
