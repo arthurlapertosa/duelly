@@ -10,7 +10,7 @@ TAP version 13
 # Subtest: smartcontract workspace has expected bootstrap files
 ok 1 - smartcontract workspace has expected bootstrap files
   ---
-  duration_ms: 1.03033
+  duration_ms: 1.111936
   type: 'test'
   ...
 1..1
@@ -21,7 +21,7 @@ ok 1 - smartcontract workspace has expected bootstrap files
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 289.828902
+# duration_ms 66.475569
 
 > @duelly/smartcontract@0.1.0 test:forge
 > PATH="$HOME/.foundry/bin:$PATH" forge test
@@ -30,7 +30,7 @@ No files changed, compilation skipped
 
 Ran 1 test for test/PolygonForkCompatibility.t.sol:PolygonForkCompatibilityTest
 [PASS] test_PolygonForkLiveReadCompatibility() (gas: 164)
-Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 491.27µs (86.82µs CPU time)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 130.74µs (28.41µs CPU time)
 
 Ran 7 tests for test/Config.t.sol:ConfigTest
 [PASS] test_ConfigConstructorRejectsZeroAddresses() (gas: 449403)
@@ -40,36 +40,18 @@ Ran 7 tests for test/Config.t.sol:ConfigTest
 [PASS] test_ConfigOwnershipTransferRemovesOldOwnerOperationalAccess() (gas: 51610)
 [PASS] test_ConfigRoleProtectedSettersRejectUnauthorized() (gas: 21689)
 [PASS] test_ConfigSettersAreRoleControlledAndEmit() (gas: 77491)
-Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 2.69ms (1.13ms CPU time)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 1.81ms (600.47µs CPU time)
+
+Ran 1 test for test/Mocks.t.sol:MocksTest
+[PASS] test_MocksSmoke() (gas: 213680)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 992.02µs (262.84µs CPU time)
 
 Ran 4 tests for test/Fee.t.sol:FeeTest
 [PASS] test_FeeMaxLoserFeeBpsIsEnforcedAtRegistration() (gas: 40008)
 [PASS] test_FeeRejectsIncorrectSignedLoserFee() (gas: 272915)
 [PASS] test_FeeUsesGasAnchoredMinimumWhenAbovePercentage() (gas: 31945)
 [PASS] test_FeeUsesPercentageWhenAboveMinimum() (gas: 31961)
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 4.60ms (1.32ms CPU time)
-
-Ran 1 test for test/Mocks.t.sol:MocksTest
-[PASS] test_MocksSmoke() (gas: 213680)
-Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 17.77ms (537.81µs CPU time)
-
-Ran 6 tests for test/Security.t.sol:SecurityTest
-[PASS] test_SecurityExpiryFailsWhenCtfResolutionIsAvailable() (gas: 798050)
-[PASS] test_SecurityExpiryRefundsAfterDeadlineOnly() (gas: 651472)
-[PASS] test_SecurityMinMaxStakeEnforced() (gas: 281993)
-[PASS] test_SecurityPauseBlocksNewFundingButAllowsResolution() (gas: 832640)
-[PASS] test_SecurityReentrantTokenCannotEnterEscrow() (gas: 4634129)
-[PASS] test_SecurityRefundWorksWhilePaused() (gas: 650866)
-Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 50.63ms (48.46ms CPU time)
-
-Ran 6 tests for test/Resolution.t.sol:ResolutionTest
-[PASS] test_ResolutionDenominatorZeroRevertsUnresolved() (gas: 655613)
-[PASS] test_ResolutionEqualPartialAndBothNonZeroVoid() (gas: 1156352)
-[PASS] test_ResolutionInvalidSlotCountVoids() (gas: 761343)
-[PASS] test_ResolutionStrictOutcomeOneWins() (gas: 795601)
-[PASS] test_ResolutionStrictOutcomeZeroWins() (gas: 795575)
-[PASS] test_ResolutionVoidsWhenSlotCountCallUnavailable() (gas: 717459)
-Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 57.50ms (77.38ms CPU time)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 3.33ms (1.80ms CPU time)
 
 Ran 7 tests for test/Funding.t.sol:FundingTest
 [PASS] test_FundingExpiredPermitFailsWithoutBet() (gas: 343209)
@@ -79,7 +61,32 @@ Ran 7 tests for test/Funding.t.sol:FundingTest
 [PASS] test_FundingPermitValueTooLowFails() (gas: 336355)
 [PASS] test_FundingValidPermitsPullExactEscrowAndEmitBet() (gas: 657938)
 [PASS] test_FundingWrongSpenderPermitFails() (gas: 341826)
-Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 54.40ms (51.38ms CPU time)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 9.35ms (6.98ms CPU time)
+
+Ran 6 tests for test/Resolution.t.sol:ResolutionTest
+[PASS] test_ResolutionDenominatorZeroRevertsUnresolved() (gas: 655613)
+[PASS] test_ResolutionEqualPartialAndBothNonZeroVoid() (gas: 1156352)
+[PASS] test_ResolutionInvalidSlotCountVoids() (gas: 761343)
+[PASS] test_ResolutionStrictOutcomeOneWins() (gas: 795601)
+[PASS] test_ResolutionStrictOutcomeZeroWins() (gas: 795575)
+[PASS] test_ResolutionVoidsWhenSlotCountCallUnavailable() (gas: 717459)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 8.85ms (8.04ms CPU time)
+
+Ran 4 tests for test/Settlement.t.sol:SettlementTest
+[PASS] test_SettlementDoubleSettlementFails() (gas: 789287)
+[PASS] test_SettlementPlayerAWinsPaysWinnerAndTreasury() (gas: 802243)
+[PASS] test_SettlementPlayerBWinsPaysWinnerAndTreasury() (gas: 795883)
+[PASS] test_SettlementVoidRefundsBothPlayersAndTreasuryZero() (gas: 794351)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 5.48ms (6.68ms CPU time)
+
+Ran 6 tests for test/Security.t.sol:SecurityTest
+[PASS] test_SecurityExpiryFailsWhenCtfResolutionIsAvailable() (gas: 798050)
+[PASS] test_SecurityExpiryRefundsAfterDeadlineOnly() (gas: 651472)
+[PASS] test_SecurityMinMaxStakeEnforced() (gas: 281993)
+[PASS] test_SecurityPauseBlocksNewFundingButAllowsResolution() (gas: 832640)
+[PASS] test_SecurityReentrantTokenCannotEnterEscrow() (gas: 4634129)
+[PASS] test_SecurityRefundWorksWhilePaused() (gas: 650866)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 7.32ms (7.16ms CPU time)
 
 Ran 5 tests for test/Template.t.sol:TemplateTest
 [PASS] test_TemplateHashMatchesM1BackendVector() (gas: 12505)
@@ -87,14 +94,7 @@ Ran 5 tests for test/Template.t.sol:TemplateTest
 [PASS] test_TemplateRejectsDuplicateInactiveAndMismatchedConditionFunding() (gas: 282431)
 [PASS] test_TemplateRejectsHashMismatch() (gas: 25229)
 [PASS] test_TemplateRejectsUnregisteredClosedAndInvalidOutcomeIndexes() (gas: 376334)
-Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 15.88ms (3.66ms CPU time)
-
-Ran 4 tests for test/Settlement.t.sol:SettlementTest
-[PASS] test_SettlementDoubleSettlementFails() (gas: 789287)
-[PASS] test_SettlementPlayerAWinsPaysWinnerAndTreasury() (gas: 802243)
-[PASS] test_SettlementPlayerBWinsPaysWinnerAndTreasury() (gas: 795883)
-[PASS] test_SettlementVoidRefundsBothPlayersAndTreasuryZero() (gas: 794351)
-Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 25.36ms (11.03ms CPU time)
+Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 5.86ms (2.62ms CPU time)
 
 Ran 7 tests for test/EIP712.t.sol:EIP712Test
 [PASS] test_EIP712CancelledNonceFails() (gas: 276190)
@@ -104,6 +104,6 @@ Ran 7 tests for test/EIP712.t.sol:EIP712Test
 [PASS] test_EIP712UnauthorizedTakerAndSameOutcomeFail() (gas: 313133)
 [PASS] test_EIP712ValidSignaturesFundBet() (gas: 650574)
 [PASS] test_EIP712WrongMakerSignerFails() (gas: 262196)
-Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 51.95ms (51.40ms CPU time)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 14.21ms (15.82ms CPU time)
 
-Ran 10 test suites in 81.17ms (281.28ms CPU time): 48 tests passed, 0 failed, 0 skipped (48 total tests)
+Ran 10 test suites in 15.27ms (57.33ms CPU time): 48 tests passed, 0 failed, 0 skipped (48 total tests)
