@@ -41,6 +41,10 @@ node scripts/blockchain/polymarket-condition-inspect.mjs \
   --condition-id "$POLYMARKET_CONDITION_ID"
 ```
 
+## Local fork QA
+
+Use `docs/LOCAL_FORK_QA.md` for backend plus smart-contract end-to-end testing on a local Polygon fork. The fork uses chain ID `137`, mock BRL1, mock Polymarket CTF, real EIP-712 signatures, and real ERC-2612 permits without sending live transactions.
+
 ## Minimum QA
 
 ```bash

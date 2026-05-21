@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'template_publish_audits' })

@@ -1,0 +1,9 @@
+{
+  "stakeRaw": "100000000000000000000",
+  "loserFeeBps": 250,
+  "percentFeeRaw": "2500000000000000000",
+  "gasAnchoredMinimumRaw": "3000000000000000000",
+  "selectedLoserFeeRaw": "3000000000000000000",
+  "totalRequiredAmountRaw": "103000000000000000000",
+  "explanation": "The service fee is selected from the percentage fee and the configured minimum required for settlement."
+}

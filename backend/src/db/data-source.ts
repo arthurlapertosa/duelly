@@ -7,8 +7,10 @@ import {
   RejectedCandidateEntity,
   SportsTemplateEntity,
   TemplatePublishAuditEntity,
+  orchestrationEntities,
 } from '../modules/templates/persistence/entities/index.js';
 import { CreateM1TemplateTables1716100000000 } from './migrations/1716100000000-CreateM1TemplateTables.js';
+import { CreateOrchestrationTables1716200000000 } from './migrations/1716200000000-CreateOrchestrationTables.js';
 
 export function createDataSource(config: AppConfig = loadAppConfig()): DataSource {
   if (!config.database.enabled) {
@@ -25,8 +27,9 @@ export function createDataSource(config: AppConfig = loadAppConfig()): DataSourc
       SportsTemplateEntity,
       RejectedCandidateEntity,
       TemplatePublishAuditEntity,
+      ...orchestrationEntities,
     ],
-    migrations: [CreateM1TemplateTables1716100000000],
+    migrations: [CreateM1TemplateTables1716100000000, CreateOrchestrationTables1716200000000],
   };
 
   if (config.database.url) {

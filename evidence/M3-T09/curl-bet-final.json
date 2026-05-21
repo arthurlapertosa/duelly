@@ -1,0 +1,21 @@
+{
+  "bet": {
+    "betId": "6",
+    "inviteId": "invite-242a8bc5-f78a-4e9c-be19-2aa711a656e0",
+    "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
+    "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+    "playerA": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+    "playerB": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+    "playerAOutcomeIndex": 0,
+    "playerBOutcomeIndex": 1,
+    "stake": "100000000000000000000",
+    "loserFee": "3000000000000000000",
+    "status": "Resolved",
+    "winner": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+    "winnerPayout": "203000000000000000000",
+    "treasuryPayout": "3000000000000000000",
+    "sourceTransactionHash": "0x94b6bb58f2ab7181cbba64cfb5799c3c65d7c174401ef486c08d4e9054ff97e6",
+    "sourceBlockNumber": "87177774",
+    "updatedAt": "2026-05-20T20:44:19.403Z"
+  }
+}

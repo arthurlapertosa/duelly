@@ -27,6 +27,8 @@ Evidence by area:
 - Smartcontract: local test output, state summaries, calldata, or read-only script output when contract behavior changes.
 - End-to-end: combined frontend, backend, and smart-contract validation when all three systems are involved.
 
+For backend plus smart-contract orchestration, use `docs/LOCAL_FORK_QA.md` to run the local Polygon fork E2E flow before recording evidence.
+
 ## Failures
 
 If a test cannot be executed, record:

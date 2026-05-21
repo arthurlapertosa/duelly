@@ -1,0 +1,11 @@
+
+> @duelly/backend@0.1.0 db:migration:run
+> tsx src/db/run-migrations.ts
+
+{
+  "ok": true,
+  "migrationsRun": [
+    "CreateM1TemplateTables1716100000000",
+    "CreateOrchestrationTables1716200000000"
+  ]
+}

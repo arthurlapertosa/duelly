@@ -1,0 +1,109 @@
+
+> @duelly/smartcontract@0.1.0 test
+> npm run test:node && npm run test:forge
+
+
+> @duelly/smartcontract@0.1.0 test:node
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: smartcontract workspace has expected bootstrap files
+ok 1 - smartcontract workspace has expected bootstrap files
+  ---
+  duration_ms: 1.081856
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 61.697636
+
+> @duelly/smartcontract@0.1.0 test:forge
+> PATH="$HOME/.foundry/bin:$PATH" forge test
+
+No files changed, compilation skipped
+
+Ran 1 test for test/PolygonForkCompatibility.t.sol:PolygonForkCompatibilityTest
+[PASS] test_PolygonForkLiveReadCompatibility() (gas: 164)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.18ms (205.08µs CPU time)
+
+Ran 7 tests for test/Config.t.sol:ConfigTest
+[PASS] test_ConfigConstructorRejectsZeroAddresses() (gas: 449403)
+[PASS] test_ConfigInitialDefaults() (gas: 34456)
+[PASS] test_ConfigInvalidLimitsFail() (gas: 18572)
+[PASS] test_ConfigOnlyOwnerCanSetRoles() (gas: 46240)
+[PASS] test_ConfigOwnershipTransferRemovesOldOwnerOperationalAccess() (gas: 51610)
+[PASS] test_ConfigRoleProtectedSettersRejectUnauthorized() (gas: 21689)
+[PASS] test_ConfigSettersAreRoleControlledAndEmit() (gas: 77491)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 1.53ms (741.09µs CPU time)
+
+Ran 4 tests for test/Fee.t.sol:FeeTest
+[PASS] test_FeeMaxLoserFeeBpsIsEnforcedAtRegistration() (gas: 40008)
+[PASS] test_FeeRejectsIncorrectSignedLoserFee() (gas: 272915)
+[PASS] test_FeeUsesGasAnchoredMinimumWhenAbovePercentage() (gas: 31945)
+[PASS] test_FeeUsesPercentageWhenAboveMinimum() (gas: 31961)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 4.83ms (1.24ms CPU time)
+
+Ran 1 test for test/Mocks.t.sol:MocksTest
+[PASS] test_MocksSmoke() (gas: 213680)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.07ms (393.66µs CPU time)
+
+Ran 7 tests for test/Funding.t.sol:FundingTest
+[PASS] test_FundingExpiredPermitFailsWithoutBet() (gas: 343209)
+[PASS] test_FundingInsufficientBalanceRevertsAtomically() (gas: 494365)
+[PASS] test_FundingInvalidPermitFailsEvenWithStaleAllowance() (gas: 373741)
+[PASS] test_FundingPermitFrontRunFallsBackToExistingAllowance() (gas: 646919)
+[PASS] test_FundingPermitValueTooLowFails() (gas: 336355)
+[PASS] test_FundingValidPermitsPullExactEscrowAndEmitBet() (gas: 657938)
+[PASS] test_FundingWrongSpenderPermitFails() (gas: 341826)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 13.30ms (11.99ms CPU time)
+
+Ran 4 tests for test/Settlement.t.sol:SettlementTest
+[PASS] test_SettlementDoubleSettlementFails() (gas: 789287)
+[PASS] test_SettlementPlayerAWinsPaysWinnerAndTreasury() (gas: 802243)
+[PASS] test_SettlementPlayerBWinsPaysWinnerAndTreasury() (gas: 795883)
+[PASS] test_SettlementVoidRefundsBothPlayersAndTreasuryZero() (gas: 794351)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 5.81ms (5.07ms CPU time)
+
+Ran 6 tests for test/Security.t.sol:SecurityTest
+[PASS] test_SecurityExpiryFailsWhenCtfResolutionIsAvailable() (gas: 798050)
+[PASS] test_SecurityExpiryRefundsAfterDeadlineOnly() (gas: 651472)
+[PASS] test_SecurityMinMaxStakeEnforced() (gas: 281993)
+[PASS] test_SecurityPauseBlocksNewFundingButAllowsResolution() (gas: 832640)
+[PASS] test_SecurityReentrantTokenCannotEnterEscrow() (gas: 4634129)
+[PASS] test_SecurityRefundWorksWhilePaused() (gas: 650866)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 10.70ms (8.02ms CPU time)
+
+Ran 5 tests for test/Template.t.sol:TemplateTest
+[PASS] test_TemplateHashMatchesM1BackendVector() (gas: 12505)
+[PASS] test_TemplateRegistersAndReturnsActiveTemplate() (gas: 199076)
+[PASS] test_TemplateRejectsDuplicateInactiveAndMismatchedConditionFunding() (gas: 282431)
+[PASS] test_TemplateRejectsHashMismatch() (gas: 25229)
+[PASS] test_TemplateRejectsUnregisteredClosedAndInvalidOutcomeIndexes() (gas: 376334)
+Suite result: ok. 5 passed; 0 failed; 0 skipped; finished in 2.93ms (2.78ms CPU time)
+
+Ran 7 tests for test/EIP712.t.sol:EIP712Test
+[PASS] test_EIP712CancelledNonceFails() (gas: 276190)
+[PASS] test_EIP712ExpiredOfferFails() (gas: 249889)
+[PASS] test_EIP712ReusedOfferHashAndNonceFail() (gas: 672824)
+[PASS] test_EIP712TamperedStakeInvalidatesSignature() (gas: 265408)
+[PASS] test_EIP712UnauthorizedTakerAndSameOutcomeFail() (gas: 313133)
+[PASS] test_EIP712ValidSignaturesFundBet() (gas: 650574)
+[PASS] test_EIP712WrongMakerSignerFails() (gas: 262196)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 13.80ms (7.83ms CPU time)
+
+Ran 6 tests for test/Resolution.t.sol:ResolutionTest
+[PASS] test_ResolutionDenominatorZeroRevertsUnresolved() (gas: 655613)
+[PASS] test_ResolutionEqualPartialAndBothNonZeroVoid() (gas: 1156352)
+[PASS] test_ResolutionInvalidSlotCountVoids() (gas: 761343)
+[PASS] test_ResolutionStrictOutcomeOneWins() (gas: 795601)
+[PASS] test_ResolutionStrictOutcomeZeroWins() (gas: 795575)
+[PASS] test_ResolutionVoidsWhenSlotCountCallUnavailable() (gas: 717459)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 12.43ms (12.47ms CPU time)
+
+Ran 10 test suites in 16.31ms (67.58ms CPU time): 48 tests passed, 0 failed, 0 skipped (48 total tests)

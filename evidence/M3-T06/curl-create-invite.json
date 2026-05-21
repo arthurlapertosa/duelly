@@ -1,0 +1,77 @@
+{
+  "invite": {
+    "id": "invite-242a8bc5-f78a-4e9c-be19-2aa711a656e0",
+    "status": "created",
+    "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
+    "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+    "makerAddress": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+    "takerAddress": null,
+    "makerOutcomeIndex": 0,
+    "takerOutcomeIndex": null,
+    "stakeRaw": "100000000000000000000",
+    "loserFeeRaw": "3000000000000000000",
+    "expiresAt": "2026-05-20T21:38:53.000Z",
+    "betId": null
+  },
+  "offerPayload": {
+    "domain": {
+      "name": "DuellyBetEscrowBRL1",
+      "version": "1",
+      "chainId": 137,
+      "verifyingContract": "0xBFa43c5A715685Ef5867729E40367CB9eb0434e4"
+    },
+    "types": {
+      "BetOffer": [
+        {
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "name": "taker",
+          "type": "address"
+        },
+        {
+          "name": "templateHash",
+          "type": "bytes32"
+        },
+        {
+          "name": "conditionId",
+          "type": "bytes32"
+        },
+        {
+          "name": "makerOutcomeIndex",
+          "type": "uint8"
+        },
+        {
+          "name": "stake",
+          "type": "uint256"
+        },
+        {
+          "name": "loserFee",
+          "type": "uint256"
+        },
+        {
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "name": "deadline",
+          "type": "uint64"
+        }
+      ]
+    },
+    "primaryType": "BetOffer",
+    "message": {
+      "maker": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+      "taker": "0x0000000000000000000000000000000000000000",
+      "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f",
+      "conditionId": "0x0808080808080808080808080808080808080808080808080808080808080808",
+      "makerOutcomeIndex": 0,
+      "stake": "100000000000000000000",
+      "loserFee": "3000000000000000000",
+      "nonce": "1779309533021391",
+      "deadline": "1779313133"
+    }
+  },
+  "requiredFundingRaw": "103000000000000000000"
+}
