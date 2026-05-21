@@ -15,6 +15,7 @@ const keys = [
   'POLYMARKET_DISCOVERY_MODE',
   'POLYMARKET_DISCOVERY_TIMEOUT_MS',
   'POLYMARKET_DISCOVERY_MAX_RESULTS',
+  'INVITE_TTL_SECONDS',
 ];
 
 test('loadAppConfig supports explicit DB variables and fixture mode defaults', () => {
@@ -32,6 +33,7 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.database.port, 5432);
     assert.equal(config.polymarket.discoveryMode, 'fixture');
     assert.equal(config.polymarket.gammaBaseUrl, 'https://gamma-api.polymarket.com');
+    assert.equal(config.invites.ttlSeconds, 3600);
   } finally {
     restoreEnv(previous);
   }

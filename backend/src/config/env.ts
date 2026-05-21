@@ -33,6 +33,9 @@ export interface AppConfig {
     walletChallengeTtlSeconds: number;
     mockAuthEnabled: boolean;
   };
+  invites: {
+    ttlSeconds: number;
+  };
   chain: {
     enabled: boolean;
     rpcUrl?: string;
@@ -133,6 +136,9 @@ export function loadAppConfig(): AppConfig {
       sessionTtlSeconds: readInteger('AUTH_SESSION_TTL_SECONDS', 7 * 24 * 60 * 60),
       walletChallengeTtlSeconds: readInteger('WALLET_CHALLENGE_TTL_SECONDS', 10 * 60),
       mockAuthEnabled: readBoolean('AUTH_MOCK_ENABLED', process.env.NODE_ENV === 'test'),
+    },
+    invites: {
+      ttlSeconds: readInteger('INVITE_TTL_SECONDS', 60 * 60),
     },
     chain: {
       enabled: readBoolean('CHAIN_ENABLED', Boolean(process.env.CHAIN_RPC_URL || process.env.POLYGON_RPC_URL || process.env.EVM_RPC_URL)),

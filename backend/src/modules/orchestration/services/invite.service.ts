@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Hex } from 'viem';
+import type { AppConfig } from '../../../config/env.js';
 import type { CanonicalSportsTemplate } from '../../templates/domain/types.js';
 import { betAcceptanceTypes, betOfferTypes, type BetAcceptanceMessage, type BetOfferMessage } from '../chain.js';
 import type { ChainService } from '../chain.js';
@@ -10,7 +11,12 @@ import { inviteToOffer, stringifyBigints, ZERO_ADDRESS } from './invite-payloads
 import type { WalletService } from './wallet.service.js';
 
 export class InviteService {
-  constructor(private readonly repository: OrchestrationRepository, private readonly walletService: WalletService, private readonly chain: ChainService) {}
+  constructor(
+    private readonly repository: OrchestrationRepository,
+    private readonly walletService: WalletService,
+    private readonly chain: ChainService,
+    private readonly config: AppConfig,
+  ) {}
 
   async create(user: UserAccount, template: CanonicalSportsTemplate, stake: bigint, loserFee: bigint, makerOutcomeIndex: number, taker?: string) {
     const wallet = await this.walletService.activeWallet(user);
@@ -19,7 +25,10 @@ export class InviteService {
       throw httpError(400, 'INVALID_MAKER_OUTCOME');
     }
     const takerAddress = taker ? this.chain.normalizeAddress(taker) : ZERO_ADDRESS;
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60);
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    const deadlineSeconds = Math.min(nowSeconds + this.config.invites.ttlSeconds, template.bettingCloseAt);
+    if (deadlineSeconds <= nowSeconds) throw httpError(400, 'TEMPLATE_CLOSED');
+    const deadline = BigInt(deadlineSeconds);
     const nonce = BigInt(Date.now()) * 1000n + BigInt(Math.floor(Math.random() * 1000));
     const offer: BetOfferMessage = {
       maker: wallet.address,

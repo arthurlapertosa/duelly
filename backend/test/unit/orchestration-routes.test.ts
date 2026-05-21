@@ -8,7 +8,7 @@ import { loadAppConfig } from '../../src/config/env.js';
 const maker = privateKeyToAccount('0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 const taker = privateKeyToAccount('0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
 
-function testConfig() {
+function testConfig(options: { inviteTtlSeconds?: number } = {}) {
   return {
     ...loadAppConfig(),
     nodeEnv: 'test',
@@ -17,6 +17,9 @@ function testConfig() {
       sessionTtlSeconds: 3600,
       walletChallengeTtlSeconds: 600,
       mockAuthEnabled: true,
+    },
+    invites: {
+      ttlSeconds: options.inviteTtlSeconds ?? 3600,
     },
     chain: {
       enabled: false,
@@ -102,8 +105,13 @@ test('Wallet challenge links a private wallet without exposing key material', as
 });
 
 test('Fee quote, template detail, invite, and acceptance payloads are exposed', async () => {
-  const app = await createApp({ config: testConfig() });
-  test.after(async () => app.close());
+  const originalDateNow = Date.now;
+  Date.now = () => new Date('2026-05-20T00:00:00.000Z').getTime();
+  const app = await createApp({ config: testConfig({ inviteTtlSeconds: 10 * 365 * 24 * 60 * 60 }) });
+  test.after(async () => {
+    Date.now = originalDateNow;
+    await app.close();
+  });
 
   const makerLogin = await app.inject({ method: 'POST', url: '/auth/register', payload: { email: 'maker@example.test', password: 'password-123' } });
   const takerLogin = await app.inject({ method: 'POST', url: '/auth/register', payload: { email: 'taker@example.test', password: 'password-123' } });
@@ -174,6 +182,8 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   assert.equal(invite.statusCode, 200);
   assert.equal(invite.json().offerPayload.primaryType, 'BetOffer');
   assert.equal(invite.json().offerPayload.domain.chainId, 137);
+  assert.equal(invite.json().offerPayload.message.deadline, String(detail.json().template.bettingCloseAt));
+  assert.equal(invite.json().invite.expiresAt, new Date(detail.json().template.bettingCloseAt * 1000).toISOString());
 
   const accepted = await app.inject({
     method: 'POST',
@@ -183,5 +193,6 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   });
   assert.equal(accepted.statusCode, 200);
   assert.equal(accepted.json().acceptancePayload.primaryType, 'BetAcceptance');
+  assert.equal(accepted.json().acceptancePayload.message.deadline, String(detail.json().template.bettingCloseAt));
   assert.equal(accepted.json().invite.status, 'accepted');
 });
