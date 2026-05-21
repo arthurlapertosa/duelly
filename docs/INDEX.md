@@ -20,6 +20,7 @@ This directory is the project record for Duelly.
 - `FRONTEND.md`: frontend guidelines.
 - `BACKEND.md`: backend guidelines.
 - `BLOCKCHAIN.md`: smart contract, BRL1, ERC-2612, EIP-712, and Polymarket CTF guidelines.
+- `LOCAL_FORK_QA.md`: production-like local Polygon fork setup and backend/contract E2E QA flow.
 - `DESIGN.md`: UX, copy, and product design guidance.
 - `SECURITY.md`: security, privacy, keys, and risk areas.
 

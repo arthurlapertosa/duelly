@@ -24,6 +24,10 @@ The backend should be open-source and operate as the product, account, integrati
 - Always include tests for endpoints, jobs, and adapters.
 - Record evidence in the PR.
 
+## Local fork QA
+
+Use `docs/LOCAL_FORK_QA.md` when validating backend orchestration against contracts. It documents the local Polygon fork, deployment cache, backend env mapping, wallet linking, funding relay, indexer reindex, and resolution flow.
+
 ## Minimum QA
 
 ```bash
