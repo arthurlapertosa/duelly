@@ -49,6 +49,7 @@ test('CORS allows configured frontend origins and preflight requests', async () 
   assert.equal(preflight.statusCode, 204);
   assert.equal(preflight.headers['access-control-allow-origin'], 'http://localhost:5173');
   assert.match(String(preflight.headers['access-control-allow-headers']), /authorization/);
+  assert.match(String(preflight.headers['access-control-allow-methods']), /DELETE/);
 
   const disallowed = await app.inject({
     method: 'OPTIONS',

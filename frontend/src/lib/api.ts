@@ -89,7 +89,9 @@ export class ApiError extends Error {
 
 async function request<T>(path: string, options: RequestInit & { token?: string } = {}): Promise<T> {
   const headers = new Headers(options.headers);
-  headers.set('content-type', 'application/json');
+  if (options.body !== undefined && options.body !== null && !headers.has('content-type')) {
+    headers.set('content-type', 'application/json');
+  }
   if (options.token) headers.set('authorization', `Bearer ${options.token}`);
   const response = await fetch(`${apiBaseUrl}${path}`, { ...options, headers });
   const body = await response.json().catch(() => ({}));

@@ -131,6 +131,7 @@ export interface PermitSubmission {
 export interface WalletAdapter {
   label: string;
   connect(): Promise<Hex>;
+  selectAccount(): Promise<Hex>;
   signMessage(address: Hex, message: string): Promise<Hex>;
   signTypedData(address: Hex, payload: TypedPayload): Promise<Hex>;
   signPermit(address: Hex, payload: TypedPayload): Promise<PermitSubmission>;

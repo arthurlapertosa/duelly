@@ -86,7 +86,7 @@ export const useAppStore = create<AppStore>()(
         set({ loading: true, error: null });
         try {
           const adapter = createWalletAdapter(api.mode);
-          const address = await adapter.connect();
+          const address = await adapter.selectAccount();
           const challenge = await api.createWalletChallenge(token, address);
           const signature = await adapter.signMessage(address, challenge.message);
           const wallet = await api.linkWallet(token, challenge.id, signature);

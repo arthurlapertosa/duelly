@@ -19,14 +19,17 @@ export function createWalletAdapter(mode: ApiMode): WalletAdapter {
 }
 
 function createFixtureWalletAdapter(): WalletAdapter {
+  const connect = async () => {
+    const email = window.localStorage.getItem('duelly-last-email') ?? '';
+    return email.includes('taker') || email.includes('opponent')
+      ? '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+      : '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  };
+
   return {
     label: 'fixture',
-    async connect() {
-      const email = window.localStorage.getItem('duelly-last-email') ?? '';
-      return email.includes('taker') || email.includes('opponent')
-        ? '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-        : '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-    },
+    connect,
+    selectAccount: connect,
     async signMessage() {
       return fixtureSignature;
     },
@@ -51,10 +54,15 @@ function createInjectedWalletAdapter(): WalletAdapter {
     label: 'injected',
     async connect() {
       const provider = requireProvider();
-      const accounts = await provider.request<string[]>({ method: 'eth_requestAccounts' });
-      const account = accounts[0];
-      if (!account?.startsWith('0x')) throw new Error('NO_WALLET_ACCOUNT');
-      return account as Hex;
+      return await requestAccount(provider);
+    },
+    async selectAccount() {
+      const provider = requireProvider();
+      await provider.request({
+        method: 'wallet_requestPermissions',
+        params: [{ eth_accounts: {} }],
+      });
+      return await requestAccount(provider);
     },
     async signMessage(address, message) {
       const provider = requireProvider();
@@ -72,6 +80,13 @@ function createInjectedWalletAdapter(): WalletAdapter {
       return permitFromSignature(signature, payload);
     },
   };
+}
+
+async function requestAccount(provider: Eip1193Provider): Promise<Hex> {
+  const accounts = await provider.request<string[]>({ method: 'eth_requestAccounts' });
+  const account = accounts[0];
+  if (!account?.startsWith('0x')) throw new Error('NO_WALLET_ACCOUNT');
+  return account as Hex;
 }
 
 export function metaMaskTypedPayload(payload: TypedPayload): TypedPayload {

@@ -41,6 +41,12 @@ test('known API and wallet errors have localized messages and fallbacks', () => 
   assert.equal(errorMessage('en-US', new Error('SOMETHING_NEW')), translate('en-US', 'error.UNKNOWN_ERROR'));
 });
 
+test('HTTP requests only send JSON content type when a body is present', () => {
+  const source = readFileSync(resolve('src/lib/api.ts'), 'utf8');
+  assert.match(source, /options\.body !== undefined && options\.body !== null/);
+  assert.match(source, /headers\.set\('content-type', 'application\/json'\)/);
+});
+
 test('injected wallet typed data includes the EIP-712 domain type for MetaMask', () => {
   const payload = metaMaskTypedPayload({
     domain: {
@@ -68,6 +74,14 @@ test('injected wallet typed data includes the EIP-712 domain type for MetaMask',
     { name: 'verifyingContract', type: 'address' },
   ]);
   assert.equal(payload.types.BetOffer.length, 2);
+});
+
+test('wallet verification asks the browser wallet to choose an account', () => {
+  const walletSource = readFileSync(resolve('src/lib/wallet.ts'), 'utf8');
+  const storeSource = readFileSync(resolve('src/store/useAppStore.ts'), 'utf8');
+  assert.match(walletSource, /wallet_requestPermissions/);
+  assert.match(walletSource, /eth_accounts/);
+  assert.match(storeSource, /adapter\.selectAccount\(\)/);
 });
 
 test('structured backend and frontend error codes are registered for translation', () => {
