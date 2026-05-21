@@ -1,0 +1,225 @@
+{
+  "fork": {
+    "rpcUrl": "http://127.0.0.1:8545",
+    "chainId": 137,
+    "blockBefore": "87177784",
+    "blockAfter": "87177784"
+  },
+  "steps": [
+    {
+      "step": "maker register",
+      "statusCode": 200
+    },
+    {
+      "step": "maker wallet challenge",
+      "statusCode": 200
+    },
+    {
+      "step": "maker wallet link",
+      "statusCode": 200,
+      "wallet": {
+        "address": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+        "verificationStatus": "verified"
+      }
+    },
+    {
+      "step": "taker register",
+      "statusCode": 200
+    },
+    {
+      "step": "taker wallet challenge",
+      "statusCode": 200
+    },
+    {
+      "step": "taker wallet link",
+      "statusCode": 200,
+      "wallet": {
+        "address": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+        "verificationStatus": "verified"
+      }
+    },
+    {
+      "step": "template detail",
+      "statusCode": 200,
+      "templateId": "fixture-f1-sprint-winner"
+    },
+    {
+      "step": "publish template",
+      "statusCode": 200,
+      "publish": {
+        "status": "already_registered",
+        "transactionHash": null,
+        "templateHash": "0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f"
+      }
+    },
+    {
+      "step": "quote loser fee",
+      "statusCode": 200,
+      "selectedLoserFeeRaw": "3000000000000000000"
+    },
+    {
+      "step": "create draft invite",
+      "statusCode": 200,
+      "invite": {
+        "id": "invite-fdb0f8ee-7a17-4675-a8b3-35b52754e10f",
+        "status": "draft",
+        "betId": null
+      },
+      "shareable": false
+    },
+    {
+      "step": "public draft read is hidden",
+      "statusCode": 404,
+      "code": "INVITE_NOT_FOUND"
+    },
+    {
+      "step": "store maker authorization",
+      "statusCode": 200,
+      "invite": {
+        "id": "invite-fdb0f8ee-7a17-4675-a8b3-35b52754e10f",
+        "status": "created",
+        "betId": null
+      },
+      "shareable": true
+    },
+    {
+      "step": "read shareable invite",
+      "statusCode": 200,
+      "invite": {
+        "id": "invite-fdb0f8ee-7a17-4675-a8b3-35b52754e10f",
+        "status": "created",
+        "betId": null
+      },
+      "templateId": "fixture-f1-sprint-winner",
+      "shareable": true
+    },
+    {
+      "step": "accept invite",
+      "statusCode": 200,
+      "invite": {
+        "id": "invite-fdb0f8ee-7a17-4675-a8b3-35b52754e10f",
+        "status": "accepted",
+        "betId": null
+      }
+    },
+    {
+      "step": "store taker authorization and fund",
+      "statusCode": 200,
+      "invite": {
+        "id": "invite-fdb0f8ee-7a17-4675-a8b3-35b52754e10f",
+        "status": "funded",
+        "betId": "11"
+      },
+      "funding": {
+        "status": "success",
+        "betId": "11",
+        "transactionHash": "0x0945929ef5a634ad291d2a896b919868ba0f2bab6a3483e84960aef6527bd7a9"
+      }
+    },
+    {
+      "step": "index funded bet",
+      "statusCode": 200,
+      "events": 8
+    },
+    {
+      "step": "read indexed bet by invite",
+      "statusCode": 200,
+      "bet": {
+        "betId": "11",
+        "status": "Funded",
+        "winner": null
+      }
+    },
+    {
+      "step": "resolution attempt before explicit payout in this run",
+      "statusCode": 200,
+      "attempt": {
+        "id": "resolution-8317f32b-3c29-47e4-9081-6e4594730ca6",
+        "status": "resolved",
+        "transactionHash": "0x4fea88365c7be3770af11995c9d9c431a97c052eb7a38f60a1be2dfbccbc8f15"
+      }
+    },
+    {
+      "step": "mock CTF payout skipped",
+      "reason": "condition already had payout in reused local fork"
+    },
+    {
+      "step": "index after resolution",
+      "statusCode": 200,
+      "events": 9
+    },
+    {
+      "step": "read bet after resolution",
+      "statusCode": 200,
+      "bet": {
+        "betId": "11",
+        "status": "Resolved",
+        "winner": "0xd843019D84A44bb1787A2742D42581569A8f06cA"
+      }
+    },
+    {
+      "step": "maker bet list",
+      "statusCode": 200,
+      "bets": {
+        "count": 1,
+        "first": {
+          "role": "maker",
+          "status": "funded",
+          "templateId": "fixture-f1-sprint-winner",
+          "betStatus": "Resolved"
+        }
+      }
+    }
+  ],
+  "balances": {
+    "before": {
+      "maker": {
+        "address": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+        "nativePol": "0",
+        "brl1Raw": "10500000000000000000000",
+        "permitNonce": "10"
+      },
+      "taker": {
+        "address": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+        "nativePol": "0",
+        "brl1Raw": "9267000000000000000000",
+        "permitNonce": "10"
+      },
+      "relayer": {
+        "address": "0xe206686F0f5741A9b3fcDb079f51a8C70FCAcd2A",
+        "nativePol": "98.377039114302876471"
+      }
+    },
+    "after": {
+      "maker": {
+        "address": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+        "nativePol": "0",
+        "brl1Raw": "10501000000000000000000",
+        "permitNonce": "11"
+      },
+      "taker": {
+        "address": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+        "nativePol": "0",
+        "brl1Raw": "9263000000000000000000",
+        "permitNonce": "11"
+      },
+      "relayer": {
+        "address": "0xe206686F0f5741A9b3fcDb079f51a8C70FCAcd2A",
+        "nativePol": "98.375990246063237255"
+      }
+    }
+  },
+  "summary": {
+    "inviteId": "invite-fdb0f8ee-7a17-4675-a8b3-35b52754e10f",
+    "betId": "11",
+    "fundingTx": "0x0945929ef5a634ad291d2a896b919868ba0f2bab6a3483e84960aef6527bd7a9",
+    "mockPayoutTx": null,
+    "resolutionTx": "0x4fea88365c7be3770af11995c9d9c431a97c052eb7a38f60a1be2dfbccbc8f15",
+    "firstResolutionStatus": "resolved",
+    "fundedReindexEvents": 8,
+    "resolvedReindexEvents": 9,
+    "finalIndexedStatus": "Resolved",
+    "makerBetsCount": 1,
+    "publishStatus": "already_registered"
+  }
+}
