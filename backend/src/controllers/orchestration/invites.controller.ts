@@ -21,9 +21,10 @@ export class InvitesController {
     const template = await findTemplate(this.context, stringField(body, 'templateId'), {});
     if (!template) throw httpError(404, 'TEMPLATE_NOT_FOUND');
     const stake = bigintField(body, 'stake');
-    const loserFee = body.loserFee === undefined
-      ? BigInt((await this.context.fees.quote(stake, template.loserFeeBps)).selectedLoserFeeRaw)
-      : bigintField(body, 'loserFee');
+    const loserFee = BigInt((await this.context.fees.quote(stake, template.loserFeeBps)).selectedLoserFeeRaw);
+    if (body.loserFee !== undefined && bigintField(body, 'loserFee') !== loserFee) {
+      throw httpError(400, 'LOSER_FEE_MISMATCH');
+    }
     const invite = await this.context.invites.create(
       user,
       template,

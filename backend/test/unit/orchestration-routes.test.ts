@@ -146,6 +146,20 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   assert.equal(quote.statusCode, 200);
   assert.equal(quote.json().selectedLoserFeeRaw, '3000000000000000000');
 
+  const mismatchedInvite = await app.inject({
+    method: 'POST',
+    url: '/invites',
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: {
+      templateId: 'fixture-f1-sprint-winner',
+      stake: '100000000000000000000',
+      loserFee: '1',
+      makerOutcomeIndex: 0,
+    },
+  });
+  assert.equal(mismatchedInvite.statusCode, 400);
+  assert.equal(mismatchedInvite.json().code, 'LOSER_FEE_MISMATCH');
+
   const invite = await app.inject({
     method: 'POST',
     url: '/invites',
