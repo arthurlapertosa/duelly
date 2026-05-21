@@ -7,6 +7,7 @@ import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../sr
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
 import { deriveBetStatus, mapPendingInvite } from '../src/lib/mappers.ts';
+import { metaMaskTypedPayload } from '../src/lib/wallet.ts';
 import type { BetSummaryView } from '../src/lib/types.ts';
 
 test('locales are complete and provide both default languages', () => {
@@ -36,6 +37,35 @@ test('known API and wallet errors have localized messages and fallbacks', () => 
   assert.equal(errorKeyFor('INVALID_ADDRESS'), 'error.INVALID_FIELD');
   assert.equal(errorCodeFrom(new Error('User rejected the request')), 'USER_REJECTED');
   assert.equal(errorMessage('en-US', new Error('SOMETHING_NEW')), translate('en-US', 'error.UNKNOWN_ERROR'));
+});
+
+test('injected wallet typed data includes the EIP-712 domain type for MetaMask', () => {
+  const payload = metaMaskTypedPayload({
+    domain: {
+      name: 'DuellyBetEscrowBRL1',
+      version: '1',
+      chainId: 137,
+      verifyingContract: '0xBFa43c5A715685Ef5867729E40367CB9eb0434e4',
+    },
+    types: {
+      BetOffer: [
+        { name: 'maker', type: 'address' },
+        { name: 'stake', type: 'uint256' },
+      ],
+    },
+    primaryType: 'BetOffer',
+    message: {
+      maker: '0xB4Dd9A1E85153ad142b89f79244e66B44F574236',
+      stake: '250000000000000000000',
+    },
+  });
+  assert.deepEqual(payload.types.EIP712Domain, [
+    { name: 'name', type: 'string' },
+    { name: 'version', type: 'string' },
+    { name: 'chainId', type: 'uint256' },
+    { name: 'verifyingContract', type: 'address' },
+  ]);
+  assert.equal(payload.types.BetOffer.length, 2);
 });
 
 test('structured backend and frontend error codes are registered for translation', () => {

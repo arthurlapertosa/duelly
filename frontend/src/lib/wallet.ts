@@ -62,11 +62,27 @@ function createInjectedWalletAdapter(): WalletAdapter {
     },
     async signTypedData(address, payload) {
       const provider = requireProvider();
-      return await provider.request<Hex>({ method: 'eth_signTypedData_v4', params: [address, JSON.stringify(payload)] });
+      return await provider.request<Hex>({
+        method: 'eth_signTypedData_v4',
+        params: [address, JSON.stringify(metaMaskTypedPayload(payload))],
+      });
     },
     async signPermit(address, payload) {
       const signature = await this.signTypedData(address, payload);
       return permitFromSignature(signature, payload);
+    },
+  };
+}
+
+export function metaMaskTypedPayload(payload: TypedPayload): TypedPayload {
+  if (payload.types.EIP712Domain) return payload;
+  const domainTypes = eip712DomainTypes(payload.domain);
+  if (domainTypes.length === 0) return payload;
+  return {
+    ...payload,
+    types: {
+      EIP712Domain: domainTypes,
+      ...payload.types,
     },
   };
 }
@@ -86,4 +102,14 @@ function permitFromSignature(signature: Hex, payload: TypedPayload): PermitSubmi
     r: parsed.r,
     s: parsed.s,
   };
+}
+
+function eip712DomainTypes(domain: Record<string, unknown>): Array<{ name: string; type: string }> {
+  return [
+    ['name', 'string'],
+    ['version', 'string'],
+    ['chainId', 'uint256'],
+    ['verifyingContract', 'address'],
+    ['salt', 'bytes32'],
+  ].flatMap(([name, type]) => domain[name] === undefined ? [] : [{ name, type }]);
 }
