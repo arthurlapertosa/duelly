@@ -32,6 +32,33 @@ test('health and readiness routes work without database configuration', async ()
   assert.equal(ready.json().database, 'disabled');
 });
 
+test('CORS allows configured frontend origins and preflight requests', async () => {
+  const app = await createApp({
+    config: {
+      ...routeTestConfig(),
+      cors: { origins: ['http://localhost:5173'] },
+    },
+  });
+  test.after(async () => app.close());
+
+  const preflight = await app.inject({
+    method: 'OPTIONS',
+    url: '/auth/me',
+    headers: { origin: 'http://localhost:5173' },
+  });
+  assert.equal(preflight.statusCode, 204);
+  assert.equal(preflight.headers['access-control-allow-origin'], 'http://localhost:5173');
+  assert.match(String(preflight.headers['access-control-allow-headers']), /authorization/);
+
+  const disallowed = await app.inject({
+    method: 'OPTIONS',
+    url: '/auth/me',
+    headers: { origin: 'https://example.invalid' },
+  });
+  assert.equal(disallowed.statusCode, 204);
+  assert.equal(disallowed.headers['access-control-allow-origin'], undefined);
+});
+
 test('template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads', async () => {
   const app = await createApp({
     config: routeTestConfig(),

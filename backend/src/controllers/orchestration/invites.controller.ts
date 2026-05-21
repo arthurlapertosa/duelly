@@ -4,8 +4,10 @@ import {
   bigintField,
   findTemplate,
   numberField,
+  objectField,
   objectBody,
   optionalString,
+  permitField,
   publicInvite,
   stringField,
   wrap,
@@ -33,14 +35,47 @@ export class InvitesController {
       numberField(body, 'makerOutcomeIndex'),
       optionalString(body, 'takerAddress'),
     );
-    return { invite: publicInvite(invite), offerPayload: invite.offerPayload, requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString() };
+    const requiredFunding = BigInt(invite.stake) + BigInt(invite.loserFee);
+    const deadline = BigInt(Math.floor(invite.expiresAt.getTime() / 1000));
+    return {
+      invite: publicInvite(invite),
+      offerPayload: invite.offerPayload,
+      makerPermitPayload: await this.context.brl1.permitPayloadForAddress(invite.makerAddress, requiredFunding, deadline),
+      requiredFundingRaw: requiredFunding.toString(),
+      shareable: false,
+    };
   });
 
   get = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const params = objectBody(request.params);
     const invite = await this.context.repository.findInvite(stringField(params, 'inviteId'));
-    if (!invite) throw httpError(404, 'INVITE_NOT_FOUND');
-    return { invite: publicInvite(invite), offerPayload: invite.offerPayload, acceptancePayload: invite.acceptancePayload };
+    if (!invite || invite.status === 'draft' || !invite.offerSignature || !invite.makerAuthorizedAt) throw httpError(404, 'INVITE_NOT_FOUND');
+    const template = await findTemplate(this.context, invite.templateHash, {});
+    return {
+      invite: publicInvite(invite),
+      template,
+      offerPayload: invite.offerPayload,
+      acceptancePayload: invite.acceptancePayload,
+      requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
+      shareable: true,
+    };
+  });
+
+  authorizeMaker = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
+    const user = request.user!;
+    const params = objectBody(request.params);
+    const body = objectBody(request.body);
+    const invite = await this.context.invites.authorizeMaker(
+      user,
+      stringField(params, 'inviteId'),
+      stringField(body, 'offerSignature') as `0x${string}`,
+      permitField(objectField(body, 'makerPermit')),
+    );
+    return {
+      invite: publicInvite(invite),
+      shareable: true,
+      requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
+    };
   });
 
   accept = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
@@ -48,6 +83,31 @@ export class InvitesController {
     const params = objectBody(request.params);
     const body = objectBody(request.body);
     const invite = await this.context.invites.accept(user, stringField(params, 'inviteId'), numberField(body, 'takerOutcomeIndex'));
-    return { invite: publicInvite(invite), acceptancePayload: invite.acceptancePayload, requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString() };
+    const requiredFunding = BigInt(invite.stake) + BigInt(invite.loserFee);
+    const deadline = BigInt(Math.floor(invite.expiresAt.getTime() / 1000));
+    return {
+      invite: publicInvite(invite),
+      acceptancePayload: invite.acceptancePayload,
+      takerPermitPayload: await this.context.brl1.permitPayloadForAddress(invite.takerAddress!, requiredFunding, deadline),
+      requiredFundingRaw: requiredFunding.toString(),
+    };
+  });
+
+  authorizeTaker = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
+    const user = request.user!;
+    const params = objectBody(request.params);
+    const body = objectBody(request.body);
+    const invite = await this.context.invites.authorizeTaker(
+      user,
+      stringField(params, 'inviteId'),
+      stringField(body, 'acceptanceSignature') as `0x${string}`,
+      permitField(objectField(body, 'takerPermit')),
+    );
+    const funding = await this.context.relayer.fund({ inviteId: invite.id });
+    const fundedInvite = await this.context.repository.findInvite(invite.id) ?? invite;
+    return {
+      invite: publicInvite(fundedInvite),
+      funding,
+    };
   });
 }

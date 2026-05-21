@@ -16,6 +16,8 @@ const keys = [
   'POLYMARKET_DISCOVERY_TIMEOUT_MS',
   'POLYMARKET_DISCOVERY_MAX_RESULTS',
   'INVITE_TTL_SECONDS',
+  'NODE_ENV',
+  'CORS_ORIGINS',
 ];
 
 test('loadAppConfig supports explicit DB variables and fixture mode defaults', () => {
@@ -34,6 +36,26 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.polymarket.discoveryMode, 'fixture');
     assert.equal(config.polymarket.gammaBaseUrl, 'https://gamma-api.polymarket.com');
     assert.equal(config.invites.ttlSeconds, 3600);
+    assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
+test('loadAppConfig requires explicit CORS origins in production', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.NODE_ENV = 'production';
+
+    assert.throws(() => loadAppConfig(), /CORS_ORIGINS/);
+
+    process.env.CORS_ORIGINS = ',';
+    assert.throws(() => loadAppConfig(), /CORS_ORIGINS/);
+
+    process.env.CORS_ORIGINS = 'https://app.duelly.test,https://admin.duelly.test';
+    const config = loadAppConfig();
+    assert.deepEqual(config.cors.origins, ['https://app.duelly.test', 'https://admin.duelly.test']);
   } finally {
     restoreEnv(previous);
   }

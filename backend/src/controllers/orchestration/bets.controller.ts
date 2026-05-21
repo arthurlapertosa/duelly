@@ -1,14 +1,35 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { httpError } from '../../modules/orchestration/services.js';
 import {
+  findTemplate,
   objectBody,
+  publicInvite,
   stringField,
   wrap,
 } from './helpers.js';
-import type { OrchestrationControllerContext } from './orchestration-controller.context.js';
+import type { AuthedRequest, OrchestrationControllerContext } from './orchestration-controller.context.js';
 
 export class BetsController {
   constructor(private readonly context: OrchestrationControllerContext) {}
+
+  mine = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
+    const user = request.user!;
+    const invites = await this.context.repository.findInvitesByUserId(user.id);
+    const bets = await Promise.all(invites.map(async (invite) => {
+      const [template, bet] = await Promise.all([
+        findTemplate(this.context, invite.templateHash, {}),
+        invite.betId ? this.context.repository.findIndexedBet(invite.betId) : this.context.repository.findIndexedBetByInviteId(invite.id),
+      ]);
+      return {
+        role: invite.makerUserId === user.id ? 'maker' : 'taker',
+        invite: publicInvite(invite),
+        template: template ?? null,
+        requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
+        bet: bet ?? null,
+      };
+    }));
+    return { bets };
+  });
 
   get = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const params = objectBody(request.params);

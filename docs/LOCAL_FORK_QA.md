@@ -252,15 +252,15 @@ The local fork flow should prove that the backend is not deciding the winner:
 2. Fetch the fixture template, for example `GET /templates/fixture-f1-sprint-winner?mode=fixture`.
 3. Publish it with `POST /templates/fixture-f1-sprint-winner/publish-chain?mode=fixture`.
 4. Quote loser fee with `POST /fees/loser-fee`.
-5. Create the invite with `POST /invites`.
-6. Sign the returned `offerPayload` with the maker private key.
-7. Accept the invite with `POST /invites/:inviteId/accept`.
-8. Sign the returned `acceptancePayload` with the taker private key.
-9. Call `POST /wallets/me/funding-readiness` for each user and sign the two ERC-2612 permits.
-10. Submit funding with `POST /relayer/fund`; this is the backend call that writes `acceptBetWithPermits` to the escrow contract.
+5. Create a draft invite with `POST /invites`; the response includes `offerPayload` and `makerPermitPayload`.
+6. Sign both maker payloads and store them with `POST /invites/:inviteId/maker-authorizations`. Only after this step is the invite shareable.
+7. Fetch the shareable invite with `GET /invites/:inviteId`.
+8. Accept the invite with `POST /invites/:inviteId/accept`; the response includes `acceptancePayload` and `takerPermitPayload`.
+9. Sign both taker payloads and submit them with `POST /invites/:inviteId/taker-authorizations`; this triggers the backend relayer and writes `acceptBetWithPermits` to escrow.
+10. If needed after a transient relayer failure, retry stored-authorizations funding with `POST /relayer/fund` and body `{"inviteId":"..."}`.
 11. Run `POST /internal/indexer/reindex`.
-12. Reset the mock CTF payout to unresolved and run `POST /internal/resolution/run`; expect a pending resolution attempt with `ConditionUnresolved`.
-13. Set mock CTF payout, run `POST /internal/resolution/run` again, then reindex.
+12. On a fresh condition, run `POST /internal/resolution/run` before mock payout and expect a pending resolution attempt with `ConditionUnresolved`.
+13. Set mock CTF payout, run `POST /internal/resolution/run` again, then reindex. On a reused fork where the condition already has payout, resolution may succeed immediately and the explicit mock payout step can be skipped.
 14. Read `GET /bets/:betId`; expect `Resolved` or `Voided` from escrow events, never from backend-local result logic.
 
 Use this helper for EIP-712 payload signatures returned by the backend:
@@ -284,7 +284,7 @@ NODE
 }
 ```
 
-Use this helper for ERC-2612 permit signatures:
+Use this helper for converting an ERC-2612 permit signature into the `makerPermit` or `takerPermit` object expected by the backend:
 
 ```bash
 sign_brl1_permit() {
@@ -337,6 +337,8 @@ console.log(JSON.stringify({
 NODE
 }
 ```
+
+The frontend path should use the backend-provided permit payload directly. The object submitted to the backend must include the same `value`, `nonce`, and `deadline` from the payload plus parsed `v`, `r`, and `s`.
 
 ## MetaMask Visualization
 

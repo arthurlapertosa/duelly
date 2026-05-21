@@ -1,10 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import type { Hex } from 'viem';
 import { httpError } from '../../modules/orchestration/services.js';
 import {
   objectBody,
-  objectField,
-  permitField,
   stringField,
   wrap,
 } from './helpers.js';
@@ -15,13 +12,7 @@ export class RelayerController {
 
   fund = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const body = objectBody(request.body);
-    return await this.context.relayer.fund({
-      inviteId: stringField(body, 'inviteId'),
-      makerSignature: stringField(body, 'makerSignature') as Hex,
-      takerSignature: stringField(body, 'takerSignature') as Hex,
-      makerPermit: permitField(objectField(body, 'makerPermit')),
-      takerPermit: permitField(objectField(body, 'takerPermit')),
-    });
+    return await this.context.relayer.fund({ inviteId: stringField(body, 'inviteId') });
   });
 
   transaction = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
