@@ -850,6 +850,21 @@ function BetDetailScreen() {
   const isInviteExpired = summary ? inviteHasExpired(summary.invite) : false;
   const showFinishAcceptance = summary?.role === 'taker' && summary.invite.status === 'accepted' && !bet;
   const canFinishAcceptance = showFinishAcceptance && !isInviteExpired;
+  const playerAOutcomeIndex = summary?.invite.makerOutcomeIndex ?? bet?.playerAOutcomeIndex ?? 0;
+  const playerBOutcomeIndex = summary?.invite.takerOutcomeIndex ?? bet?.playerBOutcomeIndex ?? 1;
+  const selectedOutcomeIndex = summary?.role === 'maker'
+    ? playerAOutcomeIndex
+    : summary?.role === 'taker'
+      ? playerBOutcomeIndex
+      : null;
+  const winnerRole = bet?.winner?.toLowerCase() === bet?.playerA.toLowerCase()
+    ? 'maker'
+    : bet?.winner?.toLowerCase() === bet?.playerB.toLowerCase()
+      ? 'taker'
+      : null;
+  const resolvedForCurrentUser = Boolean(summary && bet?.status === 'Resolved' && winnerRole);
+  const currentUserWon = resolvedForCurrentUser && summary?.role === winnerRole;
+  const currentUserPayoutRaw = resolvedForCurrentUser ? currentUserWon ? bet?.winnerPayoutRaw ?? '0' : '0' : bet?.winnerPayoutRaw ?? '0';
   const finishAcceptance = async () => {
     if (!summary || !template || !token || !wallet || accepting || isInviteExpired) return;
     setActionError(null);
@@ -884,8 +899,8 @@ function BetDetailScreen() {
       <section className="rounded-3xl border border-slate-100 bg-white p-4">
         <h2 className="mb-3 text-sm font-semibold text-slate-950">{t('bet.players')}</h2>
         <div className="grid grid-cols-2 gap-3">
-          <SideBox label="A" value={template.outcomes[template.outcomeIndexes.indexOf(summary?.invite.makerOutcomeIndex ?? bet?.playerAOutcomeIndex ?? 0)]} />
-          <SideBox label="B" value={template.outcomes[template.outcomeIndexes.indexOf(summary?.invite.takerOutcomeIndex ?? bet?.playerBOutcomeIndex ?? 1)] ?? '-'} />
+          <SideBox label="A" value={template.outcomes[template.outcomeIndexes.indexOf(playerAOutcomeIndex)]} selected={selectedOutcomeIndex === playerAOutcomeIndex} />
+          <SideBox label="B" value={template.outcomes[template.outcomeIndexes.indexOf(playerBOutcomeIndex)] ?? '-'} selected={selectedOutcomeIndex === playerBOutcomeIndex} />
         </div>
       </section>
       <AmountBreakdown quote={{ stakeRaw: summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0', loserFeeBps: template.loserFeeBps, percentFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0', gasAnchoredMinimumRaw: '0', selectedLoserFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0', totalRequiredAmountRaw: (BigInt(summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0') + BigInt(summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0')).toString() }} />
@@ -904,12 +919,14 @@ function BetDetailScreen() {
         </>
       )}
       {bet?.status === 'Resolved' && (
-        <section className="rounded-3xl bg-green-50 p-5 text-center">
-          <Trophy className="mx-auto mb-2 text-green-600" size={28} />
-          <p className="text-sm font-semibold text-green-700">{t('bet.result.winner')}</p>
-          <p className="mb-3 text-lg font-bold text-green-900">{bet.winner ? shortAddress(bet.winner) : '-'}</p>
-          <p className="text-sm text-green-700">{t('bet.result.payout')}: {formatBRL(bet.winnerPayoutRaw ?? '0', locale)}</p>
-          <p className="text-xs text-green-600">{t('bet.result.fee')}: {formatBRL(bet.treasuryPayoutRaw ?? '0', locale)}</p>
+        <section className={`rounded-3xl p-5 text-center ${currentUserWon ? 'bg-green-50' : resolvedForCurrentUser ? 'bg-slate-100' : 'bg-green-50'}`}>
+          <Trophy className={`mx-auto mb-2 ${currentUserWon ? 'text-green-600' : resolvedForCurrentUser ? 'text-slate-500' : 'text-green-600'}`} size={28} />
+          <p className={`text-sm font-semibold ${currentUserWon ? 'text-green-700' : resolvedForCurrentUser ? 'text-slate-600' : 'text-green-700'}`}>
+            {resolvedForCurrentUser ? t(currentUserWon ? 'bet.result.youWon' : 'bet.result.youLost') : t('bet.result.winner')}
+          </p>
+          <p className={`mb-3 text-lg font-bold ${currentUserWon ? 'text-green-900' : resolvedForCurrentUser ? 'text-slate-800' : 'text-green-900'}`}>{bet.winner ? shortAddress(bet.winner) : '-'}</p>
+          <p className={`text-sm ${currentUserWon ? 'text-green-700' : resolvedForCurrentUser ? 'text-slate-600' : 'text-green-700'}`}>{t('bet.result.payout')}: {formatBRL(currentUserPayoutRaw, locale)}</p>
+          <p className={`text-xs ${currentUserWon ? 'text-green-600' : resolvedForCurrentUser ? 'text-slate-500' : 'text-green-600'}`}>{t('bet.result.fee')}: {formatBRL(bet.treasuryPayoutRaw ?? '0', locale)}</p>
         </section>
       )}
       {bet?.status === 'Voided' && (
@@ -990,11 +1007,13 @@ function InviteLink({ inviteId }: { inviteId: string }) {
   );
 }
 
-function SideBox({ label, value, muted = false }: { label: string; value: string; muted?: boolean }) {
+function SideBox({ label, value, muted = false, selected = false }: { label: string; value: string; muted?: boolean; selected?: boolean }) {
+  const { t } = useI18n();
   return (
-    <div className={`rounded-2xl p-4 text-center ${muted ? 'bg-slate-50 text-slate-500' : 'bg-blue-50 text-blue-700'}`}>
+    <div className={`rounded-2xl border p-4 text-center ${selected ? 'border-green-200 bg-green-50 text-green-700' : muted ? 'border-transparent bg-slate-50 text-slate-500' : 'border-transparent bg-blue-50 text-blue-700'}`}>
       <p className="mb-1 text-[10px] font-bold uppercase tracking-wide">{label}</p>
       <p className="text-sm font-semibold">{value}</p>
+      {selected ? <p className="mt-2 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-green-700">{t('bet.yourPick')}</p> : null}
     </div>
   );
 }

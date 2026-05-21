@@ -215,6 +215,12 @@ test('invite UI includes email/link modes, pending inbox, and login return path'
   assert.match(source, /cancelInvite\(token, draftInviteId\)/);
   assert.match(source, /finishAcceptance/);
   assert.match(source, /inviteHasExpired/);
+  assert.match(source, /selectedOutcomeIndex/);
+  assert.match(source, /bet\.yourPick/);
+  assert.match(source, /winnerRole/);
+  assert.match(source, /currentUserWon/);
+  assert.match(source, /bet\.result\.youWon/);
+  assert.match(source, /bet\.result\.youLost/);
   assert.match(source, /connectLinkedWallet/);
   assert.match(source, /unlinkWallet/);
 });
