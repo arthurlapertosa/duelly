@@ -55,6 +55,7 @@ export interface DuellyApi {
   logout(token: string): Promise<void>;
   createWalletChallenge(token: string, address: Hex): Promise<{ id: string; address: Hex; chainId: number; message: string; expiresAt: string }>;
   linkWallet(token: string, challengeId: string, signature: Hex): Promise<WalletView>;
+  unlinkWallet(token: string): Promise<WalletView>;
   getWallet(token: string): Promise<WalletView | null>;
   getBalance(token: string): Promise<BalanceView | null>;
   getReadiness(token: string, stakeRaw: string, loserFeeRaw: string): Promise<FundingReadinessView>;
@@ -107,6 +108,10 @@ function createHttpApi(baseUrl: string): DuellyApi {
     createWalletChallenge: (token, address) => request('/wallets/challenges', { method: 'POST', token, body: JSON.stringify({ address }) }),
     linkWallet: async (token, challengeId, signature) => {
       const body = await request<{ wallet: WalletView }>('/wallets/link', { method: 'POST', token, body: JSON.stringify({ challengeId, signature }) });
+      return body.wallet;
+    },
+    unlinkWallet: async (token) => {
+      const body = await request<{ wallet: WalletView }>('/wallets/me', { method: 'DELETE', token });
       return body.wallet;
     },
     getWallet: async (token) => {
@@ -353,6 +358,14 @@ function createFixtureApi(): DuellyApi {
       user.wallet = { address, chainId: 137, verificationStatus: 'verified' };
       writeFixtureState(state);
       return user.wallet;
+    },
+    unlinkWallet: async (token) => {
+      const { state, user } = requireFixtureUser(token);
+      if (!user.wallet) throw new ApiError('WALLET_NOT_LINKED');
+      const wallet = { ...user.wallet, verificationStatus: 'inactive' as const };
+      user.wallet = null;
+      writeFixtureState(state);
+      return wallet;
     },
     getWallet: async (token) => requireFixtureUser(token).user.wallet,
     getBalance: async (token) => {

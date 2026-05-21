@@ -36,6 +36,8 @@ test('known API and wallet errors have localized messages and fallbacks', () => 
   assert.equal(errorKeyFor('MISSING_ADDRESS'), 'error.MISSING_FIELD');
   assert.equal(errorKeyFor('INVALID_ADDRESS'), 'error.INVALID_FIELD');
   assert.equal(errorCodeFrom(new Error('User rejected the request')), 'USER_REJECTED');
+  assert.equal(errorCodeFrom({ code: 4100, message: 'The requested account and/or method has not been authorized by the user.' }), 'WALLET_ACCOUNT_NOT_AUTHORIZED');
+  assert.match(errorMessage('en-US', new Error('WALLET_ACCOUNT_MISMATCH')), /Switch to the linked wallet/);
   assert.equal(errorMessage('en-US', new Error('SOMETHING_NEW')), translate('en-US', 'error.UNKNOWN_ERROR'));
 });
 
@@ -191,6 +193,8 @@ test('invite UI includes email/link modes, pending inbox, and login return path'
   assert.match(source, /PendingInvitePrompt/);
   assert.match(source, /cancelInvite\(token, draftInviteId\)/);
   assert.match(source, /finishAcceptance/);
+  assert.match(source, /connectLinkedWallet/);
+  assert.match(source, /unlinkWallet/);
 });
 
 test('frontend source does not expose M3.5 primary flow labels or raw web3 jargon', () => {

@@ -113,6 +113,17 @@ export class OrchestrationRepository {
     return [...this.memory.wallets.values()].find((wallet) => wallet.address.toLowerCase() === normalized && wallet.active);
   }
 
+  async findWalletByAddress(address: Address): Promise<LinkedWallet | undefined> {
+    const normalized = address.toLowerCase();
+    if (this.enabled) {
+      return await this.repo(LinkedWalletEntity)
+        .createQueryBuilder('wallet')
+        .where('lower(wallet.address) = :address', { address: normalized })
+        .getOne() as LinkedWallet | null ?? undefined;
+    }
+    return [...this.memory.wallets.values()].find((wallet) => wallet.address.toLowerCase() === normalized);
+  }
+
   async saveInvite(invite: BetInvite): Promise<BetInvite> {
     if (this.enabled) await this.repo(BetInviteEntity).save(invite);
     else this.memory.invites.set(invite.id, invite);

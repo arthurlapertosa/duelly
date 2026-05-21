@@ -34,6 +34,7 @@ export async function registerOrchestrationRoutes(app: FastifyInstance, options:
   app.post('/wallets/challenges', authenticated, wallets.createChallenge);
   app.post('/wallets/link', authenticated, wallets.link);
   app.get('/wallets/me', authenticated, wallets.me);
+  app.delete('/wallets/me', authenticated, wallets.unlink);
   app.get('/wallets/me/brl1', authenticated, wallets.brl1);
   app.post('/wallets/me/funding-readiness', authenticated, wallets.fundingReadiness);
 

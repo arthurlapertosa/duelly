@@ -22,11 +22,17 @@ import { errorMessage } from './lib/errors';
 import { brlToRaw, formatBRL, formatDateTime, potentialPayoutRaw, shortAddress } from './lib/format';
 import { locales, translate } from './lib/i18n';
 import { deriveBetStatus } from './lib/mappers';
-import type { BetStatus, FeeQuoteView, FundingReadinessView, InviteView, PendingInviteView, TemplateView } from './lib/types';
+import type { BetStatus, FeeQuoteView, FundingReadinessView, Hex, InviteView, PendingInviteView, TemplateView, WalletAdapter } from './lib/types';
 import { createWalletAdapter } from './lib/wallet';
 import { useAppStore } from './store/useAppStore';
 
 const stakeOptions = [25, 50, 100, 250];
+
+async function connectLinkedWallet(adapter: WalletAdapter, linkedAddress: Hex): Promise<Hex> {
+  const address = await adapter.connect();
+  if (address.toLowerCase() !== linkedAddress.toLowerCase()) throw new Error('WALLET_ACCOUNT_MISMATCH');
+  return address;
+}
 
 function useI18n() {
   const locale = useAppStore((state) => state.locale);
@@ -315,6 +321,7 @@ function WalletReadinessCard({ readiness }: { readiness?: FundingReadinessView |
   const balance = useAppStore((state) => state.balance);
   const loading = useAppStore((state) => state.loading);
   const verifyWallet = useAppStore((state) => state.verifyWallet);
+  const unlinkWallet = useAppStore((state) => state.unlinkWallet);
   const [error, setError] = useState<unknown | null>(null);
 
   if (!wallet) {
@@ -353,6 +360,7 @@ function WalletReadinessCard({ readiness }: { readiness?: FundingReadinessView |
       <p className="mb-1 text-3xl font-bold">{balance ? formatBRL(balance.balanceRaw, locale, balance.decimals) : formatBRL('0', locale)}</p>
       <p className="mb-4 text-xs text-white/65">{shortAddress(wallet.address)}</p>
       <p className="rounded-2xl bg-white/10 p-3 text-xs leading-relaxed text-white/80">{t('home.walletFirstBody')}</p>
+      {error ? <div className="mt-4"><ErrorBanner message={errorMessage(locale, error)} /></div> : null}
       {readiness && (
         <div className="mt-4 rounded-2xl bg-white/10 p-3 text-sm">
           <div className="flex justify-between"><span>{t('wallet.required')}</span><b>{formatBRL(readiness.requiredAmountRaw, locale)}</b></div>
@@ -360,6 +368,14 @@ function WalletReadinessCard({ readiness }: { readiness?: FundingReadinessView |
           <p className="mt-2 text-xs text-white/75">{t(readiness.canAttemptBet ? 'wallet.readiness.ready' : 'wallet.readiness.missing')}</p>
         </div>
       )}
+      <button
+        type="button"
+        disabled={loading}
+        onClick={() => void unlinkWallet().catch((error) => setError(error))}
+        className="mt-4 w-full rounded-2xl bg-white/15 py-2.5 text-sm font-semibold text-white disabled:text-white/50"
+      >
+        {t('wallet.unlink')}
+      </button>
     </section>
   );
 }
@@ -532,6 +548,7 @@ function CreateInviteScreen() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const token = useAppStore((state) => state.token);
+  const wallet = useAppStore((state) => state.wallet);
   const refreshBets = useAppStore((state) => state.refreshBets);
   const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
   const templates = useAppStore((state) => state.templates);
@@ -567,8 +584,9 @@ function CreateInviteScreen() {
     try {
       if (reject) throw new Error('USER_REJECTED');
       setCreateState('creating');
+      if (!wallet) throw new Error('WALLET_NOT_LINKED');
       const adapter = createWalletAdapter(api.mode);
-      const address = await adapter.connect();
+      const address = await connectLinkedWallet(adapter, wallet.address);
       const invite = await api.createInvite(token, {
         templateId: template.id,
         stakeRaw,
@@ -697,9 +715,10 @@ function AcceptInviteScreen() {
       if (reject) throw new Error('USER_REJECTED');
       setAccepting(true);
       const adapter = createWalletAdapter(api.mode);
+      const address = await connectLinkedWallet(adapter, wallet.address);
       const accepted = await api.acceptInvite(token, invite.id, takerOutcomeIndex);
-      const acceptanceSignature = await adapter.signTypedData(wallet.address, accepted.acceptancePayload);
-      const takerPermit = await adapter.signPermit(wallet.address, accepted.takerPermitPayload);
+      const acceptanceSignature = await adapter.signTypedData(address, accepted.acceptancePayload);
+      const takerPermit = await adapter.signPermit(address, accepted.takerPermitPayload);
       const authorized = await api.authorizeTaker(token, invite.id, acceptanceSignature, takerPermit);
       await Promise.all([refreshBets(), refreshPendingInvites()]);
       setDoneBetId(authorized.funding.betId);
@@ -823,9 +842,10 @@ function BetDetailScreen() {
         ?? template.outcomeIndexes.find((index) => index !== summary.invite.makerOutcomeIndex)
         ?? template.outcomeIndexes[1];
       const adapter = createWalletAdapter(api.mode);
+      const address = await connectLinkedWallet(adapter, wallet.address);
       const accepted = await api.acceptInvite(token, summary.invite.id, takerOutcomeIndex);
-      const acceptanceSignature = await adapter.signTypedData(wallet.address, accepted.acceptancePayload);
-      const takerPermit = await adapter.signPermit(wallet.address, accepted.takerPermitPayload);
+      const acceptanceSignature = await adapter.signTypedData(address, accepted.acceptancePayload);
+      const takerPermit = await adapter.signPermit(address, accepted.takerPermitPayload);
       const authorized = await api.authorizeTaker(token, summary.invite.id, acceptanceSignature, takerPermit);
       await Promise.all([refreshBets(), refreshPendingInvites()]);
       if (authorized.funding.betId) navigate(`/bets/${authorized.funding.betId}`, { replace: true });

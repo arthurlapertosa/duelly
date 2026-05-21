@@ -22,6 +22,7 @@ interface AppStore {
   login(email: string, password: string, register: boolean): Promise<void>;
   logout(): Promise<void>;
   verifyWallet(): Promise<void>;
+  unlinkWallet(): Promise<void>;
   refreshBalance(): Promise<void>;
   refreshTemplates(): Promise<void>;
   refreshBets(): Promise<void>;
@@ -93,6 +94,20 @@ export const useAppStore = create<AppStore>()(
           await get().refreshBalance();
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'WALLET_VERIFICATION_FAILED' });
+          throw error;
+        } finally {
+          set({ loading: false });
+        }
+      },
+      unlinkWallet: async () => {
+        const token = get().token;
+        if (!token) throw new Error('UNAUTHENTICATED');
+        set({ loading: true, error: null });
+        try {
+          await api.unlinkWallet(token);
+          set({ wallet: null, balance: null });
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : 'WALLET_NOT_LINKED' });
           throw error;
         } finally {
           set({ loading: false });

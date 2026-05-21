@@ -94,6 +94,37 @@ test('Wallet challenge links a private wallet without exposing key material', as
   assert.equal(linked.json().wallet.verificationStatus, 'verified');
   assert.equal(JSON.stringify(linked.json()).includes('private'), false);
 
+  const unlinked = await app.inject({
+    method: 'DELETE',
+    url: '/wallets/me',
+    headers: { authorization: `Bearer ${token}` },
+  });
+  assert.equal(unlinked.statusCode, 200);
+  assert.equal(unlinked.json().wallet.verificationStatus, 'inactive');
+
+  const afterUnlink = await app.inject({
+    method: 'GET',
+    url: '/wallets/me',
+    headers: { authorization: `Bearer ${token}` },
+  });
+  assert.equal(afterUnlink.statusCode, 404);
+  assert.equal(afterUnlink.json().code, 'WALLET_NOT_LINKED');
+
+  const relinkChallenge = await app.inject({
+    method: 'POST',
+    url: '/wallets/challenges',
+    headers: { authorization: `Bearer ${token}` },
+    payload: { address: maker.address },
+  });
+  const relinked = await app.inject({
+    method: 'POST',
+    url: '/wallets/link',
+    headers: { authorization: `Bearer ${token}` },
+    payload: { challengeId: relinkChallenge.json().id, signature: await maker.signMessage({ message: relinkChallenge.json().message }) },
+  });
+  assert.equal(relinked.statusCode, 200);
+  assert.equal(relinked.json().wallet.verificationStatus, 'verified');
+
   const replay = await app.inject({
     method: 'POST',
     url: '/wallets/link',

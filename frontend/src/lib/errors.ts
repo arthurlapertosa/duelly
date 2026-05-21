@@ -60,6 +60,8 @@ export const knownErrorCodes = [
   'UNKNOWN_ERROR',
   'USER_REJECTED',
   'WALLET_ALREADY_LINKED',
+  'WALLET_ACCOUNT_MISMATCH',
+  'WALLET_ACCOUNT_NOT_AUTHORIZED',
   'WALLET_CHALLENGE_EXPIRED',
   'WALLET_CHALLENGE_NOT_FOUND',
   'WALLET_CHALLENGE_REPLAYED',
@@ -77,6 +79,7 @@ const rejectedCodes = new Set(['4001', 'ACTION_REJECTED', 'USER_REJECTED_REQUEST
 export function errorCodeFrom(error: unknown): string {
   if (error instanceof ApiError) return normalizeCode(error.code);
   if (isProviderRejected(error)) return 'USER_REJECTED';
+  if (isProviderUnauthorized(error)) return 'WALLET_ACCOUNT_NOT_AUTHORIZED';
   if (error instanceof TypeError) return 'NETWORK_ERROR';
   if (error instanceof Error && error.message) return normalizeCode(error.message);
   if (typeof error === 'string') return normalizeCode(error);
@@ -103,6 +106,7 @@ function normalizeCode(value: string): string {
   if (knownErrorCodeSet.has(code)) return code;
   if (code === 'SIGN_REJECTED') return 'USER_REJECTED';
   if (/user rejected|user denied|request rejected|cancelled|canceled/i.test(code)) return 'USER_REJECTED';
+  if (/not been authorized|not authorized|unauthorized account/i.test(code)) return 'WALLET_ACCOUNT_NOT_AUTHORIZED';
   if (/failed to fetch|networkerror|load failed/i.test(code)) return 'NETWORK_ERROR';
   return code;
 }
@@ -111,4 +115,11 @@ function isProviderRejected(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
   const code = String((error as { code?: unknown }).code ?? '');
   return rejectedCodes.has(code);
+}
+
+function isProviderUnauthorized(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const code = String((error as { code?: unknown }).code ?? '');
+  const message = String((error as { message?: unknown }).message ?? '');
+  return code === '4100' || /not been authorized|not authorized/i.test(message);
 }
