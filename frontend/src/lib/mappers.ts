@@ -100,12 +100,19 @@ export function mapBetSummary(item: Record<string, unknown>): BetSummaryView {
 
 export function deriveBetStatus(summary: BetSummaryView): BetStatus {
   if (summary.bet) return summary.bet.status;
+  if (inviteHasExpired(summary.invite)) return 'Expired';
   if (summary.invite.status === 'funded') return 'Funded';
   if (summary.invite.status === 'accepted') return 'Accepted';
   if (summary.invite.status === 'funding_submitted') return 'FundingSubmitted';
   if (summary.invite.status === 'expired') return 'Expired';
   if (summary.invite.status === 'cancelled') return 'Expired';
   return 'InviteCreated';
+}
+
+export function inviteHasExpired(invite: Pick<InviteView, 'betId' | 'expiresAt' | 'status'>, now = Date.now()): boolean {
+  if (invite.betId || invite.status === 'funded') return false;
+  const expiresAt = Date.parse(invite.expiresAt);
+  return Number.isFinite(expiresAt) && expiresAt <= now;
 }
 
 function normalizeOutcome(value: string): string {

@@ -21,7 +21,7 @@ import { api } from './lib/api';
 import { errorMessage } from './lib/errors';
 import { brlToRaw, formatBRL, formatDateTime, potentialPayoutRaw, shortAddress } from './lib/format';
 import { locales, translate } from './lib/i18n';
-import { deriveBetStatus } from './lib/mappers';
+import { deriveBetStatus, inviteHasExpired } from './lib/mappers';
 import type { BetStatus, FeeQuoteView, FundingReadinessView, Hex, InviteView, PendingInviteView, TemplateView, WalletAdapter } from './lib/types';
 import { createWalletAdapter } from './lib/wallet';
 import { useAppStore } from './store/useAppStore';
@@ -832,9 +832,11 @@ function BetDetailScreen() {
     await refreshBets();
     setRemoteBet(await api.getBet(bet.betId));
   };
-  const canFinishAcceptance = summary?.role === 'taker' && status === 'Accepted';
+  const isInviteExpired = summary ? inviteHasExpired(summary.invite) : false;
+  const showFinishAcceptance = summary?.role === 'taker' && summary.invite.status === 'accepted' && !bet;
+  const canFinishAcceptance = showFinishAcceptance && !isInviteExpired;
   const finishAcceptance = async () => {
-    if (!summary || !template || !token || !wallet || accepting) return;
+    if (!summary || !template || !token || !wallet || accepting || isInviteExpired) return;
     setActionError(null);
     try {
       setAccepting(true);
@@ -873,13 +875,13 @@ function BetDetailScreen() {
       </section>
       <AmountBreakdown quote={{ stakeRaw: summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0', loserFeeBps: template.loserFeeBps, percentFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0', gasAnchoredMinimumRaw: '0', selectedLoserFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0', totalRequiredAmountRaw: (BigInt(summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0') + BigInt(summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0')).toString() }} />
       {status === 'InviteCreated' && summary && <InviteLink inviteId={summary.invite.id} />}
-      {canFinishAcceptance && (
+      {showFinishAcceptance && (
         <>
-          {!wallet && <WalletReadinessCard />}
+          {!wallet && !isInviteExpired && <WalletReadinessCard />}
           <section className="space-y-3 rounded-3xl border border-green-100 bg-white p-4">
             <p className="text-sm leading-relaxed text-slate-600">{t('invite.finishAcceptanceBody')}</p>
-            {actionError ? <ErrorBanner message={errorMessage(locale, actionError)} /> : null}
-            <button type="button" disabled={!wallet || accepting} onClick={() => void finishAcceptance()} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 py-3.5 text-base font-semibold text-white disabled:bg-slate-300">
+            {isInviteExpired ? <ErrorBanner message={t('error.INVITE_EXPIRED')} /> : actionError ? <ErrorBanner message={errorMessage(locale, actionError)} /> : null}
+            <button type="button" disabled={!canFinishAcceptance || !wallet || accepting} onClick={() => void finishAcceptance()} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 py-3.5 text-base font-semibold text-white disabled:bg-slate-300">
               {accepting && <LoaderCircle size={18} className="animate-spin" />}
               {t('invite.finishAcceptance')}
             </button>

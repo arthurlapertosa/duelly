@@ -6,7 +6,7 @@ import { ApiError } from '../src/lib/api.ts';
 import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../src/lib/errors.ts';
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
-import { deriveBetStatus, mapPendingInvite } from '../src/lib/mappers.ts';
+import { deriveBetStatus, inviteHasExpired, mapPendingInvite } from '../src/lib/mappers.ts';
 import { metaMaskTypedPayload } from '../src/lib/wallet.ts';
 import type { BetSummaryView } from '../src/lib/types.ts';
 
@@ -159,6 +159,10 @@ test('invite-only summaries derive non-funded UI statuses', () => {
   assert.equal(deriveBetStatus(summary), 'InviteCreated');
   assert.equal(deriveBetStatus({ ...summary, invite: { ...summary.invite, status: 'funded', betId: '1' } }), 'Funded');
   assert.equal(deriveBetStatus({ ...summary, invite: { ...summary.invite, status: 'cancelled' } }), 'Expired');
+  assert.equal(inviteHasExpired(summary.invite, Date.parse('2026-05-21T18:00:00.000Z')), false);
+  const expired = { ...summary, invite: { ...summary.invite, status: 'accepted', expiresAt: '2026-05-21T16:25:15.000Z' } } satisfies BetSummaryView;
+  assert.equal(inviteHasExpired(expired.invite, Date.parse('2026-05-21T18:00:00.000Z')), true);
+  assert.equal(deriveBetStatus(expired), 'Expired');
 });
 
 test('pending invite mapper preserves recipient access metadata', () => {
@@ -209,6 +213,7 @@ test('invite UI includes email/link modes, pending inbox, and login return path'
   assert.match(source, /PendingInvitePrompt/);
   assert.match(source, /cancelInvite\(token, draftInviteId\)/);
   assert.match(source, /finishAcceptance/);
+  assert.match(source, /inviteHasExpired/);
   assert.match(source, /connectLinkedWallet/);
   assert.match(source, /unlinkWallet/);
 });

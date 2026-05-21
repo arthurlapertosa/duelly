@@ -54,6 +54,8 @@ export interface AppConfig {
   };
 }
 
+export const DEFAULT_INVITE_TTL_SECONDS = 365 * 24 * 60 * 60;
+
 function readInteger(name: string, fallback: number): number {
   const raw = process.env[name];
   if (!raw) return fallback;
@@ -156,7 +158,7 @@ export function loadAppConfig(): AppConfig {
       mockAuthEnabled: readBoolean('AUTH_MOCK_ENABLED', process.env.NODE_ENV === 'test'),
     },
     invites: {
-      ttlSeconds: readInteger('INVITE_TTL_SECONDS', 60 * 60),
+      ttlSeconds: readInteger('INVITE_TTL_SECONDS', DEFAULT_INVITE_TTL_SECONDS),
     },
     chain: {
       enabled: readBoolean('CHAIN_ENABLED', Boolean(process.env.CHAIN_RPC_URL || process.env.POLYGON_RPC_URL || process.env.EVM_RPC_URL)),
