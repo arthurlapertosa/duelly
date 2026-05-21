@@ -157,6 +157,7 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
     id: inviteId,
     makerUserId: userId,
     takerUserId: null,
+    recipientEmail: null,
     templateHash,
     conditionId,
     makerAddress: maker,
