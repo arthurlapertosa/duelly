@@ -59,7 +59,25 @@ export class RelayerService {
     }
 
     const { escrowAddress } = this.chain.requireAddresses();
-    const { walletClient, account } = this.chain.requireWalletClient();
+    let relayerWallet: ReturnType<ChainService['requireWalletClient']>;
+    try {
+      relayerWallet = this.chain.requireWalletClient();
+    } catch {
+      await this.repository.saveRelayerAttempt({
+        id: `attempt-${randomUUID()}`,
+        requestId,
+        inviteId: invite.id,
+        action: 'acceptBetWithPermits',
+        status: 'failed',
+        transactionHash: null,
+        betId: null,
+        error: 'RELAYER_PRIVATE_KEY_NOT_CONFIGURED',
+        payload: null,
+        createdAt: new Date(),
+      });
+      throw httpError(503, 'RELAYER_PRIVATE_KEY_NOT_CONFIGURED');
+    }
+    const { walletClient, account } = relayerWallet;
     try {
       const tx = await walletClient.writeContract({
         account,

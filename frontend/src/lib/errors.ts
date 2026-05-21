@@ -47,6 +47,7 @@ export const knownErrorCodes = [
   'PUBLISH_LIVE_DISABLED',
   'PUBLISH_STUB_DISABLED',
   'RELAYER_ATTEMPT_NOT_FOUND',
+  'RELAYER_PRIVATE_KEY_NOT_CONFIGURED',
   'RESOLUTION_ATTEMPT_NOT_FOUND',
   'TAKER_OUTCOME_MUST_DIFFER',
   'TAKER_WALLET_MISMATCH',
@@ -107,6 +108,7 @@ function normalizeCode(value: string): string {
   if (code === 'SIGN_REJECTED') return 'USER_REJECTED';
   if (/user rejected|user denied|request rejected|cancelled|canceled/i.test(code)) return 'USER_REJECTED';
   if (/not been authorized|not authorized|unauthorized account/i.test(code)) return 'WALLET_ACCOUNT_NOT_AUTHORIZED';
+  if (/relayer private key is not configured/i.test(code)) return 'RELAYER_PRIVATE_KEY_NOT_CONFIGURED';
   if (/failed to fetch|networkerror|load failed/i.test(code)) return 'NETWORK_ERROR';
   return code;
 }

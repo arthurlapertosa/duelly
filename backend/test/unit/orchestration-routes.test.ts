@@ -303,6 +303,18 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   assert.equal(missingTakerAuthorization.statusCode, 400);
   assert.equal(missingTakerAuthorization.json().code, 'MISSING_TAKER_AUTHORIZATION');
 
+  const missingRelayerKey = await app.inject({
+    method: 'POST',
+    url: `/invites/${invite.json().invite.id}/taker-authorizations`,
+    headers: { authorization: `Bearer ${takerLogin.json().token}` },
+    payload: {
+      acceptanceSignature: await taker.signTypedData(typedData(accepted.json().acceptancePayload)),
+      takerPermit: permitData(await taker.signTypedData(typedData(accepted.json().takerPermitPayload)), accepted.json().takerPermitPayload),
+    },
+  });
+  assert.equal(missingRelayerKey.statusCode, 503);
+  assert.equal(missingRelayerKey.json().code, 'RELAYER_PRIVATE_KEY_NOT_CONFIGURED');
+
   const makerBets = await app.inject({
     method: 'GET',
     url: '/me/bets',

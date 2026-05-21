@@ -38,6 +38,8 @@ test('known API and wallet errors have localized messages and fallbacks', () => 
   assert.equal(errorCodeFrom(new Error('User rejected the request')), 'USER_REJECTED');
   assert.equal(errorCodeFrom({ code: 4100, message: 'The requested account and/or method has not been authorized by the user.' }), 'WALLET_ACCOUNT_NOT_AUTHORIZED');
   assert.match(errorMessage('en-US', new Error('WALLET_ACCOUNT_MISMATCH')), /Switch to the linked wallet/);
+  assert.equal(errorCodeFrom(new Error('Relayer private key is not configured')), 'RELAYER_PRIVATE_KEY_NOT_CONFIGURED');
+  assert.match(errorMessage('en-US', new ApiError('RELAYER_PRIVATE_KEY_NOT_CONFIGURED')), /Set RELAYER_PRIVATE_KEY/);
   assert.equal(errorMessage('en-US', new Error('SOMETHING_NEW')), translate('en-US', 'error.UNKNOWN_ERROR'));
 });
 
