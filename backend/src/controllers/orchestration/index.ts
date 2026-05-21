@@ -1,4 +1,5 @@
 export { AuthController } from './auth.controller.js';
+export { OrchestrationAuthMiddleware } from './auth.middleware.js';
 export { BetsController } from './bets.controller.js';
 export { IndexerController } from './indexer.controller.js';
 export { InvitesController } from './invites.controller.js';

@@ -16,7 +16,7 @@ export class InvitesController {
   constructor(private readonly context: OrchestrationControllerContext) {}
 
   create = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
-    const user = await this.context.requireUser(request);
+    const user = request.user!;
     const body = objectBody(request.body);
     const template = await findTemplate(this.context, stringField(body, 'templateId'), {});
     if (!template) throw httpError(404, 'TEMPLATE_NOT_FOUND');
@@ -43,7 +43,7 @@ export class InvitesController {
   });
 
   accept = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
-    const user = await this.context.requireUser(request);
+    const user = request.user!;
     const params = objectBody(request.params);
     const body = objectBody(request.body);
     const invite = await this.context.invites.accept(user, stringField(params, 'inviteId'), numberField(body, 'takerOutcomeIndex'));

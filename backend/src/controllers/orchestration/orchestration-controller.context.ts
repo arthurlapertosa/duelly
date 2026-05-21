@@ -13,7 +13,6 @@ import {
   RelayerService,
   ResolutionService,
   WalletService,
-  httpError,
 } from '../../modules/orchestration/services.js';
 import { TemplateControllerContext } from '../templates/index.js';
 
@@ -52,13 +51,5 @@ export class OrchestrationControllerContext {
     this.indexer = new IndexerService(this.repository, this.chain);
     this.resolution = new ResolutionService(this.repository, this.chain);
     this.templates = new TemplateControllerContext(options);
-  }
-
-  async requireUser(request: AuthedRequest): Promise<UserAccount> {
-    const authResult = await this.auth.authenticate(request.headers.authorization);
-    if (!authResult) throw httpError(401, 'UNAUTHENTICATED');
-    request.user = authResult.user;
-    request.token = authResult.token;
-    return authResult.user;
   }
 }

@@ -24,13 +24,12 @@ export class AuthController {
   });
 
   logout = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
-    await this.context.requireUser(request);
     await this.context.auth.logout(request.token);
     return { status: 'ok' };
   });
 
   me = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
-    const user = await this.context.requireUser(request);
+    const user = request.user!;
     const wallet = await this.context.wallets.activeWallet(user);
     return { user: publicUser(user), wallet: wallet ? publicWallet(wallet) : null };
   });

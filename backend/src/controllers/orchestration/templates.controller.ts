@@ -18,7 +18,6 @@ export class OrchestrationTemplatesController {
   });
 
   publishChain = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
-    await this.context.requireUser(request);
     const params = objectBody(request.params);
     const query = this.context.templates.parseTemplateQuery(objectBody(request.query));
     const template = await findTemplate(this.context, stringField(params, 'templateId'), query as Record<string, unknown>);
