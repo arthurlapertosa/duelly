@@ -40,7 +40,16 @@ export interface LinkedWallet {
   createdAt: Date;
 }
 
-export type InviteStatus = 'created' | 'accepted' | 'funding_submitted' | 'funded' | 'expired';
+export type InviteStatus = 'draft' | 'created' | 'accepted' | 'funding_submitted' | 'funded' | 'expired';
+
+export interface StoredPermit {
+  value: string;
+  nonce: string;
+  deadline: string;
+  v: number;
+  r: Hex;
+  s: Hex;
+}
 
 export interface BetInvite {
   id: string;
@@ -58,7 +67,13 @@ export interface BetInvite {
   acceptanceNonce: string | null;
   offerHash: Hex;
   offerPayload: unknown;
+  offerSignature: Hex | null;
+  makerPermit: StoredPermit | null;
+  makerAuthorizedAt: Date | null;
   acceptancePayload: unknown | null;
+  acceptanceSignature: Hex | null;
+  takerPermit: StoredPermit | null;
+  takerAuthorizedAt: Date | null;
   status: InviteStatus;
   betId: string | null;
   expiresAt: Date;

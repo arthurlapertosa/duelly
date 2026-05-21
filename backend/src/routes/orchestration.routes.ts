@@ -43,12 +43,15 @@ export async function registerOrchestrationRoutes(app: FastifyInstance, options:
 
   app.post('/invites', authenticated, invites.create);
   app.get('/invites/:inviteId', invites.get);
+  app.post('/invites/:inviteId/maker-authorizations', authenticated, invites.authorizeMaker);
   app.post('/invites/:inviteId/accept', authenticated, invites.accept);
+  app.post('/invites/:inviteId/taker-authorizations', authenticated, invites.authorizeTaker);
 
   app.post('/relayer/fund', relayer.fund);
   app.get('/relayer/transactions/:requestId', relayer.transaction);
 
   app.post('/internal/indexer/reindex', indexer.reindex);
+  app.get('/me/bets', authenticated, bets.mine);
   app.get('/bets/:betId', bets.get);
   app.get('/invites/:inviteId/bet', bets.getByInvite);
 

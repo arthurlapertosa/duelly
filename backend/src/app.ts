@@ -21,6 +21,19 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
 
   app.decorate('config', config);
   if (options.dataSource) app.decorate('dataSource', options.dataSource);
+  app.addHook('onRequest', async (request, reply) => {
+    const origin = request.headers.origin;
+    if (origin && config.cors.origins.includes(origin)) {
+      reply.header('access-control-allow-origin', origin);
+      reply.header('vary', 'Origin');
+      reply.header('access-control-allow-credentials', 'true');
+      reply.header('access-control-allow-headers', 'authorization,content-type');
+      reply.header('access-control-allow-methods', 'GET,POST,OPTIONS');
+    }
+    if (request.method === 'OPTIONS') {
+      return reply.code(204).send();
+    }
+  });
 
   await registerHealthRoutes(app, { config, dataSource: options.dataSource });
   await registerTemplateRoutes(app, { config, dataSource: options.dataSource });

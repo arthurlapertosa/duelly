@@ -1,26 +1,28 @@
 import { randomUUID } from 'node:crypto';
 import { decodeEventLog, verifyTypedData, type Hex } from 'viem';
-import { betAcceptanceTypes, betOfferTypes, escrowAbi, type PermitData } from '../chain.js';
+import { betAcceptanceTypes, betOfferTypes, escrowAbi } from '../chain.js';
 import type { ChainService } from '../chain.js';
 import type { OrchestrationRepository } from '../repository.js';
 import { httpError } from './errors.js';
 import { inviteToAcceptance, inviteToOffer } from './invite-payloads.js';
+import { permitFromStored } from './invite.service.js';
 
 export class RelayerService {
   constructor(private readonly repository: OrchestrationRepository, private readonly chain: ChainService) {}
 
   async fund(input: {
     inviteId: string;
-    makerSignature: Hex;
-    takerSignature: Hex;
-    makerPermit: PermitData;
-    takerPermit: PermitData;
   }) {
     const invite = await this.repository.findInvite(input.inviteId);
     if (!invite) throw httpError(404, 'INVITE_NOT_FOUND');
     if (invite.status !== 'accepted' || !invite.takerAddress || invite.takerOutcomeIndex === null || !invite.acceptancePayload) {
       throw httpError(400, 'INVITE_NOT_READY_FOR_FUNDING');
     }
+    if (!invite.offerSignature || !invite.makerPermit || !invite.makerAuthorizedAt) throw httpError(400, 'MISSING_MAKER_AUTHORIZATION');
+    if (!invite.acceptanceSignature || !invite.takerPermit || !invite.takerAuthorizedAt) throw httpError(400, 'MISSING_TAKER_AUTHORIZATION');
+    const makerPermit = permitFromStored(invite.makerPermit);
+    const takerPermit = permitFromStored(invite.takerPermit);
+    if (!makerPermit || !takerPermit) throw httpError(400, 'INVALID_STORED_PERMIT');
     const requestId = `relayer-${randomUUID()}`;
     const offer = inviteToOffer(invite);
     const acceptance = inviteToAcceptance(invite);
@@ -30,7 +32,7 @@ export class RelayerService {
       types: betOfferTypes,
       primaryType: 'BetOffer',
       message: offer,
-      signature: input.makerSignature,
+      signature: invite.offerSignature,
     });
     const takerOk = await verifyTypedData({
       address: invite.takerAddress,
@@ -38,7 +40,7 @@ export class RelayerService {
       types: betAcceptanceTypes,
       primaryType: 'BetAcceptance',
       message: acceptance,
-      signature: input.takerSignature,
+      signature: invite.acceptanceSignature,
     });
     if (!makerOk || !takerOk) {
       await this.repository.saveRelayerAttempt({
@@ -64,7 +66,7 @@ export class RelayerService {
         address: escrowAddress,
         abi: escrowAbi,
         functionName: 'acceptBetWithPermits',
-        args: [offer, acceptance, input.makerSignature, input.takerSignature, input.makerPermit, input.takerPermit],
+        args: [offer, acceptance, invite.offerSignature, invite.acceptanceSignature, makerPermit, takerPermit],
         chain: null,
       });
       const receipt = await this.chain.wait(tx);

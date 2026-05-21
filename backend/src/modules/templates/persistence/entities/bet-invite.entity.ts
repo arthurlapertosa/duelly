@@ -48,8 +48,26 @@ export class BetInviteEntity {
   @Column({ type: 'jsonb', name: 'offer_payload' })
   offerPayload!: unknown;
 
+  @Column({ type: 'text', name: 'offer_signature', nullable: true })
+  offerSignature!: string | null;
+
+  @Column({ type: 'jsonb', name: 'maker_permit', nullable: true })
+  makerPermit!: unknown | null;
+
+  @Column({ type: 'timestamptz', name: 'maker_authorized_at', nullable: true })
+  makerAuthorizedAt!: Date | null;
+
   @Column({ type: 'jsonb', name: 'acceptance_payload', nullable: true })
   acceptancePayload!: unknown | null;
+
+  @Column({ type: 'text', name: 'acceptance_signature', nullable: true })
+  acceptanceSignature!: string | null;
+
+  @Column({ type: 'jsonb', name: 'taker_permit', nullable: true })
+  takerPermit!: unknown | null;
+
+  @Column({ type: 'timestamptz', name: 'taker_authorized_at', nullable: true })
+  takerAuthorizedAt!: Date | null;
 
   @Column({ type: 'text' })
   status!: string;

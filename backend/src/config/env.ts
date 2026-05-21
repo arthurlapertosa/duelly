@@ -20,6 +20,9 @@ export interface AppConfig {
   port: number;
   host: string;
   serviceName: 'duelly-backend';
+  cors: {
+    origins: string[];
+  };
   database: DatabaseConfig;
   polymarket: {
     gammaBaseUrl: string;
@@ -102,7 +105,19 @@ function readPrivateKey(name: string): Hex | undefined {
   return normalized as Hex;
 }
 
+function readCorsOrigins(nodeEnv: string): string[] {
+  const raw = process.env.CORS_ORIGINS;
+  if (!raw) {
+    if (nodeEnv === 'production') throw new Error('CORS_ORIGINS must be configured in production');
+    return ['http://localhost:5173', 'http://127.0.0.1:5173'];
+  }
+  const origins = raw.split(',').map((origin) => origin.trim()).filter(Boolean);
+  if (nodeEnv === 'production' && origins.length === 0) throw new Error('CORS_ORIGINS must include at least one origin in production');
+  return origins;
+}
+
 export function loadAppConfig(): AppConfig {
+  const nodeEnv = process.env.NODE_ENV ?? 'development';
   const databaseUrl = process.env.DATABASE_URL;
   const dbHost = process.env.DB_HOST;
   const dbUsername = process.env.DB_USERNAME;
@@ -110,10 +125,13 @@ export function loadAppConfig(): AppConfig {
   const explicitDbConfigEnabled = Boolean(dbHost && dbUsername && dbDatabase);
 
   return {
-    nodeEnv: process.env.NODE_ENV ?? 'development',
+    nodeEnv,
     port: readInteger('PORT', 3000),
     host: process.env.HOST ?? '127.0.0.1',
     serviceName: 'duelly-backend',
+    cors: {
+      origins: readCorsOrigins(nodeEnv),
+    },
     database: {
       enabled: Boolean(databaseUrl || explicitDbConfigEnabled),
       url: databaseUrl,

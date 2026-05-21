@@ -15,6 +15,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 
 export const brl1Abi = parseAbi([
+  'function name() view returns (string)',
   'function symbol() view returns (string)',
   'function decimals() view returns (uint8)',
   'function balanceOf(address owner) view returns (uint256)',
@@ -23,6 +24,16 @@ export const brl1Abi = parseAbi([
   'function DOMAIN_SEPARATOR() view returns (bytes32)',
   'function permit(address owner,address spender,uint256 value,uint256 deadline,uint8 v,bytes32 r,bytes32 s)',
 ]);
+
+export const permitTypes = {
+  Permit: [
+    { name: 'owner', type: 'address' },
+    { name: 'spender', type: 'address' },
+    { name: 'value', type: 'uint256' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'deadline', type: 'uint256' },
+  ],
+} as const;
 
 export const escrowAbi = parseAbi([
   'error ConditionUnresolved()',
@@ -96,6 +107,14 @@ export interface PermitData {
   v: number;
   r: Hex;
   s: Hex;
+}
+
+export interface PermitMessage {
+  owner: Address;
+  spender: Address;
+  value: bigint;
+  nonce: bigint;
+  deadline: bigint;
 }
 
 export class ChainService {
@@ -172,7 +191,8 @@ export class ChainService {
     const client = this.requirePublicClient();
     const { brl1Address, escrowAddress } = this.requireAddresses();
     const spenderAddress = spender ?? escrowAddress;
-    const [symbol, decimals, balance, nonce, allowance, domainSeparator] = await Promise.all([
+    const [name, symbol, decimals, balance, nonce, allowance, domainSeparator] = await Promise.all([
+      client.readContract({ address: brl1Address, abi: brl1Abi, functionName: 'name' }),
       client.readContract({ address: brl1Address, abi: brl1Abi, functionName: 'symbol' }),
       client.readContract({ address: brl1Address, abi: brl1Abi, functionName: 'decimals' }),
       client.readContract({ address: brl1Address, abi: brl1Abi, functionName: 'balanceOf', args: [address] }),
@@ -180,7 +200,7 @@ export class ChainService {
       client.readContract({ address: brl1Address, abi: brl1Abi, functionName: 'allowance', args: [address, spenderAddress] }),
       client.readContract({ address: brl1Address, abi: brl1Abi, functionName: 'DOMAIN_SEPARATOR' }),
     ]);
-    return { symbol, decimals, balance, nonce, allowance, spender: spenderAddress, domainSeparator };
+    return { name, symbol, decimals, balance, nonce, allowance, spender: spenderAddress, domainSeparator };
   }
 
   async minLoserFee(): Promise<bigint> {

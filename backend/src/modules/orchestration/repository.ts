@@ -129,6 +129,20 @@ export class OrchestrationRepository {
     return [...this.memory.invites.values()].find((invite) => invite.betId === betId);
   }
 
+  async findInvitesByUserId(userId: string): Promise<BetInvite[]> {
+    if (this.enabled) {
+      return await this.repo(BetInviteEntity)
+        .createQueryBuilder('invite')
+        .where('invite.makerUserId = :userId', { userId })
+        .orWhere('invite.takerUserId = :userId', { userId })
+        .orderBy('invite.updatedAt', 'DESC')
+        .getMany() as BetInvite[];
+    }
+    return [...this.memory.invites.values()]
+      .filter((invite) => invite.makerUserId === userId || invite.takerUserId === userId)
+      .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime());
+  }
+
   async saveRelayerAttempt(attempt: RelayerAttempt): Promise<RelayerAttempt> {
     if (this.enabled) await this.repo(RelayerAttemptEntity).save(attempt);
     else this.memory.relayerAttempts.set(attempt.id, attempt);

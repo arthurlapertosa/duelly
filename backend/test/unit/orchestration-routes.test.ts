@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import type { Address } from 'viem';
+import { parseSignature, type Address } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
@@ -180,10 +180,45 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
     },
   });
   assert.equal(invite.statusCode, 200);
+  assert.equal(invite.json().invite.status, 'draft');
+  assert.equal(invite.json().shareable, false);
   assert.equal(invite.json().offerPayload.primaryType, 'BetOffer');
   assert.equal(invite.json().offerPayload.domain.chainId, 137);
   assert.equal(invite.json().offerPayload.message.deadline, String(detail.json().template.bettingCloseAt));
   assert.equal(invite.json().invite.expiresAt, new Date(detail.json().template.bettingCloseAt * 1000).toISOString());
+  assert.equal(invite.json().makerPermitPayload.primaryType, 'Permit');
+
+  const draftPublicRead = await app.inject({ method: 'GET', url: `/invites/${invite.json().invite.id}` });
+  assert.equal(draftPublicRead.statusCode, 404);
+
+  const invalidMakerAuthorization = await app.inject({
+    method: 'POST',
+    url: `/invites/${invite.json().invite.id}/maker-authorizations`,
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: {
+      offerSignature: await taker.signTypedData(typedData(invite.json().offerPayload)),
+      makerPermit: permitData(await maker.signTypedData(typedData(invite.json().makerPermitPayload)), invite.json().makerPermitPayload),
+    },
+  });
+  assert.equal(invalidMakerAuthorization.statusCode, 400);
+  assert.equal(invalidMakerAuthorization.json().code, 'INVALID_OFFER_SIGNATURE');
+
+  const makerAuthorization = await app.inject({
+    method: 'POST',
+    url: `/invites/${invite.json().invite.id}/maker-authorizations`,
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: {
+      offerSignature: await maker.signTypedData(typedData(invite.json().offerPayload)),
+      makerPermit: permitData(await maker.signTypedData(typedData(invite.json().makerPermitPayload)), invite.json().makerPermitPayload),
+    },
+  });
+  assert.equal(makerAuthorization.statusCode, 200);
+  assert.equal(makerAuthorization.json().invite.status, 'created');
+  assert.equal(makerAuthorization.json().shareable, true);
+
+  const publicRead = await app.inject({ method: 'GET', url: `/invites/${invite.json().invite.id}` });
+  assert.equal(publicRead.statusCode, 200);
+  assert.equal(publicRead.json().template.templateId, 'fixture-f1-sprint-winner');
 
   const accepted = await app.inject({
     method: 'POST',
@@ -193,6 +228,50 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   });
   assert.equal(accepted.statusCode, 200);
   assert.equal(accepted.json().acceptancePayload.primaryType, 'BetAcceptance');
+  assert.equal(accepted.json().takerPermitPayload.primaryType, 'Permit');
   assert.equal(accepted.json().acceptancePayload.message.deadline, String(detail.json().template.bettingCloseAt));
   assert.equal(accepted.json().invite.status, 'accepted');
+
+  const missingTakerAuthorization = await app.inject({
+    method: 'POST',
+    url: '/relayer/fund',
+    payload: { inviteId: invite.json().invite.id },
+  });
+  assert.equal(missingTakerAuthorization.statusCode, 400);
+  assert.equal(missingTakerAuthorization.json().code, 'MISSING_TAKER_AUTHORIZATION');
+
+  const makerBets = await app.inject({
+    method: 'GET',
+    url: '/me/bets',
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+  });
+  assert.equal(makerBets.statusCode, 200);
+  assert.equal(makerBets.json().bets[0].role, 'maker');
+  assert.equal(makerBets.json().bets[0].invite.id, invite.json().invite.id);
+  assert.equal(makerBets.json().bets[0].template.templateId, 'fixture-f1-sprint-winner');
 });
+
+function typedData(payload: { domain: unknown; types: unknown; primaryType: string; message: Record<string, unknown> }) {
+  const message = { ...payload.message };
+  for (const key of ['stake', 'loserFee', 'nonce', 'deadline', 'value']) {
+    if (message[key] !== undefined) message[key] = BigInt(String(message[key]));
+  }
+  return {
+    domain: payload.domain,
+    types: payload.types,
+    primaryType: payload.primaryType,
+    message,
+  } as never;
+}
+
+function permitData(signature: `0x${string}`, payload: { message: Record<string, unknown> }) {
+  const parsed = parseSignature(signature);
+  return {
+    value: String(payload.message.value),
+    nonce: String(payload.message.nonce),
+    deadline: String(payload.message.deadline),
+    v: Number(parsed.v),
+    r: parsed.r,
+    s: parsed.s,
+  };
+}
