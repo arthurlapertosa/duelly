@@ -1,4 +1,5 @@
 import type { DataSource, EntityTarget } from 'typeorm';
+import type { Address } from 'viem';
 import type {
   IndexedBet,
   IndexedChainEvent,
@@ -100,7 +101,7 @@ export class OrchestrationRepository {
     return [...this.memory.wallets.values()].find((wallet) => wallet.userId === userId && wallet.active);
   }
 
-  async findActiveWalletByAddress(address: string): Promise<LinkedWallet | undefined> {
+  async findActiveWalletByAddress(address: Address): Promise<LinkedWallet | undefined> {
     const normalized = address.toLowerCase();
     if (this.enabled) {
       return await this.repo(LinkedWalletEntity)

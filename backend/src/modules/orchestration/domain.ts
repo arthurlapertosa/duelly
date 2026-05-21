@@ -1,4 +1,4 @@
-import type { Hex } from 'viem';
+import type { Address, Hex } from 'viem';
 
 export interface UserAccount {
   id: string;
@@ -21,7 +21,7 @@ export interface AuthSession {
 export interface WalletChallenge {
   id: string;
   userId: string;
-  address: `0x${string}`;
+  address: Address;
   chainId: number;
   nonce: string;
   message: string;
@@ -33,7 +33,7 @@ export interface WalletChallenge {
 export interface LinkedWallet {
   id: string;
   userId: string;
-  address: `0x${string}`;
+  address: Address;
   chainId: number;
   active: boolean;
   verifiedAt: Date;
@@ -48,8 +48,8 @@ export interface BetInvite {
   takerUserId: string | null;
   templateHash: Hex;
   conditionId: Hex;
-  makerAddress: `0x${string}`;
-  takerAddress: `0x${string}` | null;
+  makerAddress: Address;
+  takerAddress: Address | null;
   makerOutcomeIndex: number;
   takerOutcomeIndex: number | null;
   stake: string;
@@ -72,7 +72,7 @@ export interface RelayerAttempt {
   inviteId: string | null;
   action: 'acceptBetWithPermits' | 'resolveFromPolymarket' | 'registerTemplate';
   status: 'submitted' | 'succeeded' | 'failed' | 'rejected';
-  transactionHash: string | null;
+  transactionHash: Hex | null;
   betId: string | null;
   error: string | null;
   payload: unknown | null;
@@ -82,7 +82,7 @@ export interface RelayerAttempt {
 export interface IndexedChainEvent {
   id: string;
   eventName: string;
-  transactionHash: string;
+  transactionHash: Hex;
   logIndex: number;
   blockNumber: string;
   args: unknown;
@@ -94,17 +94,17 @@ export interface IndexedBet {
   inviteId: string | null;
   templateHash: Hex;
   conditionId: Hex;
-  playerA: `0x${string}`;
-  playerB: `0x${string}`;
+  playerA: Address;
+  playerB: Address;
   playerAOutcomeIndex: number;
   playerBOutcomeIndex: number;
   stake: string;
   loserFee: string;
   status: 'Funded' | 'Resolved' | 'Voided' | 'Expired';
-  winner: `0x${string}` | null;
+  winner: Address | null;
   winnerPayout: string | null;
   treasuryPayout: string | null;
-  sourceTransactionHash: string;
+  sourceTransactionHash: Hex;
   sourceBlockNumber: string;
   updatedAt: Date;
 }
@@ -119,7 +119,7 @@ export interface ResolutionAttempt {
   id: string;
   betId: string;
   status: 'submitted' | 'resolved' | 'pending' | 'failed';
-  transactionHash: string | null;
+  transactionHash: Hex | null;
   blockNumber: string | null;
   error: string | null;
   createdAt: Date;

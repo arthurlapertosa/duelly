@@ -1,4 +1,5 @@
 import { config as loadDotenv } from 'dotenv';
+import { getAddress, isAddress, type Address, type Hex } from 'viem';
 
 loadDotenv({ quiet: true });
 
@@ -36,11 +37,11 @@ export interface AppConfig {
     enabled: boolean;
     rpcUrl?: string;
     chainId: number;
-    brl1Address?: `0x${string}`;
-    escrowAddress?: `0x${string}`;
-    polymarketCtfAddress?: `0x${string}`;
+    brl1Address?: Address;
+    escrowAddress?: Address;
+    polymarketCtfAddress?: Address;
     deploymentBlock: bigint;
-    relayerPrivateKey?: `0x${string}`;
+    relayerPrivateKey?: Hex;
     minLoserFeeWei: bigint;
     gasEstimateWei: bigint;
     gasMultiplier: number;
@@ -83,19 +84,19 @@ function readBigint(name: string, fallback: bigint): bigint {
   }
 }
 
-function readAddress(name: string): `0x${string}` | undefined {
+function readAddress(name: string): Address | undefined {
   const raw = process.env[name];
   if (!raw) return undefined;
-  if (!/^0x[0-9a-fA-F]{40}$/.test(raw)) throw new Error(`${name} must be a 0x-prefixed EVM address`);
-  return raw as `0x${string}`;
+  if (!isAddress(raw)) throw new Error(`${name} must be a 0x-prefixed EVM address`);
+  return getAddress(raw);
 }
 
-function readPrivateKey(name: string): `0x${string}` | undefined {
+function readPrivateKey(name: string): Hex | undefined {
   const raw = process.env[name];
   if (!raw) return undefined;
   const normalized = raw.startsWith('0x') ? raw : `0x${raw}`;
   if (!/^0x[0-9a-fA-F]{64}$/.test(normalized)) throw new Error(`${name} must be a 32-byte hex private key`);
-  return normalized as `0x${string}`;
+  return normalized as Hex;
 }
 
 export function loadAppConfig(): AppConfig {

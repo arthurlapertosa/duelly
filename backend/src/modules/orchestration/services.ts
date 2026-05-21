@@ -18,7 +18,7 @@ import { OrchestrationRepository } from './repository.js';
 
 const scrypt = promisify(scryptCallback);
 const SESSION_BYTES = 32;
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+const ZERO_ADDRESS: Address = '0x0000000000000000000000000000000000000000';
 const DEFAULT_LOG_RANGE = 9n;
 const INDEXER_RESCAN_DEPTH = 9n;
 
@@ -469,7 +469,7 @@ export class IndexerService {
     return { fromBlock: fromBlock.toString(), toBlock: end.toString(), events: logs.length };
   }
 
-  async applyEvent(eventName: string, args: Record<string, unknown>, transactionHash: string, blockNumber: bigint) {
+  async applyEvent(eventName: string, args: Record<string, unknown>, transactionHash: Hex, blockNumber: bigint) {
     if (eventName === 'BetFunded') {
       const betId = (args.betId as bigint).toString();
       const invite = await this.repository.findInviteByBetId(betId);
@@ -648,11 +648,11 @@ function typedPayloadMessage(value: unknown, primaryType: string): Record<string
   return payload.message as Record<string, unknown>;
 }
 
-function addressValue(message: Record<string, unknown> | undefined, field: string, fallback: string): Address {
+function addressValue(message: Record<string, unknown> | undefined, field: string, fallback: Address): Address {
   return getAddress(String(message?.[field] ?? fallback));
 }
 
-function hexValue(message: Record<string, unknown> | undefined, field: string, fallback: string): Hex {
+function hexValue(message: Record<string, unknown> | undefined, field: string, fallback: Hex): Hex {
   return String(message?.[field] ?? fallback) as Hex;
 }
 

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import type { Address } from 'viem';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
 import { createDataSource } from '../../src/db/data-source.js';
@@ -126,8 +127,8 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
 
   const repository = new OrchestrationRepository(dataSource);
   const addressSeed = suffix.replaceAll('-', '');
-  const maker = `0x${addressSeed.padEnd(40, '0')}` as `0x${string}`;
-  const taker = `0x${addressSeed.padEnd(40, '1')}` as `0x${string}`;
+  const maker = `0x${addressSeed.padEnd(40, '0')}` as Address;
+  const taker = `0x${addressSeed.padEnd(40, '1')}` as Address;
   const templateHash = '0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f';
   const conditionId = '0x0808080808080808080808080808080808080808080808080808080808080808';
 
@@ -149,7 +150,7 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
     createdAt: now,
   });
 
-  const foundWallet = await repository.findActiveWalletByAddress(maker.toLowerCase());
+  const foundWallet = await repository.findActiveWalletByAddress(maker);
   assert.equal(foundWallet?.id, walletId);
 
   await repository.saveInvite({

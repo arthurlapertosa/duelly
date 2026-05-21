@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import type { Address } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
@@ -21,9 +22,9 @@ function testConfig() {
       enabled: false,
       rpcUrl: undefined,
       chainId: 137,
-      brl1Address: '0x0000000000000000000000000000000000001001' as `0x${string}`,
-      escrowAddress: '0x0000000000000000000000000000000000001002' as `0x${string}`,
-      polymarketCtfAddress: '0x0000000000000000000000000000000000001003' as `0x${string}`,
+      brl1Address: '0x0000000000000000000000000000000000001001' as Address,
+      escrowAddress: '0x0000000000000000000000000000000000001002' as Address,
+      polymarketCtfAddress: '0x0000000000000000000000000000000000001003' as Address,
       deploymentBlock: 0n,
       relayerPrivateKey: undefined,
       minLoserFeeWei: 0n,

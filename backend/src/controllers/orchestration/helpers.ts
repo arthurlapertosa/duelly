@@ -1,5 +1,5 @@
 import type { FastifyReply } from 'fastify';
-import type { Hex } from 'viem';
+import type { Address, Hex } from 'viem';
 import type { UserAccount } from '../../modules/orchestration/domain.js';
 import { httpError } from '../../modules/orchestration/services.js';
 import type { CanonicalSportsTemplate } from '../../modules/templates/domain/types.js';
@@ -41,7 +41,7 @@ export function publicUser(user: UserAccount) {
   };
 }
 
-export function publicWallet(wallet: { address: string; chainId: number; active: boolean; verifiedAt: Date }) {
+export function publicWallet(wallet: { address: Address; chainId: number; active: boolean; verifiedAt: Date }) {
   return {
     address: wallet.address,
     chainId: wallet.chainId,
@@ -50,7 +50,7 @@ export function publicWallet(wallet: { address: string; chainId: number; active:
   };
 }
 
-export function publicInvite(invite: { id: string; status: string; templateHash: string; conditionId: string; makerAddress: string; takerAddress: string | null; makerOutcomeIndex: number; takerOutcomeIndex: number | null; stake: string; loserFee: string; expiresAt: Date; betId: string | null }) {
+export function publicInvite(invite: { id: string; status: string; templateHash: Hex; conditionId: Hex; makerAddress: Address; takerAddress: Address | null; makerOutcomeIndex: number; takerOutcomeIndex: number | null; stake: string; loserFee: string; expiresAt: Date; betId: string | null }) {
   return {
     id: invite.id,
     status: invite.status,
