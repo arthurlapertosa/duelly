@@ -18,6 +18,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { api } from './lib/api';
+import { errorMessage } from './lib/errors';
 import { brlToRaw, formatBRL, formatDateTime, potentialPayoutRaw, shortAddress } from './lib/format';
 import { locales, translate } from './lib/i18n';
 import { deriveBetStatus } from './lib/mappers';
@@ -131,23 +132,23 @@ function BottomNav() {
 }
 
 function Onboarding() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const navigate = useNavigate();
   const login = useAppStore((state) => state.login);
   const loading = useAppStore((state) => state.loading);
-  const [mode, setMode] = useState<'login' | 'register'>('register');
-  const [email, setEmail] = useState('maker@duelly.test');
-  const [password, setPassword] = useState('password-123');
-  const [error, setError] = useState('');
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<unknown | null>(null);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError('');
+    setError(null);
     try {
       await login(email, password, mode === 'register');
       navigate('/home', { replace: true });
-    } catch {
-      setError(t('auth.error'));
+    } catch (error) {
+      setError(error);
     }
   };
 
@@ -164,7 +165,7 @@ function Onboarding() {
 
         <form onSubmit={submit} className="w-full max-w-xs space-y-3">
           <div className="grid grid-cols-2 rounded-2xl bg-slate-100 p-1">
-            {(['register', 'login'] as const).map((item) => (
+            {(['login', 'register'] as const).map((item) => (
               <button
                 key={item}
                 type="button"
@@ -194,7 +195,7 @@ function Onboarding() {
             />
           </Field>
           <p className="text-xs text-slate-400">{t('auth.passwordHelp')}</p>
-          {error && <ErrorBanner message={error} />}
+          {error ? <ErrorBanner message={errorMessage(locale, error)} /> : null}
           <button
             type="submit"
             disabled={loading}
@@ -266,7 +267,7 @@ function WalletReadinessCard({ readiness }: { readiness?: FundingReadinessView |
   const balance = useAppStore((state) => state.balance);
   const loading = useAppStore((state) => state.loading);
   const verifyWallet = useAppStore((state) => state.verifyWallet);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<unknown | null>(null);
 
   if (!wallet) {
     return (
@@ -278,11 +279,11 @@ function WalletReadinessCard({ readiness }: { readiness?: FundingReadinessView |
             <p className="text-xs text-slate-500">{t('wallet.notLinkedBody')}</p>
           </div>
         </div>
-        {error && <ErrorBanner message={error} />}
+        {error ? <ErrorBanner message={errorMessage(locale, error)} /> : null}
         <button
           type="button"
           disabled={loading}
-          onClick={() => void verifyWallet().catch(() => setError(t('status.error')))}
+          onClick={() => void verifyWallet().catch((error) => setError(error))}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3 text-sm font-semibold text-white disabled:bg-blue-300"
         >
           {loading && <LoaderCircle size={16} className="animate-spin" />}
@@ -452,7 +453,7 @@ function TemplateDetailScreen() {
 }
 
 function CreateInviteScreen() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const token = useAppStore((state) => state.token);
@@ -464,14 +465,14 @@ function CreateInviteScreen() {
   const loserFeeRaw = params.get('loserFeeRaw') ?? '0';
   const [step, setStep] = useState<'review' | 'done'>('review');
   const [createdInvite, setCreatedInvite] = useState<InviteView | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<unknown | null>(null);
 
   if (!template || !token) return <Page><EmptyCard title={t('templates.empty')} /></Page>;
 
   const create = async (reject = false) => {
-    setError('');
+    setError(null);
     try {
-      if (reject) throw new Error('SIGN_REJECTED');
+      if (reject) throw new Error('USER_REJECTED');
       const adapter = createWalletAdapter(api.mode);
       const address = template.outcomeIndexes.includes(outcomeIndex) ? await adapter.connect() : await adapter.connect();
       const invite = await api.createInvite(token, { templateId: template.id, stakeRaw, loserFeeRaw, makerOutcomeIndex: outcomeIndex });
@@ -481,8 +482,8 @@ function CreateInviteScreen() {
       setCreatedInvite(authorized.invite);
       await refreshBets();
       setStep('done');
-    } catch {
-      setError(t('invite.signRejected'));
+    } catch (error) {
+      setError(error);
     }
   };
 
@@ -498,7 +499,7 @@ function CreateInviteScreen() {
             <p className="text-sm leading-relaxed text-slate-600">{template.title}</p>
           </section>
           <AmountBreakdown quote={{ stakeRaw, loserFeeBps: template.loserFeeBps, percentFeeRaw: loserFeeRaw, gasAnchoredMinimumRaw: '0', selectedLoserFeeRaw: loserFeeRaw, totalRequiredAmountRaw: (BigInt(stakeRaw) + BigInt(loserFeeRaw)).toString() }} />
-          {error && <ErrorBanner message={error} />}
+          {error ? <ErrorBanner message={errorMessage(locale, error)} /> : null}
           <button type="button" onClick={() => void create()} className="w-full rounded-2xl bg-blue-600 py-3.5 text-base font-semibold text-white">{t('invite.signOffer')}</button>
           {api.mode === 'fixture' && <button type="button" onClick={() => void create(true)} className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600">{t('common.cancel')}</button>}
         </>
@@ -517,7 +518,7 @@ function CreateInviteScreen() {
 }
 
 function AcceptInviteScreen() {
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const navigate = useNavigate();
   const { id } = useParams();
   const token = useAppStore((state) => state.token);
@@ -525,7 +526,7 @@ function AcceptInviteScreen() {
   const refreshBets = useAppStore((state) => state.refreshBets);
   const [invite, setInvite] = useState<InviteView | null>(null);
   const [template, setTemplate] = useState<TemplateView | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<unknown | null>(null);
   const [doneBetId, setDoneBetId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -543,9 +544,9 @@ function AcceptInviteScreen() {
 
   const accept = async (reject = false) => {
     if (!token || !wallet) return;
-    setError('');
+    setError(null);
     try {
-      if (reject) throw new Error('SIGN_REJECTED');
+      if (reject) throw new Error('USER_REJECTED');
       const adapter = createWalletAdapter(api.mode);
       const accepted = await api.acceptInvite(token, invite.id, takerOutcomeIndex);
       const acceptanceSignature = await adapter.signTypedData(wallet.address, accepted.acceptancePayload);
@@ -553,8 +554,8 @@ function AcceptInviteScreen() {
       const authorized = await api.authorizeTaker(token, invite.id, acceptanceSignature, takerPermit);
       await refreshBets();
       setDoneBetId(authorized.funding.betId);
-    } catch {
-      setError(t('invite.signRejected'));
+    } catch (error) {
+      setError(error);
     }
   };
 
@@ -579,7 +580,7 @@ function AcceptInviteScreen() {
       </section>
       <AmountBreakdown quote={{ stakeRaw: invite.stakeRaw, loserFeeBps: template.loserFeeBps, percentFeeRaw: invite.loserFeeRaw, gasAnchoredMinimumRaw: '0', selectedLoserFeeRaw: invite.loserFeeRaw, totalRequiredAmountRaw: (BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw)).toString() }} />
       {!wallet && <WalletReadinessCard />}
-      {error && <ErrorBanner message={error} />}
+      {error ? <ErrorBanner message={errorMessage(locale, error)} /> : null}
       <button type="button" disabled={!wallet} onClick={() => void accept()} className="w-full rounded-2xl bg-green-600 py-3.5 text-base font-semibold text-white disabled:bg-slate-300">{t('invite.accept')}</button>
       {api.mode === 'fixture' && <button type="button" onClick={() => void accept(true)} className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600">{t('common.cancel')}</button>}
     </Page>

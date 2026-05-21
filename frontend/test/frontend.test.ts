@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { ApiError } from '../src/lib/api.ts';
+import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../src/lib/errors.ts';
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
-import { missingTranslationKeys, translate } from '../src/lib/i18n.ts';
+import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
 import { deriveBetStatus } from '../src/lib/mappers.ts';
 import type { BetSummaryView } from '../src/lib/types.ts';
 
@@ -11,6 +13,37 @@ test('locales are complete and provide both default languages', () => {
   assert.deepEqual(missingTranslationKeys(), []);
   assert.equal(translate('pt-BR', 'auth.enter'), 'Entrar');
   assert.equal(translate('en-US', 'auth.enter'), 'Sign in');
+  assert.equal(defaultLocale, 'en-US');
+  assert.deepEqual(locales, ['en-US', 'pt-BR']);
+});
+
+test('onboarding defaults to sign in with empty credentials', () => {
+  const source = readFileSync(resolve('src/App.tsx'), 'utf8');
+  assert.match(source, /useState<'login' \| 'register'>\('login'\)/);
+  assert.match(source, /\(\['login', 'register'\] as const\)/);
+  assert.equal(source.includes("useState('maker@duelly.test')"), false);
+  assert.equal(source.includes("useState('password-123')"), false);
+});
+
+test('known API and wallet errors have localized messages and fallbacks', () => {
+  for (const code of knownErrorCodes) {
+    assert.notEqual(translate('en-US', `error.${code}`), `error.${code}`, code);
+    assert.notEqual(translate('pt-BR', `error.${code}`), `error.${code}`, code);
+  }
+  assert.equal(errorMessage('en-US', new ApiError('WALLET_ALREADY_LINKED')), 'This wallet is already connected to another Duelly account.');
+  assert.equal(errorMessage('pt-BR', new ApiError('WALLET_ALREADY_LINKED')), 'Esta carteira já está conectada a outra conta Duelly.');
+  assert.equal(errorKeyFor('MISSING_ADDRESS'), 'error.MISSING_FIELD');
+  assert.equal(errorKeyFor('INVALID_ADDRESS'), 'error.INVALID_FIELD');
+  assert.equal(errorCodeFrom(new Error('User rejected the request')), 'USER_REJECTED');
+  assert.equal(errorMessage('en-US', new Error('SOMETHING_NEW')), translate('en-US', 'error.UNKNOWN_ERROR'));
+});
+
+test('structured backend and frontend error codes are registered for translation', () => {
+  const discovered = discoverStructuredErrorCodes();
+  const registered = new Set<string>(knownErrorCodes);
+  for (const code of discovered) {
+    assert.ok(registered.has(code), code);
+  }
 });
 
 test('BRL1 raw values format per active locale', () => {
@@ -20,6 +53,36 @@ test('BRL1 raw values format per active locale', () => {
   assert.equal(formatBRL(raw, 'en-US'), 'R$52.50');
   assert.equal(potentialPayoutRaw(brlToRaw(50), brlToRaw(3)), brlToRaw(103));
 });
+
+function discoverStructuredErrorCodes(): string[] {
+  const files = [
+    ...walk(resolve('..', 'backend', 'src')),
+    resolve('src/lib/api.ts'),
+    resolve('src/lib/wallet.ts'),
+    resolve('src/App.tsx'),
+  ];
+  const codes = new Set<string>();
+  const patterns = [
+    /httpError\([^)]*,\s*'([A-Z0-9_]+)'/g,
+    /code:\s*'([A-Z0-9_]+)'/g,
+    /new ApiError\('([A-Z0-9_]+)'/g,
+    /throw new Error\('([A-Z0-9_]+)'/g,
+  ];
+  for (const file of files.filter((item) => item.endsWith('.ts') || item.endsWith('.tsx'))) {
+    const source = readFileSync(file, 'utf8');
+    for (const pattern of patterns) {
+      for (const match of source.matchAll(pattern)) codes.add(match[1]);
+    }
+  }
+  return [...codes].sort();
+}
+
+function walk(path: string): string[] {
+  return readdirSync(path).flatMap((entry) => {
+    const fullPath = resolve(path, entry);
+    return statSync(fullPath).isDirectory() ? walk(fullPath) : [fullPath];
+  });
+}
 
 test('invite-only summaries derive non-funded UI statuses', () => {
   const summary = {

@@ -26,9 +26,9 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
   await makerPage.goto('/templates/fixture-f1-sprint-winner');
   await expect(makerPage.getByRole('heading', { name: /Will Driver B win/ })).toBeVisible();
   await makerPage.getByRole('button', { name: 'Yes', exact: true }).click();
-  await makerPage.getByRole('button', { name: 'Criar convite' }).click();
-  await makerPage.getByRole('button', { name: 'Confirmar criação' }).click();
-  await expect(makerPage.getByText('Convite criado')).toBeVisible();
+  await makerPage.getByRole('button', { name: 'Create invite' }).click();
+  await makerPage.getByRole('button', { name: 'Confirm creation' }).click();
+  await expect(makerPage.getByText('Invite created')).toBeVisible();
   const inviteUrl = (await makerPage.locator('text=/http:\\/\\/127\\.0\\.0\\.1:5173\\/invite\\//').textContent())?.trim();
   expect(inviteUrl).toBeTruthy();
 
@@ -36,10 +36,10 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
   const takerPage = await takerContext.newPage();
   await registerVerifyAndPublish(takerPage, 'local-taker@example.test', taker.address);
   await takerPage.goto(inviteUrl!);
-  await takerPage.getByRole('button', { name: 'Aceitar aposta' }).click();
-  await expect(takerPage.getByText('Aposta aceita')).toBeVisible({ timeout: 60_000 });
-  await takerPage.getByRole('button', { name: 'Ver aposta' }).click();
-  await expect(takerPage.getByText('Aguardando resultado')).toBeVisible();
+  await takerPage.getByRole('button', { name: 'Accept bet' }).click();
+  await expect(takerPage.getByText('Bet accepted')).toBeVisible({ timeout: 60_000 });
+  await takerPage.getByRole('button', { name: 'View bet' }).click();
+  await expect(takerPage.getByText('Waiting for result')).toBeVisible();
 
   const betId = takerPage.url().split('/').pop();
   expect(betId).toBeTruthy();
@@ -55,18 +55,18 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
   await writeJsonEvidence('final-bet.json', finalBet);
 
   await takerPage.reload();
-  await expect(takerPage.getByText('Resultado confirmado')).toBeVisible({ timeout: 60_000 });
-  await saveScreenshot(takerPage, 'taker-resolved-pt-BR.png');
-  await takerPage.getByRole('button', { name: 'English' }).click();
   await expect(takerPage.getByText('Result confirmed')).toBeVisible();
   await saveScreenshot(takerPage, 'taker-resolved-en-US.png');
+  await takerPage.getByRole('button', { name: 'Português' }).click();
+  await expect(takerPage.getByText('Resultado confirmado')).toBeVisible({ timeout: 60_000 });
+  await saveScreenshot(takerPage, 'taker-resolved-pt-BR.png');
 
   await makerPage.goto(`/bets/${betId}`);
-  await expect(makerPage.getByText('Resultado confirmado')).toBeVisible({ timeout: 60_000 });
-  await saveScreenshot(makerPage, 'maker-resolved-pt-BR.png');
-  await makerPage.getByRole('button', { name: 'English' }).click();
-  await expect(makerPage.getByText('Result confirmed')).toBeVisible();
+  await expect(makerPage.getByText('Result confirmed')).toBeVisible({ timeout: 60_000 });
   await saveScreenshot(makerPage, 'maker-resolved-en-US.png');
+  await makerPage.getByRole('button', { name: 'Português' }).click();
+  await expect(makerPage.getByText('Resultado confirmado')).toBeVisible();
+  await saveScreenshot(makerPage, 'maker-resolved-pt-BR.png');
 
   await makerContext.close();
   await takerContext.close();
@@ -75,12 +75,12 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
 async function registerVerifyAndPublish(page: Page, email: string, expectedAddress: string) {
   await page.goto('/');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Senha').fill('password-123');
-  await page.getByRole('button', { name: 'Criar conta' }).last().click();
-  const ready = page.getByText('Carteira pronta');
+  await page.getByLabel('Password').fill('password-123');
+  await page.getByRole('button', { name: 'Sign in' }).last().click();
+  const ready = page.getByText('Wallet ready');
   const alreadyReady = await ready.waitFor({ state: 'visible', timeout: 3_000 }).then(() => true).catch(() => false);
   if (!alreadyReady) {
-    await page.getByRole('button', { name: 'Conectar e verificar' }).click();
+    await page.getByRole('button', { name: 'Connect and verify' }).click();
   }
   await expect(ready).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(`${expectedAddress.slice(0, 6)}...${expectedAddress.slice(-4)}`)).toBeVisible();

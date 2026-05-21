@@ -70,14 +70,16 @@ export interface DuellyApi {
   resolveFixtureBet(betId: string, outcome: 'a' | 'b' | 'void'): Promise<IndexedBetView | null>;
 }
 
-const apiMode = (import.meta.env.VITE_DUELLY_API_MODE === 'http' ? 'http' : 'fixture') as ApiMode;
-const apiBaseUrl = String(import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:3000').replace(/\/$/, '');
+const viteEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env ?? {};
+const apiMode = (viteEnv.VITE_DUELLY_API_MODE === 'http' ? 'http' : 'fixture') as ApiMode;
+const apiBaseUrl = String(viteEnv.VITE_API_BASE_URL ?? 'http://127.0.0.1:3000').replace(/\/$/, '');
 
 export const api: DuellyApi = apiMode === 'http' ? createHttpApi(apiBaseUrl) : createFixtureApi();
 
-class ApiError extends Error {
+export class ApiError extends Error {
   constructor(readonly code: string, message = code) {
     super(message);
+    this.name = 'ApiError';
   }
 }
 
@@ -290,15 +292,17 @@ function createFixtureApi(): DuellyApi {
     mode: 'fixture',
     login: async (email, password) => {
       const state = readFixtureState();
-      const user = state.users.find((item) => item.email === email.toLowerCase() && item.password === password);
+      const normalized = normalizeFixtureEmail(email);
+      const user = state.users.find((item) => item.email === normalized && item.password === password);
       if (!user) throw new ApiError('INVALID_CREDENTIALS');
       return saveSession(state, user);
     },
     register: async (email, password) => {
       const state = readFixtureState();
-      const normalized = email.toLowerCase();
+      const normalized = normalizeFixtureEmail(email);
+      if (password.length < 8) throw new ApiError('PASSWORD_TOO_SHORT');
       const existing = state.users.find((item) => item.email === normalized);
-      if (existing) return saveSession(state, existing);
+      if (existing) throw new ApiError('EMAIL_ALREADY_REGISTERED');
       const user: FixtureUser = {
         id: `user-${state.users.length + 1}`,
         email: normalized,
@@ -328,6 +332,8 @@ function createFixtureApi(): DuellyApi {
     linkWallet: async (token, _challengeId, _signature) => {
       const { state, user } = requireFixtureUser(token);
       const address = fixtureAddressFor(user.email);
+      const existing = state.users.find((item) => item.id !== user.id && item.wallet?.address === address);
+      if (existing) throw new ApiError('WALLET_ALREADY_LINKED');
       user.wallet = { address, chainId: 137, verificationStatus: 'verified' };
       writeFixtureState(state);
       return user.wallet;
@@ -539,6 +545,12 @@ function requireFixtureUser(token: string): { state: FixtureState; user: Fixture
   const user = state.users.find((item) => item.id === userId);
   if (!user) throw new ApiError('UNAUTHENTICATED');
   return { state, user };
+}
+
+function normalizeFixtureEmail(email: string): string {
+  const normalized = email.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalized)) throw new ApiError('INVALID_EMAIL');
+  return normalized;
 }
 
 function toUserView(user: FixtureUser): UserView {

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { api } from '../lib/api';
-import { normalizeLocale } from '../lib/i18n';
+import { defaultLocale, normalizeLocale } from '../lib/i18n';
 import type { BalanceView, BetSummaryView, Locale, TemplateView, UserView, WalletView } from '../lib/types';
 import { createWalletAdapter } from '../lib/wallet';
 
@@ -29,7 +29,7 @@ interface AppStore {
 export const useAppStore = create<AppStore>()(
   persist(
     (set, get) => ({
-      locale: 'pt-BR',
+      locale: defaultLocale,
       token: null,
       user: null,
       wallet: null,
@@ -58,7 +58,7 @@ export const useAppStore = create<AppStore>()(
         try {
           window.localStorage.setItem('duelly-last-email', email.toLowerCase());
           const result = register
-            ? await api.register(email, password).catch(() => api.login(email, password))
+            ? await api.register(email, password)
             : await api.login(email, password);
           set({ token: result.token, user: result.user, wallet: null, balance: null });
           const session = await api.me(result.token);
