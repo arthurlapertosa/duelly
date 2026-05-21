@@ -7,8 +7,8 @@ import {
   RejectedCandidateEntity,
   SportsTemplateEntity,
   TemplatePublishAuditEntity,
+  orchestrationEntities,
 } from '../modules/templates/persistence/entities/index.js';
-import { orchestrationEntities } from '../modules/orchestration/persistence/entities.js';
 import { CreateM1TemplateTables1716100000000 } from './migrations/1716100000000-CreateM1TemplateTables.js';
 import { CreateOrchestrationTables1716200000000 } from './migrations/1716200000000-CreateOrchestrationTables.js';
 

@@ -22,7 +22,7 @@ import {
   UserAccountEntity,
   WalletChallengeEntity,
   LinkedWalletEntity,
-} from './persistence/entities.js';
+} from '../templates/persistence/entities/index.js';
 
 export class OrchestrationRepository {
   private readonly memory = {
