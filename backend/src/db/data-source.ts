@@ -12,6 +12,7 @@ import {
 import { CreateM1TemplateTables1716100000000 } from './migrations/1716100000000-CreateM1TemplateTables.js';
 import { CreateOrchestrationTables1716200000000 } from './migrations/1716200000000-CreateOrchestrationTables.js';
 import { AddInviteAuthorizations1716300000000 } from './migrations/1716300000000-AddInviteAuthorizations.js';
+import { AddInviteRecipientEmail1716400000000 } from './migrations/1716400000000-AddInviteRecipientEmail.js';
 
 export function createDataSource(config: AppConfig = loadAppConfig()): DataSource {
   if (!config.database.enabled) {
@@ -30,7 +31,12 @@ export function createDataSource(config: AppConfig = loadAppConfig()): DataSourc
       TemplatePublishAuditEntity,
       ...orchestrationEntities,
     ],
-    migrations: [CreateM1TemplateTables1716100000000, CreateOrchestrationTables1716200000000, AddInviteAuthorizations1716300000000],
+    migrations: [
+      CreateM1TemplateTables1716100000000,
+      CreateOrchestrationTables1716200000000,
+      AddInviteAuthorizations1716300000000,
+      AddInviteRecipientEmail1716400000000,
+    ],
   };
 
   if (config.database.url) {

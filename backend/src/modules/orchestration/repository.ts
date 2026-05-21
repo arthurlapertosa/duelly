@@ -143,6 +143,28 @@ export class OrchestrationRepository {
       .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime());
   }
 
+  async findPendingInvitesByRecipientEmail(email: string, excludeUserId: string): Promise<BetInvite[]> {
+    const normalized = email.toLowerCase();
+    if (this.enabled) {
+      return await this.repo(BetInviteEntity)
+        .createQueryBuilder('invite')
+        .where('lower(invite.recipientEmail) = :email', { email: normalized })
+        .andWhere('invite.makerUserId != :excludeUserId', { excludeUserId })
+        .andWhere('invite.takerUserId is null')
+        .andWhere('invite.status = :status', { status: 'created' })
+        .andWhere('invite.expiresAt > :now', { now: new Date() })
+        .orderBy('invite.updatedAt', 'DESC')
+        .getMany() as BetInvite[];
+    }
+    return [...this.memory.invites.values()]
+      .filter((invite) => invite.recipientEmail?.toLowerCase() === normalized)
+      .filter((invite) => invite.makerUserId !== excludeUserId)
+      .filter((invite) => invite.takerUserId === null)
+      .filter((invite) => invite.status === 'created')
+      .filter((invite) => invite.expiresAt > new Date())
+      .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime());
+  }
+
   async saveRelayerAttempt(attempt: RelayerAttempt): Promise<RelayerAttempt> {
     if (this.enabled) await this.repo(RelayerAttemptEntity).save(attempt);
     else this.memory.relayerAttempts.set(attempt.id, attempt);

@@ -1,5 +1,5 @@
 import { brlToRaw } from './format';
-import { mapBetSummary, mapIndexedBet, mapInvite, mapTemplate } from './mappers';
+import { mapBetSummary, mapIndexedBet, mapInvite, mapPendingInvite, mapTemplate } from './mappers';
 import type {
   ApiMode,
   BalanceView,
@@ -9,6 +9,7 @@ import type {
   Hex,
   IndexedBetView,
   InviteView,
+  PendingInviteView,
   PermitSubmission,
   TemplateView,
   TypedPayload,
@@ -60,11 +61,12 @@ export interface DuellyApi {
   listTemplates(): Promise<TemplateView[]>;
   getTemplate(id: string): Promise<TemplateView | null>;
   quoteLoserFee(stakeRaw: string, loserFeeBps: number): Promise<FeeQuoteView>;
-  createInvite(token: string, input: { templateId: string; stakeRaw: string; loserFeeRaw: string; makerOutcomeIndex: number }): Promise<InviteCreateResult>;
+  createInvite(token: string, input: { templateId: string; stakeRaw: string; loserFeeRaw: string; makerOutcomeIndex: number; recipientEmail?: string }): Promise<InviteCreateResult>;
   authorizeMaker(token: string, inviteId: string, offerSignature: Hex, makerPermit: PermitSubmission): Promise<{ invite: InviteView; requiredFundingRaw: string }>;
-  getInvite(inviteId: string): Promise<PublicInviteResult | null>;
+  getInvite(inviteId: string, token?: string | null): Promise<PublicInviteResult | null>;
   acceptInvite(token: string, inviteId: string, takerOutcomeIndex: number): Promise<InviteAcceptResult>;
   authorizeTaker(token: string, inviteId: string, acceptanceSignature: Hex, takerPermit: PermitSubmission): Promise<TakerAuthorizationResult>;
+  listPendingInvites(token: string): Promise<PendingInviteView[]>;
   listMyBets(token: string): Promise<BetSummaryView[]>;
   getBet(betId: string): Promise<IndexedBetView | null>;
   resolveFixtureBet(betId: string, outcome: 'a' | 'b' | 'void'): Promise<IndexedBetView | null>;
@@ -151,6 +153,7 @@ function createHttpApi(baseUrl: string): DuellyApi {
           stake: input.stakeRaw,
           loserFee: input.loserFeeRaw,
           makerOutcomeIndex: input.makerOutcomeIndex,
+          recipientEmail: input.recipientEmail,
         }),
       });
       return { ...body, invite: mapInvite(body.invite as Record<string, unknown>) };
@@ -163,9 +166,12 @@ function createHttpApi(baseUrl: string): DuellyApi {
       });
       return { invite: mapInvite(body.invite as Record<string, unknown>), requiredFundingRaw: body.requiredFundingRaw };
     },
-    getInvite: async (inviteId) => {
+    getInvite: async (inviteId, token) => {
       try {
-        const body = await request<{ invite: unknown; template: unknown | null; requiredFundingRaw: string }>(`/invites/${encodeURIComponent(inviteId)}`);
+        const body = await request<{ invite: unknown; template: unknown | null; requiredFundingRaw: string }>(
+          `/invites/${encodeURIComponent(inviteId)}`,
+          token ? { token } : {},
+        );
         return {
           invite: mapInvite(body.invite as Record<string, unknown>),
           template: body.template ? mapTemplate(body.template as never) : null,
@@ -189,6 +195,10 @@ function createHttpApi(baseUrl: string): DuellyApi {
         { method: 'POST', token, body: JSON.stringify({ acceptanceSignature, takerPermit }) },
       );
       return { invite: mapInvite(body.invite as Record<string, unknown>), funding: body.funding };
+    },
+    listPendingInvites: async (token) => {
+      const body = await request<{ invites: unknown[] }>('/me/invites/pending', { token });
+      return body.invites.map((item) => mapPendingInvite(item as Record<string, unknown>));
     },
     listMyBets: async (token) => {
       const body = await request<{ bets: unknown[] }>('/me/bets', { token });
@@ -218,6 +228,7 @@ interface FixtureUser {
 interface FixtureInvite extends InviteView {
   makerUserId: string;
   takerUserId: string | null;
+  recipientEmail: string | null;
   offerPayload: TypedPayload;
   makerPermitPayload: TypedPayload;
   acceptancePayload: TypedPayload | null;
@@ -379,11 +390,17 @@ function createFixtureApi(): DuellyApi {
       if (!user.wallet) throw new ApiError('WALLET_NOT_LINKED');
       const template = fixtureTemplates.find((item) => item.id === input.templateId);
       if (!template) throw new ApiError('TEMPLATE_NOT_FOUND');
+      const recipientEmail = input.recipientEmail ? normalizeFixtureEmail(input.recipientEmail) : null;
+      if (recipientEmail === user.email) throw new ApiError('MAKER_CANNOT_INVITE_SELF');
       const invite: FixtureInvite = {
         id: `invite-${Date.now()}`,
         makerUserId: user.id,
         takerUserId: null,
+        recipientEmail,
         status: 'draft',
+        isRecipientRestricted: Boolean(recipientEmail),
+        recipientEmailHint: recipientEmail ? maskFixtureEmail(recipientEmail) : null,
+        recipientAccess: recipientEmail ? 'blocked' : 'open',
         templateHash: template.templateHash,
         conditionId: template.conditionId,
         makerAddress: user.wallet.address,
@@ -423,23 +440,27 @@ function createFixtureApi(): DuellyApi {
       writeFixtureState(state);
       return { invite, requiredFundingRaw: (BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw)).toString() };
     },
-    getInvite: async (inviteId) => {
+    getInvite: async (inviteId, token) => {
       const state = readFixtureState();
       const invite = state.invites.find((item) => item.id === inviteId && item.status !== 'draft');
       if (!invite) return null;
+      const user = token ? state.users.find((item) => item.id === state.sessions[token]) ?? null : null;
+      const normalized = normalizeFixtureInvite(invite, user?.email);
       return {
-        invite,
-        template: fixtureTemplates.find((template) => template.templateHash === invite.templateHash) ?? null,
-        requiredFundingRaw: (BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw)).toString(),
+        invite: normalized,
+        template: fixtureTemplates.find((template) => template.templateHash === normalized.templateHash) ?? null,
+        requiredFundingRaw: (BigInt(normalized.stakeRaw) + BigInt(normalized.loserFeeRaw)).toString(),
       };
     },
     acceptInvite: async (token, inviteId, takerOutcomeIndex) => {
       const { state, user } = requireFixtureUser(token);
-      if (!user.wallet) throw new ApiError('WALLET_NOT_LINKED');
       const invite = findFixtureInvite(state, inviteId);
+      if (invite.recipientEmail && invite.recipientEmail !== user.email) throw new ApiError('INVITE_RECIPIENT_MISMATCH');
+      if (!user.wallet) throw new ApiError('WALLET_NOT_LINKED');
       invite.status = 'accepted';
       invite.takerUserId = user.id;
       invite.takerAddress = user.wallet.address;
+      invite.recipientAccess = invite.recipientEmail ? 'allowed' : 'open';
       invite.takerOutcomeIndex = takerOutcomeIndex;
       invite.acceptancePayload = typedPayload('BetAcceptance', {
         taker: user.wallet.address,
@@ -484,17 +505,35 @@ function createFixtureApi(): DuellyApi {
       writeFixtureState(state);
       return { invite, funding: { requestId: `relayer-${Date.now()}`, transactionHash: `0x${'ab'.repeat(32)}`, status: 'success', betId: bet.betId } };
     },
+    listPendingInvites: async (token) => {
+      const { state, user } = requireFixtureUser(token);
+      return state.invites
+        .filter((invite) => invite.recipientEmail === user.email)
+        .filter((invite) => invite.makerUserId !== user.id)
+        .filter((invite) => invite.takerUserId === null)
+        .filter((invite) => invite.status === 'created')
+        .filter((invite) => new Date(invite.expiresAt) > new Date())
+        .map((invite) => {
+          const normalized = normalizeFixtureInvite(invite, user.email);
+          return {
+            invite: normalized,
+            template: fixtureTemplates.find((template) => template.templateHash === normalized.templateHash) ?? null,
+            requiredFundingRaw: (BigInt(normalized.stakeRaw) + BigInt(normalized.loserFeeRaw)).toString(),
+          };
+        });
+    },
     listMyBets: async (token) => {
       const { state, user } = requireFixtureUser(token);
       return state.invites
         .filter((invite) => invite.makerUserId === user.id || invite.takerUserId === user.id)
         .map((invite) => {
+          const normalized = normalizeFixtureInvite(invite, user.email);
           const bet = invite.betId ? state.bets.find((item) => item.betId === invite.betId) ?? null : null;
           return {
             role: invite.makerUserId === user.id ? 'maker' : 'taker',
-            invite,
-            template: fixtureTemplates.find((template) => template.templateHash === invite.templateHash) ?? null,
-            requiredFundingRaw: (BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw)).toString(),
+            invite: normalized,
+            template: fixtureTemplates.find((template) => template.templateHash === normalized.templateHash) ?? null,
+            requiredFundingRaw: (BigInt(normalized.stakeRaw) + BigInt(normalized.loserFeeRaw)).toString(),
             bet,
           };
         });
@@ -580,7 +619,27 @@ function balanceForUser(user: FixtureUser): BalanceView {
 function findFixtureInvite(state: FixtureState, inviteId: string): FixtureInvite {
   const invite = state.invites.find((item) => item.id === inviteId);
   if (!invite) throw new ApiError('INVITE_NOT_FOUND');
+  return normalizeFixtureInvite(invite);
+}
+
+function normalizeFixtureInvite(invite: FixtureInvite, viewerEmail?: string | null): FixtureInvite {
+  const recipientEmail = invite.recipientEmail ?? null;
+  invite.recipientEmail = recipientEmail;
+  invite.isRecipientRestricted = Boolean(recipientEmail);
+  invite.recipientEmailHint = recipientEmail ? maskFixtureEmail(recipientEmail) : null;
+  invite.recipientAccess = !recipientEmail
+    ? 'open'
+    : !viewerEmail
+      ? 'unknown'
+      : viewerEmail === recipientEmail
+        ? 'allowed'
+        : 'blocked';
   return invite;
+}
+
+function maskFixtureEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  return local && domain ? `${local.slice(0, 1)}***@${domain}` : '';
 }
 
 function debitUser(state: FixtureState, userId: string | null, amount: bigint): void {

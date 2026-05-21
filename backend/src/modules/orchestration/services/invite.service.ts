@@ -10,6 +10,7 @@ import type { Brl1Service } from './brl1.service.js';
 import { httpError } from './errors.js';
 import { inviteToOffer, stringifyBigints, ZERO_ADDRESS } from './invite-payloads.js';
 import type { WalletService } from './wallet.service.js';
+import { normalizeEmail } from './auth-helpers.js';
 
 export class InviteService {
   constructor(
@@ -20,13 +21,23 @@ export class InviteService {
     private readonly brl1: Brl1Service,
   ) {}
 
-  async create(user: UserAccount, template: CanonicalSportsTemplate, stake: bigint, loserFee: bigint, makerOutcomeIndex: number, taker?: string) {
+  async create(
+    user: UserAccount,
+    template: CanonicalSportsTemplate,
+    stake: bigint,
+    loserFee: bigint,
+    makerOutcomeIndex: number,
+    taker?: string,
+    recipient?: string,
+  ) {
     const wallet = await this.walletService.activeWallet(user);
     if (!wallet) throw httpError(404, 'WALLET_NOT_LINKED');
     if (![template.outcomeA.providerOutcomeIndex, template.outcomeB.providerOutcomeIndex].includes(makerOutcomeIndex)) {
       throw httpError(400, 'INVALID_MAKER_OUTCOME');
     }
-    const takerAddress = taker ? this.chain.normalizeAddress(taker) : ZERO_ADDRESS;
+    const recipientEmail = recipient ? normalizeEmail(recipient) : null;
+    if (recipientEmail === user.email) throw httpError(400, 'MAKER_CANNOT_INVITE_SELF');
+    const takerAddress = recipientEmail ? ZERO_ADDRESS : taker ? this.chain.normalizeAddress(taker) : ZERO_ADDRESS;
     const nowSeconds = Math.floor(Date.now() / 1000);
     const deadlineSeconds = Math.min(nowSeconds + this.config.invites.ttlSeconds, template.bettingCloseAt);
     if (deadlineSeconds <= nowSeconds) throw httpError(400, 'TEMPLATE_CLOSED');
@@ -49,6 +60,7 @@ export class InviteService {
       id: `invite-${randomUUID()}`,
       makerUserId: user.id,
       takerUserId: null,
+      recipientEmail,
       templateHash: offer.templateHash,
       conditionId: offer.conditionId,
       makerAddress: wallet.address,
@@ -113,6 +125,7 @@ export class InviteService {
     if (invite.expiresAt <= new Date()) throw httpError(400, 'INVITE_EXPIRED');
     if (invite.status !== 'created') throw httpError(400, 'INVITE_NOT_OPEN');
     if (!invite.offerSignature || !invite.makerPermit || !invite.makerAuthorizedAt) throw httpError(400, 'INVITE_NOT_SHAREABLE');
+    if (invite.recipientEmail && invite.recipientEmail !== user.email) throw httpError(403, 'INVITE_RECIPIENT_MISMATCH');
     const wallet = await this.walletService.activeWallet(user);
     if (!wallet) throw httpError(404, 'WALLET_NOT_LINKED');
     if (wallet.address === invite.makerAddress) throw httpError(400, 'MAKER_CANNOT_ACCEPT_OWN_INVITE');

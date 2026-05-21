@@ -55,6 +55,7 @@ export interface BetInvite {
   id: string;
   makerUserId: string;
   takerUserId: string | null;
+  recipientEmail: string | null;
   templateHash: Hex;
   conditionId: Hex;
   makerAddress: Address;

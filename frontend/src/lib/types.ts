@@ -63,6 +63,9 @@ export type InviteStatus = 'draft' | 'created' | 'accepted' | 'funding_submitted
 export interface InviteView {
   id: string;
   status: InviteStatus;
+  isRecipientRestricted: boolean;
+  recipientEmailHint: string | null;
+  recipientAccess: 'open' | 'unknown' | 'allowed' | 'blocked';
   templateHash: Hex;
   conditionId: Hex;
   makerAddress: Hex;
@@ -101,6 +104,12 @@ export interface BetSummaryView {
   template: TemplateView | null;
   requiredFundingRaw: string;
   bet: IndexedBetView | null;
+}
+
+export interface PendingInviteView {
+  invite: InviteView;
+  template: TemplateView | null;
+  requiredFundingRaw: string;
 }
 
 export interface TypedPayload {

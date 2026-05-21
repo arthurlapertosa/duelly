@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { api } from '../lib/api';
 import { defaultLocale, normalizeLocale } from '../lib/i18n';
-import type { BalanceView, BetSummaryView, Locale, TemplateView, UserView, WalletView } from '../lib/types';
+import type { BalanceView, BetSummaryView, Locale, PendingInviteView, TemplateView, UserView, WalletView } from '../lib/types';
 import { createWalletAdapter } from '../lib/wallet';
 
 interface AppStore {
@@ -13,6 +13,7 @@ interface AppStore {
   balance: BalanceView | null;
   templates: TemplateView[];
   bets: BetSummaryView[];
+  pendingInvites: PendingInviteView[];
   loading: boolean;
   error: string | null;
   setLocale(locale: Locale): void;
@@ -24,6 +25,7 @@ interface AppStore {
   refreshBalance(): Promise<void>;
   refreshTemplates(): Promise<void>;
   refreshBets(): Promise<void>;
+  refreshPendingInvites(): Promise<void>;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -36,6 +38,7 @@ export const useAppStore = create<AppStore>()(
       balance: null,
       templates: [],
       bets: [],
+      pendingInvites: [],
       loading: false,
       error: null,
       setLocale: (locale) => set({ locale }),
@@ -48,9 +51,9 @@ export const useAppStore = create<AppStore>()(
         try {
           const session = await api.me(token);
           set({ user: session.user, wallet: session.wallet });
-          await Promise.all([get().refreshBalance(), get().refreshBets()]);
+          await Promise.all([get().refreshBalance(), get().refreshBets(), get().refreshPendingInvites()]);
         } catch {
-          set({ token: null, user: null, wallet: null, balance: null, bets: [] });
+          set({ token: null, user: null, wallet: null, balance: null, bets: [], pendingInvites: [] });
         }
       },
       login: async (email, password, register) => {
@@ -63,7 +66,7 @@ export const useAppStore = create<AppStore>()(
           set({ token: result.token, user: result.user, wallet: null, balance: null });
           const session = await api.me(result.token);
           set({ user: session.user, wallet: session.wallet });
-          await Promise.all([get().refreshBalance(), get().refreshBets()]);
+          await Promise.all([get().refreshBalance(), get().refreshBets(), get().refreshPendingInvites()]);
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'AUTH_FAILED' });
           throw error;
@@ -74,7 +77,7 @@ export const useAppStore = create<AppStore>()(
       logout: async () => {
         const token = get().token;
         if (token) await api.logout(token).catch(() => undefined);
-        set({ token: null, user: null, wallet: null, balance: null, bets: [] });
+        set({ token: null, user: null, wallet: null, balance: null, bets: [], pendingInvites: [] });
       },
       verifyWallet: async () => {
         const token = get().token;
@@ -110,6 +113,12 @@ export const useAppStore = create<AppStore>()(
         if (!token) return;
         const bets = await api.listMyBets(token);
         set({ bets });
+      },
+      refreshPendingInvites: async () => {
+        const token = get().token;
+        if (!token) return;
+        const pendingInvites = await api.listPendingInvites(token);
+        set({ pendingInvites });
       },
     }),
     {

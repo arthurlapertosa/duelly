@@ -22,7 +22,7 @@ export class BetsController {
       ]);
       return {
         role: invite.makerUserId === user.id ? 'maker' : 'taker',
-        invite: publicInvite(invite),
+        invite: publicInvite(invite, user),
         template: template ?? null,
         requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
         bet: bet ?? null,

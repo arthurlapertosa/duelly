@@ -15,6 +15,7 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
   await page.getByText('Will Driver B win').click();
   await page.getByRole('button', { name: 'Yes' }).click();
   await page.getByRole('button', { name: 'Create invite' }).click();
+  await page.getByLabel('Opponent email').fill('taker@duelly.test');
   await page.getByRole('button', { name: 'Confirm creation' }).click();
   await expect(page.getByText('Invite created')).toBeVisible();
   const inviteLink = await page.locator('text=/http:\\/\\/127\\.0\\.0\\.1:5173\\/invite\\//').textContent();
@@ -27,10 +28,12 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
   await page.getByLabel('Email').fill('taker@duelly.test');
   await page.getByLabel('Password').fill('password-123');
   await page.getByRole('button', { name: 'Create account' }).last().click();
+  await expect(page.getByRole('heading', { name: 'New invite' })).toBeVisible();
+  await page.getByRole('button', { name: 'Review invite', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bet invite' })).toBeVisible();
   await page.getByRole('button', { name: 'Connect and verify' }).click();
-  await expect(page.getByText('Wallet ready')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Accept bet' })).toBeEnabled();
 
-  await page.goto(inviteUrl!);
   await page.getByRole('button', { name: 'Accept bet' }).click();
   await expect(page.getByText('Bet accepted')).toBeVisible();
   await page.getByRole('button', { name: 'View bet' }).click();

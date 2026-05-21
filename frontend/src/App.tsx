@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -22,7 +22,7 @@ import { errorMessage } from './lib/errors';
 import { brlToRaw, formatBRL, formatDateTime, potentialPayoutRaw, shortAddress } from './lib/format';
 import { locales, translate } from './lib/i18n';
 import { deriveBetStatus } from './lib/mappers';
-import type { BetStatus, FeeQuoteView, FundingReadinessView, InviteView, TemplateView } from './lib/types';
+import type { BetStatus, FeeQuoteView, FundingReadinessView, InviteView, PendingInviteView, TemplateView } from './lib/types';
 import { createWalletAdapter } from './lib/wallet';
 import { useAppStore } from './store/useAppStore';
 
@@ -64,7 +64,8 @@ function AppBootstrap() {
 
 function Protected({ children }: { children: ReactNode }) {
   const token = useAppStore((state) => state.token);
-  if (!token) return <Navigate to="/" replace />;
+  const location = useLocation();
+  if (!token) return <Navigate to={`/?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`} replace />;
   return children;
 }
 
@@ -77,6 +78,7 @@ function Shell({ children }: { children: ReactNode }) {
         </div>
         {children}
       </main>
+      <PendingInvitePrompt />
       <BottomNav />
     </div>
   );
@@ -131,9 +133,53 @@ function BottomNav() {
   );
 }
 
+function PendingInvitePrompt() {
+  const { locale, t } = useI18n();
+  const navigate = useNavigate();
+  const pendingInvites = useAppStore((state) => state.pendingInvites);
+  const [dismissed, setDismissed] = useState<string[]>([]);
+  const invite = pendingInvites.find((item) => !dismissed.includes(item.invite.id));
+  if (!invite) return null;
+
+  return (
+    <div className="fixed inset-x-0 bottom-16 z-50 px-5">
+      <div className="mx-auto max-w-md rounded-3xl border border-blue-100 bg-white p-4 shadow-xl">
+        <div className="mb-3 flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600"><Handshake size={18} /></div>
+          <div>
+            <h2 className="text-base font-bold text-slate-950">{t('invite.newTitle')}</h2>
+            <p className="text-xs leading-relaxed text-slate-500">{invite.template?.title ?? t('invite.newBody')}</p>
+            <p className="mt-1 text-xs font-semibold text-slate-400">{formatBRL(invite.invite.stakeRaw, locale)}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setDismissed((items) => [...items, invite.invite.id])}
+            className="rounded-2xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-slate-500"
+          >
+            {t('invite.dismiss')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setDismissed((items) => [...items, invite.invite.id]);
+              navigate(`/invite/${invite.invite.id}`);
+            }}
+            className="rounded-2xl bg-blue-600 py-2.5 text-sm font-semibold text-white"
+          >
+            {t('invite.review')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Onboarding() {
   const { locale, t } = useI18n();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const login = useAppStore((state) => state.login);
   const loading = useAppStore((state) => state.loading);
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -146,7 +192,7 @@ function Onboarding() {
     setError(null);
     try {
       await login(email, password, mode === 'register');
-      navigate('/home', { replace: true });
+      navigate(safeReturnTo(params.get('returnTo')) ?? '/home', { replace: true });
     } catch (error) {
       setError(error);
     }
@@ -227,6 +273,7 @@ function HomeScreen() {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const bets = useAppStore((state) => state.bets);
+  const pendingInvites = useAppStore((state) => state.pendingInvites);
   const logout = useAppStore((state) => state.logout);
   const activeBets = bets.filter((bet) => ['InviteCreated', 'Accepted', 'FundingSubmitted', 'Funded'].includes(deriveBetStatus(bet)));
 
@@ -246,6 +293,7 @@ function HomeScreen() {
         <ActionCard icon={<Compass size={18} />} title={t('home.explore')} onClick={() => navigate('/templates')} />
         <ActionCard icon={<Handshake size={18} />} title={t('home.myBets')} onClick={() => navigate('/bets')} />
       </div>
+      {pendingInvites.length > 0 ? <PendingInvitesSection invites={pendingInvites} /> : null}
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-950">{t('home.activeBets')}</h2>
@@ -321,6 +369,33 @@ function ActionCard({ icon, title, onClick }: { icon: ReactNode; title: string; 
     <button type="button" onClick={onClick} className="rounded-2xl border border-slate-100 bg-white p-4 text-left shadow-sm">
       <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">{icon}</div>
       <p className="text-sm font-semibold text-slate-950">{title}</p>
+    </button>
+  );
+}
+
+function PendingInvitesSection({ invites }: { invites: PendingInviteView[] }) {
+  const { t } = useI18n();
+  return (
+    <section>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-base font-semibold text-slate-950">{t('home.pendingInvites')}</h2>
+      </div>
+      <div className="space-y-3">{invites.map((invite) => <PendingInviteCard key={invite.invite.id} pending={invite} />)}</div>
+    </section>
+  );
+}
+
+function PendingInviteCard({ pending }: { pending: PendingInviteView }) {
+  const { locale, t } = useI18n();
+  const navigate = useNavigate();
+  return (
+    <button type="button" onClick={() => navigate(`/invite/${pending.invite.id}`)} className="w-full rounded-3xl border border-blue-100 bg-white p-4 text-left shadow-sm">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-blue-700">{t('invite.newTitle')}</span>
+        <span className="text-sm font-bold text-slate-950">{formatBRL(pending.invite.stakeRaw, locale)}</span>
+      </div>
+      <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-800">{pending.template?.title ?? t('invite.newBody')}</p>
+      <p className="mt-2 text-xs font-semibold text-blue-600">{t('invite.review')}</p>
     </button>
   );
 }
@@ -458,32 +533,59 @@ function CreateInviteScreen() {
   const [params] = useSearchParams();
   const token = useAppStore((state) => state.token);
   const refreshBets = useAppStore((state) => state.refreshBets);
+  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
   const templates = useAppStore((state) => state.templates);
   const template = templates.find((item) => item.id === params.get('templateId'));
   const outcomeIndex = Number(params.get('outcomeIndex') ?? 0);
   const stakeRaw = params.get('stakeRaw') ?? '0';
   const loserFeeRaw = params.get('loserFeeRaw') ?? '0';
   const [step, setStep] = useState<'review' | 'done'>('review');
+  const [inviteMode, setInviteMode] = useState<'email' | 'link'>('email');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [createdRecipientEmail, setCreatedRecipientEmail] = useState<string | null>(null);
+  const [createState, setCreateState] = useState<'idle' | 'creating' | 'signing'>('idle');
   const [createdInvite, setCreatedInvite] = useState<InviteView | null>(null);
   const [error, setError] = useState<unknown | null>(null);
 
   if (!template || !token) return <Page><EmptyCard title={t('templates.empty')} /></Page>;
 
+  const normalizedRecipient = recipientEmail.trim().toLowerCase();
+  const requiresEmail = inviteMode === 'email';
+  const recipientReady = !requiresEmail || isValidEmail(normalizedRecipient);
+  const busy = createState !== 'idle';
+  const buttonLabel = createState === 'creating'
+    ? t('invite.creating')
+    : createState === 'signing'
+      ? t('invite.signing')
+      : t('invite.signOffer');
+
   const create = async (reject = false) => {
+    if (!recipientReady || busy) return;
     setError(null);
     try {
       if (reject) throw new Error('USER_REJECTED');
+      setCreateState('creating');
       const adapter = createWalletAdapter(api.mode);
-      const address = template.outcomeIndexes.includes(outcomeIndex) ? await adapter.connect() : await adapter.connect();
-      const invite = await api.createInvite(token, { templateId: template.id, stakeRaw, loserFeeRaw, makerOutcomeIndex: outcomeIndex });
+      const address = await adapter.connect();
+      const invite = await api.createInvite(token, {
+        templateId: template.id,
+        stakeRaw,
+        loserFeeRaw,
+        makerOutcomeIndex: outcomeIndex,
+        recipientEmail: requiresEmail ? normalizedRecipient : undefined,
+      });
+      setCreateState('signing');
       const offerSignature = await adapter.signTypedData(address, invite.offerPayload);
       const makerPermit = await adapter.signPermit(address, invite.makerPermitPayload);
       const authorized = await api.authorizeMaker(token, invite.invite.id, offerSignature, makerPermit);
       setCreatedInvite(authorized.invite);
-      await refreshBets();
+      setCreatedRecipientEmail(requiresEmail ? normalizedRecipient : null);
+      await Promise.all([refreshBets(), refreshPendingInvites()]);
       setStep('done');
     } catch (error) {
       setError(error);
+    } finally {
+      setCreateState('idle');
     }
   };
 
@@ -499,14 +601,50 @@ function CreateInviteScreen() {
             <p className="text-sm leading-relaxed text-slate-600">{template.title}</p>
           </section>
           <AmountBreakdown quote={{ stakeRaw, loserFeeBps: template.loserFeeBps, percentFeeRaw: loserFeeRaw, gasAnchoredMinimumRaw: '0', selectedLoserFeeRaw: loserFeeRaw, totalRequiredAmountRaw: (BigInt(stakeRaw) + BigInt(loserFeeRaw)).toString() }} />
+          <section className="rounded-3xl border border-slate-100 bg-white p-4">
+            <p className="mb-3 text-sm font-semibold text-slate-950">{t('invite.opponent')}</p>
+            <div className="mb-3 grid grid-cols-2 rounded-2xl bg-slate-100 p-1">
+              {(['email', 'link'] as const).map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setInviteMode(item)}
+                  className={`rounded-xl py-2 text-xs font-semibold ${inviteMode === item ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500'}`}
+                >
+                  {t(`invite.mode.${item}`)}
+                </button>
+              ))}
+            </div>
+            {requiresEmail ? (
+              <div className="space-y-2">
+                <Field icon={<Mail size={16} />} label={t('invite.recipientEmail')}>
+                  <input
+                    value={recipientEmail}
+                    onChange={(event) => setRecipientEmail(event.target.value)}
+                    type="email"
+                    autoComplete="email"
+                    className="w-full bg-transparent text-sm outline-none"
+                  />
+                </Field>
+                <p className={`text-xs ${recipientEmail && !recipientReady ? 'text-red-500' : 'text-slate-400'}`}>
+                  {recipientEmail && !recipientReady ? t('invite.emailRequired') : t('invite.recipientHelp')}
+                </p>
+              </div>
+            ) : (
+              <p className="text-xs leading-relaxed text-slate-400">{t('invite.linkHelp')}</p>
+            )}
+          </section>
           {error ? <ErrorBanner message={errorMessage(locale, error)} /> : null}
-          <button type="button" onClick={() => void create()} className="w-full rounded-2xl bg-blue-600 py-3.5 text-base font-semibold text-white">{t('invite.signOffer')}</button>
-          {api.mode === 'fixture' && <button type="button" onClick={() => void create(true)} className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600">{t('common.cancel')}</button>}
+          <button type="button" disabled={!recipientReady || busy} onClick={() => void create()} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-base font-semibold text-white disabled:bg-blue-300">
+            {busy && <LoaderCircle size={18} className="animate-spin" />}
+            {buttonLabel}
+          </button>
+          {api.mode === 'fixture' && <button type="button" disabled={busy} onClick={() => void create(true)} className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600 disabled:text-slate-300">{t('common.cancel')}</button>}
         </>
       ) : (
         <SuccessState
           title={t('invite.created')}
-          body={t('invite.share')}
+          body={createdRecipientEmail ? t('invite.shareEmail', { email: createdRecipientEmail }) : t('invite.share')}
           action={t('invite.viewBet')}
           onAction={() => navigate('/bets')}
         >
@@ -524,18 +662,20 @@ function AcceptInviteScreen() {
   const token = useAppStore((state) => state.token);
   const wallet = useAppStore((state) => state.wallet);
   const refreshBets = useAppStore((state) => state.refreshBets);
+  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
   const [invite, setInvite] = useState<InviteView | null>(null);
   const [template, setTemplate] = useState<TemplateView | null>(null);
   const [error, setError] = useState<unknown | null>(null);
+  const [accepting, setAccepting] = useState(false);
   const [doneBetId, setDoneBetId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return;
-    void api.getInvite(id).then((result) => {
+    if (!id || !token) return;
+    void api.getInvite(id, token).then((result) => {
       setInvite(result?.invite ?? null);
       setTemplate(result?.template ?? null);
     });
-  }, [id]);
+  }, [id, token]);
 
   if (!id || !invite || !template) return <Page><EmptyCard title={t('invite.notFound')} /></Page>;
 
@@ -543,19 +683,22 @@ function AcceptInviteScreen() {
   const takerOutcome = template.outcomes[template.outcomeIndexes.indexOf(takerOutcomeIndex)];
 
   const accept = async (reject = false) => {
-    if (!token || !wallet) return;
+    if (!token || !wallet || accepting || invite.recipientAccess === 'blocked') return;
     setError(null);
     try {
       if (reject) throw new Error('USER_REJECTED');
+      setAccepting(true);
       const adapter = createWalletAdapter(api.mode);
       const accepted = await api.acceptInvite(token, invite.id, takerOutcomeIndex);
       const acceptanceSignature = await adapter.signTypedData(wallet.address, accepted.acceptancePayload);
       const takerPermit = await adapter.signPermit(wallet.address, accepted.takerPermitPayload);
       const authorized = await api.authorizeTaker(token, invite.id, acceptanceSignature, takerPermit);
-      await refreshBets();
+      await Promise.all([refreshBets(), refreshPendingInvites()]);
       setDoneBetId(authorized.funding.betId);
     } catch (error) {
       setError(error);
+    } finally {
+      setAccepting(false);
     }
   };
 
@@ -579,10 +722,17 @@ function AcceptInviteScreen() {
         </div>
       </section>
       <AmountBreakdown quote={{ stakeRaw: invite.stakeRaw, loserFeeBps: template.loserFeeBps, percentFeeRaw: invite.loserFeeRaw, gasAnchoredMinimumRaw: '0', selectedLoserFeeRaw: invite.loserFeeRaw, totalRequiredAmountRaw: (BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw)).toString() }} />
+      {invite.isRecipientRestricted && invite.recipientEmailHint ? (
+        <p className="rounded-2xl bg-blue-50 px-4 py-3 text-xs font-semibold text-blue-700">{t('invite.restrictedTo', { email: invite.recipientEmailHint })}</p>
+      ) : null}
       {!wallet && <WalletReadinessCard />}
+      {invite.recipientAccess === 'blocked' ? <ErrorBanner message={t('invite.blocked')} /> : null}
       {error ? <ErrorBanner message={errorMessage(locale, error)} /> : null}
-      <button type="button" disabled={!wallet} onClick={() => void accept()} className="w-full rounded-2xl bg-green-600 py-3.5 text-base font-semibold text-white disabled:bg-slate-300">{t('invite.accept')}</button>
-      {api.mode === 'fixture' && <button type="button" onClick={() => void accept(true)} className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600">{t('common.cancel')}</button>}
+      <button type="button" disabled={!wallet || accepting || invite.recipientAccess === 'blocked'} onClick={() => void accept()} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 py-3.5 text-base font-semibold text-white disabled:bg-slate-300">
+        {accepting && <LoaderCircle size={18} className="animate-spin" />}
+        {t('invite.accept')}
+      </button>
+      {api.mode === 'fixture' && <button type="button" disabled={accepting} onClick={() => void accept(true)} className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-600 disabled:text-slate-300">{t('common.cancel')}</button>}
     </Page>
   );
 }
@@ -808,6 +958,15 @@ function SuccessState({ title, body, action, onAction, children }: { title: stri
       <button type="button" onClick={onAction} className="w-full rounded-2xl bg-blue-600 py-3 text-sm font-semibold text-white">{action}</button>
     </div>
   );
+}
+
+function safeReturnTo(value: string | null): string | null {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return null;
+  return value;
+}
+
+function isValidEmail(value: string): boolean {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
 }
 
 export default App;

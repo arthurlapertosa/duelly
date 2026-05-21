@@ -12,6 +12,9 @@ export class BetInviteEntity {
   @Column({ type: 'text', name: 'taker_user_id', nullable: true })
   takerUserId!: string | null;
 
+  @Column({ type: 'text', name: 'recipient_email', nullable: true })
+  recipientEmail!: string | null;
+
   @Column({ type: 'text', name: 'template_hash' })
   templateHash!: string;
 

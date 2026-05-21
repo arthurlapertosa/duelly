@@ -34,11 +34,12 @@ export class InvitesController {
       loserFee,
       numberField(body, 'makerOutcomeIndex'),
       optionalString(body, 'takerAddress'),
+      optionalString(body, 'recipientEmail'),
     );
     const requiredFunding = BigInt(invite.stake) + BigInt(invite.loserFee);
     const deadline = BigInt(Math.floor(invite.expiresAt.getTime() / 1000));
     return {
-      invite: publicInvite(invite),
+      invite: publicInvite(invite, user),
       offerPayload: invite.offerPayload,
       makerPermitPayload: await this.context.brl1.permitPayloadForAddress(invite.makerAddress, requiredFunding, deadline),
       requiredFundingRaw: requiredFunding.toString(),
@@ -51,14 +52,27 @@ export class InvitesController {
     const invite = await this.context.repository.findInvite(stringField(params, 'inviteId'));
     if (!invite || invite.status === 'draft' || !invite.offerSignature || !invite.makerAuthorizedAt) throw httpError(404, 'INVITE_NOT_FOUND');
     const template = await findTemplate(this.context, invite.templateHash, {});
+    const authorization = Array.isArray(request.headers.authorization) ? request.headers.authorization[0] : request.headers.authorization;
+    const viewer = await this.context.auth.authenticate(authorization);
     return {
-      invite: publicInvite(invite),
+      invite: publicInvite(invite, viewer?.user),
       template,
       offerPayload: invite.offerPayload,
       acceptancePayload: invite.acceptancePayload,
       requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
       shareable: true,
     };
+  });
+
+  pending = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
+    const user = request.user!;
+    const invites = await this.context.repository.findPendingInvitesByRecipientEmail(user.email, user.id);
+    const pending = await Promise.all(invites.map(async (invite) => ({
+      invite: publicInvite(invite, user),
+      template: await findTemplate(this.context, invite.templateHash, {}) ?? null,
+      requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
+    })));
+    return { invites: pending };
   });
 
   authorizeMaker = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
@@ -72,7 +86,7 @@ export class InvitesController {
       permitField(objectField(body, 'makerPermit')),
     );
     return {
-      invite: publicInvite(invite),
+      invite: publicInvite(invite, user),
       shareable: true,
       requiredFundingRaw: (BigInt(invite.stake) + BigInt(invite.loserFee)).toString(),
     };
@@ -86,7 +100,7 @@ export class InvitesController {
     const requiredFunding = BigInt(invite.stake) + BigInt(invite.loserFee);
     const deadline = BigInt(Math.floor(invite.expiresAt.getTime() / 1000));
     return {
-      invite: publicInvite(invite),
+      invite: publicInvite(invite, user),
       acceptancePayload: invite.acceptancePayload,
       takerPermitPayload: await this.context.brl1.permitPayloadForAddress(invite.takerAddress!, requiredFunding, deadline),
       requiredFundingRaw: requiredFunding.toString(),
@@ -106,7 +120,7 @@ export class InvitesController {
     const funding = await this.context.relayer.fund({ inviteId: invite.id });
     const fundedInvite = await this.context.repository.findInvite(invite.id) ?? invite;
     return {
-      invite: publicInvite(fundedInvite),
+      invite: publicInvite(fundedInvite, user),
       funding,
     };
   });

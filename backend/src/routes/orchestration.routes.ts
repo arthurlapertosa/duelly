@@ -42,6 +42,7 @@ export async function registerOrchestrationRoutes(app: FastifyInstance, options:
   app.post('/fees/loser-fee', templates.quoteLoserFee);
 
   app.post('/invites', authenticated, invites.create);
+  app.get('/me/invites/pending', authenticated, invites.pending);
   app.get('/invites/:inviteId', invites.get);
   app.post('/invites/:inviteId/maker-authorizations', authenticated, invites.authorizeMaker);
   app.post('/invites/:inviteId/accept', authenticated, invites.accept);

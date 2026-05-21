@@ -50,10 +50,37 @@ export function publicWallet(wallet: { address: Address; chainId: number; active
   };
 }
 
-export function publicInvite(invite: { id: string; status: string; templateHash: Hex; conditionId: Hex; makerAddress: Address; takerAddress: Address | null; makerOutcomeIndex: number; takerOutcomeIndex: number | null; stake: string; loserFee: string; expiresAt: Date; betId: string | null }) {
+export function publicInvite(
+  invite: {
+    id: string;
+    status: string;
+    recipientEmail?: string | null;
+    templateHash: Hex;
+    conditionId: Hex;
+    makerAddress: Address;
+    takerAddress: Address | null;
+    makerOutcomeIndex: number;
+    takerOutcomeIndex: number | null;
+    stake: string;
+    loserFee: string;
+    expiresAt: Date;
+    betId: string | null;
+  },
+  viewer?: UserAccount,
+) {
+  const recipientAccess = !invite.recipientEmail
+    ? 'open'
+    : !viewer
+      ? 'unknown'
+      : viewer.email === invite.recipientEmail
+        ? 'allowed'
+        : 'blocked';
   return {
     id: invite.id,
     status: invite.status,
+    isRecipientRestricted: Boolean(invite.recipientEmail),
+    recipientEmailHint: invite.recipientEmail ? maskEmail(invite.recipientEmail) : null,
+    recipientAccess,
     templateHash: invite.templateHash,
     conditionId: invite.conditionId,
     makerAddress: invite.makerAddress,
@@ -65,6 +92,12 @@ export function publicInvite(invite: { id: string; status: string; templateHash:
     expiresAt: invite.expiresAt.toISOString(),
     betId: invite.betId,
   };
+}
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  if (!local || !domain) return '';
+  return `${local.slice(0, 1)}***@${domain}`;
 }
 
 export function objectBody(value: unknown): Record<string, unknown> {

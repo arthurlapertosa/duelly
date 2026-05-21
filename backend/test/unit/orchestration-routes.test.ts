@@ -251,6 +251,139 @@ test('Fee quote, template detail, invite, and acceptance payloads are exposed', 
   assert.equal(makerBets.json().bets[0].template.templateId, 'fixture-f1-sprint-winner');
 });
 
+test('Email-restricted invites appear in the recipient inbox and block other accounts', async () => {
+  const originalDateNow = Date.now;
+  Date.now = () => new Date('2026-05-20T00:00:00.000Z').getTime();
+  const app = await createApp({ config: testConfig({ inviteTtlSeconds: 10 * 365 * 24 * 60 * 60 }) });
+  test.after(async () => {
+    Date.now = originalDateNow;
+    await app.close();
+  });
+
+  const makerLogin = await app.inject({ method: 'POST', url: '/auth/register', payload: { email: 'maker@example.test', password: 'password-123' } });
+  const takerLogin = await app.inject({ method: 'POST', url: '/auth/register', payload: { email: 'taker@example.test', password: 'password-123' } });
+  const wrongLogin = await app.inject({ method: 'POST', url: '/auth/register', payload: { email: 'wrong@example.test', password: 'password-123' } });
+
+  const makerChallenge = await app.inject({
+    method: 'POST',
+    url: '/wallets/challenges',
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: { address: maker.address },
+  });
+  await app.inject({
+    method: 'POST',
+    url: '/wallets/link',
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: { challengeId: makerChallenge.json().id, signature: await maker.signMessage({ message: makerChallenge.json().message }) },
+  });
+
+  const takerChallenge = await app.inject({
+    method: 'POST',
+    url: '/wallets/challenges',
+    headers: { authorization: `Bearer ${takerLogin.json().token}` },
+    payload: { address: taker.address },
+  });
+  await app.inject({
+    method: 'POST',
+    url: '/wallets/link',
+    headers: { authorization: `Bearer ${takerLogin.json().token}` },
+    payload: { challengeId: takerChallenge.json().id, signature: await taker.signMessage({ message: takerChallenge.json().message }) },
+  });
+
+  const quote = await app.inject({
+    method: 'POST',
+    url: '/fees/loser-fee',
+    payload: { stake: '100000000000000000000', loserFeeBps: 250 },
+  });
+  const invite = await app.inject({
+    method: 'POST',
+    url: '/invites',
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: {
+      templateId: 'fixture-f1-sprint-winner',
+      stake: '100000000000000000000',
+      loserFee: quote.json().selectedLoserFeeRaw,
+      makerOutcomeIndex: 0,
+      recipientEmail: ' TAKER@example.test ',
+    },
+  });
+  assert.equal(invite.statusCode, 200);
+  assert.equal(invite.json().invite.isRecipientRestricted, true);
+  assert.equal(invite.json().invite.recipientEmailHint, 't***@example.test');
+
+  const makerAuthorization = await app.inject({
+    method: 'POST',
+    url: `/invites/${invite.json().invite.id}/maker-authorizations`,
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+    payload: {
+      offerSignature: await maker.signTypedData(typedData(invite.json().offerPayload)),
+      makerPermit: permitData(await maker.signTypedData(typedData(invite.json().makerPermitPayload)), invite.json().makerPermitPayload),
+    },
+  });
+  assert.equal(makerAuthorization.statusCode, 200);
+
+  const takerPending = await app.inject({
+    method: 'GET',
+    url: '/me/invites/pending',
+    headers: { authorization: `Bearer ${takerLogin.json().token}` },
+  });
+  assert.equal(takerPending.statusCode, 200);
+  assert.equal(takerPending.json().invites.length, 1);
+  assert.equal(takerPending.json().invites[0].invite.id, invite.json().invite.id);
+  assert.equal(takerPending.json().invites[0].invite.recipientAccess, 'allowed');
+
+  const makerPending = await app.inject({
+    method: 'GET',
+    url: '/me/invites/pending',
+    headers: { authorization: `Bearer ${makerLogin.json().token}` },
+  });
+  assert.equal(makerPending.json().invites.length, 0);
+
+  const wrongPending = await app.inject({
+    method: 'GET',
+    url: '/me/invites/pending',
+    headers: { authorization: `Bearer ${wrongLogin.json().token}` },
+  });
+  assert.equal(wrongPending.json().invites.length, 0);
+
+  const publicRead = await app.inject({ method: 'GET', url: `/invites/${invite.json().invite.id}` });
+  assert.equal(publicRead.statusCode, 200);
+  assert.equal(publicRead.json().invite.recipientAccess, 'unknown');
+  assert.equal(JSON.stringify(publicRead.json()).includes('taker@example.test'), false);
+
+  const wrongRead = await app.inject({
+    method: 'GET',
+    url: `/invites/${invite.json().invite.id}`,
+    headers: { authorization: `Bearer ${wrongLogin.json().token}` },
+  });
+  assert.equal(wrongRead.json().invite.recipientAccess, 'blocked');
+
+  const wrongAccept = await app.inject({
+    method: 'POST',
+    url: `/invites/${invite.json().invite.id}/accept`,
+    headers: { authorization: `Bearer ${wrongLogin.json().token}` },
+    payload: { takerOutcomeIndex: 1 },
+  });
+  assert.equal(wrongAccept.statusCode, 403);
+  assert.equal(wrongAccept.json().code, 'INVITE_RECIPIENT_MISMATCH');
+
+  const accepted = await app.inject({
+    method: 'POST',
+    url: `/invites/${invite.json().invite.id}/accept`,
+    headers: { authorization: `Bearer ${takerLogin.json().token}` },
+    payload: { takerOutcomeIndex: 1 },
+  });
+  assert.equal(accepted.statusCode, 200);
+  assert.equal(accepted.json().invite.status, 'accepted');
+
+  const takerPendingAfterAccept = await app.inject({
+    method: 'GET',
+    url: '/me/invites/pending',
+    headers: { authorization: `Bearer ${takerLogin.json().token}` },
+  });
+  assert.equal(takerPendingAfterAccept.json().invites.length, 0);
+});
+
 function typedData(payload: { domain: unknown; types: unknown; primaryType: string; message: Record<string, unknown> }) {
   const message = { ...payload.message };
   for (const key of ['stake', 'loserFee', 'nonce', 'deadline', 'value']) {

@@ -6,7 +6,7 @@ import { ApiError } from '../src/lib/api.ts';
 import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../src/lib/errors.ts';
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
-import { deriveBetStatus } from '../src/lib/mappers.ts';
+import { deriveBetStatus, mapPendingInvite } from '../src/lib/mappers.ts';
 import type { BetSummaryView } from '../src/lib/types.ts';
 
 test('locales are complete and provide both default languages', () => {
@@ -93,6 +93,9 @@ test('invite-only summaries derive non-funded UI statuses', () => {
     invite: {
       id: 'invite-1',
       status: 'created',
+      isRecipientRestricted: false,
+      recipientEmailHint: null,
+      recipientAccess: 'open',
       templateHash: `0x${'01'.repeat(32)}`,
       conditionId: `0x${'02'.repeat(32)}`,
       makerAddress: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -107,6 +110,54 @@ test('invite-only summaries derive non-funded UI statuses', () => {
   } satisfies BetSummaryView;
   assert.equal(deriveBetStatus(summary), 'InviteCreated');
   assert.equal(deriveBetStatus({ ...summary, invite: { ...summary.invite, status: 'funded', betId: '1' } }), 'Funded');
+});
+
+test('pending invite mapper preserves recipient access metadata', () => {
+  const pending = mapPendingInvite({
+    requiredFundingRaw: brlToRaw(103),
+    template: {
+      templateId: 'fixture-f1-sprint-winner',
+      templateHash: `0x${'01'.repeat(32)}`,
+      conditionId: `0x${'02'.repeat(32)}`,
+      sport: 'f1',
+      display: { question: 'Will Driver B win?' },
+      outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
+      outcomeB: { label: 'No', providerOutcomeIndex: 1 },
+      bettingCloseAt: 1782554400,
+      resolutionDeadline: 1782813600,
+      loserFeeBps: 250,
+      active: true,
+    },
+    invite: {
+      id: 'invite-1',
+      status: 'created',
+      isRecipientRestricted: true,
+      recipientEmailHint: 't***@example.test',
+      recipientAccess: 'allowed',
+      templateHash: `0x${'01'.repeat(32)}`,
+      conditionId: `0x${'02'.repeat(32)}`,
+      makerAddress: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      takerAddress: null,
+      makerOutcomeIndex: 0,
+      takerOutcomeIndex: null,
+      stakeRaw: brlToRaw(100),
+      loserFeeRaw: brlToRaw(3),
+      expiresAt: '2026-06-27T10:00:00.000Z',
+      betId: null,
+    },
+  });
+  assert.equal(pending.invite.isRecipientRestricted, true);
+  assert.equal(pending.invite.recipientEmailHint, 't***@example.test');
+  assert.equal(pending.invite.recipientAccess, 'allowed');
+  assert.equal(pending.template?.title, 'Will Driver B win?');
+});
+
+test('invite UI includes email/link modes, pending inbox, and login return path', () => {
+  const source = readFileSync(resolve('src/App.tsx'), 'utf8');
+  assert.match(source, /useState<'email' \| 'link'>\('email'\)/);
+  assert.match(source, /refreshPendingInvites/);
+  assert.match(source, /safeReturnTo\(params\.get\('returnTo'\)\)/);
+  assert.match(source, /PendingInvitePrompt/);
 });
 
 test('frontend source does not expose M3.5 primary flow labels or raw web3 jargon', () => {

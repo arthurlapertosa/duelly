@@ -1,4 +1,4 @@
-import type { BetStatus, BetSummaryView, Hex, IndexedBetView, InviteView, TemplateView } from './types';
+import type { BetStatus, BetSummaryView, Hex, IndexedBetView, InviteView, PendingInviteView, TemplateView } from './types';
 
 interface ApiOutcome {
   label: string;
@@ -41,6 +41,11 @@ export function mapInvite(invite: Record<string, unknown>): InviteView {
   return {
     id: String(invite.id),
     status: String(invite.status) as InviteView['status'],
+    isRecipientRestricted: Boolean(invite.isRecipientRestricted),
+    recipientEmailHint: invite.recipientEmailHint ? String(invite.recipientEmailHint) : null,
+    recipientAccess: invite.recipientAccess === 'allowed' || invite.recipientAccess === 'blocked' || invite.recipientAccess === 'unknown'
+      ? invite.recipientAccess
+      : 'open',
     templateHash: String(invite.templateHash) as Hex,
     conditionId: String(invite.conditionId) as Hex,
     makerAddress: String(invite.makerAddress) as Hex,
@@ -51,6 +56,14 @@ export function mapInvite(invite: Record<string, unknown>): InviteView {
     loserFeeRaw: String(invite.loserFeeRaw),
     expiresAt: String(invite.expiresAt),
     betId: invite.betId ? String(invite.betId) : null,
+  };
+}
+
+export function mapPendingInvite(item: Record<string, unknown>): PendingInviteView {
+  return {
+    invite: mapInvite(item.invite as Record<string, unknown>),
+    template: item.template ? mapTemplate(item.template as ApiTemplate) : null,
+    requiredFundingRaw: String(item.requiredFundingRaw),
   };
 }
 
