@@ -1,0 +1,126 @@
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { api } from '../lib/api';
+import { normalizeLocale } from '../lib/i18n';
+import type { BalanceView, BetSummaryView, Locale, TemplateView, UserView, WalletView } from '../lib/types';
+import { createWalletAdapter } from '../lib/wallet';
+
+interface AppStore {
+  locale: Locale;
+  token: string | null;
+  user: UserView | null;
+  wallet: WalletView | null;
+  balance: BalanceView | null;
+  templates: TemplateView[];
+  bets: BetSummaryView[];
+  loading: boolean;
+  error: string | null;
+  setLocale(locale: Locale): void;
+  clearError(): void;
+  bootstrap(): Promise<void>;
+  login(email: string, password: string, register: boolean): Promise<void>;
+  logout(): Promise<void>;
+  verifyWallet(): Promise<void>;
+  refreshBalance(): Promise<void>;
+  refreshTemplates(): Promise<void>;
+  refreshBets(): Promise<void>;
+}
+
+export const useAppStore = create<AppStore>()(
+  persist(
+    (set, get) => ({
+      locale: 'pt-BR',
+      token: null,
+      user: null,
+      wallet: null,
+      balance: null,
+      templates: [],
+      bets: [],
+      loading: false,
+      error: null,
+      setLocale: (locale) => set({ locale }),
+      clearError: () => set({ error: null }),
+      bootstrap: async () => {
+        const token = get().token;
+        set({ locale: normalizeLocale(get().locale) });
+        await get().refreshTemplates();
+        if (!token) return;
+        try {
+          const session = await api.me(token);
+          set({ user: session.user, wallet: session.wallet });
+          await Promise.all([get().refreshBalance(), get().refreshBets()]);
+        } catch {
+          set({ token: null, user: null, wallet: null, balance: null, bets: [] });
+        }
+      },
+      login: async (email, password, register) => {
+        set({ loading: true, error: null });
+        try {
+          window.localStorage.setItem('duelly-last-email', email.toLowerCase());
+          const result = register
+            ? await api.register(email, password).catch(() => api.login(email, password))
+            : await api.login(email, password);
+          set({ token: result.token, user: result.user, wallet: null, balance: null });
+          const session = await api.me(result.token);
+          set({ user: session.user, wallet: session.wallet });
+          await Promise.all([get().refreshBalance(), get().refreshBets()]);
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : 'AUTH_FAILED' });
+          throw error;
+        } finally {
+          set({ loading: false });
+        }
+      },
+      logout: async () => {
+        const token = get().token;
+        if (token) await api.logout(token).catch(() => undefined);
+        set({ token: null, user: null, wallet: null, balance: null, bets: [] });
+      },
+      verifyWallet: async () => {
+        const token = get().token;
+        if (!token) throw new Error('UNAUTHENTICATED');
+        set({ loading: true, error: null });
+        try {
+          const adapter = createWalletAdapter(api.mode);
+          const address = await adapter.connect();
+          const challenge = await api.createWalletChallenge(token, address);
+          const signature = await adapter.signMessage(address, challenge.message);
+          const wallet = await api.linkWallet(token, challenge.id, signature);
+          set({ wallet });
+          await get().refreshBalance();
+        } catch (error) {
+          set({ error: error instanceof Error ? error.message : 'WALLET_VERIFICATION_FAILED' });
+          throw error;
+        } finally {
+          set({ loading: false });
+        }
+      },
+      refreshBalance: async () => {
+        const token = get().token;
+        if (!token) return;
+        const balance = await api.getBalance(token);
+        set({ balance });
+      },
+      refreshTemplates: async () => {
+        const templates = await api.listTemplates();
+        set({ templates });
+      },
+      refreshBets: async () => {
+        const token = get().token;
+        if (!token) return;
+        const bets = await api.listMyBets(token);
+        set({ bets });
+      },
+    }),
+    {
+      name: 'duelly-m4-session',
+      storage: createJSONStorage(() => window.localStorage),
+      partialize: (state) => ({
+        locale: state.locale,
+        token: state.token,
+        user: state.user,
+        wallet: state.wallet,
+      }),
+    },
+  ),
+);
