@@ -144,13 +144,12 @@ cast send "$DUELLY_ESCROW_ADDRESS" \
   --rpc-url "$LOCAL_FORK_RPC_URL" \
   --private-key "$RELAYER_PRIVATE_KEY"
 
-if [ "${MIN_LOSER_FEE_WEI:-0}" != "0" ]; then
-  cast send "$DUELLY_ESCROW_ADDRESS" \
-    'setMinLoserFee(uint256)' \
-    "$MIN_LOSER_FEE_WEI" \
-    --rpc-url "$LOCAL_FORK_RPC_URL" \
-    --private-key "$RELAYER_PRIVATE_KEY"
-fi
+MIN_LOSER_FEE_WEI="${MIN_LOSER_FEE_WEI:-3000000000000000000}"
+cast send "$DUELLY_ESCROW_ADDRESS" \
+  'setMinLoserFee(uint256)' \
+  "$MIN_LOSER_FEE_WEI" \
+  --rpc-url "$LOCAL_FORK_RPC_URL" \
+  --private-key "$RELAYER_PRIVATE_KEY"
 
 BRL1_QA_AMOUNT=10000000000000000000000
 cast send "$BRL1_TOKEN_ADDRESS" 'mint(address,uint256)' "$QA_MAKER_ADDRESS" "$BRL1_QA_AMOUNT" \
@@ -206,7 +205,7 @@ For local QA, use two normal backend users and link each to one external wallet:
 
 - Maker user: `local-maker@example.test`.
 - Taker user: `local-taker@example.test`.
-- Password for local QA: `local-password-123`.
+- Password for local QA: `password-123`.
 - Maker wallet: `QA_MAKER_ADDRESS`.
 - Taker wallet: `QA_TAKER_ADDRESS`.
 
@@ -217,12 +216,12 @@ API="${API:-http://127.0.0.1:3000}"
 
 curl -sS -X POST "$API/auth/register" \
   -H 'content-type: application/json' \
-  -d '{"email":"local-maker@example.test","password":"local-password-123"}'
+  -d '{"email":"local-maker@example.test","password":"password-123"}'
 
 MAKER_TOKEN="$(
   curl -sS -X POST "$API/auth/login" \
     -H 'content-type: application/json' \
-    -d '{"email":"local-maker@example.test","password":"local-password-123"}' | jq -r .token
+    -d '{"email":"local-maker@example.test","password":"password-123"}' | jq -r .token
 )"
 
 CHALLENGE_JSON="$(
