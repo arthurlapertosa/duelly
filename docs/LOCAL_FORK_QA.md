@@ -250,14 +250,13 @@ The local fork flow should prove that the backend is not deciding the winner:
 
 1. Log in as maker and taker.
 2. Fetch the fixture template, for example `GET /templates/fixture-f1-sprint-winner?mode=fixture`.
-3. Publish it with `POST /templates/fixture-f1-sprint-winner/publish-chain?mode=fixture`.
-4. Quote loser fee with `POST /fees/loser-fee`.
-5. Create a draft invite with `POST /invites`; the response includes `offerPayload` and `makerPermitPayload`.
-6. Sign both maker payloads and store them with `POST /invites/:inviteId/maker-authorizations`. Only after this step is the invite shareable.
-7. Fetch the shareable invite with `GET /invites/:inviteId`.
-8. Accept the invite with `POST /invites/:inviteId/accept`; the response includes `acceptancePayload` and `takerPermitPayload`.
-9. Sign both taker payloads and submit them with `POST /invites/:inviteId/taker-authorizations`; this triggers the backend relayer and writes `acceptBetWithPermits` to escrow.
-10. If needed after a transient relayer failure, retry stored-authorizations funding with `POST /relayer/fund` and body `{"inviteId":"..."}`.
+3. Quote loser fee with `POST /fees/loser-fee`.
+4. Create a draft invite with `POST /invites`; the response includes `offerPayload` and `makerPermitPayload`.
+5. Sign both maker payloads and store them with `POST /invites/:inviteId/maker-authorizations`. Only after this step is the invite shareable.
+6. Fetch the shareable invite with `GET /invites/:inviteId`.
+7. Accept the invite with `POST /invites/:inviteId/accept`; the response includes `acceptancePayload` and `takerPermitPayload`.
+8. Sign both taker payloads and submit them with `POST /invites/:inviteId/taker-authorizations`; this triggers the backend relayer. If the template is not registered on escrow yet, the relayer registers the accepted template first, then writes `acceptBetWithPermits`.
+9. If needed after a transient relayer failure, retry stored-authorizations funding with `POST /relayer/fund` and body `{"inviteId":"..."}`.
 11. Run `POST /internal/indexer/reindex`.
 12. On a fresh condition, run `POST /internal/resolution/run` before mock payout and expect a pending resolution attempt with `ConditionUnresolved`.
 13. Set mock CTF payout, run `POST /internal/resolution/run` again, then reindex. On a reused fork where the condition already has payout, resolution may succeed immediately and the explicit mock payout step can be skipped.

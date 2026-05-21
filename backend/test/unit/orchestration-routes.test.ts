@@ -4,9 +4,46 @@ import { parseSignature, type Address } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
+import { RelayerService, relayerErrorCode } from '../../src/modules/orchestration/services/relayer.service.js';
 
 const maker = privateKeyToAccount('0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
 const taker = privateKeyToAccount('0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+
+test('relayer maps local contract reverts to stable API error codes', () => {
+  assert.equal(relayerErrorCode(new Error('execution reverted: custom error 0xfa674946')), 'TEMPLATE_NOT_REGISTERED_ON_CHAIN');
+  assert.equal(relayerErrorCode({ data: { errorName: 'TemplateNotRegistered' } }), 'TEMPLATE_NOT_REGISTERED_ON_CHAIN');
+  assert.equal(relayerErrorCode({ cause: { data: { errorName: 'TemplateClosed' } } }), 'TEMPLATE_CLOSED');
+});
+
+test('relayer registers missing accepted templates before funding', async () => {
+  const attempts: Array<{ action: string; status: string; transactionHash: string | null }> = [];
+  let registeredTemplateHash: string | null = null;
+  const templateHash = `0x${'01'.repeat(32)}` as const;
+  const service = new RelayerService(
+    { saveRelayerAttempt: async (attempt: { action: string; status: string; transactionHash: string | null }) => {
+      attempts.push(attempt);
+      return attempt;
+    } } as never,
+    {
+      readTemplate: async () => ({ registered: false, active: false }),
+      writeRegisterTemplate: async (template: { templateHash: string }) => {
+        registeredTemplateHash = template.templateHash;
+        return `0x${'02'.repeat(32)}`;
+      },
+      wait: async () => ({ status: 'success', blockNumber: 1n }),
+    } as never,
+    async () => ({ templateHash }) as never,
+  );
+
+  await (service as unknown as {
+    ensureTemplateRegistered(hash: typeof templateHash, requestId: string, inviteId: string): Promise<void>;
+  }).ensureTemplateRegistered(templateHash, 'relayer-test', 'invite-test');
+
+  assert.equal(registeredTemplateHash, templateHash);
+  assert.equal(attempts.length, 1);
+  assert.equal(attempts[0].action, 'registerTemplate');
+  assert.equal(attempts[0].status, 'succeeded');
+});
 
 function testConfig(options: { inviteTtlSeconds?: number } = {}) {
   return {

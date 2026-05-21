@@ -21,7 +21,7 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
 
   const makerContext = await walletContext(browser, makerPrivateKey!);
   const makerPage = await makerContext.newPage();
-  await registerVerifyAndPublish(makerPage, 'local-maker@example.test', maker.address);
+  await registerAndVerify(makerPage, 'local-maker@example.test', maker.address);
 
   await makerPage.goto('/templates/fixture-f1-sprint-winner');
   await expect(makerPage.getByRole('heading', { name: /Will Driver B win/ })).toBeVisible();
@@ -34,7 +34,7 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
 
   const takerContext = await walletContext(browser, takerPrivateKey!);
   const takerPage = await takerContext.newPage();
-  await registerVerifyAndPublish(takerPage, 'local-taker@example.test', taker.address);
+  await registerAndVerify(takerPage, 'local-taker@example.test', taker.address);
   await takerPage.goto(inviteUrl!);
   await takerPage.getByRole('button', { name: 'Accept bet' }).click();
   await expect(takerPage.getByText('Bet accepted')).toBeVisible({ timeout: 60_000 });
@@ -72,7 +72,7 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
   await takerContext.close();
 });
 
-async function registerVerifyAndPublish(page: Page, email: string, expectedAddress: string) {
+async function registerAndVerify(page: Page, email: string, expectedAddress: string) {
   await page.goto('/');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill('password-123');
@@ -84,13 +84,6 @@ async function registerVerifyAndPublish(page: Page, email: string, expectedAddre
   }
   await expect(ready).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(`${expectedAddress.slice(0, 6)}...${expectedAddress.slice(-4)}`)).toBeVisible();
-  const token = await page.evaluate(() => JSON.parse(window.localStorage.getItem('duelly-m4-session') ?? '{}')?.state?.token as string | undefined);
-  expect(token).toBeTruthy();
-  await fetchJson('/templates/fixture-f1-sprint-winner/publish-chain?mode=fixture', {
-    method: 'POST',
-    headers: { authorization: `Bearer ${token}` },
-    body: JSON.stringify({}),
-  });
 }
 
 async function walletContext(browser: Browser, privateKey: Hex): Promise<BrowserContext> {

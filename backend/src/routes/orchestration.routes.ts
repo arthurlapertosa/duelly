@@ -39,7 +39,6 @@ export async function registerOrchestrationRoutes(app: FastifyInstance, options:
   app.post('/wallets/me/funding-readiness', authenticated, wallets.fundingReadiness);
 
   app.get('/templates/:templateId', templates.detail);
-  app.post('/templates/:templateId/publish-chain', authenticated, templates.publishChain);
   app.post('/fees/loser-fee', templates.quoteLoserFee);
 
   app.post('/invites', authenticated, invites.create);

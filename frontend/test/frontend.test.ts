@@ -209,6 +209,7 @@ test('invite UI includes email/link modes, pending inbox, and login return path'
   const source = readFileSync(resolve('src/App.tsx'), 'utf8');
   assert.match(source, /useState<'email' \| 'link'>\('email'\)/);
   assert.match(source, /refreshPendingInvites/);
+  assert.match(source, /pendingInvites\.map\(\(invite\) => <PendingInviteCard/);
   assert.match(source, /safeReturnTo\(params\.get\('returnTo'\)\)/);
   assert.match(source, /PendingInvitePrompt/);
   assert.match(source, /cancelInvite\(token, draftInviteId\)/);

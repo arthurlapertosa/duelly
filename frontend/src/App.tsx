@@ -767,25 +767,40 @@ function AcceptInviteScreen() {
 function BetsListScreen() {
   const { t } = useI18n();
   const bets = useAppStore((state) => state.bets);
+  const pendingInvites = useAppStore((state) => state.pendingInvites);
   const refreshBets = useAppStore((state) => state.refreshBets);
+  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
   const [tab, setTab] = useState<'active' | 'finished'>('active');
 
   useEffect(() => {
-    void refreshBets();
-  }, [refreshBets]);
+    void Promise.all([refreshBets(), refreshPendingInvites()]);
+  }, [refreshBets, refreshPendingInvites]);
 
   const active = bets.filter((bet) => ['InviteCreated', 'Accepted', 'FundingSubmitted', 'Funded'].includes(deriveBetStatus(bet)));
   const finished = bets.filter((bet) => ['Resolved', 'Voided', 'Expired'].includes(deriveBetStatus(bet)));
-  const displayed = tab === 'active' ? active : finished;
+  const activeCount = active.length + pendingInvites.length;
+  const activeIsEmpty = activeCount === 0;
 
   return (
     <Page>
       <Title icon={<Handshake size={20} />} eyebrow={t('home.myBets')} title={t('bets.title')} />
       <div className="grid grid-cols-2 rounded-2xl bg-slate-100 p-1">
-        <button type="button" onClick={() => setTab('active')} className={`rounded-xl py-2 text-sm font-semibold ${tab === 'active' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500'}`}>{t('bets.active')} ({active.length})</button>
+        <button type="button" onClick={() => setTab('active')} className={`rounded-xl py-2 text-sm font-semibold ${tab === 'active' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500'}`}>{t('bets.active')} ({activeCount})</button>
         <button type="button" onClick={() => setTab('finished')} className={`rounded-xl py-2 text-sm font-semibold ${tab === 'finished' ? 'bg-white text-slate-950 shadow-sm' : 'text-slate-500'}`}>{t('bets.finished')} ({finished.length})</button>
       </div>
-      {displayed.length === 0 ? <EmptyCard title={tab === 'active' ? t('bets.emptyActive') : t('bets.emptyFinished')} /> : <div className="space-y-3">{displayed.map((bet) => <BetCard key={bet.invite.id} bet={bet} />)}</div>}
+      {tab === 'active' && (
+        activeIsEmpty ? (
+          <EmptyCard title={t('bets.emptyActive')} />
+        ) : (
+          <div className="space-y-3">
+            {pendingInvites.map((invite) => <PendingInviteCard key={invite.invite.id} pending={invite} />)}
+            {active.map((bet) => <BetCard key={bet.invite.id} bet={bet} />)}
+          </div>
+        )
+      )}
+      {tab === 'finished' && (
+        finished.length === 0 ? <EmptyCard title={t('bets.emptyFinished')} /> : <div className="space-y-3">{finished.map((bet) => <BetCard key={bet.invite.id} bet={bet} />)}</div>
+      )}
     </Page>
   );
 }
