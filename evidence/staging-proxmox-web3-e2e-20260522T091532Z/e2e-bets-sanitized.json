@@ -1,0 +1,13 @@
+{
+  "bets": [
+    {
+      "role": "taker",
+      "betId": "1",
+      "status": "Funded",
+      "conditionId": "0x18e4cd375afd22f819964d1e1107d1fcdccf50e1e9694f31e74e27bd1216c86d",
+      "templateHash": "0x721b4c64d7362ef8259c0c558ff4372825f10744ea725ed203f93d9cf10b99c6",
+      "tx": "0x6d938d4171e5f8b0177804e52f2a174fc4e1986e493383b015759f61853102e2",
+      "block": "87257813"
+    }
+  ]
+}

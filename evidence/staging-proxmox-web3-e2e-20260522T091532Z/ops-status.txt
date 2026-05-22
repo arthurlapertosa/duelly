@@ -1,0 +1,38 @@
+---systemctl---
+active
+active
+active
+active
+---ports---
+LISTEN 0      511          0.0.0.0:5173      0.0.0.0:*    users:(("node",pid=8242,fd=27))                      
+LISTEN 0      511          0.0.0.0:3000      0.0.0.0:*    users:(("node",pid=8210,fd=22))                      
+LISTEN 0      128          0.0.0.0:8545      0.0.0.0:*    users:(("anvil",pid=7003,fd=10))                     
+---disk---
+Filesystem                         Size  Used Avail Use% Mounted on
+/dev/mapper/pve-vm--4500--disk--0   79G  3.8G   71G   6% /
+---evidence---
+1.5M	/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/backend-health.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/backend-ready.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/bet-after-resolution-run.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/brl1-maker.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/brl1-taker.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/contract-code-check.txt
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/e2e-bets-sanitized.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/env-presence.txt
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/git-diff-check.log
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/indexer-reindex-before.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/mirror-self-test.log
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/npm-qa.log
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/npm-test.log
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/ops-status.txt
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/playwright-artifacts.txt
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/playwright-output/.last-run.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/playwright-report/index.html
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/playwright-staging-fork.log
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/resolution-run-pending.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/rpc-chain-id.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/summary.txt
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/templates-live.json
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/tooling.txt
+/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z/validate.log

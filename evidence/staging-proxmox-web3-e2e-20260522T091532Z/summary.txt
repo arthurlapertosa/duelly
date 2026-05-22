@@ -1,0 +1,4 @@
+remote-qa: ok
+evidence=/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z
+betId=1
+remote-full-qa: ok
