@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "node --import tsx --test test/*.test.ts",
     "test:e2e": "playwright test",
+    "test:e2e:staging-fork": "DUELLY_E2E_MODE=staging-fork playwright test staging-fork.spec.ts",
     "qa": "npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {

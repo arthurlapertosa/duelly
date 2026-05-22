@@ -77,6 +77,7 @@ export interface DuellyApi {
 const viteEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env ?? {};
 const apiMode = (viteEnv.VITE_DUELLY_API_MODE === 'http' ? 'http' : 'fixture') as ApiMode;
 const apiBaseUrl = String(viteEnv.VITE_API_BASE_URL ?? 'http://127.0.0.1:3000').replace(/\/$/, '');
+const templateMode = viteEnv.VITE_DUELLY_TEMPLATE_MODE === 'live' ? 'live' : 'fixture';
 
 export const api: DuellyApi = apiMode === 'http' ? createHttpApi(apiBaseUrl) : createFixtureApi();
 
@@ -139,12 +140,12 @@ function createHttpApi(baseUrl: string): DuellyApi {
       body: JSON.stringify({ stake: stakeRaw, loserFee: loserFeeRaw }),
     }),
     listTemplates: async () => {
-      const body = await request<{ templates: unknown[] }>('/templates?mode=fixture');
+      const body = await request<{ templates: unknown[] }>(`/templates?mode=${templateMode}`);
       return body.templates.map((item) => mapTemplate(item as never));
     },
     getTemplate: async (id) => {
       try {
-        const body = await request<{ template: unknown }>(`/templates/${encodeURIComponent(id)}?mode=fixture`);
+        const body = await request<{ template: unknown }>(`/templates/${encodeURIComponent(id)}?mode=${templateMode}`);
         return mapTemplate(body.template as never);
       } catch (error) {
         if (error instanceof ApiError && error.code === 'TEMPLATE_NOT_FOUND') return null;
