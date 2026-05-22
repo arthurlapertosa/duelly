@@ -7,7 +7,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/duelly/app}"
 REPO_URL="${REPO_URL:-https://github.com/arthurlapertosa/duelly.git}"
-BRANCH="${BRANCH:-codex/staging-fork-web3-e2e}"
+BRANCH="${BRANCH:-main}"
 NODE_VERSION="${NODE_VERSION:-22.21.0}"
 NVM_DIR="${NVM_DIR:-/root/.nvm}"
 DEPLOYMENT_ENV="${DEPLOYMENT_ENV:-$APP_DIR/cache/staging-fork/deployment.env}"
