@@ -58,9 +58,10 @@ export class GammaClient {
     const question = stringField(market.question) ?? stringField(market.title) ?? 'Untitled Polymarket market';
     const providerMarketId = String(market.id ?? market.marketId ?? market.slug ?? question);
     const rulesText = stringField(market.rules) ?? stringField(market.description);
+    const resolutionSource = stringField(market.resolutionSource);
     const classification = classifyLiveMarket({
       sport,
-      text: [question, stringField(market.slug), rulesText].filter(Boolean).join(' '),
+      text: [question, stringField(market.slug), rulesText, resolutionSource].filter(Boolean).join(' '),
     });
 
     return {
@@ -91,11 +92,25 @@ export class GammaClient {
       eventType: classification.eventType,
       binaryMarketType: classification.binaryMarketType,
       participants: [],
-      resultSource: 'unknown',
+      resultSource: inferResultSource([question, rulesText, resolutionSource].filter(Boolean).join(' ')),
       loserFeeBps: undefined,
       rawProviderPayloadHash: hashJson(market),
     };
   }
+}
+
+function inferResultSource(text: string): NormalizedMarketCandidate['resultSource'] {
+  const normalized = text.toLowerCase();
+  if (/\b(odds?|probabilit(?:y|ies)|implied|price|prices|trading|liquidity|volume)\b/.test(normalized)) {
+    return 'odds_or_probability';
+  }
+  if (/\b(50-50|fifty[- ]fifty|split|ambiguous|subjective)\b/.test(normalized)) {
+    return 'ambiguous';
+  }
+  if (/\b(resolve|resolves|resolution|official|winner|defeat|win|wins|otherwise)\b/.test(normalized)) {
+    return 'official_result';
+  }
+  return 'unknown';
 }
 
 function classifyLiveMarket(input: { sport: Sport; text: string }): {

@@ -23,6 +23,7 @@ import { buildCanonicalTemplate, toUnixSeconds } from '../hashing/template-hash.
 
 export interface FilterOptions {
   now?: Date;
+  allowNegativeRisk?: boolean;
 }
 
 export class TemplateFilterService {
@@ -54,7 +55,7 @@ export class TemplateFilterService {
     if (!candidate.conditionId) reasons.add('MISSING_CONDITION_ID');
     if (!candidate.questionId) reasons.add('MISSING_QUESTION_ID');
     if (!candidate.rulesText?.trim()) reasons.add('MISSING_RULES');
-    if (candidate.negRisk) reasons.add('NEGATIVE_RISK_UNSUPPORTED');
+    if (candidate.negRisk && !options.allowNegativeRisk) reasons.add('NEGATIVE_RISK_UNSUPPORTED');
     if (!candidate.active) reasons.add('MARKET_INACTIVE');
     if (candidate.closed) reasons.add('MARKET_CLOSED');
     if (candidate.archived) reasons.add('MARKET_ARCHIVED');

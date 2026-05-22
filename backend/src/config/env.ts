@@ -28,6 +28,7 @@ export interface AppConfig {
     gammaBaseUrl: string;
     discoveryMode: DiscoveryMode;
     liveDiscoveryEnabled: boolean;
+    allowNegativeRisk: boolean;
     timeoutMs: number;
     maxResults: number;
   };
@@ -38,6 +39,12 @@ export interface AppConfig {
   };
   invites: {
     ttlSeconds: number;
+  };
+  resolutionWorker: {
+    enabled: boolean;
+    intervalMs: number;
+    batchSize: number;
+    pendingRetrySeconds: number;
   };
   chain: {
     enabled: boolean;
@@ -149,6 +156,7 @@ export function loadAppConfig(): AppConfig {
         ?? 'https://gamma-api.polymarket.com',
       discoveryMode: readDiscoveryMode(),
       liveDiscoveryEnabled: readBoolean('POLYMARKET_LIVE_DISCOVERY_ENABLED', false),
+      allowNegativeRisk: readBoolean('POLYMARKET_ALLOW_NEG_RISK', false),
       timeoutMs: readInteger('POLYMARKET_DISCOVERY_TIMEOUT_MS', 8000),
       maxResults: readInteger('POLYMARKET_DISCOVERY_MAX_RESULTS', 25),
     },
@@ -159,6 +167,12 @@ export function loadAppConfig(): AppConfig {
     },
     invites: {
       ttlSeconds: readInteger('INVITE_TTL_SECONDS', DEFAULT_INVITE_TTL_SECONDS),
+    },
+    resolutionWorker: {
+      enabled: readBoolean('RESOLUTION_WORKER_ENABLED', false),
+      intervalMs: readInteger('RESOLUTION_WORKER_INTERVAL_MS', 60_000),
+      batchSize: readInteger('RESOLUTION_WORKER_BATCH_SIZE', 10),
+      pendingRetrySeconds: readInteger('RESOLUTION_WORKER_PENDING_RETRY_SECONDS', 15 * 60),
     },
     chain: {
       enabled: readBoolean('CHAIN_ENABLED', Boolean(process.env.CHAIN_RPC_URL || process.env.POLYGON_RPC_URL || process.env.EVM_RPC_URL)),

@@ -134,7 +134,7 @@ export interface IndexerCursor {
 export interface ResolutionAttempt {
   id: string;
   betId: string;
-  status: 'submitted' | 'resolved' | 'pending' | 'failed';
+  status: 'submitted' | 'resolved' | 'pending' | 'failed' | 'expired';
   transactionHash: Hex | null;
   blockNumber: string | null;
   error: string | null;

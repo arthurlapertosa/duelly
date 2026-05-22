@@ -72,9 +72,11 @@ export const escrowAbi = parseAbi([
   'function minLoserFee() view returns (uint256)',
   'function calculateLoserFee(uint256 stake,uint16 loserFeeBps) view returns (uint256)',
   'function getTemplate(bytes32 templateHash) view returns ((bool registered,bool active,bytes32 templateHash,bytes32 marketIdHash,bytes32 conditionId,bytes32 questionIdHash,bytes32 rulesHash,uint64 bettingCloseAt,uint64 resolutionDeadline,uint16 loserFeeBps,uint8 outcomeAProviderIndex,uint8 outcomeBProviderIndex))',
+  'function getBet(uint256 betId) view returns ((address playerA,address playerB,bytes32 templateHash,bytes32 conditionId,uint8 playerAOutcomeIndex,uint8 playerBOutcomeIndex,uint256 stake,uint256 loserFee,uint64 fundedAt,uint64 resolutionDeadline,uint8 status))',
   'function registerTemplate((bytes32 templateHash,uint16 templateVersion,uint8 providerCode,bytes32 marketIdHash,bytes32 conditionId,bytes32 questionIdHash,uint16 sportCode,uint16 competitionCode,uint16 competitionLevelCode,bytes32 competitionDetailHash,uint16 eventTypeCode,uint16 binaryMarketTypeCode,bytes32 outcomeALabelHash,uint8 outcomeAProviderIndex,bytes32 outcomeBLabelHash,uint8 outcomeBProviderIndex,bytes32 rulesHash,bytes32 rulesSourceHash,uint64 eventStartAt,uint64 bettingCloseAt,uint64 resolutionDeadline,uint16 loserFeeBps,uint16 feePolicyVersion,bool active) registration)',
   'function acceptBetWithPermits((address maker,address taker,bytes32 templateHash,bytes32 conditionId,uint8 makerOutcomeIndex,uint256 stake,uint256 loserFee,uint256 nonce,uint64 deadline) offer,(address taker,bytes32 offerHash,uint8 takerOutcomeIndex,uint256 nonce,uint64 deadline) acceptance,bytes makerSignature,bytes takerSignature,(uint256 value,uint256 nonce,uint256 deadline,uint8 v,bytes32 r,bytes32 s) makerPermit,(uint256 value,uint256 nonce,uint256 deadline,uint8 v,bytes32 r,bytes32 s) takerPermit) returns (uint256 betId)',
   'function resolveFromPolymarket(uint256 betId)',
+  'function expireUnresolvedBet(uint256 betId)',
   'event TemplateRegistered(bytes32 indexed templateHash,bytes32 indexed conditionId,bytes32 indexed marketIdHash,bytes32 questionIdHash,uint8 outcomeAProviderIndex,uint8 outcomeBProviderIndex,uint64 bettingCloseAt,uint64 resolutionDeadline,uint16 loserFeeBps,bool active)',
   'event BetFunded(uint256 indexed betId,bytes32 indexed templateHash,bytes32 indexed conditionId,address playerA,address playerB,uint8 playerAOutcomeIndex,uint8 playerBOutcomeIndex,uint256 stake,uint256 loserFee)',
   'event BetSettled(uint256 indexed betId,address indexed winner,address indexed loser,uint8 winningOutcomeIndex,uint256 winnerPayout,uint256 treasuryPayout)',
@@ -256,6 +258,67 @@ export class ChainService {
       abi: escrowAbi,
       functionName: 'getTemplate',
       args: [templateHash],
+    });
+  }
+
+  async readEscrowBet(betId: string | bigint) {
+    const client = this.requirePublicClient();
+    const { escrowAddress } = this.requireAddresses();
+    const bet = await client.readContract({
+      address: escrowAddress,
+      abi: escrowAbi,
+      functionName: 'getBet',
+      args: [BigInt(betId)],
+    }) as {
+      playerA: Address;
+      playerB: Address;
+      templateHash: Hex;
+      conditionId: Hex;
+      playerAOutcomeIndex: number;
+      playerBOutcomeIndex: number;
+      stake: bigint;
+      loserFee: bigint;
+      fundedAt: bigint;
+      resolutionDeadline: bigint;
+      status: number;
+    };
+    return bet;
+  }
+
+  async readPayoutDenominator(conditionId: Hex): Promise<bigint> {
+    const client = this.requirePublicClient();
+    const { polymarketCtfAddress } = this.requireAddresses();
+    return await client.readContract({
+      address: polymarketCtfAddress,
+      abi: ctfAbi,
+      functionName: 'payoutDenominator',
+      args: [conditionId],
+    });
+  }
+
+  async writeResolveFromPolymarket(betId: string | bigint) {
+    const { escrowAddress } = this.requireAddresses();
+    const { walletClient, account } = this.requireWalletClient();
+    return await walletClient.writeContract({
+      account,
+      address: escrowAddress,
+      abi: escrowAbi,
+      functionName: 'resolveFromPolymarket',
+      args: [BigInt(betId)],
+      chain: null,
+    });
+  }
+
+  async writeExpireUnresolvedBet(betId: string | bigint) {
+    const { escrowAddress } = this.requireAddresses();
+    const { walletClient, account } = this.requireWalletClient();
+    return await walletClient.writeContract({
+      account,
+      address: escrowAddress,
+      abi: escrowAbi,
+      functionName: 'expireUnresolvedBet',
+      args: [BigInt(betId)],
+      chain: null,
     });
   }
 

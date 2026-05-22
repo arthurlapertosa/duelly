@@ -13,9 +13,14 @@ const keys = [
   'POLYMARKET_GAMMA_BASE_URL',
   'POLYMARKET_GAMMA_API_URL',
   'POLYMARKET_DISCOVERY_MODE',
+  'POLYMARKET_ALLOW_NEG_RISK',
   'POLYMARKET_DISCOVERY_TIMEOUT_MS',
   'POLYMARKET_DISCOVERY_MAX_RESULTS',
   'INVITE_TTL_SECONDS',
+  'RESOLUTION_WORKER_ENABLED',
+  'RESOLUTION_WORKER_INTERVAL_MS',
+  'RESOLUTION_WORKER_BATCH_SIZE',
+  'RESOLUTION_WORKER_PENDING_RETRY_SECONDS',
   'NODE_ENV',
   'CORS_ORIGINS',
 ];
@@ -34,9 +39,48 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.database.enabled, true);
     assert.equal(config.database.port, 5432);
     assert.equal(config.polymarket.discoveryMode, 'fixture');
+    assert.equal(config.polymarket.allowNegativeRisk, false);
     assert.equal(config.polymarket.gammaBaseUrl, 'https://gamma-api.polymarket.com');
     assert.equal(config.invites.ttlSeconds, DEFAULT_INVITE_TTL_SECONDS);
+    assert.equal(config.resolutionWorker.enabled, false);
+    assert.equal(config.resolutionWorker.intervalMs, 60_000);
+    assert.equal(config.resolutionWorker.batchSize, 10);
+    assert.equal(config.resolutionWorker.pendingRetrySeconds, 900);
     assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
+test('loadAppConfig supports staging negative-risk template opt-in', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.POLYMARKET_ALLOW_NEG_RISK = 'true';
+
+    const config = loadAppConfig();
+
+    assert.equal(config.polymarket.allowNegativeRisk, true);
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
+test('loadAppConfig supports resolution worker settings', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.RESOLUTION_WORKER_ENABLED = 'true';
+    process.env.RESOLUTION_WORKER_INTERVAL_MS = '5000';
+    process.env.RESOLUTION_WORKER_BATCH_SIZE = '3';
+    process.env.RESOLUTION_WORKER_PENDING_RETRY_SECONDS = '30';
+
+    const config = loadAppConfig();
+
+    assert.equal(config.resolutionWorker.enabled, true);
+    assert.equal(config.resolutionWorker.intervalMs, 5000);
+    assert.equal(config.resolutionWorker.batchSize, 3);
+    assert.equal(config.resolutionWorker.pendingRetrySeconds, 30);
   } finally {
     restoreEnv(previous);
   }

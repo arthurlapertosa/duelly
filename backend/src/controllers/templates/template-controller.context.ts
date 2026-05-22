@@ -1,6 +1,6 @@
 import type { DataSource } from 'typeorm';
 import type { AppConfig } from '../../config/env.js';
-import { sports, type DiscoveryMode, type Sport } from '../../modules/templates/domain/types.js';
+import { sports, type DiscoveryMode, type Sport, type TemplateFilterResult } from '../../modules/templates/domain/types.js';
 import { DiscoveryAdapter } from '../../modules/templates/discovery/discovery-adapter.js';
 import { TemplateFilterService } from '../../modules/templates/filtering/template-filter.service.js';
 import { TemplateRepository } from '../../modules/templates/persistence/template-repository.js';
@@ -22,6 +22,7 @@ export interface PublishBody {
 }
 
 const fixtureNow = new Date('2026-05-19T00:00:00.000Z');
+const DISCOVERY_CACHE_TTL_MS = 60_000;
 
 export class TemplateControllerContext {
   readonly adapter: DiscoveryAdapter;
@@ -29,6 +30,8 @@ export class TemplateControllerContext {
   readonly repository: TemplateRepository;
   readonly publisher = new TemplatePublisherService();
   readonly config: AppConfig;
+  private readonly discoveryCache = new Map<string, { expiresAt: number; result: TemplateFilterResult }>();
+  private readonly inFlightDiscovery = new Map<string, Promise<TemplateFilterResult>>();
 
   constructor(options: TemplateControllerOptions) {
     this.config = options.config;
@@ -49,11 +52,30 @@ export class TemplateControllerContext {
 
   async discoverAndFilter(query: { mode?: DiscoveryMode; sport?: Sport }) {
     const mode = this.resolveMode(query);
+    const cacheKey = `${mode}:${query.sport ?? 'all'}:${this.config.polymarket.allowNegativeRisk}`;
+    const cached = this.discoveryCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) return cached.result;
+
+    const inFlight = this.inFlightDiscovery.get(cacheKey);
+    if (inFlight) return await inFlight;
+
+    const request = this.discoverAndFilterFresh(query, mode)
+      .finally(() => this.inFlightDiscovery.delete(cacheKey));
+    this.inFlightDiscovery.set(cacheKey, request);
+    return await request;
+  }
+
+  private async discoverAndFilterFresh(query: { mode?: DiscoveryMode; sport?: Sport }, mode: DiscoveryMode) {
     const candidates = await this.adapter.discover(query);
-    const result = this.filter.filter(candidates, { now: mode === 'fixture' ? fixtureNow : new Date() });
+    const result = this.filter.filter(candidates, {
+      now: mode === 'fixture' ? fixtureNow : new Date(),
+      allowNegativeRisk: this.config.polymarket.allowNegativeRisk,
+    });
     await this.repository.saveCandidates(candidates);
     await this.repository.saveAcceptedTemplates(result.accepted);
     await this.repository.saveRejectedCandidates(result.rejected);
+    const cacheKey = `${mode}:${query.sport ?? 'all'}:${this.config.polymarket.allowNegativeRisk}`;
+    this.discoveryCache.set(cacheKey, { expiresAt: Date.now() + DISCOVERY_CACHE_TTL_MS, result });
     return result;
   }
 

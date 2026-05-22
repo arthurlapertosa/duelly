@@ -4,6 +4,7 @@ export { FeeService } from './services/fee.service.js';
 export { IndexerService } from './services/indexer.service.js';
 export { InviteService } from './services/invite.service.js';
 export { RelayerService } from './services/relayer.service.js';
+export { ResolutionWorker } from './services/resolution-worker.service.js';
 export { ResolutionService } from './services/resolution.service.js';
 export { WalletService } from './services/wallet.service.js';
 export { hashPassword, hashToken, normalizeEmail, verifyPassword } from './services/auth-helpers.js';
