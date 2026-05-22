@@ -1,0 +1,11 @@
+
+> duelly@0.1.0 dev:stack
+> bash scripts/dev/start-stack.sh
+
+[stack] sourcing /home/arthur/lyth/worktrees/duelly-staging-fork-web3-e2e/cache/staging-fork/deployment.env
+[stack] verifying anvil fork at http://127.0.0.1:18545
+[stack] starting backend (logs: /tmp/duelly-stack-staging-pr80/backend.log)
+[stack] backend ready on http://127.0.0.1:3100
+[stack] starting frontend (logs: /tmp/duelly-stack-staging-pr80/frontend.log)
+[stack] frontend starting on http://127.0.0.1:5173
+[stack] stack is up — press Ctrl-C to stop.

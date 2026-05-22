@@ -1,27 +1,22 @@
 {
-  "chainId": "137",
-  "rpcUrl": "http://127.0.0.1:18545",
-  "escrow": "0x6dDE35A60b27EAD23AcCF40313574cB5BCefdf75",
-  "deploymentBlock": "87249333",
-  "brl1": "0x5C067C80C00eCd2345b05E83A3e758eF799C40B5",
-  "ctf": "0x4D97DCd97eC945f40cF65F87097ACe5EA0476045",
-  "relayerAddress": "0xe206686F0f5741A9b3fcDb079f51a8C70FCAcd2A",
-  "qaMakerAddress": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
-  "qaTakerAddress": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
-  "seed": {
-    "chainId": "0x89",
-    "amountFormatted": "1000",
-    "walletCount": 2,
-    "txCount": 2,
-    "transactions": [
-      {
-        "wallet": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
-        "transactionHash": "0x9bd68195e744ad2661e685ba76d9ca2ceee95c17b1bfe7925db239c131e51511"
-      },
-      {
-        "wallet": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
-        "transactionHash": "0x73d47d854f6543c49d83629bafd2adb6165abd629d6143b5b6942a7e8628237f"
-      }
-    ]
-  }
+  "rpcUrl": "http://127.0.0.1:18545/",
+  "chainId": "0x89",
+  "token": "0x5C067C80C00eCd2345b05E83A3e758eF799C40B5",
+  "sourceHolder": "0x2d610e4eceac64e46226b70613b6d7f81e719bc2",
+  "amountRaw": "1000000000000000000000",
+  "amountFormatted": "1000",
+  "wallets": [
+    "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+    "0xB4Dd9A1E85153ad142b89f79244e66B44F574236"
+  ],
+  "transactions": [
+    {
+      "wallet": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+      "transactionHash": "0x61426cc3a60fbd5647b6a15a1d1bfbce5076f75c331a7221ad91e73905535115"
+    },
+    {
+      "wallet": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+      "transactionHash": "0x1216ea01e06e027aea8ef3dc46d683361a4e89f8b8a7a23d2b0422a5321156c4"
+    }
+  ]
 }
