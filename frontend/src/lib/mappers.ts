@@ -19,6 +19,7 @@ interface ApiTemplate {
   display: { question: string; sourceUrl?: string; ptBR?: ApiLocalizedTemplateDisplay };
   outcomeA: ApiOutcome;
   outcomeB: ApiOutcome;
+  eventStartAt: number;
   bettingCloseAt: number;
   resolutionDeadline: number;
   loserFeeBps: number;
@@ -37,6 +38,7 @@ export function mapTemplate(template: ApiTemplate): TemplateView {
     outcomes: [normalizeOutcome(template.outcomeA.label), normalizeOutcome(template.outcomeB.label)],
     display: template.display.ptBR ? { ptBR: mapLocalizedDisplay(template.display.ptBR) } : undefined,
     outcomeIndexes: [template.outcomeA.providerOutcomeIndex, template.outcomeB.providerOutcomeIndex],
+    eventStartAt: new Date(template.eventStartAt * 1000).toISOString(),
     bettingCloseAt: new Date(template.bettingCloseAt * 1000).toISOString(),
     resolutionDeadline: new Date(template.resolutionDeadline * 1000).toISOString(),
     loserFeeBps: template.loserFeeBps,

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import type { Address } from 'viem';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
 
@@ -261,8 +262,135 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
   }
 });
 
+test('live template routes hide cached resolved conditions and keep future provider close dates', async () => {
+  const previousFetch = globalThis.fetch;
+  const resolvedConditionId = bytes32('resolved-geneva-market');
+  const futureConditionId = bytes32('future-geneva-market');
+  const denominators = new Map<string, bigint>([
+    [resolvedConditionId.toLowerCase(), 1n],
+    [futureConditionId.toLowerCase(), 0n],
+  ]);
+
+  globalThis.fetch = async (input, init) => {
+    const url = requestUrl(input);
+    if (url.hostname === 'gamma.example.test' && url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
+      return jsonResponse([
+        gammaEvent({
+          id: 'resolved-geneva-event',
+          title: 'Geneva Open: Cameron Norrie vs Mariano Navone',
+          startTime: '2026-05-20T09:05:00.000Z',
+          endDate: '2026-05-27T08:00:00.000Z',
+          tags: [{ slug: 'tennis', label: 'Tennis' }],
+          series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
+          markets: [
+            gammaMarket({
+              id: 'resolved-geneva-market',
+              slug: 'geneva-open-cameron-norrie-vs-mariano-navone',
+              question: 'Geneva Open: Cameron Norrie vs Mariano Navone',
+              rules: 'This market resolves to the official match winner.',
+              conditionSeed: 'resolved-geneva-market',
+              questionSeed: 'resolved-geneva-market-question',
+              outcomes: ['Cameron Norrie', 'Mariano Navone'],
+              startDate: '2026-05-20T09:05:00.000Z',
+              endDate: '2026-05-27T08:00:00.000Z',
+            }),
+          ],
+        }),
+        gammaEvent({
+          id: 'future-geneva-event',
+          title: 'Geneva Open: Mariano Navone vs Learner Tien',
+          startTime: '2026-05-23T13:00:00.000Z',
+          endDate: '2026-05-30T13:00:00.000Z',
+          tags: [{ slug: 'tennis', label: 'Tennis' }],
+          series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
+          markets: [
+            gammaMarket({
+              id: 'future-geneva-market',
+              slug: 'geneva-open-mariano-navone-vs-learner-tien',
+              question: 'Geneva Open: Mariano Navone vs Learner Tien',
+              rules: 'This market resolves to the official match winner.',
+              conditionSeed: 'future-geneva-market',
+              questionSeed: 'future-geneva-market-question',
+              outcomes: ['Mariano Navone', 'Learner Tien'],
+              startDate: '2026-05-23T13:00:00.000Z',
+              endDate: '2026-05-30T13:00:00.000Z',
+            }),
+          ],
+        }),
+      ]);
+    }
+    if (url.hostname === 'source-rpc.example' || url.hostname === 'fork-rpc.example') {
+      return rpcPayoutDenominatorResponse(input, init, denominators);
+    }
+    return jsonResponse([]);
+  };
+
+  const app = await createApp({
+    config: liveResolutionRouteTestConfig(),
+  });
+
+  try {
+    const resolvedDetail = await app.inject({
+      method: 'GET',
+      url: '/templates/live-resolved-geneva-market?mode=live&sport=tennis',
+    });
+    assert.equal(resolvedDetail.statusCode, 410);
+    assert.equal(resolvedDetail.json().code, 'CONDITION_RESOLVED');
+
+    const accepted = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=tennis' });
+    assert.equal(accepted.statusCode, 200);
+    const acceptedBody = accepted.json();
+    assert.deepEqual(
+      acceptedBody.templates.map((template: { providerMarketId: string }) => template.providerMarketId),
+      ['future-geneva-market'],
+    );
+    assert.equal(acceptedBody.templates[0].eventStartAt, 1779541200);
+    assert.equal(acceptedBody.templates[0].bettingCloseAt, 1780146000);
+
+    const rejected = await app.inject({ method: 'GET', url: '/templates/rejected?mode=live&sport=tennis' });
+    assert.equal(rejected.statusCode, 200);
+    assert.equal(
+      rejected.json().rejected.some((item: { candidate: { providerMarketId: string }; reasons: string[] }) => (
+        item.candidate.providerMarketId === 'resolved-geneva-market'
+        && item.reasons.includes('CONDITION_RESOLVED')
+      )),
+      true,
+    );
+  } finally {
+    await app.close();
+    globalThis.fetch = previousFetch;
+  }
+});
+
 function jsonResponse(value: unknown): Response {
   return new Response(JSON.stringify(value), { status: 200 });
+}
+
+function rpcPayoutDenominatorResponse(
+  input: Parameters<typeof fetch>[0],
+  init: Parameters<typeof fetch>[1],
+  denominators: Map<string, bigint>,
+): Response {
+  const body = requestBody(input, init);
+  const payload = JSON.parse(body) as { id?: number; params?: Array<{ data?: string }> };
+  const data = String(payload.params?.[0]?.data ?? '');
+  const conditionId = `0x${data.slice(-64)}`.toLowerCase();
+  const denominator = denominators.get(conditionId) ?? 0n;
+  return jsonResponse({
+    jsonrpc: '2.0',
+    id: payload.id ?? 1,
+    result: `0x${denominator.toString(16).padStart(64, '0')}`,
+  });
+}
+
+function requestUrl(input: Parameters<typeof fetch>[0]): URL {
+  return new URL(input instanceof Request ? input.url : String(input));
+}
+
+function requestBody(input: Parameters<typeof fetch>[0], init: Parameters<typeof fetch>[1]): string {
+  if (typeof init?.body === 'string') return init.body;
+  if (input instanceof Request && typeof input.body === 'string') return input.body;
+  return '{}';
 }
 
 function gammaEvent(input: {
@@ -272,6 +400,7 @@ function gammaEvent(input: {
   tags: unknown[];
   series?: unknown[];
   startTime?: string;
+  endDate?: string;
   markets: unknown[];
 }) {
   return {
@@ -285,7 +414,7 @@ function gammaEvent(input: {
     closed: false,
     archived: false,
     negRisk: false,
-    endDate: '2099-06-01T00:00:00.000Z',
+    endDate: input.endDate ?? '2099-06-01T00:00:00.000Z',
     startTime: input.startTime ?? '2099-05-25T00:00:00.000Z',
     markets: input.markets,
   };
@@ -301,6 +430,8 @@ function gammaMarket(input: {
   outcomes: string[];
   closed?: boolean;
   acceptingOrders?: boolean;
+  startDate?: string;
+  endDate?: string;
 }) {
   return {
     id: input.id,
@@ -316,11 +447,34 @@ function gammaMarket(input: {
     archived: false,
     acceptingOrders: input.acceptingOrders ?? true,
     negRisk: false,
-    endDate: '2099-06-01T00:00:00.000Z',
-    startDate: '2099-05-25T00:00:00.000Z',
+    endDate: input.endDate ?? '2099-06-01T00:00:00.000Z',
+    startDate: input.startDate ?? '2099-05-25T00:00:00.000Z',
   };
 }
 
 function bytes32(seed: string): string {
   return `0x${Buffer.from(seed).toString('hex').padEnd(64, '0').slice(0, 64)}`;
+}
+
+function liveResolutionRouteTestConfig() {
+  const config = liveRouteTestConfig();
+  return {
+    ...config,
+    polymarket: {
+      ...config.polymarket,
+      templateResolutionCacheTtlSeconds: 60,
+      templateResolutionRefreshConcurrency: 2,
+    },
+    polymarketResolutionMirror: {
+      ...config.polymarketResolutionMirror,
+      sourceRpcUrl: 'https://source-rpc.example',
+    },
+    chain: {
+      ...config.chain,
+      rpcUrl: 'https://fork-rpc.example',
+      brl1Address: '0x0000000000000000000000000000000000001001' as Address,
+      escrowAddress: '0x0000000000000000000000000000000000001002' as Address,
+      polymarketCtfAddress: '0x0000000000000000000000000000000000001003' as Address,
+    },
+  };
 }

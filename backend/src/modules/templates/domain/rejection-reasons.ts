@@ -17,6 +17,7 @@ export const rejectionReasonCodes = [
   'ATP_250_PLUS_UNSUPPORTED',
   'DISALLOWED_UFC_MARKET_TYPE',
   'DISALLOWED_F1_MARKET_TYPE',
+  'CONDITION_RESOLVED',
   'INVALID_LOSER_FEE_BPS',
 ] as const;
 

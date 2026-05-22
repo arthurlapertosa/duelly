@@ -3,6 +3,7 @@ import type { DataSource } from 'typeorm';
 import type { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity.js';
 import {
   CandidateSnapshotEntity,
+  ConditionResolutionStatusEntity,
   DiscoveryRunEntity,
   RejectedCandidateEntity,
   SportsTemplateEntity,
@@ -82,6 +83,23 @@ export class TemplateRepository {
       .where('lower(template.templateHash) = :templateHash', { templateHash: normalized })
       .getOne();
     return canonicalSportsTemplate(record?.template);
+  }
+
+  async findConditionResolutionStatuses(conditionIds: string[]): Promise<ConditionResolutionStatusEntity[]> {
+    if (!this.enabled || conditionIds.length === 0) return [];
+    const ids = [...new Set(conditionIds.map((id) => id.toLowerCase()))];
+    return await this.dataSource!.getRepository(ConditionResolutionStatusEntity)
+      .createQueryBuilder('status')
+      .where('lower(status.conditionId) IN (:...conditionIds)', { conditionIds: ids })
+      .getMany();
+  }
+
+  async saveConditionResolutionStatus(status: ConditionResolutionStatusEntity): Promise<void> {
+    if (!this.enabled) return;
+    await this.dataSource!.getRepository(ConditionResolutionStatusEntity).upsert(
+      status as QueryDeepPartialEntity<ConditionResolutionStatusEntity>,
+      ['conditionId'],
+    );
   }
 
   async saveRejectedCandidates(rejected: RejectedCandidate[]): Promise<void> {

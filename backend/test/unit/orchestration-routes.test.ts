@@ -231,6 +231,39 @@ function testConfig(options: { inviteTtlSeconds?: number } = {}) {
   };
 }
 
+test('Invite creation returns CONDITION_RESOLVED before building payloads for resolved templates', async () => {
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async (input, init) => rpcPayoutDenominatorResponse(input, init, 1n);
+  const app = await createApp({ config: resolvedFixtureConfig() });
+  test.after(async () => {
+    await app.close();
+    globalThis.fetch = previousFetch;
+  });
+
+  const registered = await app.inject({
+    method: 'POST',
+    url: '/auth/register',
+    payload: { email: 'maker@example.test', password: 'password-123' },
+  });
+  assert.equal(registered.statusCode, 200);
+
+  const invite = await app.inject({
+    method: 'POST',
+    url: '/invites',
+    headers: { authorization: `Bearer ${registered.json().token}` },
+    payload: {
+      templateId: 'fixture-f1-sprint-winner',
+      stake: '100000000000000000000',
+      loserFee: '3000000000000000000',
+      makerOutcomeIndex: 0,
+    },
+  });
+
+  assert.equal(invite.statusCode, 410);
+  assert.equal(invite.json().code, 'CONDITION_RESOLVED');
+  assert.equal(JSON.stringify(invite.json()).includes('offerPayload'), false);
+});
+
 test('Auth protects endpoints and supports local email/password sessions', async () => {
   const app = await createApp({ config: testConfig() });
   test.after(async () => app.close());
@@ -676,4 +709,40 @@ function permitData(signature: `0x${string}`, payload: { message: Record<string,
     r: parsed.r,
     s: parsed.s,
   };
+}
+
+function resolvedFixtureConfig() {
+  const config = testConfig();
+  return {
+    ...config,
+    polymarketResolutionMirror: {
+      ...config.polymarketResolutionMirror,
+      sourceRpcUrl: 'https://source-rpc.example',
+    },
+    chain: {
+      ...config.chain,
+      enabled: true,
+      rpcUrl: 'https://fork-rpc.example',
+    },
+  };
+}
+
+function rpcPayoutDenominatorResponse(
+  input: Parameters<typeof fetch>[0],
+  init: Parameters<typeof fetch>[1],
+  denominator: bigint,
+): Response {
+  const body = requestBody(input, init);
+  const payload = JSON.parse(body) as { id?: number };
+  return new Response(JSON.stringify({
+    jsonrpc: '2.0',
+    id: payload.id ?? 1,
+    result: `0x${denominator.toString(16).padStart(64, '0')}`,
+  }), { status: 200 });
+}
+
+function requestBody(input: Parameters<typeof fetch>[0], init: Parameters<typeof fetch>[1]): string {
+  if (typeof init?.body === 'string') return init.body;
+  if (input instanceof Request && typeof input.body === 'string') return input.body;
+  return '{}';
 }

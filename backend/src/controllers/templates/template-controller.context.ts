@@ -1,10 +1,19 @@
 import type { DataSource } from 'typeorm';
 import type { AppConfig } from '../../config/env.js';
-import { sports, type DiscoveryMode, type Sport, type TemplateFilterResult } from '../../modules/templates/domain/types.js';
+import { ChainService } from '../../modules/orchestration/chain.js';
+import {
+  sports,
+  type CanonicalSportsTemplate,
+  type DiscoveryMode,
+  type NormalizedMarketCandidate,
+  type Sport,
+  type TemplateFilterResult,
+} from '../../modules/templates/domain/types.js';
 import { DiscoveryAdapter } from '../../modules/templates/discovery/discovery-adapter.js';
 import { TemplateFilterService } from '../../modules/templates/filtering/template-filter.service.js';
 import { TemplateRepository } from '../../modules/templates/persistence/template-repository.js';
 import { TemplatePublisherService } from '../../modules/templates/publisher/template-publisher.service.js';
+import { ConditionResolutionStatusService } from '../../modules/templates/resolution/condition-resolution-status.service.js';
 
 export interface TemplateControllerOptions {
   config: AppConfig;
@@ -34,7 +43,9 @@ export class TemplateControllerContext {
   readonly filter = new TemplateFilterService();
   readonly repository: TemplateRepository;
   readonly publisher = new TemplatePublisherService();
+  readonly conditionResolution: ConditionResolutionStatusService;
   readonly config: AppConfig;
+  private readonly chain: ChainService;
   private readonly logger?: TemplatePolicyLogger;
   private readonly discoveryCache = new Map<string, { expiresAt: number; result: TemplateFilterResult }>();
   private readonly inFlightDiscovery = new Map<string, Promise<TemplateFilterResult>>();
@@ -44,6 +55,13 @@ export class TemplateControllerContext {
     this.logger = options.logger;
     this.adapter = new DiscoveryAdapter(options.config);
     this.repository = new TemplateRepository(options.dataSource);
+    this.chain = new ChainService(options.config);
+    this.conditionResolution = new ConditionResolutionStatusService(
+      options.config,
+      this.repository,
+      this.chain,
+      options.logger,
+    );
   }
 
   validateMode(query: { mode?: DiscoveryMode }) {
@@ -79,13 +97,27 @@ export class TemplateControllerContext {
     return result.accepted.find((template) => template.templateHash.toLowerCase() === templateHash.toLowerCase());
   }
 
+  async findTemplateForSelection(id: string, query: { mode?: DiscoveryMode; sport?: Sport }) {
+    return await this.findFreshAcceptedTemplateByIdOrHash(id, query);
+  }
+
+  async isTemplateResolved(template: CanonicalSportsTemplate): Promise<boolean> {
+    const status = await this.conditionResolution.refresh(template.conditionId, { force: true });
+    if (status.status !== 'resolved') return false;
+    this.discoveryCache.clear();
+    return true;
+  }
+
   private async discoverAndFilterFresh(query: { mode?: DiscoveryMode; sport?: Sport }, mode: DiscoveryMode) {
     const candidates = await this.adapter.discover(query);
-    const result = this.filter.filter(candidates, {
+    const filtered = this.filter.filter(candidates, {
       now: mode === 'fixture' ? fixtureNow : new Date(),
       allowNegativeRisk: this.config.polymarket.allowNegativeRisk,
       minBettingCloseBufferSeconds: this.config.polymarket.minBettingCloseBufferSeconds,
     });
+    const result = mode === 'live'
+      ? await this.hideKnownResolvedTemplates(filtered, candidates)
+      : filtered;
     this.logger?.info({
       mode,
       sport: query.sport ?? 'all',
@@ -101,6 +133,66 @@ export class TemplateControllerContext {
     const cacheKey = this.cacheKey(mode, query);
     this.discoveryCache.set(cacheKey, { expiresAt: Date.now() + DISCOVERY_CACHE_TTL_MS, result });
     return result;
+  }
+
+  private async findFreshAcceptedTemplateByIdOrHash(id: string, query: { mode?: DiscoveryMode; sport?: Sport }) {
+    const mode = this.resolveMode(query);
+    const candidates = await this.adapter.discover(query);
+    const result = this.filter.filter(candidates, {
+      now: mode === 'fixture' ? fixtureNow : new Date(),
+      allowNegativeRisk: this.config.polymarket.allowNegativeRisk,
+      minBettingCloseBufferSeconds: this.config.polymarket.minBettingCloseBufferSeconds,
+    });
+    const normalized = id.toLowerCase();
+    return result.accepted.find((template) => (
+      template.templateId === id
+      || template.templateHash.toLowerCase() === normalized
+    ));
+  }
+
+  private async hideKnownResolvedTemplates(
+    result: TemplateFilterResult,
+    candidates: NormalizedMarketCandidate[],
+  ): Promise<TemplateFilterResult> {
+    if (result.accepted.length === 0) return result;
+    const statuses = await this.conditionResolution.cachedStatuses(
+      result.accepted.map((template) => template.conditionId),
+    );
+    const candidatesByProviderMarketId = new Map(candidates.map((candidate) => [candidate.providerMarketId, candidate]));
+    const accepted: TemplateFilterResult['accepted'] = [];
+    const rejected = [...result.rejected];
+    const refreshConditionIds: string[] = [];
+
+    for (const template of result.accepted) {
+      const status = statuses.get(template.conditionId.toLowerCase());
+      if (status?.status === 'resolved') {
+        const candidate = candidatesByProviderMarketId.get(template.providerMarketId);
+        if (candidate) rejected.push({ candidate, reasons: ['CONDITION_RESOLVED'] });
+        continue;
+      }
+      accepted.push(template);
+      if (!status || status.needsRefresh) refreshConditionIds.push(template.conditionId);
+    }
+
+    this.refreshAcceptedTemplateConditions(refreshConditionIds);
+    return { accepted, rejected };
+  }
+
+  private refreshAcceptedTemplateConditions(conditionIds: string[]): void {
+    if (conditionIds.length === 0) return;
+    void this.conditionResolution.refreshMany(conditionIds)
+      .then((result) => {
+        if (result.resolved.length === 0) return;
+        this.discoveryCache.clear();
+        this.logger?.info({
+          resolvedConditions: result.resolved.length,
+        }, 'template discovery cache invalidated after condition resolution refresh');
+      })
+      .catch((error) => {
+        this.logger?.info({
+          error: error instanceof Error ? error.message : String(error),
+        }, 'template condition resolution refresh failed');
+      });
   }
 
   private cacheKey(mode: DiscoveryMode, query: { sport?: Sport }): string {

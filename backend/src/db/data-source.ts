@@ -13,6 +13,7 @@ import { CreateM1TemplateTables1716100000000 } from './migrations/1716100000000-
 import { CreateOrchestrationTables1716200000000 } from './migrations/1716200000000-CreateOrchestrationTables.js';
 import { AddInviteAuthorizations1716300000000 } from './migrations/1716300000000-AddInviteAuthorizations.js';
 import { AddInviteRecipientEmail1716400000000 } from './migrations/1716400000000-AddInviteRecipientEmail.js';
+import { CreateConditionResolutionStatuses1716500000000 } from './migrations/1716500000000-CreateConditionResolutionStatuses.js';
 
 export function createDataSource(config: AppConfig = loadAppConfig()): DataSource {
   if (!config.database.enabled) {
@@ -36,6 +37,7 @@ export function createDataSource(config: AppConfig = loadAppConfig()): DataSourc
       CreateOrchestrationTables1716200000000,
       AddInviteAuthorizations1716300000000,
       AddInviteRecipientEmail1716400000000,
+      CreateConditionResolutionStatuses1716500000000,
     ],
   };
 
