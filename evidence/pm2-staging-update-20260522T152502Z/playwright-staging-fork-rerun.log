@@ -1,0 +1,10 @@
+
+> @duelly/frontend@0.1.0 test:e2e:staging-fork
+> DUELLY_E2E_MODE=staging-fork playwright test staging-fork.spec.ts
+
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium-mobile] › test/e2e/staging-fork.spec.ts:17:3 › staging fork real-data flow › funds a live-template bet with fake fork BRL1 and leaves unresolved market pending (31.2s)
+
+  1 passed (32.0s)
