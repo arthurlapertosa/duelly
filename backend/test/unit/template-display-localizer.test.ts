@@ -75,3 +75,42 @@ test('PT display localizes UFC fight titles and falls back safely for unknown pa
   assert.equal(unknown.question, 'Unexpected market wording');
   assert.deepEqual(unknown.outcomes, ['Sim', 'Não']);
 });
+
+test('PT display localizes accepted live F1 and football condition titles', () => {
+  const f1RedFlag = buildPtBRTemplateDisplay({
+    question: 'Will there be a red flag during the 2026 F1 Canadian Grand Prix?',
+    sport: 'f1',
+    competition: 'FORMULA_1',
+    eventType: 'RACE',
+    binaryMarketType: 'F1_RACE_WINNER_YES_NO',
+    outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
+    outcomeB: { label: 'No', providerOutcomeIndex: 1 },
+  });
+  const f1HeadToHead = buildPtBRTemplateDisplay({
+    question: 'Who will finish higher: Colapinto or Gasly?',
+    sport: 'f1',
+    competition: 'FORMULA_1',
+    eventType: 'RACE',
+    binaryMarketType: 'F1_RACE_OR_SPRINT_HEAD_TO_HEAD',
+    outcomeA: { label: 'Colapinto', providerOutcomeIndex: 0 },
+    outcomeB: { label: 'Gasly', providerOutcomeIndex: 1 },
+    participants: ['Colapinto', 'Gasly'],
+  });
+  const football = buildPtBRTemplateDisplay({
+    question: 'EC Vitória vs. SC Internacional: Both Teams to Score',
+    sport: 'football',
+    competition: 'BRASILEIRAO',
+    eventType: 'MATCH',
+    binaryMarketType: 'FOOTBALL_BINARY_MATCH_CONDITION',
+    outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
+    outcomeB: { label: 'No', providerOutcomeIndex: 1 },
+  });
+
+  assert.equal(f1RedFlag.question, 'Haverá bandeira vermelha durante o GP do Canadá de 2026?');
+  assert.deepEqual(f1RedFlag.outcomes, ['Sim', 'Não']);
+  assert.match(f1RedFlag.rulesSummary, /bandeira vermelha/);
+  assert.equal(f1HeadToHead.question, 'Quem termina melhor: Colapinto ou Gasly?');
+  assert.deepEqual(f1HeadToHead.outcomes, ['Colapinto', 'Gasly']);
+  assert.equal(football.question, 'EC Vitória x SC Internacional: Ambos marcam?');
+  assert.deepEqual(football.outcomes, ['Sim', 'Não']);
+});

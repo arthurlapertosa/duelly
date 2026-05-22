@@ -27,6 +27,15 @@ export function buildPtBRTemplateDisplay(input: TemplateDisplayInput): Localized
 }
 
 function buildPtBRQuestion(input: TemplateDisplayInput): string {
+  const footballMatchCondition = input.sport === 'football' ? parseFootballMatchCondition(input.question) : undefined;
+  if (footballMatchCondition) return footballMatchCondition;
+
+  const f1HeadToHead = input.sport === 'f1' ? parseF1HeadToHeadQuestion(input.question) : undefined;
+  if (f1HeadToHead) return f1HeadToHead;
+
+  const f1RedFlag = input.sport === 'f1' ? parseF1RedFlagQuestion(input.question) : undefined;
+  if (f1RedFlag) return f1RedFlag;
+
   if (isDirectParticipantMarket(input)) return localizeStructuralQuestion(input.question);
 
   const yesNoWinner = parseYesNoWinnerQuestion(input.question);
@@ -40,6 +49,10 @@ function buildPtBRQuestion(input: TemplateDisplayInput): string {
 }
 
 function buildPtBRRulesSummary(input: TemplateDisplayInput): string {
+  if (input.sport === 'f1' && parseF1RedFlagQuestion(input.question)) {
+    return 'O registro oficial de bandeira vermelha durante a corrida decide o duelo. Cancelamento ou ausência de resultado oficial anula o duelo.';
+  }
+
   switch (input.binaryMarketType) {
     case 'TENNIS_MATCH_WINNER':
       return 'O vencedor oficial da partida decide o duelo. Cancelamento, WO, desistência sem vencedor oficial ou ausência de resultado oficial anula o duelo.';
@@ -60,6 +73,34 @@ function buildPtBRRulesSummary(input: TemplateDisplayInput): string {
     default:
       return 'O resultado oficial decide o duelo. Se não houver resultado oficial, o duelo é anulado.';
   }
+}
+
+function parseFootballMatchCondition(question: string): string | undefined {
+  const bothTeamsToScore = /^(.+?)\s+vs\.?\s+(.+?):\s+Both Teams to Score\??$/i.exec(question.trim());
+  if (bothTeamsToScore?.[1] && bothTeamsToScore[2]) {
+    return `${bothTeamsToScore[1].trim()} x ${bothTeamsToScore[2].trim()}: Ambos marcam?`;
+  }
+  return undefined;
+}
+
+function parseF1HeadToHeadQuestion(question: string): string | undefined {
+  const match = /^Who will finish higher:\s*(.+?)\s+or\s+(.+?)\??$/i.exec(question.trim());
+  if (!match?.[1] || !match[2]) return undefined;
+  return `Quem termina melhor: ${match[1].trim()} ou ${match[2].trim()}?`;
+}
+
+function parseF1RedFlagQuestion(question: string): string | undefined {
+  const match = /^Will there be a red flag during\s+(?:the\s+)?(.+?)\??$/i.exec(question.trim());
+  if (!match?.[1]) return undefined;
+  return `Haverá bandeira vermelha durante ${localizeEventName(match[1].trim(), {
+    question,
+    sport: 'f1',
+    competition: 'FORMULA_1',
+    eventType: 'RACE',
+    binaryMarketType: 'F1_RACE_WINNER_YES_NO',
+    outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
+    outcomeB: { label: 'No', providerOutcomeIndex: 1 },
+  })}?`;
 }
 
 function isDirectParticipantMarket(input: TemplateDisplayInput): boolean {
@@ -90,6 +131,9 @@ function parseYesNoWinnerQuestion(question: string): { participant: string; targ
 
 function localizeEventName(value: string, input: TemplateDisplayInput): string {
   const normalized = value.trim().replace(/\?$/, '');
+  const f1Prefix = /^(?:F1|Formula 1)\s+(.+)$/i.exec(normalized);
+  if (f1Prefix?.[1]) return localizeEventName(f1Prefix[1], input);
+
   const yearPrefix = /^(\d{4})\s+(.+)$/i.exec(normalized);
   if (yearPrefix?.[1] && yearPrefix[2]) {
     return `${localizeEventName(yearPrefix[2], input)} de ${yearPrefix[1]}`;
@@ -127,6 +171,7 @@ function grandPrixLocationPreposition(location: string): string {
   const lower = trimmed.toLowerCase();
   if (lower === 'brazil') return 'do Brasil';
   if (lower === 'austria') return 'da Áustria';
+  if (lower === 'canada' || lower === 'canadian') return 'do Canadá';
   if (lower === 'monaco') return 'de Mônaco';
   if (lower === 'united states' || lower === 'usa') return 'dos Estados Unidos';
   if (lower === 'great britain' || lower === 'british') return 'da Grã-Bretanha';
