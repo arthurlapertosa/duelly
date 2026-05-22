@@ -4,11 +4,12 @@ import { Inbox } from 'lucide-react';
 import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { connectLinkedWallet } from '../lib/betHelpers';
+import { localizeOutcomeLabel } from '../lib/i18n';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
 import { createWalletAdapter } from '../lib/wallet';
 import type { InviteView, TemplateView } from '../lib/types';
-import { Button, Card, EmptyState, ScreenHeader } from '../components/ui';
+import { Button, Card, EmptyState, ScreenHeader, Skeleton } from '../components/ui';
 import {
   AmountBreakdown,
   ErrorBanner,
@@ -29,17 +30,40 @@ export function AcceptInviteScreen() {
   const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
   const [invite, setInvite] = useState<InviteView | null>(null);
   const [template, setTemplate] = useState<TemplateView | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<unknown | null>(null);
   const [accepting, setAccepting] = useState(false);
   const [doneBetId, setDoneBetId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id || !token) return;
-    void api.getInvite(id, token).then((result) => {
-      setInvite(result?.invite ?? null);
-      setTemplate(result?.template ?? null);
-    });
+    let active = true;
+    void api
+      .getInvite(id, token)
+      .then((result) => {
+        if (!active) return;
+        setInvite(result?.invite ?? null);
+        setTemplate(result?.template ?? null);
+      })
+      .finally(() => {
+        if (active) setLoaded(true);
+      });
+    return () => {
+      active = false;
+    };
   }, [id, token]);
+
+  // Still fetching the invite — show a skeleton, not the "not found" state.
+  if (!loaded && (!invite || !template)) {
+    return (
+      <Page>
+        <ScreenHeader title={t('invite.acceptTitle')} back="/home" />
+        <Skeleton variant="block" height="7rem" />
+        <Skeleton variant="block" height="9rem" />
+        <Skeleton variant="block" height="3rem" />
+      </Page>
+    );
+  }
 
   if (!id || !invite || !template) {
     return (
@@ -54,7 +78,17 @@ export function AcceptInviteScreen() {
     template.outcomeIndexes.find((index) => index !== invite.makerOutcomeIndex) ??
     template.outcomeIndexes[1];
   const takerOutcome = template.outcomes[template.outcomeIndexes.indexOf(takerOutcomeIndex)];
+  const makerOutcome = template.outcomes[template.outcomeIndexes.indexOf(invite.makerOutcomeIndex)];
   const blocked = invite.recipientAccess === 'blocked';
+  const canAccept = Boolean(wallet) && !blocked;
+  // Concise reason shown under a disabled "Accept bet".
+  const disabledReason = canAccept
+    ? null
+    : blocked
+      ? t('invite.blockedHelp')
+      : !wallet
+        ? t('invite.needWallet')
+        : null;
 
   const accept = async () => {
     if (!token || !wallet || accepting || blocked) return;
@@ -96,12 +130,8 @@ export function AcceptInviteScreen() {
       <Card padding="md">
         <p className="mb-3 text-sm font-semibold text-slate-950">{template.title}</p>
         <div className="grid grid-cols-2 gap-3">
-          <SideBox
-            label="A"
-            value={template.outcomes[template.outcomeIndexes.indexOf(invite.makerOutcomeIndex)]}
-            muted
-          />
-          <SideBox label="B" value={takerOutcome} />
+          <SideBox label="A" value={localizeOutcomeLabel(locale, makerOutcome)} muted />
+          <SideBox label="B" value={localizeOutcomeLabel(locale, takerOutcome)} />
         </div>
       </Card>
 
@@ -126,16 +156,21 @@ export function AcceptInviteScreen() {
       {blocked ? <ErrorBanner message={t('invite.blocked')} /> : null}
       {error ? <ErrorBanner message={errorMessage(locale, error)} /> : null}
 
-      <Button
-        variant="success"
-        size="lg"
-        fullWidth
-        loading={accepting}
-        disabled={!wallet || blocked}
-        onClick={() => void accept()}
-      >
-        {t('invite.accept')}
-      </Button>
+      <div className="space-y-2">
+        <Button
+          variant="success"
+          size="lg"
+          fullWidth
+          loading={accepting}
+          disabled={!canAccept}
+          onClick={() => void accept()}
+        >
+          {t('invite.accept')}
+        </Button>
+        {disabledReason ? (
+          <p className="text-center text-xs font-medium text-slate-500">{disabledReason}</p>
+        ) : null}
+      </div>
     </Page>
   );
 }

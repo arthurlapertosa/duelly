@@ -10,7 +10,7 @@ export function BottomNav() {
   const location = useLocation();
 
   const tabs = [
-    { path: '/home', label: t('app.name'), icon: Home },
+    { path: '/home', label: t('nav.home'), icon: Home },
     { path: '/templates', label: t('home.explore'), icon: Compass },
     { path: '/bets', label: t('home.myBets'), icon: Handshake },
   ];

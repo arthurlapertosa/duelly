@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Lock, Mail, Zap } from 'lucide-react';
 import { errorMessage } from '../lib/errors';
 import { safeReturnTo } from '../lib/betHelpers';
 import { useI18n } from '../lib/useI18n';
+import { useMotion } from '../lib/useMotion';
 import { useAppStore } from '../store/useAppStore';
 import { Button, Field, SegmentedControl } from '../components/ui';
 import { ErrorBanner, LanguageToggle } from '../components';
@@ -12,6 +14,7 @@ import { ErrorBanner, LanguageToggle } from '../components';
 /** Login / register entry screen. */
 export function OnboardingScreen() {
   const { locale, t } = useI18n();
+  const m = useMotion();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const login = useAppStore((state) => state.login);
@@ -33,7 +36,13 @@ export function OnboardingScreen() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-white px-6 pb-8 pt-[max(1rem,env(safe-area-inset-top))]">
+    <motion.div
+      variants={m.page}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="flex min-h-[100dvh] flex-col bg-white px-6 pb-8 pt-[max(1rem,env(safe-area-inset-top))]"
+    >
       <div className="flex justify-end">
         <LanguageToggle />
       </div>
@@ -82,6 +91,6 @@ export function OnboardingScreen() {
           </form>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

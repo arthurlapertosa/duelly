@@ -3,8 +3,8 @@ import { Compass } from 'lucide-react';
 import type { TemplateView } from '../lib/types';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
-import { EmptyState, ScreenHeader, SegmentedControl } from '../components/ui';
-import { Page, TemplateCard } from '../components';
+import { EmptyState, ScreenHeader, SegmentedControl, SkeletonList } from '../components/ui';
+import { MotionList, Page, TemplateCard } from '../components';
 
 type CategoryFilter = 'all' | TemplateView['category'];
 const CATEGORIES: CategoryFilter[] = ['all', 'football', 'tennis', 'ufc', 'f1'];
@@ -13,6 +13,7 @@ const CATEGORIES: CategoryFilter[] = ['all', 'football', 'tennis', 'ufc', 'f1'];
 export function TemplatesScreen() {
   const { t } = useI18n();
   const templates = useAppStore((state) => state.templates);
+  const templatesLoaded = useAppStore((state) => state.templatesLoaded);
   const refreshTemplates = useAppStore((state) => state.refreshTemplates);
   const [category, setCategory] = useState<CategoryFilter>('all');
   const filtered =
@@ -43,14 +44,16 @@ export function TemplatesScreen() {
         }))}
       />
 
-      {filtered.length === 0 ? (
+      {!templatesLoaded ? (
+        <SkeletonList count={4} />
+      ) : filtered.length === 0 ? (
         <EmptyState icon={<Compass size={22} aria-hidden="true" />} title={t('templates.empty')} />
       ) : (
-        <div className="space-y-3">
+        <MotionList>
           {filtered.map((template) => (
             <TemplateCard key={template.id} template={template} />
           ))}
-        </div>
+        </MotionList>
       )}
     </Page>
   );

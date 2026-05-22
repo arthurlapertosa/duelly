@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FlaskConical, Handshake, Trophy } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { FlaskConical, Frown, Handshake, Trophy } from 'lucide-react';
 import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
-import { formatBRL, shortAddress } from '../lib/format';
+import { formatBRL } from '../lib/format';
 import { connectLinkedWallet } from '../lib/betHelpers';
+import { localizeOutcomeLabel } from '../lib/i18n';
 import { deriveBetStatus, inviteHasExpired } from '../lib/mappers';
+import { springPop } from '../lib/motion';
 import { useI18n } from '../lib/useI18n';
+import { useMotion } from '../lib/useMotion';
 import { useAppStore } from '../store/useAppStore';
 import { createWalletAdapter } from '../lib/wallet';
-import { Button, Card, EmptyState, ScreenHeader } from '../components/ui';
+import { Button, Card, ConfirmDialog, EmptyState, ScreenHeader } from '../components/ui';
 import {
   AmountBreakdown,
+  ConfettiBurst,
+  CountUpAmount,
   ErrorBanner,
   InviteLink,
   Page,
@@ -19,7 +25,6 @@ import {
   StatusBadge,
   WalletReadinessCard,
 } from '../components';
-import { cn } from '../lib/cn';
 
 /** Detail view of a single bet, including the lifecycle state and result. */
 export function BetDetailScreen() {
@@ -34,6 +39,8 @@ export function BetDetailScreen() {
   const [remoteBet, setRemoteBet] = useState<Awaited<ReturnType<typeof api.getBet>>>(null);
   const [accepting, setAccepting] = useState(false);
   const [actionError, setActionError] = useState<unknown | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const summary = bets.find(
     (item) => item.invite.id === id || item.invite.betId === id || item.bet?.betId === id,
   );
@@ -79,6 +86,9 @@ export function BetDetailScreen() {
   const showFinishAcceptance =
     summary?.role === 'taker' && summary.invite.status === 'accepted' && !bet;
   const canFinishAcceptance = showFinishAcceptance && !isInviteExpired;
+  // Maker can cancel their own still-open invite before anyone accepts.
+  const canCancelInvite =
+    Boolean(token) && summary?.role === 'maker' && status === 'InviteCreated';
   const playerAOutcomeIndex = summary?.invite.makerOutcomeIndex ?? bet?.playerAOutcomeIndex ?? 0;
   const playerBOutcomeIndex = summary?.invite.takerOutcomeIndex ?? bet?.playerBOutcomeIndex ?? 1;
   const selectedOutcomeIndex =
@@ -100,6 +110,7 @@ export function BetDetailScreen() {
       ? bet?.winnerPayoutRaw ?? '0'
       : '0'
     : bet?.winnerPayoutRaw ?? '0';
+  const stakedRaw = summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0';
 
   const finishAcceptance = async () => {
     if (!summary || !template || !token || !wallet || accepting || isInviteExpired) return;
@@ -130,6 +141,23 @@ export function BetDetailScreen() {
     }
   };
 
+  const cancelInvite = async () => {
+    if (!summary || !token || cancelling) return;
+    setActionError(null);
+    try {
+      setCancelling(true);
+      await api.cancelInvite(token, summary.invite.id);
+      await Promise.all([refreshBets(), refreshPendingInvites()]);
+      setCancelOpen(false);
+      navigate('/bets', { replace: true });
+    } catch (cause) {
+      setActionError(cause);
+      setCancelOpen(false);
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   return (
     <Page>
       <ScreenHeader title={t('bet.detail')} back trailing={<StatusBadge status={status} />} />
@@ -140,12 +168,22 @@ export function BetDetailScreen() {
         <div className="grid grid-cols-2 gap-3">
           <SideBox
             label="A"
-            value={template.outcomes[template.outcomeIndexes.indexOf(playerAOutcomeIndex)]}
+            value={localizeOutcomeLabel(
+              locale,
+              template.outcomes[template.outcomeIndexes.indexOf(playerAOutcomeIndex)],
+            )}
             selected={selectedOutcomeIndex === playerAOutcomeIndex}
           />
           <SideBox
             label="B"
-            value={template.outcomes[template.outcomeIndexes.indexOf(playerBOutcomeIndex)] ?? '-'}
+            value={
+              template.outcomes[template.outcomeIndexes.indexOf(playerBOutcomeIndex)]
+                ? localizeOutcomeLabel(
+                    locale,
+                    template.outcomes[template.outcomeIndexes.indexOf(playerBOutcomeIndex)],
+                  )
+                : '-'
+            }
             selected={selectedOutcomeIndex === playerBOutcomeIndex}
           />
         </div>
@@ -153,19 +191,29 @@ export function BetDetailScreen() {
 
       <AmountBreakdown
         quote={{
-          stakeRaw: summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0',
+          stakeRaw: stakedRaw,
           loserFeeBps: template.loserFeeBps,
           percentFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0',
           gasAnchoredMinimumRaw: '0',
           selectedLoserFeeRaw: summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0',
           totalRequiredAmountRaw: (
-            BigInt(summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0') +
-            BigInt(summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0')
+            BigInt(stakedRaw) + BigInt(summary?.invite.loserFeeRaw ?? bet?.loserFeeRaw ?? '0')
           ).toString(),
         }}
       />
 
       {status === 'InviteCreated' && summary ? <InviteLink inviteId={summary.invite.id} /> : null}
+
+      {canCancelInvite ? (
+        <Button
+          variant="secondary"
+          size="md"
+          fullWidth
+          onClick={() => setCancelOpen(true)}
+        >
+          {t('invite.cancel')}
+        </Button>
+      ) : null}
 
       {showFinishAcceptance ? (
         <>
@@ -193,25 +241,29 @@ export function BetDetailScreen() {
         </>
       ) : null}
 
-      {bet?.status === 'Resolved' ? (
-        <ResultCard
-          won={currentUserWon}
-          neutral={!resolvedForCurrentUser}
-          winnerLabel={bet.winner ? shortAddress(bet.winner) : '-'}
-          headline={
-            resolvedForCurrentUser
-              ? t(currentUserWon ? 'bet.result.youWon' : 'bet.result.youLost')
-              : t('bet.result.winner')
-          }
-          payoutLabel={`${t('bet.result.payout')}: ${formatBRL(currentUserPayoutRaw, locale)}`}
-          feeLabel={`${t('bet.result.fee')}: ${formatBRL(bet.treasuryPayoutRaw ?? '0', locale)}`}
-        />
+      {!showFinishAcceptance && !canCancelInvite && actionError ? (
+        <ErrorBanner message={errorMessage(locale, actionError)} />
+      ) : null}
+
+      {bet?.status === 'Resolved' && resolvedForCurrentUser ? (
+        currentUserWon ? (
+          <WinResultCard payoutRaw={currentUserPayoutRaw} />
+        ) : (
+          <LossResultCard stakedRaw={stakedRaw} />
+        )
+      ) : null}
+
+      {bet?.status === 'Resolved' && !resolvedForCurrentUser ? (
+        <Card tone="muted" padding="lg" className="text-center">
+          <p className="text-lg font-bold text-slate-700">{t('bet.result.winner')}</p>
+        </Card>
       ) : null}
 
       {bet?.status === 'Voided' ? (
         <Card tone="muted" padding="lg" className="text-center">
           <p className="text-lg font-bold text-slate-700">{t('bet.status.Voided')}</p>
-          <p className="text-sm text-slate-500">
+          <p className="mt-1 text-sm leading-relaxed text-slate-500">{t('bet.result.voidedBody')}</p>
+          <p className="mt-2 text-sm font-semibold text-slate-700">
             {t('bet.result.refund')}:{' '}
             {formatBRL((BigInt(bet.stakeRaw) + BigInt(bet.loserFeeRaw)).toString(), locale)}
           </p>
@@ -219,46 +271,63 @@ export function BetDetailScreen() {
       ) : null}
 
       {api.mode === 'fixture' && bet?.status === 'Funded' ? <QaResolutionControls onResolve={resolve} /> : null}
+
+      <ConfirmDialog
+        open={cancelOpen}
+        title={t('invite.cancelConfirmTitle')}
+        description={t('invite.cancelConfirmBody')}
+        confirmLabel={t('invite.cancel')}
+        cancelLabel={t('common.cancel')}
+        loading={cancelling}
+        onConfirm={() => void cancelInvite()}
+        onCancel={() => setCancelOpen(false)}
+      />
     </Page>
   );
 }
 
-function ResultCard({
-  won,
-  neutral,
-  winnerLabel,
-  headline,
-  payoutLabel,
-  feeLabel,
-}: {
-  won: boolean;
-  neutral: boolean;
-  winnerLabel: string;
-  headline: string;
-  payoutLabel: string;
-  feeLabel: string;
-}) {
-  const positive = won || neutral;
+/** Celebratory result card for a win — animated trophy, count-up payout, confetti. */
+function WinResultCard({ payoutRaw }: { payoutRaw: string }) {
+  const { locale, t } = useI18n();
+  const m = useMotion();
   return (
-    <section
-      className={cn(
-        'rounded-3xl p-5 text-center',
-        positive ? 'bg-success-50' : 'bg-surface-sunken',
-      )}
-    >
-      <Trophy
-        size={28}
-        className={cn('mx-auto mb-2', positive ? 'text-success-600' : 'text-slate-500')}
-        aria-hidden="true"
+    <section className="relative overflow-hidden rounded-3xl bg-success-50 p-6 text-center">
+      <ConfettiBurst />
+      <motion.div
+        initial={m.reduced ? { opacity: 0 } : { opacity: 0, scale: 0.3, rotate: -20 }}
+        animate={m.reduced ? { opacity: 1 } : { opacity: 1, scale: 1, rotate: 0 }}
+        transition={m.reduced ? { duration: 0.12 } : springPop}
+        className="relative mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-success-100"
+      >
+        <Trophy size={32} className="text-success-600" aria-hidden="true" />
+      </motion.div>
+      <p className="relative text-sm font-bold text-success-700">{t('bet.result.youWon')}</p>
+      <p className="relative mt-1 text-xs font-semibold uppercase tracking-wide text-success-600">
+        {t('bet.result.received')}
+      </p>
+      <CountUpAmount
+        raw={payoutRaw}
+        locale={locale}
+        className="relative mt-1 block text-3xl font-bold tracking-tight text-success-700"
       />
-      <p className={cn('text-sm font-semibold', positive ? 'text-success-700' : 'text-slate-600')}>
-        {headline}
+    </section>
+  );
+}
+
+/** Result card for a loss — clear, human, leads with what was staked. */
+function LossResultCard({ stakedRaw }: { stakedRaw: string }) {
+  const { locale, t } = useI18n();
+  return (
+    <section className="rounded-3xl bg-surface-sunken p-6 text-center">
+      <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-200">
+        <Frown size={32} className="text-slate-500" aria-hidden="true" />
+      </div>
+      <p className="text-sm font-bold text-slate-700">{t('bet.result.youLost')}</p>
+      <p className="mt-1 text-sm leading-relaxed text-slate-500">{t('bet.result.lostBody')}</p>
+      <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        {t('bet.result.staked')}
       </p>
-      <p className={cn('mb-3 text-lg font-bold', positive ? 'text-success-700' : 'text-slate-800')}>
-        {winnerLabel}
-      </p>
-      <p className={cn('text-sm', positive ? 'text-success-700' : 'text-slate-600')}>{payoutLabel}</p>
-      <p className={cn('text-xs', positive ? 'text-success-600' : 'text-slate-500')}>{feeLabel}</p>
+      <p className="mt-1 text-xl font-bold text-slate-700">{formatBRL(stakedRaw, locale)}</p>
     </section>
   );
 }

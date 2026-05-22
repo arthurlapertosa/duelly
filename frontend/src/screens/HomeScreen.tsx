@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Compass, Handshake, Inbox } from 'lucide-react';
+import { Compass, Handshake, Inbox, LogOut } from 'lucide-react';
 import type { PendingInviteView } from '../lib/types';
+import { avatarInitial, friendlyName } from '../lib/identity';
 import { deriveBetStatus } from '../lib/mappers';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
-import { EmptyState } from '../components/ui';
+import { ConfirmDialog, EmptyState, SkeletonList } from '../components/ui';
 import {
   ActionCard,
   BetCard,
+  MotionList,
   Page,
   PendingInviteCard,
   WalletReadinessCard,
@@ -21,29 +24,52 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const user = useAppStore((state) => state.user);
   const bets = useAppStore((state) => state.bets);
+  const betsLoaded = useAppStore((state) => state.betsLoaded);
   const pendingInvites = useAppStore((state) => state.pendingInvites);
   const logout = useAppStore((state) => state.logout);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const activeBets = bets.filter((bet) => ACTIVE_STATUSES.includes(deriveBetStatus(bet)));
+  const name = friendlyName(user?.displayIdentifier);
+
+  const confirmLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
+      setLogoutOpen(false);
+    }
+  };
 
   return (
     <Page>
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-sm text-slate-500">{t('home.hello')},</p>
-          <h1 className="truncate text-2xl font-bold text-slate-950">{user?.displayIdentifier}</h1>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-sm font-bold text-white shadow-brand"
+          >
+            {avatarInitial(user?.displayIdentifier)}
+          </span>
+          <div className="min-w-0">
+            <p className="text-xs text-slate-500">{t('home.hello')},</p>
+            <p className="truncate text-lg font-bold text-slate-950">{name}</p>
+          </div>
         </div>
         <button
           type="button"
-          onClick={() => void logout()}
-          className="shrink-0 rounded-lg px-1 py-0.5 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          onClick={() => setLogoutOpen(true)}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-xl px-2 py-1.5 text-xs font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
+          <LogOut size={14} aria-hidden="true" />
           {t('common.logout')}
         </button>
       </div>
 
       <WalletReadinessCard />
 
-      <div className="grid grid-cols-2 gap-3">
+      <MotionList className="grid grid-cols-2 gap-3 space-y-0">
         <ActionCard
           icon={<Compass size={18} aria-hidden="true" />}
           title={t('home.explore')}
@@ -54,22 +80,24 @@ export function HomeScreen() {
           title={t('home.myBets')}
           onClick={() => navigate('/bets')}
         />
-      </div>
+      </MotionList>
 
       {pendingInvites.length > 0 ? <PendingInvitesSection invites={pendingInvites} /> : null}
 
       <section>
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-slate-950">{t('home.activeBets')}</h2>
           <button
             type="button"
             onClick={() => navigate('/bets')}
-            className="rounded-lg px-1 text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="shrink-0 rounded-lg px-1 text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {t('common.all')}
           </button>
         </div>
-        {activeBets.length === 0 ? (
+        {!betsLoaded ? (
+          <SkeletonList count={2} />
+        ) : activeBets.length === 0 ? (
           <EmptyState
             icon={<Handshake size={22} aria-hidden="true" />}
             title={t('home.noActiveBets')}
@@ -77,13 +105,24 @@ export function HomeScreen() {
             onAction={() => navigate('/templates')}
           />
         ) : (
-          <div className="space-y-3">
+          <MotionList>
             {activeBets.slice(0, 3).map((bet) => (
               <BetCard key={bet.invite.id} bet={bet} />
             ))}
-          </div>
+          </MotionList>
         )}
       </section>
+
+      <ConfirmDialog
+        open={logoutOpen}
+        title={t('home.logoutConfirmTitle')}
+        description={t('home.logoutConfirmBody')}
+        confirmLabel={t('common.logout')}
+        cancelLabel={t('common.cancel')}
+        loading={loggingOut}
+        onConfirm={() => void confirmLogout()}
+        onCancel={() => setLogoutOpen(false)}
+      />
     </Page>
   );
 }
@@ -93,14 +132,14 @@ function PendingInvitesSection({ invites }: { invites: PendingInviteView[] }) {
   return (
     <section>
       <div className="mb-3 flex items-center gap-2">
-        <Inbox size={16} className="text-brand-600" aria-hidden="true" />
+        <Inbox size={16} className="shrink-0 text-brand-600" aria-hidden="true" />
         <h2 className="text-base font-semibold text-slate-950">{t('home.pendingInvites')}</h2>
       </div>
-      <div className="space-y-3">
+      <MotionList>
         {invites.map((invite) => (
           <PendingInviteCard key={invite.invite.id} pending={invite} />
         ))}
-      </div>
+      </MotionList>
     </section>
   );
 }

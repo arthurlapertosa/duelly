@@ -1,4 +1,13 @@
 import { test, expect } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+/** Opens the Home log-out confirmation dialog and confirms it. */
+async function confirmLogout(page: Page) {
+  await page.getByRole('button', { name: 'Log out' }).first().click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Log out' }).click();
+}
 
 test('fixture flow supports two users, one funded bet, resolution, and both locales', async ({ page }) => {
   await page.goto('/');
@@ -23,7 +32,7 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
   expect(inviteUrl).toBeTruthy();
 
   await page.goto('/home');
-  await page.getByRole('button', { name: 'Log out' }).click({ force: true });
+  await confirmLogout(page);
   await page.getByRole('tab', { name: 'Create account' }).click();
   await page.getByLabel('Email').fill('taker@duelly.test');
   await page.getByLabel('Password').fill('password-123');
@@ -40,6 +49,8 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
   await expect(page.getByText('Waiting for result')).toBeVisible();
   await page.getByRole('button', { name: 'Confirm side A winner' }).click();
   await expect(page.getByText('Result confirmed')).toBeVisible();
+  // Taker bet on side B, side A won — the loss result card leads with the stake.
+  await expect(page.getByText('You lost')).toBeVisible();
 
   await page.getByRole('button', { name: 'Português' }).click();
   await expect(page.getByText('Resultado confirmado')).toBeVisible();
@@ -54,7 +65,7 @@ test('fixture flow shows wallet-already-linked error in both locales', async ({ 
   await page.getByRole('button', { name: 'Connect and verify' }).click();
   await expect(page.getByText('Wallet ready')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Log out' }).click({ force: true });
+  await confirmLogout(page);
   await page.getByRole('tab', { name: 'Create account' }).click();
   await page.getByLabel('Email').fill('maker-two@duelly.test');
   await page.getByLabel('Password').fill('password-123');

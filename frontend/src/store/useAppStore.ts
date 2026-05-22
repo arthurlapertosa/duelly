@@ -15,6 +15,11 @@ interface AppStore {
   bets: BetSummaryView[];
   pendingInvites: PendingInviteView[];
   loading: boolean;
+  /** True once each collection has completed at least one fetch. Lets screens
+   *  show a skeleton instead of flashing an empty state before data arrives. */
+  templatesLoaded: boolean;
+  betsLoaded: boolean;
+  pendingInvitesLoaded: boolean;
   error: string | null;
   setLocale(locale: Locale): void;
   clearError(): void;
@@ -41,6 +46,9 @@ export const useAppStore = create<AppStore>()(
       bets: [],
       pendingInvites: [],
       loading: false,
+      templatesLoaded: false,
+      betsLoaded: false,
+      pendingInvitesLoaded: false,
       error: null,
       setLocale: (locale) => set({ locale }),
       clearError: () => set({ error: null }),
@@ -54,7 +62,16 @@ export const useAppStore = create<AppStore>()(
           set({ user: session.user, wallet: session.wallet });
           await Promise.all([get().refreshBalance(), get().refreshBets(), get().refreshPendingInvites()]);
         } catch {
-          set({ token: null, user: null, wallet: null, balance: null, bets: [], pendingInvites: [] });
+          set({
+            token: null,
+            user: null,
+            wallet: null,
+            balance: null,
+            bets: [],
+            pendingInvites: [],
+            betsLoaded: false,
+            pendingInvitesLoaded: false,
+          });
         }
       },
       login: async (email, password, register) => {
@@ -78,7 +95,16 @@ export const useAppStore = create<AppStore>()(
       logout: async () => {
         const token = get().token;
         if (token) await api.logout(token).catch(() => undefined);
-        set({ token: null, user: null, wallet: null, balance: null, bets: [], pendingInvites: [] });
+        set({
+          token: null,
+          user: null,
+          wallet: null,
+          balance: null,
+          bets: [],
+          pendingInvites: [],
+          betsLoaded: false,
+          pendingInvitesLoaded: false,
+        });
       },
       verifyWallet: async () => {
         const token = get().token;
@@ -121,19 +147,19 @@ export const useAppStore = create<AppStore>()(
       },
       refreshTemplates: async () => {
         const templates = await api.listTemplates();
-        set({ templates });
+        set({ templates, templatesLoaded: true });
       },
       refreshBets: async () => {
         const token = get().token;
         if (!token) return;
         const bets = await api.listMyBets(token);
-        set({ bets });
+        set({ bets, betsLoaded: true });
       },
       refreshPendingInvites: async () => {
         const token = get().token;
         if (!token) return;
         const pendingInvites = await api.listPendingInvites(token);
-        set({ pendingInvites });
+        set({ pendingInvites, pendingInvitesLoaded: true });
       },
     }),
     {

@@ -4,6 +4,7 @@ import { Mail, ShieldCheck } from 'lucide-react';
 import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { connectLinkedWallet, isValidEmail } from '../lib/betHelpers';
+import { localizeOutcomeLabel } from '../lib/i18n';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
 import { createWalletAdapter } from '../lib/wallet';
@@ -120,7 +121,10 @@ export function CreateInviteScreen() {
       <Card padding="md">
         <p className="mb-1 text-xs font-semibold text-slate-400">{t('templates.pickSide')}</p>
         <p className="mb-3 text-base font-semibold text-brand-600">
-          {template.outcomes[template.outcomeIndexes.indexOf(outcomeIndex)]}
+          {localizeOutcomeLabel(
+            locale,
+            template.outcomes[template.outcomeIndexes.indexOf(outcomeIndex)],
+          )}
         </p>
         <p className="text-sm leading-relaxed text-slate-600">{template.title}</p>
       </Card>
