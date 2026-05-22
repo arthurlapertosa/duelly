@@ -40,6 +40,12 @@ export class WalletsController {
     return { wallet: publicWallet(wallet) };
   });
 
+  unlink = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
+    const user = request.user!;
+    const wallet = await this.context.wallets.unlink(user);
+    return { wallet: publicWallet(wallet) };
+  });
+
   brl1 = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
     const user = request.user!;
     return await this.context.brl1.balanceForUser(user);

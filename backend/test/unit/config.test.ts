@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { loadAppConfig } from '../../src/config/env.js';
+import { DEFAULT_INVITE_TTL_SECONDS, loadAppConfig } from '../../src/config/env.js';
 
 const keys = [
   'PORT',
@@ -35,7 +35,7 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.database.port, 5432);
     assert.equal(config.polymarket.discoveryMode, 'fixture');
     assert.equal(config.polymarket.gammaBaseUrl, 'https://gamma-api.polymarket.com');
-    assert.equal(config.invites.ttlSeconds, 3600);
+    assert.equal(config.invites.ttlSeconds, DEFAULT_INVITE_TTL_SECONDS);
     assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
   } finally {
     restoreEnv(previous);

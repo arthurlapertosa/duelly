@@ -43,12 +43,19 @@ export class WalletService {
     if (challenge.expiresAt <= new Date()) throw httpError(400, 'WALLET_CHALLENGE_EXPIRED');
     const recovered = getAddress(await recoverMessageAddress({ message: challenge.message, signature }));
     if (recovered !== challenge.address) throw httpError(400, 'WALLET_SIGNATURE_MISMATCH');
-    const existing = await this.repository.findActiveWalletByAddress(challenge.address);
-    if (existing && existing.userId !== user.id) throw httpError(409, 'WALLET_ALREADY_LINKED');
+    const existing = await this.repository.findWalletByAddress(challenge.address);
+    if (existing?.active && existing.userId !== user.id) throw httpError(409, 'WALLET_ALREADY_LINKED');
     const now = new Date();
     challenge.usedAt = now;
     await this.repository.saveWalletChallenge(challenge);
-    if (existing) return existing;
+    if (existing) {
+      existing.userId = user.id;
+      existing.chainId = challenge.chainId;
+      existing.active = true;
+      existing.verifiedAt = now;
+      await this.repository.saveWallet(existing);
+      return existing;
+    }
     const wallet = {
       id: `wallet-${randomUUID()}`,
       userId: user.id,
@@ -64,5 +71,13 @@ export class WalletService {
 
   async activeWallet(user: UserAccount) {
     return await this.repository.findActiveWalletByUserId(user.id);
+  }
+
+  async unlink(user: UserAccount) {
+    const wallet = await this.activeWallet(user);
+    if (!wallet) throw httpError(404, 'WALLET_NOT_LINKED');
+    wallet.active = false;
+    await this.repository.saveWallet(wallet);
+    return wallet;
   }
 }

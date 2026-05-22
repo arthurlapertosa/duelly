@@ -28,7 +28,7 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
       reply.header('vary', 'Origin');
       reply.header('access-control-allow-credentials', 'true');
       reply.header('access-control-allow-headers', 'authorization,content-type');
-      reply.header('access-control-allow-methods', 'GET,POST,OPTIONS');
+      reply.header('access-control-allow-methods', 'DELETE,GET,POST,OPTIONS');
     }
     if (request.method === 'OPTIONS') {
       return reply.code(204).send();

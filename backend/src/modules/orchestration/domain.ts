@@ -40,7 +40,7 @@ export interface LinkedWallet {
   createdAt: Date;
 }
 
-export type InviteStatus = 'draft' | 'created' | 'accepted' | 'funding_submitted' | 'funded' | 'expired';
+export type InviteStatus = 'draft' | 'created' | 'accepted' | 'funding_submitted' | 'funded' | 'expired' | 'cancelled';
 
 export interface StoredPermit {
   value: string;
@@ -55,6 +55,7 @@ export interface BetInvite {
   id: string;
   makerUserId: string;
   takerUserId: string | null;
+  recipientEmail: string | null;
   templateHash: Hex;
   conditionId: Hex;
   makerAddress: Address;

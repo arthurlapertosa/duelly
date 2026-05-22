@@ -113,6 +113,17 @@ export class OrchestrationRepository {
     return [...this.memory.wallets.values()].find((wallet) => wallet.address.toLowerCase() === normalized && wallet.active);
   }
 
+  async findWalletByAddress(address: Address): Promise<LinkedWallet | undefined> {
+    const normalized = address.toLowerCase();
+    if (this.enabled) {
+      return await this.repo(LinkedWalletEntity)
+        .createQueryBuilder('wallet')
+        .where('lower(wallet.address) = :address', { address: normalized })
+        .getOne() as LinkedWallet | null ?? undefined;
+    }
+    return [...this.memory.wallets.values()].find((wallet) => wallet.address.toLowerCase() === normalized);
+  }
+
   async saveInvite(invite: BetInvite): Promise<BetInvite> {
     if (this.enabled) await this.repo(BetInviteEntity).save(invite);
     else this.memory.invites.set(invite.id, invite);
@@ -133,13 +144,36 @@ export class OrchestrationRepository {
     if (this.enabled) {
       return await this.repo(BetInviteEntity)
         .createQueryBuilder('invite')
-        .where('invite.makerUserId = :userId', { userId })
-        .orWhere('invite.takerUserId = :userId', { userId })
+        .where('(invite.makerUserId = :userId or invite.takerUserId = :userId)', { userId })
+        .andWhere('invite.status not in (:...hiddenStatuses)', { hiddenStatuses: ['draft', 'cancelled'] })
         .orderBy('invite.updatedAt', 'DESC')
         .getMany() as BetInvite[];
     }
     return [...this.memory.invites.values()]
       .filter((invite) => invite.makerUserId === userId || invite.takerUserId === userId)
+      .filter((invite) => invite.status !== 'draft' && invite.status !== 'cancelled')
+      .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime());
+  }
+
+  async findPendingInvitesByRecipientEmail(email: string, excludeUserId: string): Promise<BetInvite[]> {
+    const normalized = email.toLowerCase();
+    if (this.enabled) {
+      return await this.repo(BetInviteEntity)
+        .createQueryBuilder('invite')
+        .where('lower(invite.recipientEmail) = :email', { email: normalized })
+        .andWhere('invite.makerUserId != :excludeUserId', { excludeUserId })
+        .andWhere('invite.takerUserId is null')
+        .andWhere('invite.status = :status', { status: 'created' })
+        .andWhere('invite.expiresAt > :now', { now: new Date() })
+        .orderBy('invite.updatedAt', 'DESC')
+        .getMany() as BetInvite[];
+    }
+    return [...this.memory.invites.values()]
+      .filter((invite) => invite.recipientEmail?.toLowerCase() === normalized)
+      .filter((invite) => invite.makerUserId !== excludeUserId)
+      .filter((invite) => invite.takerUserId === null)
+      .filter((invite) => invite.status === 'created')
+      .filter((invite) => invite.expiresAt > new Date())
       .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime());
   }
 

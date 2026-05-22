@@ -152,11 +152,18 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
 
   const foundWallet = await repository.findActiveWalletByAddress(maker);
   assert.equal(foundWallet?.id, walletId);
+  foundWallet.active = false;
+  await repository.saveWallet(foundWallet);
+  assert.equal(await repository.findActiveWalletByAddress(maker), undefined);
+  assert.equal((await repository.findWalletByAddress(maker))?.id, walletId);
+  foundWallet.active = true;
+  await repository.saveWallet(foundWallet);
 
   await repository.saveInvite({
     id: inviteId,
     makerUserId: userId,
     takerUserId: null,
+    recipientEmail: null,
     templateHash,
     conditionId,
     makerAddress: maker,

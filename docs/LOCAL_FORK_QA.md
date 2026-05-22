@@ -144,13 +144,12 @@ cast send "$DUELLY_ESCROW_ADDRESS" \
   --rpc-url "$LOCAL_FORK_RPC_URL" \
   --private-key "$RELAYER_PRIVATE_KEY"
 
-if [ "${MIN_LOSER_FEE_WEI:-0}" != "0" ]; then
-  cast send "$DUELLY_ESCROW_ADDRESS" \
-    'setMinLoserFee(uint256)' \
-    "$MIN_LOSER_FEE_WEI" \
-    --rpc-url "$LOCAL_FORK_RPC_URL" \
-    --private-key "$RELAYER_PRIVATE_KEY"
-fi
+MIN_LOSER_FEE_WEI="${MIN_LOSER_FEE_WEI:-3000000000000000000}"
+cast send "$DUELLY_ESCROW_ADDRESS" \
+  'setMinLoserFee(uint256)' \
+  "$MIN_LOSER_FEE_WEI" \
+  --rpc-url "$LOCAL_FORK_RPC_URL" \
+  --private-key "$RELAYER_PRIVATE_KEY"
 
 BRL1_QA_AMOUNT=10000000000000000000000
 cast send "$BRL1_TOKEN_ADDRESS" 'mint(address,uint256)' "$QA_MAKER_ADDRESS" "$BRL1_QA_AMOUNT" \
@@ -206,7 +205,7 @@ For local QA, use two normal backend users and link each to one external wallet:
 
 - Maker user: `local-maker@example.test`.
 - Taker user: `local-taker@example.test`.
-- Password for local QA: `local-password-123`.
+- Password for local QA: `password-123`.
 - Maker wallet: `QA_MAKER_ADDRESS`.
 - Taker wallet: `QA_TAKER_ADDRESS`.
 
@@ -217,12 +216,12 @@ API="${API:-http://127.0.0.1:3000}"
 
 curl -sS -X POST "$API/auth/register" \
   -H 'content-type: application/json' \
-  -d '{"email":"local-maker@example.test","password":"local-password-123"}'
+  -d '{"email":"local-maker@example.test","password":"password-123"}'
 
 MAKER_TOKEN="$(
   curl -sS -X POST "$API/auth/login" \
     -H 'content-type: application/json' \
-    -d '{"email":"local-maker@example.test","password":"local-password-123"}' | jq -r .token
+    -d '{"email":"local-maker@example.test","password":"password-123"}' | jq -r .token
 )"
 
 CHALLENGE_JSON="$(
@@ -250,14 +249,13 @@ The local fork flow should prove that the backend is not deciding the winner:
 
 1. Log in as maker and taker.
 2. Fetch the fixture template, for example `GET /templates/fixture-f1-sprint-winner?mode=fixture`.
-3. Publish it with `POST /templates/fixture-f1-sprint-winner/publish-chain?mode=fixture`.
-4. Quote loser fee with `POST /fees/loser-fee`.
-5. Create a draft invite with `POST /invites`; the response includes `offerPayload` and `makerPermitPayload`.
-6. Sign both maker payloads and store them with `POST /invites/:inviteId/maker-authorizations`. Only after this step is the invite shareable.
-7. Fetch the shareable invite with `GET /invites/:inviteId`.
-8. Accept the invite with `POST /invites/:inviteId/accept`; the response includes `acceptancePayload` and `takerPermitPayload`.
-9. Sign both taker payloads and submit them with `POST /invites/:inviteId/taker-authorizations`; this triggers the backend relayer and writes `acceptBetWithPermits` to escrow.
-10. If needed after a transient relayer failure, retry stored-authorizations funding with `POST /relayer/fund` and body `{"inviteId":"..."}`.
+3. Quote loser fee with `POST /fees/loser-fee`.
+4. Create a draft invite with `POST /invites`; the response includes `offerPayload` and `makerPermitPayload`.
+5. Sign both maker payloads and store them with `POST /invites/:inviteId/maker-authorizations`. Only after this step is the invite shareable.
+6. Fetch the shareable invite with `GET /invites/:inviteId`.
+7. Accept the invite with `POST /invites/:inviteId/accept`; the response includes `acceptancePayload` and `takerPermitPayload`.
+8. Sign both taker payloads and submit them with `POST /invites/:inviteId/taker-authorizations`; this triggers the backend relayer. If the template is not registered on escrow yet, the relayer registers the accepted template first, then writes `acceptBetWithPermits`.
+9. If needed after a transient relayer failure, retry stored-authorizations funding with `POST /relayer/fund` and body `{"inviteId":"..."}`.
 11. Run `POST /internal/indexer/reindex`.
 12. On a fresh condition, run `POST /internal/resolution/run` before mock payout and expect a pending resolution attempt with `ConditionUnresolved`.
 13. Set mock CTF payout, run `POST /internal/resolution/run` again, then reindex. On a reused fork where the condition already has payout, resolution may succeed immediately and the explicit mock payout step can be skipped.
@@ -365,6 +363,6 @@ If MetaMask shows stale token metadata, remove the imported token and import it 
 - `MISSING_INVITEID`: the funding JSON body is malformed. Build the JSON with explicit keys such as `{inviteId:$inviteId,...}`.
 - `WALLET_ALREADY_LINKED`: the wallet is already linked to another local user. Reuse that user or reset local DB state.
 - `INVALID_SIGNATURE`: convert stringified EIP-712 integer fields to `BigInt` before signing typed data.
-- `SignatureExpired`, `INVITE_EXPIRED`, or `TEMPLATE_CLOSED`: check fork time, `INVITE_TTL_SECONDS`, and the template `bettingCloseAt`.
+- `SignatureExpired`, `INVITE_EXPIRED`, or `TEMPLATE_CLOSED`: check fork time, `INVITE_TTL_SECONDS`, and the template `bettingCloseAt`. The local default is one year, capped by `bettingCloseAt`.
 - Final bet still reads `Funded` after resolution: run `POST /internal/indexer/reindex` again. The indexer deliberately rescans recent blocks, so a second reindex can pick up the latest settlement event after local fork timing changes.
 - MetaMask shows a wrong BRL1 amount: verify that the imported token uses decimals `18`, then remove and reimport the token if the field was cached.

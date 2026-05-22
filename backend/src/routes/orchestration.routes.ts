@@ -34,15 +34,17 @@ export async function registerOrchestrationRoutes(app: FastifyInstance, options:
   app.post('/wallets/challenges', authenticated, wallets.createChallenge);
   app.post('/wallets/link', authenticated, wallets.link);
   app.get('/wallets/me', authenticated, wallets.me);
+  app.delete('/wallets/me', authenticated, wallets.unlink);
   app.get('/wallets/me/brl1', authenticated, wallets.brl1);
   app.post('/wallets/me/funding-readiness', authenticated, wallets.fundingReadiness);
 
   app.get('/templates/:templateId', templates.detail);
-  app.post('/templates/:templateId/publish-chain', authenticated, templates.publishChain);
   app.post('/fees/loser-fee', templates.quoteLoserFee);
 
   app.post('/invites', authenticated, invites.create);
+  app.get('/me/invites/pending', authenticated, invites.pending);
   app.get('/invites/:inviteId', invites.get);
+  app.delete('/invites/:inviteId', authenticated, invites.cancel);
   app.post('/invites/:inviteId/maker-authorizations', authenticated, invites.authorizeMaker);
   app.post('/invites/:inviteId/accept', authenticated, invites.accept);
   app.post('/invites/:inviteId/taker-authorizations', authenticated, invites.authorizeTaker);
