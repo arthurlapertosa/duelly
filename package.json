@@ -11,6 +11,7 @@
   "scripts": {
     "validate": "node scripts/harness/validate-harness.mjs",
     "qa": "bash scripts/harness/qa-check.sh",
+    "dev:stack": "bash scripts/dev/start-stack.sh",
     "test": "npm run test:root && npm run test:workspaces",
     "test:root": "node --test test/*.test.mjs",
     "test:workspaces": "npm run test --workspaces --if-present",
