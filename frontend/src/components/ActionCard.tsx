@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { useMotion } from '../lib/useMotion';
 
 interface ActionCardProps {
   icon: ReactNode;
@@ -8,9 +10,12 @@ interface ActionCardProps {
 
 /** Square quick-action tile used on the Home screen. */
 export function ActionCard({ icon, title, onClick }: ActionCardProps) {
+  const m = useMotion();
   return (
-    <button
+    <motion.button
       type="button"
+      variants={m.listItem}
+      whileTap={m.tap}
       onClick={onClick}
       className="rounded-3xl border border-slate-100 bg-white p-4 text-left shadow-card transition-shadow hover:shadow-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
     >
@@ -18,6 +23,6 @@ export function ActionCard({ icon, title, onClick }: ActionCardProps) {
         {icon}
       </div>
       <p className="text-sm font-semibold text-slate-950">{title}</p>
-    </button>
+    </motion.button>
   );
 }

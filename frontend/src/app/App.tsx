@@ -42,9 +42,9 @@ function AppBootstrap() {
 
   return (
     // AnimatePresence keyed on the pathname gives every route an enter AND
-    // exit transition. `mode="popLayout"` avoids layout jumps while the
-    // outgoing screen animates out.
-    <AnimatePresence mode="popLayout" initial={false}>
+    // exit transition. `mode="wait"` lets the outgoing screen fully leave
+    // before the next mounts, so duplicate controls never overlap.
+    <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<OnboardingScreen />} />
         <Route
