@@ -76,6 +76,26 @@ RESOLUTION_WORKER_ENABLED=true
 
 `POLYMARKET_ALLOW_NEG_RISK=true` is for fork staging only. Current live sports markets can be negative-risk; keep the default `false` outside staging until negative-risk support is explicitly approved for production.
 
+## Proxmox PM2 Deploy
+
+On the staging VM, keep PostgreSQL and Anvil under systemd, then use PM2 for backend and frontend:
+
+```bash
+APP_DIR=/opt/duelly/app BRANCH=codex/staging-fork-web3-e2e \
+  scripts/deploy/proxmox-staging-pm2.sh
+```
+
+The script pulls the selected branch, installs workspace dependencies, regenerates `frontend/.env`, builds the backend, runs migrations, starts `duelly-backend` and `duelly-frontend` under PM2, configures the `pm2-root` systemd startup unit, and saves the PM2 process list. It requires the host-local `.env` and `cache/staging-fork/deployment.env` to already exist.
+
+Useful operator commands:
+
+```bash
+pm2 status
+pm2 logs duelly-backend
+pm2 logs duelly-frontend
+systemctl status pm2-root
+```
+
 ## Playwright
 
 ```bash
