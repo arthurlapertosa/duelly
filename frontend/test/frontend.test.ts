@@ -7,8 +7,9 @@ import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../sr
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
 import { deriveBetStatus, inviteHasExpired, mapPendingInvite } from '../src/lib/mappers.ts';
+import { filterTemplates } from '../src/lib/templateFilters.ts';
 import { metaMaskTypedPayload } from '../src/lib/wallet.ts';
-import type { BetSummaryView } from '../src/lib/types.ts';
+import type { BetSummaryView, TemplateView } from '../src/lib/types.ts';
 
 test('locales are complete and provide both default languages', () => {
   assert.deepEqual(missingTranslationKeys(), []);
@@ -101,6 +102,85 @@ test('BRL1 raw values format per active locale', () => {
   assert.equal(formatBRL(raw, 'en-US'), 'R$52.50');
   assert.equal(potentialPayoutRaw(brlToRaw(50), brlToRaw(3)), brlToRaw(103));
 });
+
+test('template text filter combines category tabs with searchable template text', () => {
+  const templates = filterFixtureTemplates();
+
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'tennis', query: '' }).map((template) => template.id),
+    ['tennis-roland-garros', 'tennis-sao-paulo'],
+  );
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'tennis', query: '  ' }).map((template) => template.id),
+    ['tennis-roland-garros', 'tennis-sao-paulo'],
+  );
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'all', query: 'holmgren' }).map((template) => template.id),
+    ['tennis-roland-garros'],
+  );
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'all', query: 'daniel jade' }).map((template) => template.id),
+    ['tennis-roland-garros'],
+  );
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'all', query: 'CARLOS' }).map((template) => template.id),
+    ['tennis-sao-paulo'],
+  );
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'all', query: 'sao paulo' }).map((template) => template.id),
+    ['tennis-sao-paulo'],
+  );
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'all', query: 'polymarket' }).map((template) => template.id),
+    ['tennis-roland-garros', 'tennis-sao-paulo', 'f1-austria'],
+  );
+  assert.deepEqual(
+    filterTemplates(templates, { category: 'f1', query: 'tennis' }).map((template) => template.id),
+    [],
+  );
+});
+
+function filterFixtureTemplates(): TemplateView[] {
+  const base = {
+    source: 'Polymarket',
+    rulesSummary: 'Official result',
+    outcomeIndexes: [0, 1],
+    bettingCloseAt: '2026-06-01T12:00:00.000Z',
+    resolutionDeadline: '2026-06-02T12:00:00.000Z',
+    loserFeeBps: 250,
+    active: true,
+  } satisfies Partial<TemplateView>;
+
+  return [
+    {
+      ...base,
+      id: 'tennis-roland-garros',
+      templateHash: `0x${'01'.repeat(32)}`,
+      conditionId: `0x${'02'.repeat(32)}`,
+      title: 'Roland Garros, Qualification ATP: August Holmgren vs Daniel Jade',
+      category: 'tennis',
+      outcomes: ['August Holmgren', 'Daniel Jade'],
+    },
+    {
+      ...base,
+      id: 'tennis-sao-paulo',
+      templateHash: `0x${'03'.repeat(32)}`,
+      conditionId: `0x${'04'.repeat(32)}`,
+      title: 'São Paulo Open: Carlos Silva vs João Lima',
+      category: 'tennis',
+      outcomes: ['Carlos Silva', 'João Lima'],
+    },
+    {
+      ...base,
+      id: 'f1-austria',
+      templateHash: `0x${'05'.repeat(32)}`,
+      conditionId: `0x${'06'.repeat(32)}`,
+      title: 'Will Driver B win the 2026 Austria sprint race?',
+      category: 'f1',
+      outcomes: ['Yes', 'No'],
+    },
+  ];
+}
 
 function discoverStructuredErrorCodes(): string[] {
   const files = [
