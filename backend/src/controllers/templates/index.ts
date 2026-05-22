@@ -6,5 +6,6 @@ export {
   TemplateControllerContext,
   type PublishBody,
   type TemplateControllerOptions,
+  type TemplatePolicyLogger,
   type TemplateQuery,
 } from './template-controller.context.js';

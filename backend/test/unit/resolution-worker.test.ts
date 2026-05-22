@@ -132,6 +132,7 @@ test('resolution worker records pending without sending a transaction for unreso
 
 test('resolution worker calls resolveFromPolymarket when CTF denominator is nonzero', async () => {
   let resolvedBetId: string | null = null;
+  let mirrorCalls = 0;
   const worker = new ResolutionWorker(
     config(),
     {
@@ -156,11 +157,27 @@ test('resolution worker calls resolveFromPolymarket when CTF denominator is nonz
         };
       },
     } as never,
+    {
+      syncBet: async () => {
+        mirrorCalls += 1;
+        return {
+          status: 'mirrored',
+          betId: '1',
+          conditionId: `0x${'02'.repeat(32)}`,
+          sourceDenominator: '1',
+          transactionHash: `0x${'06'.repeat(32)}`,
+          prepareTransactionHash: null,
+          blockNumber: '2',
+        };
+      },
+    } as never,
   );
 
   const result = await worker.tick();
 
   assert.equal(resolvedBetId, '1');
+  assert.equal(mirrorCalls, 1);
+  assert.equal(result.mirrored, 1);
   assert.equal(result.resolved, 1);
 });
 
@@ -200,4 +217,57 @@ test('resolution worker expires unresolved bets after the on-chain deadline', as
 
   assert.equal(expiredBetId, '1');
   assert.equal(result.expired, 1);
+});
+
+test('resolution worker defers expiry when the mirror saw resolved source data but fork CTF is still unresolved', async () => {
+  let expireCalls = 0;
+  let pendingError: string | null = null;
+  const worker = new ResolutionWorker(
+    config(),
+    {
+      findIndexedBetsByStatus: async () => [fundedBet()],
+      findLatestResolutionAttemptForBet: async () => undefined,
+    } as never,
+    {
+      readPayoutDenominator: async () => 0n,
+      readEscrowBet: async () => ({ resolutionDeadline: 1n }),
+    } as never,
+    { reindex: async () => ({}) } as never,
+    {
+      expire: async () => {
+        expireCalls += 1;
+        throw new Error('unexpected expire');
+      },
+      recordPending: async (betId: string, error = 'ConditionUnresolved') => {
+        pendingError = error;
+        return {
+          id: 'resolution-test',
+          betId,
+          status: 'pending',
+          transactionHash: null,
+          blockNumber: null,
+          error,
+          createdAt: new Date(),
+        } as ResolutionAttempt;
+      },
+    } as never,
+    {
+      syncBet: async (bet: IndexedBet) => ({
+        status: 'invalid-template',
+        betId: bet.betId,
+        conditionId: bet.conditionId,
+        sourceDenominator: '1',
+        transactionHash: null,
+        prepareTransactionHash: null,
+        blockNumber: null,
+      }),
+    } as never,
+  );
+
+  const result = await worker.tick(new Date('2026-05-22T00:00:00.000Z'));
+
+  assert.equal(result.pending, 1);
+  assert.equal(result.expired, 0);
+  assert.equal(expireCalls, 0);
+  assert.equal(pendingError, 'PolymarketResolutionMirror:invalid-template');
 });

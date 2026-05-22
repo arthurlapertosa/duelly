@@ -95,3 +95,25 @@ test('template routes expose fixture candidates, accepted templates, rejected ca
   assert.equal(liveDiscovery.statusCode, 403);
   assert.equal(liveDiscovery.json().code, 'LIVE_DISCOVERY_DISABLED');
 });
+
+test('template routes honor zero close buffer config', async () => {
+  const config = routeTestConfig();
+  const app = await createApp({
+    config: {
+      ...config,
+      polymarket: {
+        ...config.polymarket,
+        minBettingCloseBufferSeconds: 0,
+      },
+    },
+  });
+  test.after(async () => app.close());
+
+  const accepted = await app.inject({ method: 'GET', url: '/templates?mode=fixture' });
+
+  assert.equal(accepted.statusCode, 200);
+  assert.equal(
+    accepted.json().templates.some((template: { templateId: string }) => template.templateId === 'fixture-near-expiry-rejected'),
+    true,
+  );
+});

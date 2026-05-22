@@ -11,10 +11,16 @@ MIN_LOSER_FEE_WEI="${MIN_LOSER_FEE_WEI:-3000000000000000000}"
 START_ANVIL="${START_ANVIL:-0}"
 SEED_QA_BRL1="${SEED_QA_BRL1:-0}"
 QA_BRL1_AMOUNT="${QA_BRL1_AMOUNT:-1000}"
+QA_SEED_WALLETS="${QA_SEED_WALLETS:-}"
 ALLOW_NON_LOCAL_FORK_RPC="${ALLOW_NON_LOCAL_FORK_RPC:-0}"
 RESOLUTION_WORKER_INTERVAL_MS="${RESOLUTION_WORKER_INTERVAL_MS:-60000}"
 RESOLUTION_WORKER_BATCH_SIZE="${RESOLUTION_WORKER_BATCH_SIZE:-10}"
 RESOLUTION_WORKER_PENDING_RETRY_SECONDS="${RESOLUTION_WORKER_PENDING_RETRY_SECONDS:-300}"
+POLYMARKET_CTF_ORACLE_ADDRESS="${POLYMARKET_CTF_ORACLE_ADDRESS:-0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74}"
+POLYMARKET_RESOLUTION_MIRROR_ENABLED="${POLYMARKET_RESOLUTION_MIRROR_ENABLED:-true}"
+POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT="${POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT:-2}"
+POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC="${POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC:-$ALLOW_NON_LOCAL_FORK_RPC}"
+STAGING_MIN_BETTING_CLOSE_BUFFER_HOURS="${STAGING_MIN_BETTING_CLOSE_BUFFER_HOURS:-0}"
 
 PATH="$HOME/.foundry/bin:$PATH"
 
@@ -36,6 +42,34 @@ required_env() {
 normalize_key() {
   local key="$1"
   [[ "$key" == 0x* ]] && printf '%s' "$key" || printf '0x%s' "$key"
+}
+
+normalize_bool() {
+  case "$1" in
+    1|true|TRUE|yes|YES) printf 'true' ;;
+    0|false|FALSE|no|NO) printf 'false' ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
+append_seed_wallet() {
+  local wallet="$1"
+  [[ -z "$wallet" ]] && return
+  for existing in "${SEED_WALLETS[@]:-}"; do
+    [[ "${existing,,}" == "${wallet,,}" ]] && return
+  done
+  SEED_WALLETS+=("$wallet")
+}
+
+append_seed_wallets_csv() {
+  local csv="$1"
+  local entry wallet
+  local -a entries
+  IFS=',' read -r -a entries <<< "$csv"
+  for entry in "${entries[@]}"; do
+    wallet="$(printf '%s' "$entry" | tr -d '[:space:]')"
+    append_seed_wallet "$wallet"
+  done
 }
 
 is_local_rpc() {
@@ -83,6 +117,11 @@ if [[ -n "${QA_TAKER_PRIVATE_KEY:-}" ]]; then
   QA_TAKER_ADDRESS="$(cast wallet address --private-key "$(normalize_key "$QA_TAKER_PRIVATE_KEY")")"
 fi
 
+SEED_WALLETS=()
+append_seed_wallet "$QA_MAKER_ADDRESS"
+append_seed_wallet "$QA_TAKER_ADDRESS"
+append_seed_wallets_csv "$QA_SEED_WALLETS"
+
 if [[ "$START_ANVIL" == "1" ]]; then
   if curl -sS -m 2 -X POST "$LOCAL_FORK_RPC_URL" -H 'content-type: application/json' \
     -d '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' >/dev/null 2>&1; then
@@ -102,7 +141,7 @@ fi
 
 wait_for_chain
 
-for address in "$RELAYER_ADDRESS" "$TREASURY_ADDRESS" "$QA_MAKER_ADDRESS" "$QA_TAKER_ADDRESS"; do
+for address in "$RELAYER_ADDRESS" "$TREASURY_ADDRESS" "${SEED_WALLETS[@]}"; do
   if [[ -n "$address" ]]; then
     cast rpc anvil_setBalance "$address" 0x56BC75E2D63100000 --rpc-url "$LOCAL_FORK_RPC_URL" >/dev/null
   fi
@@ -143,6 +182,13 @@ cast send "$DUELLY_ESCROW_ADDRESS" \
   --private-key "$RELAYER_PRIVATE_KEY" >/dev/null
 
 DUELLY_DEPLOYMENT_BLOCK="$(cast block-number --rpc-url "$LOCAL_FORK_RPC_URL")"
+POLYMARKET_RESOLUTION_MIRROR_ENABLED="$(normalize_bool "$POLYMARKET_RESOLUTION_MIRROR_ENABLED")"
+POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC="$(normalize_bool "$POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC")"
+if [[ "${#SEED_WALLETS[@]}" -gt 0 ]]; then
+  SEED_WALLETS_CSV="$(IFS=,; printf '%s' "${SEED_WALLETS[*]}")"
+else
+  SEED_WALLETS_CSV=""
+fi
 
 cat > "$CACHE_DIR/deployment.env" <<EOF
 LOCAL_FORK_RPC_URL=$LOCAL_FORK_RPC_URL
@@ -158,27 +204,39 @@ DUELLY_DEPLOYMENT_BLOCK=$DUELLY_DEPLOYMENT_BLOCK
 RELAYER_ADDRESS=$RELAYER_ADDRESS
 QA_MAKER_ADDRESS=$QA_MAKER_ADDRESS
 QA_TAKER_ADDRESS=$QA_TAKER_ADDRESS
+QA_SEED_WALLETS=$SEED_WALLETS_CSV
 TREASURY_ADDRESS=$TREASURY_ADDRESS
 RESOLUTION_WORKER_ENABLED=true
 RESOLUTION_WORKER_INTERVAL_MS=$RESOLUTION_WORKER_INTERVAL_MS
 RESOLUTION_WORKER_BATCH_SIZE=$RESOLUTION_WORKER_BATCH_SIZE
 RESOLUTION_WORKER_PENDING_RETRY_SECONDS=$RESOLUTION_WORKER_PENDING_RETRY_SECONDS
+POLYMARKET_RESOLUTION_MIRROR_ENABLED=$POLYMARKET_RESOLUTION_MIRROR_ENABLED
+POLYMARKET_CTF_ORACLE_ADDRESS=$POLYMARKET_CTF_ORACLE_ADDRESS
+POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT=$POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT
+POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC=$POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC
 POLYMARKET_DISCOVERY_MODE=live
 POLYMARKET_LIVE_DISCOVERY_ENABLED=true
 POLYMARKET_ALLOW_NEG_RISK=true
+POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS=$STAGING_MIN_BETTING_CLOSE_BUFFER_HOURS
+POLYMARKET_MIN_BETTING_CLOSE_BUFFER_SECONDS=
 EOF
 
 if [[ "$SEED_QA_BRL1" == "1" ]]; then
-  if [[ -z "$QA_MAKER_ADDRESS" || -z "$QA_TAKER_ADDRESS" ]]; then
-    echo "[staging-fork] QA keys or addresses are required when SEED_QA_BRL1=1" >&2
+  if [[ "${#SEED_WALLETS[@]}" -eq 0 ]]; then
+    echo "[staging-fork] QA keys, QA addresses, or QA_SEED_WALLETS are required when SEED_QA_BRL1=1" >&2
     exit 1
   fi
-  node "$REPO_ROOT/scripts/blockchain/seed-fork-brl1.mjs" \
+
+  SEED_ARGS=(
     --rpc-url "$LOCAL_FORK_RPC_URL" \
     --token "$BRL1_ADDRESS_POLYGON" \
-    --wallet "$QA_MAKER_ADDRESS" \
-    --wallet "$QA_TAKER_ADDRESS" \
     --amount-brl1 "$QA_BRL1_AMOUNT" \
+  )
+  for wallet in "${SEED_WALLETS[@]}"; do
+    SEED_ARGS+=(--wallet "$wallet")
+  done
+
+  node "$REPO_ROOT/scripts/blockchain/seed-fork-brl1.mjs" "${SEED_ARGS[@]}" \
     > "$CACHE_DIR/seed-brl1.json"
 fi
 

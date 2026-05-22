@@ -9,6 +9,7 @@ import { TemplatePublisherService } from '../../modules/templates/publisher/temp
 export interface TemplateControllerOptions {
   config: AppConfig;
   dataSource?: DataSource;
+  logger?: TemplatePolicyLogger;
 }
 
 export interface TemplateQuery {
@@ -21,6 +22,10 @@ export interface PublishBody {
   publishedBy?: string;
 }
 
+export interface TemplatePolicyLogger {
+  info(input: unknown, message?: string): void;
+}
+
 const fixtureNow = new Date('2026-05-19T00:00:00.000Z');
 const DISCOVERY_CACHE_TTL_MS = 60_000;
 
@@ -30,11 +35,13 @@ export class TemplateControllerContext {
   readonly repository: TemplateRepository;
   readonly publisher = new TemplatePublisherService();
   readonly config: AppConfig;
+  private readonly logger?: TemplatePolicyLogger;
   private readonly discoveryCache = new Map<string, { expiresAt: number; result: TemplateFilterResult }>();
   private readonly inFlightDiscovery = new Map<string, Promise<TemplateFilterResult>>();
 
   constructor(options: TemplateControllerOptions) {
     this.config = options.config;
+    this.logger = options.logger;
     this.adapter = new DiscoveryAdapter(options.config);
     this.repository = new TemplateRepository(options.dataSource);
   }
@@ -52,7 +59,7 @@ export class TemplateControllerContext {
 
   async discoverAndFilter(query: { mode?: DiscoveryMode; sport?: Sport }) {
     const mode = this.resolveMode(query);
-    const cacheKey = `${mode}:${query.sport ?? 'all'}:${this.config.polymarket.allowNegativeRisk}`;
+    const cacheKey = this.cacheKey(mode, query);
     const cached = this.discoveryCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) return cached.result;
 
@@ -65,18 +72,44 @@ export class TemplateControllerContext {
     return await request;
   }
 
+  async findAcceptedTemplate(templateHash: string) {
+    const stored = await this.repository.findAcceptedTemplate(templateHash);
+    if (stored) return stored;
+    const result = await this.discoverAndFilter({});
+    return result.accepted.find((template) => template.templateHash.toLowerCase() === templateHash.toLowerCase());
+  }
+
   private async discoverAndFilterFresh(query: { mode?: DiscoveryMode; sport?: Sport }, mode: DiscoveryMode) {
     const candidates = await this.adapter.discover(query);
     const result = this.filter.filter(candidates, {
       now: mode === 'fixture' ? fixtureNow : new Date(),
       allowNegativeRisk: this.config.polymarket.allowNegativeRisk,
+      minBettingCloseBufferSeconds: this.config.polymarket.minBettingCloseBufferSeconds,
     });
+    this.logger?.info({
+      mode,
+      sport: query.sport ?? 'all',
+      candidates: candidates.length,
+      accepted: result.accepted.length,
+      rejected: result.rejected.length,
+      allowNegativeRisk: this.config.polymarket.allowNegativeRisk,
+      minBettingCloseBufferSeconds: this.config.polymarket.minBettingCloseBufferSeconds,
+    }, 'template discovery filter applied');
     await this.repository.saveCandidates(candidates);
     await this.repository.saveAcceptedTemplates(result.accepted);
     await this.repository.saveRejectedCandidates(result.rejected);
-    const cacheKey = `${mode}:${query.sport ?? 'all'}:${this.config.polymarket.allowNegativeRisk}`;
+    const cacheKey = this.cacheKey(mode, query);
     this.discoveryCache.set(cacheKey, { expiresAt: Date.now() + DISCOVERY_CACHE_TTL_MS, result });
     return result;
+  }
+
+  private cacheKey(mode: DiscoveryMode, query: { sport?: Sport }): string {
+    return [
+      mode,
+      query.sport ?? 'all',
+      this.config.polymarket.allowNegativeRisk,
+      this.config.polymarket.minBettingCloseBufferSeconds,
+    ].join(':');
   }
 
   parseTemplateQuery(query: TemplateQuery): TemplateQuery {

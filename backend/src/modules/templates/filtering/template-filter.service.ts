@@ -1,7 +1,7 @@
 import {
+  DEFAULT_MIN_BETTING_CLOSE_BUFFER_SECONDS,
   DEFAULT_LOSER_FEE_BPS,
   MAX_LOSER_FEE_BPS,
-  MIN_BETTING_CLOSE_BUFFER_SECONDS,
   MIN_LOSER_FEE_BPS,
   allowedEventTypesBySport,
   allowedF1MarketTypes,
@@ -24,6 +24,7 @@ import { buildCanonicalTemplate, toUnixSeconds } from '../hashing/template-hash.
 export interface FilterOptions {
   now?: Date;
   allowNegativeRisk?: boolean;
+  minBettingCloseBufferSeconds?: number;
 }
 
 export class TemplateFilterService {
@@ -46,6 +47,7 @@ export class TemplateFilterService {
   rejectionReasons(candidate: NormalizedMarketCandidate, options: FilterOptions = {}): RejectionReasonCode[] {
     const reasons = new Set<RejectionReasonCode>();
     const nowSeconds = Math.floor((options.now ?? new Date()).getTime() / 1000);
+    const minBettingCloseBufferSeconds = resolveMinBettingCloseBufferSeconds(options);
 
     if (candidate.provider !== 'polymarket') reasons.add('UNSUPPORTED_SPORT');
     if (!candidate.sport || candidate.sport === 'unsupported' || !allowedSports.has(candidate.sport)) {
@@ -69,7 +71,7 @@ export class TemplateFilterService {
       reasons.add('NEAR_EXPIRY');
     } else {
       const closeAt = toUnixSeconds(candidate.endDate);
-      if (closeAt - nowSeconds < MIN_BETTING_CLOSE_BUFFER_SECONDS) reasons.add('NEAR_EXPIRY');
+      if (closeAt - nowSeconds < minBettingCloseBufferSeconds) reasons.add('NEAR_EXPIRY');
     }
 
     const loserFeeBps = candidate.loserFeeBps ?? DEFAULT_LOSER_FEE_BPS;
@@ -127,6 +129,14 @@ export class TemplateFilterService {
       }
     }
   }
+}
+
+function resolveMinBettingCloseBufferSeconds(options: FilterOptions): number {
+  const value = options.minBettingCloseBufferSeconds ?? DEFAULT_MIN_BETTING_CLOSE_BUFFER_SECONDS;
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error('minBettingCloseBufferSeconds must be a non-negative integer');
+  }
+  return value;
 }
 
 function usesOddsOrProbabilityResult(candidate: NormalizedMarketCandidate): boolean {

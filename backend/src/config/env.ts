@@ -1,5 +1,9 @@
 import { config as loadDotenv } from 'dotenv';
 import { getAddress, isAddress, type Address, type Hex } from 'viem';
+import {
+  DEFAULT_MIN_BETTING_CLOSE_BUFFER_HOURS,
+  DEFAULT_MIN_BETTING_CLOSE_BUFFER_SECONDS,
+} from '../modules/templates/domain/sports-policy.js';
 
 loadDotenv({ quiet: true });
 
@@ -29,6 +33,7 @@ export interface AppConfig {
     discoveryMode: DiscoveryMode;
     liveDiscoveryEnabled: boolean;
     allowNegativeRisk: boolean;
+    minBettingCloseBufferSeconds: number;
     timeoutMs: number;
     maxResults: number;
   };
@@ -45,6 +50,13 @@ export interface AppConfig {
     intervalMs: number;
     batchSize: number;
     pendingRetrySeconds: number;
+  };
+  polymarketResolutionMirror: {
+    enabled: boolean;
+    sourceRpcUrl?: string;
+    oracleAddress?: Address;
+    outcomeSlotCount: number;
+    allowNonLocalForkRpc: boolean;
   };
   chain: {
     enabled: boolean;
@@ -73,6 +85,32 @@ function readInteger(name: string, fallback: number): number {
   return parsed;
 }
 
+function readNonNegativeInteger(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const trimmed = raw.trim();
+  if (!trimmed) return fallback;
+  if (!/^\d+$/.test(trimmed)) {
+    throw new Error(`${name} must be a non-negative integer`);
+  }
+  const parsed = Number.parseInt(trimmed, 10);
+  if (!Number.isSafeInteger(parsed)) throw new Error(`${name} must be a non-negative integer`);
+  return parsed;
+}
+
+function readTemplateCloseBufferSeconds(): number {
+  if (process.env.POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS !== undefined) {
+    return readNonNegativeInteger(
+      'POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS',
+      DEFAULT_MIN_BETTING_CLOSE_BUFFER_HOURS,
+    ) * 60 * 60;
+  }
+  return readNonNegativeInteger(
+    'POLYMARKET_MIN_BETTING_CLOSE_BUFFER_SECONDS',
+    DEFAULT_MIN_BETTING_CLOSE_BUFFER_SECONDS,
+  );
+}
+
 function readDiscoveryMode(): DiscoveryMode {
   const raw = process.env.POLYMARKET_DISCOVERY_MODE ?? 'fixture';
   if (raw === 'fixture' || raw === 'live') return raw;
@@ -85,6 +123,11 @@ function readBoolean(name: string, fallback: boolean): boolean {
   if (raw === 'true') return true;
   if (raw === 'false') return false;
   throw new Error(`${name} must be true or false`);
+}
+
+function readOptionalString(name: string): string | undefined {
+  const raw = process.env[name]?.trim();
+  return raw ? raw : undefined;
 }
 
 function readBigint(name: string, fallback: bigint): bigint {
@@ -132,6 +175,7 @@ export function loadAppConfig(): AppConfig {
   const dbUsername = process.env.DB_USERNAME;
   const dbDatabase = process.env.DB_DATABASE;
   const explicitDbConfigEnabled = Boolean(dbHost && dbUsername && dbDatabase);
+  const resolutionMirrorEnabled = readBoolean('POLYMARKET_RESOLUTION_MIRROR_ENABLED', false);
 
   return {
     nodeEnv,
@@ -157,6 +201,7 @@ export function loadAppConfig(): AppConfig {
       discoveryMode: readDiscoveryMode(),
       liveDiscoveryEnabled: readBoolean('POLYMARKET_LIVE_DISCOVERY_ENABLED', false),
       allowNegativeRisk: readBoolean('POLYMARKET_ALLOW_NEG_RISK', false),
+      minBettingCloseBufferSeconds: readTemplateCloseBufferSeconds(),
       timeoutMs: readInteger('POLYMARKET_DISCOVERY_TIMEOUT_MS', 8000),
       maxResults: readInteger('POLYMARKET_DISCOVERY_MAX_RESULTS', 25),
     },
@@ -173,6 +218,13 @@ export function loadAppConfig(): AppConfig {
       intervalMs: readInteger('RESOLUTION_WORKER_INTERVAL_MS', 60_000),
       batchSize: readInteger('RESOLUTION_WORKER_BATCH_SIZE', 10),
       pendingRetrySeconds: readInteger('RESOLUTION_WORKER_PENDING_RETRY_SECONDS', 15 * 60),
+    },
+    polymarketResolutionMirror: {
+      enabled: resolutionMirrorEnabled,
+      sourceRpcUrl: readOptionalString('POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL') ?? readOptionalString('POLYGON_RPC_URL'),
+      oracleAddress: readAddress('POLYMARKET_CTF_ORACLE_ADDRESS'),
+      outcomeSlotCount: readInteger('POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT', 2),
+      allowNonLocalForkRpc: readBoolean('POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC', false),
     },
     chain: {
       enabled: readBoolean('CHAIN_ENABLED', Boolean(process.env.CHAIN_RPC_URL || process.env.POLYGON_RPC_URL || process.env.EVM_RPC_URL)),

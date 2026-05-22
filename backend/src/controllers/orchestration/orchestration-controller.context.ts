@@ -11,6 +11,7 @@ import {
   IndexerService,
   InviteService,
   RelayerService,
+  ResolutionMirrorService,
   ResolutionService,
   WalletService,
 } from '../../modules/orchestration/services.js';
@@ -19,6 +20,9 @@ import { TemplateControllerContext } from '../templates/index.js';
 export interface OrchestrationControllerOptions {
   config: AppConfig;
   dataSource?: DataSource;
+  logger?: {
+    info(input: unknown, message?: string): void;
+  };
 }
 
 export interface AuthedRequest extends FastifyRequest {
@@ -37,6 +41,7 @@ export class OrchestrationControllerContext {
   readonly relayer: RelayerService;
   readonly indexer: IndexerService;
   readonly resolution: ResolutionService;
+  readonly resolutionMirror: ResolutionMirrorService;
   readonly templates: TemplateControllerContext;
 
   constructor(options: OrchestrationControllerOptions) {
@@ -48,11 +53,17 @@ export class OrchestrationControllerContext {
     this.fees = new FeeService(this.chain);
     this.templates = new TemplateControllerContext(options);
     this.invites = new InviteService(this.repository, this.wallets, this.chain, options.config, this.brl1);
-    this.relayer = new RelayerService(this.repository, this.chain, async (templateHash) => {
-      const result = await this.templates.discoverAndFilter({});
-      return result.accepted.find((template) => template.templateHash.toLowerCase() === templateHash.toLowerCase());
-    });
+    this.relayer = new RelayerService(
+      this.repository,
+      this.chain,
+      (templateHash) => this.templates.findAcceptedTemplate(templateHash),
+    );
     this.indexer = new IndexerService(this.repository, this.chain);
     this.resolution = new ResolutionService(this.repository, this.chain);
+    this.resolutionMirror = new ResolutionMirrorService(
+      options.config,
+      this.chain,
+      (templateHash) => this.templates.findAcceptedTemplate(templateHash),
+    );
   }
 }

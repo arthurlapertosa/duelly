@@ -5,6 +5,7 @@ import type { Locale } from './types';
 export const knownErrorCodes = [
   'AUTH_FAILED',
   'BET_NOT_FOUND',
+  'BET_NOT_INDEXED',
   'EMAIL_ALREADY_REGISTERED',
   'INTERNAL_ERROR',
   'INVALID_ACCEPTANCE_SIGNATURE',

@@ -9,7 +9,14 @@ const searchTermsBySport: Record<Sport, string[]> = {
   f1: ['Formula 1', 'F1 Grand Prix', 'F1 sprint winner'],
 };
 
+const eventTagIdsBySport: Partial<Record<Sport, number[]>> = {
+  football: [102648, 102562, 102539],
+  tennis: [864],
+  f1: [435],
+};
+
 type GammaMarket = Record<string, unknown>;
+type GammaEvent = Record<string, unknown>;
 
 export class GammaClient {
   constructor(private readonly config: AppConfig) {}
@@ -19,13 +26,31 @@ export class GammaClient {
     const candidates: NormalizedMarketCandidate[] = [];
 
     for (const sportName of sports) {
+      const taggedMarkets = await this.discoverTaggedMarkets(sportName);
+      candidates.push(...taggedMarkets);
+
       for (const term of searchTermsBySport[sportName]) {
         const markets = await this.search(term);
         candidates.push(...markets.map((market) => this.normalizeMarket(market, sportName)));
       }
     }
 
-    return candidates.slice(0, this.config.polymarket.maxResults);
+    return sortBySoonestEndDate(dedupeCandidates(candidates));
+  }
+
+  private async discoverTaggedMarkets(sport: Sport): Promise<NormalizedMarketCandidate[]> {
+    const tagIds = eventTagIdsBySport[sport] ?? [];
+    const candidates: NormalizedMarketCandidate[] = [];
+
+    for (const tagId of tagIds) {
+      const events = await this.fetchEventsByTag(tagId);
+      for (const event of events) {
+        const markets = Array.isArray(event.markets) ? event.markets as GammaMarket[] : [];
+        candidates.push(...markets.map((market) => this.normalizeMarket(market, sport, event)));
+      }
+    }
+
+    return candidates;
   }
 
   private async search(term: string): Promise<GammaMarket[]> {
@@ -49,42 +74,77 @@ export class GammaClient {
     }
   }
 
-  private normalizeMarket(market: GammaMarket, sport: Sport): NormalizedMarketCandidate {
+  private async fetchEventsByTag(tagId: number): Promise<GammaEvent[]> {
+    const url = new URL('/events', this.config.polymarket.gammaBaseUrl);
+    url.searchParams.set('tag_id', String(tagId));
+    url.searchParams.set('closed', 'false');
+    url.searchParams.set('active', 'true');
+    url.searchParams.set('limit', String(this.config.polymarket.maxResults));
+    url.searchParams.set('order', 'startTime');
+    url.searchParams.set('ascending', 'true');
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.config.polymarket.timeoutMs);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error(`Gamma API returned ${response.status}`);
+      const json = await response.json() as unknown;
+      if (Array.isArray(json)) return json as GammaEvent[];
+      if (json && typeof json === 'object' && Array.isArray((json as { events?: unknown }).events)) {
+        return (json as { events: GammaEvent[] }).events;
+      }
+      return [];
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  private normalizeMarket(market: GammaMarket, sport: Sport, event?: GammaEvent): NormalizedMarketCandidate {
     const outcomes = parseStringArray(market.outcomes).map<Outcome>((label, index) => ({
       label,
       providerOutcomeIndex: index,
       tokenId: parseStringArray(market.clobTokenIds)[index],
     }));
-    const question = stringField(market.question) ?? stringField(market.title) ?? 'Untitled Polymarket market';
+    const question = stringField(market.question) ?? stringField(market.title) ?? stringField(event?.title) ?? 'Untitled Polymarket market';
     const providerMarketId = String(market.id ?? market.marketId ?? market.slug ?? question);
-    const rulesText = stringField(market.rules) ?? stringField(market.description);
-    const resolutionSource = stringField(market.resolutionSource);
+    const rulesText = stringField(market.rules) ?? stringField(market.description) ?? stringField(event?.description);
+    const resolutionSource = stringField(market.resolutionSource) ?? stringField(event?.resolutionSource);
+    const eventDescription = stringField(event?.description);
+    const slug = stringField(market.slug) ?? stringField(event?.slug) ?? providerMarketId;
+    const endDate = optionalString(market.endDate ?? market.endDateIso ?? event?.endDate);
+    const eventStartAt = optionalString(
+      market.gameStartTime
+      ?? market.eventStartTime
+      ?? event?.startTime
+      ?? market.startDate
+      ?? event?.startDate,
+    );
     const classification = classifyLiveMarket({
       sport,
-      text: [question, stringField(market.slug), rulesText, resolutionSource].filter(Boolean).join(' '),
+      text: [question, slug, stringField(event?.title), eventDescription, rulesText, resolutionSource].filter(Boolean).join(' '),
     });
 
     return {
       id: `live-${providerMarketId}`,
       provider: 'polymarket',
-      providerEventId: optionalString(market.eventId),
+      providerEventId: optionalString(market.eventId ?? event?.id),
       providerMarketId,
-      slug: stringField(market.slug) ?? providerMarketId,
+      slug,
       question,
       conditionId: optionalString(market.conditionId),
       questionId: optionalString(market.questionID ?? market.questionId),
       outcomes,
       outcomeTokenIds: parseStringArray(market.clobTokenIds),
-      active: Boolean(market.active),
-      closed: Boolean(market.closed),
-      archived: Boolean(market.archived),
+      active: booleanField(market.active, booleanField(event?.active, false)),
+      closed: booleanField(market.closed, booleanField(event?.closed, false)),
+      archived: booleanField(market.archived, booleanField(event?.archived, false)),
       acceptingOrders: market.acceptingOrders === undefined ? undefined : Boolean(market.acceptingOrders),
-      negRisk: Boolean(market.negRisk),
-      endDate: optionalString(market.endDate ?? market.endDateIso),
-      eventStartAt: optionalString(market.startDate ?? market.eventStartTime),
+      negRisk: booleanField(market.negRisk, booleanField(event?.negRisk, false)),
+      endDate,
+      eventStartAt,
       rulesText,
       rulesSourceUrl: optionalString(market.rulesSourceUrl),
-      sourceUrl: market.slug ? `https://polymarket.com/event/${String(market.slug)}` : undefined,
+      sourceUrl: `https://polymarket.com/event/${slug}`,
       sport,
       competition: classification.competition,
       competitionLevel: classification.competitionLevel,
@@ -120,7 +180,7 @@ function classifyLiveMarket(input: { sport: Sport; text: string }): {
   eventType: EventType;
   binaryMarketType: BinaryMarketType;
 } {
-  const text = input.text.toLowerCase();
+  const text = normalizeSearchText(input.text);
 
   if (input.sport === 'football') {
     const competition: Competition =
@@ -131,8 +191,12 @@ function classifyLiveMarket(input: { sport: Sport; text: string }): {
               : 'UNSUPPORTED';
     return {
       competition,
-      eventType: text.includes('match') || text.includes(' vs ') ? 'MATCH' : 'TOURNAMENT',
-      binaryMarketType: isDisallowedPropText(text) ? 'DISALLOWED_PROP' : 'FOOTBALL_TOURNAMENT_WINNER_YES_NO',
+      eventType: isMatchText(text) ? 'MATCH' : 'TOURNAMENT',
+      binaryMarketType: isDisallowedPropText(text)
+        ? 'DISALLOWED_PROP'
+        : isMatchText(text)
+          ? 'FOOTBALL_BINARY_MATCH_CONDITION'
+          : 'FOOTBALL_TOURNAMENT_WINNER_YES_NO',
     };
   }
 
@@ -142,10 +206,10 @@ function classifyLiveMarket(input: { sport: Sport; text: string }): {
       competition: tennis.competition,
       competitionLevel: tennis.competitionLevel,
       grandSlamName: tennis.grandSlamName,
-      eventType: text.includes('defeat') || text.includes(' vs ') || text.includes('match') ? 'MATCH' : 'TOURNAMENT',
+      eventType: text.includes('defeat') || isMatchText(text) ? 'MATCH' : 'TOURNAMENT',
       binaryMarketType: isDisallowedTennisText(text)
         ? 'DISALLOWED_PROP'
-        : text.includes('defeat') || text.includes(' vs ') || text.includes('match')
+        : text.includes('defeat') || isMatchText(text)
           ? 'TENNIS_MATCH_WINNER'
           : 'TENNIS_TOURNAMENT_WINNER_YES_NO',
     };
@@ -198,6 +262,10 @@ function isDisallowedTennisText(text: string): boolean {
   return /\b(spread|handicap|total games|aces?|retirement)\b/.test(text);
 }
 
+function isMatchText(text: string): boolean {
+  return /\b(vs\.?|versus|defeat|match)\b/.test(text);
+}
+
 function parseStringArray(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String);
   if (typeof value === 'string') {
@@ -217,4 +285,33 @@ function stringField(value: unknown): string | undefined {
 
 function optionalString(value: unknown): string | undefined {
   return value === undefined || value === null ? undefined : String(value);
+}
+
+function booleanField(value: unknown, fallback: boolean): boolean {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+function normalizeSearchText(value: string): string {
+  return value.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+}
+
+function dedupeCandidates(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
+  const byConditionOrMarket = new Map<string, NormalizedMarketCandidate>();
+  for (const candidate of candidates) {
+    const key = candidate.conditionId?.toLowerCase() ?? `${candidate.provider}:${candidate.providerMarketId}`;
+    if (!byConditionOrMarket.has(key)) byConditionOrMarket.set(key, candidate);
+  }
+  return [...byConditionOrMarket.values()];
+}
+
+function sortBySoonestEndDate(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
+  return [...candidates].sort((left, right) => {
+    const leftTime = Date.parse(left.endDate ?? '');
+    const rightTime = Date.parse(right.endDate ?? '');
+    return comparableTime(leftTime) - comparableTime(rightTime);
+  });
+}
+
+function comparableTime(value: number): number {
+  return Number.isFinite(value) ? value : Number.MAX_SAFE_INTEGER;
 }

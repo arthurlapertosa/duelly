@@ -633,7 +633,7 @@
     "archived": false,
     "acceptingOrders": true,
     "negRisk": false,
-    "endDate": "2026-05-20T00:00:00.000Z",
+    "endDate": "2026-05-19T01:00:00.000Z",
     "rulesText": "This market resolves to the official result.",
     "sport": "football",
     "competition": "FIFA_WORLD_CUP",

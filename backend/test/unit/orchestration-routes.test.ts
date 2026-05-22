@@ -207,6 +207,13 @@ function testConfig(options: { inviteTtlSeconds?: number } = {}) {
       batchSize: 10,
       pendingRetrySeconds: 900,
     },
+    polymarketResolutionMirror: {
+      enabled: false,
+      sourceRpcUrl: undefined,
+      oracleAddress: undefined,
+      outcomeSlotCount: 2,
+      allowNonLocalForkRpc: false,
+    },
     chain: {
       enabled: false,
       rpcUrl: undefined,

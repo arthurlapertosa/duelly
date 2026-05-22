@@ -3,12 +3,14 @@ import type { ChainService } from '../chain.js';
 import type { IndexedBet } from '../domain.js';
 import type { OrchestrationRepository } from '../repository.js';
 import type { IndexerService } from './indexer.service.js';
+import type { ResolutionMirrorService } from './resolution-mirror.service.js';
 import type { ResolutionService } from './resolution.service.js';
 
 export interface ResolutionWorkerTickResult {
   reindex: unknown;
   checked: number;
   pending: number;
+  mirrored: number;
   resolved: number;
   expired: number;
   skippedRetry: number;
@@ -31,6 +33,7 @@ export class ResolutionWorker {
     private readonly chain: ChainService,
     private readonly indexer: IndexerService,
     private readonly resolution: ResolutionService,
+    private readonly mirror?: ResolutionMirrorService,
     private readonly logger?: WorkerLogger,
   ) {}
 
@@ -65,6 +68,7 @@ export class ResolutionWorker {
         reindex: null,
         checked: 0,
         pending: 0,
+        mirrored: 0,
         resolved: 0,
         expired: 0,
         skippedRetry: 0,
@@ -77,6 +81,7 @@ export class ResolutionWorker {
       reindex: null,
       checked: 0,
       pending: 0,
+      mirrored: 0,
       resolved: 0,
       expired: 0,
       skippedRetry: 0,
@@ -102,6 +107,10 @@ export class ResolutionWorker {
 
   private async processBet(bet: IndexedBet, now: Date, result: ResolutionWorkerTickResult): Promise<void> {
     try {
+      const mirrorResult = await this.mirror?.syncBet(bet);
+      if (mirrorResult?.status === 'mirrored') {
+        result.mirrored += 1;
+      }
       const denominator = await this.chain.readPayoutDenominator(bet.conditionId);
       if (denominator > 0n) {
         const attempt = await this.resolution.trigger(bet.betId);
@@ -111,6 +120,18 @@ export class ResolutionWorker {
         } else {
           result.failed += 1;
         }
+        return;
+      }
+
+      if (mirrorResult && mirrorSawResolvedSource(mirrorResult.sourceDenominator)) {
+        await this.resolution.recordPending(bet.betId, `PolymarketResolutionMirror:${mirrorResult.status}`);
+        result.pending += 1;
+        this.logger?.warn({
+          betId: bet.betId,
+          conditionId: bet.conditionId,
+          mirrorStatus: mirrorResult.status,
+          sourceDenominator: mirrorResult.sourceDenominator,
+        }, 'resolution worker deferred expiry after resolved source mirror did not update fork CTF');
         return;
       }
 
@@ -141,5 +162,14 @@ export class ResolutionWorker {
     if (attempt.status === 'resolved' || attempt.status === 'expired') return false;
     const retryAfterMs = this.config.resolutionWorker.pendingRetrySeconds * 1000;
     return now.getTime() - attempt.createdAt.getTime() >= retryAfterMs;
+  }
+}
+
+function mirrorSawResolvedSource(sourceDenominator: string | null): boolean {
+  if (!sourceDenominator) return false;
+  try {
+    return BigInt(sourceDenominator) > 0n;
+  } catch {
+    return false;
   }
 }

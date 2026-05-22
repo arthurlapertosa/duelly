@@ -6,6 +6,7 @@ export const defaultLocale: Locale = 'en-US';
 const ptErrorMessages = {
   'error.AUTH_FAILED': 'Não foi possível entrar. Confira os dados e tente novamente.',
   'error.BET_NOT_FOUND': 'Não encontramos essa aposta.',
+  'error.BET_NOT_INDEXED': 'A aposta ainda não apareceu no indexador. Tente novamente em alguns segundos.',
   'error.EMAIL_ALREADY_REGISTERED': 'Este email já tem uma conta. Entre com a senha cadastrada.',
   'error.INTERNAL_ERROR': 'Algo não saiu como esperado. Tente novamente.',
   'error.INVALID_ACCEPTANCE_SIGNATURE': 'A confirmação da aposta não pôde ser validada. Tente novamente.',
@@ -79,6 +80,7 @@ const ptErrorMessages = {
 const enErrorMessages = {
   'error.AUTH_FAILED': 'Could not sign in. Check your details and try again.',
   'error.BET_NOT_FOUND': 'We could not find this bet.',
+  'error.BET_NOT_INDEXED': 'The bet has not reached the indexer yet. Try again in a few seconds.',
   'error.EMAIL_ALREADY_REGISTERED': 'This email already has an account. Sign in with the saved password.',
   'error.INTERNAL_ERROR': 'Something did not work as expected. Try again.',
   'error.INVALID_ACCEPTANCE_SIGNATURE': 'The bet confirmation could not be validated. Try again.',

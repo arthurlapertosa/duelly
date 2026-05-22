@@ -45,6 +45,7 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
     orchestration.chain,
     orchestration.indexer,
     orchestration.resolution,
+    orchestration.resolutionMirror,
     app.log,
   );
   resolutionWorker.start();

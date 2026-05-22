@@ -59,3 +59,41 @@ test('negative-risk markets remain rejected unless staging explicitly opts in', 
   assert.equal(filter.rejectionReasons(candidate, { now: fixtureNow }).includes('NEGATIVE_RISK_UNSUPPORTED'), true);
   assert.equal(filter.rejectionReasons(candidate, { now: fixtureNow, allowNegativeRisk: true }).includes('NEGATIVE_RISK_UNSUPPORTED'), false);
 });
+
+test('near-expiry rejection uses configurable close buffer and allows zero', async () => {
+  const candidates = await loadFixtureCandidates();
+  const accepted = new TemplateFilterService().filter(candidates, { now: fixtureNow }).accepted[0];
+  const candidate = {
+    id: 'live-near-resolution-world-cup',
+    provider: accepted.provider,
+    providerMarketId: accepted.providerMarketId,
+    slug: accepted.display.slug,
+    question: accepted.display.question,
+    conditionId: accepted.conditionId,
+    questionId: accepted.questionId,
+    outcomes: [accepted.outcomeA, accepted.outcomeB],
+    active: true,
+    closed: false,
+    archived: false,
+    acceptingOrders: true,
+    negRisk: false,
+    endDate: new Date(fixtureNow.getTime() + 60 * 60 * 1000).toISOString(),
+    eventStartAt: new Date(accepted.eventStartAt * 1000).toISOString(),
+    rulesText: 'Official result decides this market.',
+    sport: accepted.sport,
+    competition: accepted.competition,
+    competitionLevel: accepted.competitionLevelCode === 0 ? undefined : 'GRAND_SLAM' as const,
+    eventType: accepted.eventType,
+    binaryMarketType: accepted.binaryMarketType,
+    participants: [],
+    resultSource: 'official_result' as const,
+    rawProviderPayloadHash: accepted.display.rawProviderPayloadHash,
+  };
+  const filter = new TemplateFilterService();
+
+  assert.equal(filter.rejectionReasons(candidate, { now: fixtureNow }).includes('NEAR_EXPIRY'), true);
+  assert.equal(
+    filter.rejectionReasons(candidate, { now: fixtureNow, minBettingCloseBufferSeconds: 0 }).includes('NEAR_EXPIRY'),
+    false,
+  );
+});
