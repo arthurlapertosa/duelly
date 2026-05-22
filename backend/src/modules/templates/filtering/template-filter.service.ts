@@ -1,4 +1,5 @@
 import {
+  DEFAULT_MAX_LIVE_TENNIS_MATCH_START_AGE_SECONDS,
   DEFAULT_MIN_BETTING_CLOSE_BUFFER_SECONDS,
   DEFAULT_LOSER_FEE_BPS,
   MAX_LOSER_FEE_BPS,
@@ -59,9 +60,9 @@ export class TemplateFilterService {
     if (!candidate.rulesText?.trim()) reasons.add('MISSING_RULES');
     if (candidate.negRisk && !options.allowNegativeRisk) reasons.add('NEGATIVE_RISK_UNSUPPORTED');
     if (!candidate.active) reasons.add('MARKET_INACTIVE');
-    if (candidate.closed) reasons.add('MARKET_CLOSED');
     if (candidate.archived) reasons.add('MARKET_ARCHIVED');
-    if (candidate.acceptingOrders === false) reasons.add('NOT_ACCEPTING_ORDERS');
+    // Duelly has its own betting layer, so Polymarket trading availability is
+    // diagnostic metadata rather than template eligibility.
     if (candidate.outcomes.length !== 2) reasons.add('NON_BINARY_MARKET');
     if (candidate.resultSource === 'ambiguous' || candidate.resultSource === 'unknown') reasons.add('AMBIGUOUS_RESOLUTION');
     if (candidate.resultSource === 'odds_or_probability') reasons.add('ODDS_OR_PROBABILITY_RESULT');
@@ -73,6 +74,7 @@ export class TemplateFilterService {
       const closeAt = toUnixSeconds(candidate.endDate);
       if (closeAt - nowSeconds < minBettingCloseBufferSeconds) reasons.add('NEAR_EXPIRY');
     }
+    if (isStaleLiveTennisMatchWinner(candidate, nowSeconds)) reasons.add('EVENT_START_STALE');
 
     const loserFeeBps = candidate.loserFeeBps ?? DEFAULT_LOSER_FEE_BPS;
     if (!Number.isInteger(loserFeeBps) || loserFeeBps < MIN_LOSER_FEE_BPS || loserFeeBps > MAX_LOSER_FEE_BPS) {
@@ -137,6 +139,16 @@ function resolveMinBettingCloseBufferSeconds(options: FilterOptions): number {
     throw new Error('minBettingCloseBufferSeconds must be a non-negative integer');
   }
   return value;
+}
+
+function isStaleLiveTennisMatchWinner(candidate: NormalizedMarketCandidate, nowSeconds: number): boolean {
+  if (candidate.sport !== 'tennis') return false;
+  if (candidate.eventType !== 'MATCH') return false;
+  if (candidate.binaryMarketType !== 'TENNIS_MATCH_WINNER') return false;
+  if (!candidate.eventStartAt) return false;
+
+  const eventStartAt = toUnixSeconds(candidate.eventStartAt);
+  return nowSeconds - eventStartAt > DEFAULT_MAX_LIVE_TENNIS_MATCH_START_AGE_SECONDS;
 }
 
 function usesOddsOrProbabilityResult(candidate: NormalizedMarketCandidate): boolean {

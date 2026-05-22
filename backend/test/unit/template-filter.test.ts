@@ -97,3 +97,51 @@ test('near-expiry rejection uses configurable close buffer and allows zero', asy
     false,
   );
 });
+
+test('tennis match filtering uses stale start age instead of Polymarket orderability', async () => {
+  const candidates = await loadFixtureCandidates();
+  const accepted = new TemplateFilterService()
+    .filter(candidates, { now: fixtureNow })
+    .accepted
+    .find((template) => template.sport === 'tennis' && template.binaryMarketType === 'TENNIS_MATCH_WINNER');
+  assert.ok(accepted);
+
+  const currentButClosed = {
+    id: 'live-tennis-current-closed',
+    provider: accepted.provider,
+    providerMarketId: accepted.providerMarketId,
+    slug: accepted.display.slug,
+    question: accepted.display.question,
+    conditionId: accepted.conditionId,
+    questionId: accepted.questionId,
+    outcomes: [accepted.outcomeA, accepted.outcomeB],
+    active: true,
+    closed: true,
+    archived: false,
+    acceptingOrders: false,
+    negRisk: false,
+    endDate: new Date(accepted.bettingCloseAt * 1000).toISOString(),
+    eventStartAt: '2026-05-18T21:00:00.000Z',
+    rulesText: 'Official result decides this market.',
+    sport: accepted.sport,
+    competition: accepted.competition,
+    competitionLevel: 'ATP_250' as const,
+    eventType: accepted.eventType,
+    binaryMarketType: accepted.binaryMarketType,
+    participants: [accepted.outcomeA.label, accepted.outcomeB.label],
+    resultSource: 'official_result' as const,
+    rawProviderPayloadHash: accepted.display.rawProviderPayloadHash,
+  };
+  const stale = {
+    ...currentButClosed,
+    id: 'live-tennis-stale',
+    providerMarketId: 'live-tennis-stale',
+    eventStartAt: '2026-05-18T00:00:00.000Z',
+    closed: false,
+    acceptingOrders: true,
+  };
+  const filter = new TemplateFilterService();
+
+  assert.deepEqual(filter.rejectionReasons(currentButClosed, { now: fixtureNow }), []);
+  assert.equal(filter.rejectionReasons(stale, { now: fixtureNow }).includes('EVENT_START_STALE'), true);
+});

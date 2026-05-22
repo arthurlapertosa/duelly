@@ -233,25 +233,29 @@ test('Gamma search fallback does not force-label unrelated UFC results', async (
   });
 });
 
-test('Gamma tennis accepts current ATP match winners with deterministic void handling', async () => {
+test('Gamma tennis accepts current ATP match winners independent of Polymarket orderability', async () => {
   await withMockedFetch(async (url) => {
     if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
       return jsonResponse([
         tennisEvent({
           id: 'geneva-open-event',
           title: 'Geneva Open: Learner Tien vs Alexander Bublik',
+          startTime: '2026-05-23T14:00:00.000Z',
           markets: [
             tennisMarket({
               id: 'geneva-open-winner',
               question: 'Geneva Open: Learner Tien vs Alexander Bublik',
               conditionSeed: 'geneva-open-winner',
               questionSeed: 'geneva-open-winner-question',
+              closed: true,
+              acceptingOrders: false,
             }),
           ],
         }),
         tennisEvent({
           id: 'hamburg-open-event',
           title: 'Hamburg European Open: Alex de Minaur vs Tommy Paul',
+          startTime: '2026-05-22T15:30:00.000Z',
           markets: [
             tennisMarket({
               id: 'hamburg-open-winner',
@@ -259,6 +263,20 @@ test('Gamma tennis accepts current ATP match winners with deterministic void han
               conditionSeed: 'hamburg-open-winner',
               questionSeed: 'hamburg-open-winner-question',
               outcomes: ['Alex de Minaur', 'Tommy Paul'],
+            }),
+          ],
+        }),
+        tennisEvent({
+          id: 'stale-roland-garros-qualification',
+          title: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
+          startTime: '2026-05-20T08:00:00.000Z',
+          markets: [
+            tennisMarket({
+              id: 'stale-rg-winner',
+              question: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
+              conditionSeed: 'stale-rg-winner',
+              questionSeed: 'stale-rg-winner-question',
+              outcomes: ['Thomas Faurel', 'Jay Clarke'],
             }),
           ],
         }),
@@ -272,11 +290,17 @@ test('Gamma tennis accepts current ATP match winners with deterministic void han
       minBettingCloseBufferSeconds: 0,
     });
 
-    assert.equal(result.rejected.length, 0);
+    assert.deepEqual(
+      result.accepted.map((template) => template.providerMarketId).sort(),
+      ['geneva-open-winner', 'hamburg-open-winner'],
+    );
     assert.deepEqual(
       result.accepted.map((template) => template.competition).sort(),
       ['ATP_250', 'ATP_500'],
     );
+    assert.equal(reasonSet(result, 'stale-rg-winner').has('EVENT_START_STALE'), true);
+    assert.equal(candidates.find((candidate) => candidate.providerMarketId === 'geneva-open-winner')?.closed, true);
+    assert.equal(candidates.find((candidate) => candidate.providerMarketId === 'geneva-open-winner')?.acceptingOrders, false);
     assert.equal(candidates.every((candidate) => candidate.resultSource === 'official_result'), true);
   });
 });
@@ -486,6 +510,8 @@ function gammaMarket(input: {
   negRisk?: boolean;
   endDate?: string;
   startDate?: string;
+  closed?: boolean;
+  acceptingOrders?: boolean;
 }) {
   return {
     id: input.id,
@@ -499,9 +525,9 @@ function gammaMarket(input: {
     tags: input.tags ?? [],
     series: input.series ?? [],
     active: true,
-    closed: false,
+    closed: input.closed ?? false,
     archived: false,
-    acceptingOrders: true,
+    acceptingOrders: input.acceptingOrders ?? true,
     negRisk: input.negRisk ?? false,
     endDate: input.endDate ?? '2026-06-01T00:00:00.000Z',
     startDate: input.startDate ?? '2026-05-25T00:00:00.000Z',
@@ -511,11 +537,13 @@ function gammaMarket(input: {
 function tennisEvent(input: {
   id: string;
   title: string;
+  startTime?: string;
   markets: unknown[];
 }) {
   return gammaEvent({
     id: input.id,
     title: input.title,
+    startTime: input.startTime,
     tags: [{ slug: 'tennis', label: 'Tennis' }],
     series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
     markets: input.markets,
@@ -529,6 +557,8 @@ function tennisMarket(input: {
   questionSeed: string;
   outcomes?: string[];
   endDate?: string;
+  closed?: boolean;
+  acceptingOrders?: boolean;
 }) {
   return gammaMarket({
     id: input.id,
@@ -541,6 +571,8 @@ function tennisMarket(input: {
     tags: [{ slug: 'tennis', label: 'Tennis' }],
     series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
     endDate: input.endDate,
+    closed: input.closed,
+    acceptingOrders: input.acceptingOrders,
   });
 }
 

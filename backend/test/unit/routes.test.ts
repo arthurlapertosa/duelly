@@ -143,6 +143,7 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
         gammaEvent({
           id: 'live-tennis-event',
           title: 'Geneva Open: Learner Tien vs Alexander Bublik',
+          startTime: '2099-05-25T14:00:00.000Z',
           tags: [{ slug: 'tennis', label: 'Tennis' }],
           series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
           markets: [
@@ -154,6 +155,44 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
               conditionSeed: 'live-tennis-market',
               questionSeed: 'live-tennis-market-question',
               outcomes: ['Learner Tien', 'Alexander Bublik'],
+              closed: true,
+              acceptingOrders: false,
+            }),
+          ],
+        }),
+        gammaEvent({
+          id: 'live-hamburg-event',
+          title: 'Hamburg European Open: Alex de Minaur vs Tommy Paul',
+          startTime: '2099-05-25T15:30:00.000Z',
+          tags: [{ slug: 'tennis', label: 'Tennis' }],
+          series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
+          markets: [
+            gammaMarket({
+              id: 'live-hamburg-market',
+              slug: 'hamburg-european-open-alex-de-minaur-vs-tommy-paul',
+              question: 'Hamburg European Open: Alex de Minaur vs Tommy Paul',
+              rules: 'This market resolves to the official match winner. If there is a retirement, walkover, cancellation, or no contest, this market resolves 50-50.',
+              conditionSeed: 'live-hamburg-market',
+              questionSeed: 'live-hamburg-market-question',
+              outcomes: ['Alex de Minaur', 'Tommy Paul'],
+            }),
+          ],
+        }),
+        gammaEvent({
+          id: 'stale-roland-garros-event',
+          title: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
+          startTime: '2020-05-20T08:00:00.000Z',
+          tags: [{ slug: 'tennis', label: 'Tennis' }],
+          series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
+          markets: [
+            gammaMarket({
+              id: 'stale-roland-garros-market',
+              slug: 'roland-garros-qualification-atp-thomas-faurel-vs-jay-clarke',
+              question: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
+              rules: 'This market resolves to the official match winner. If there is a retirement, walkover, cancellation, or no contest, this market resolves 50-50.',
+              conditionSeed: 'stale-roland-garros-market',
+              questionSeed: 'stale-roland-garros-market-question',
+              outcomes: ['Thomas Faurel', 'Jay Clarke'],
             }),
           ],
         }),
@@ -190,9 +229,25 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
   try {
     const tennis = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=tennis' });
     assert.equal(tennis.statusCode, 200);
-    assert.equal(tennis.json().count, 1);
-    assert.equal(tennis.json().templates[0].sport, 'tennis');
-    assert.equal(tennis.json().templates[0].competition, 'ATP_250');
+    assert.equal(tennis.json().count, 2);
+    assert.deepEqual(
+      tennis.json().templates.map((template: { providerMarketId: string }) => template.providerMarketId).sort(),
+      ['live-hamburg-market', 'live-tennis-market'],
+    );
+    assert.deepEqual(
+      tennis.json().templates.map((template: { competition: string }) => template.competition).sort(),
+      ['ATP_250', 'ATP_500'],
+    );
+
+    const rejectedTennis = await app.inject({ method: 'GET', url: '/templates/rejected?mode=live&sport=tennis' });
+    assert.equal(rejectedTennis.statusCode, 200);
+    assert.equal(
+      rejectedTennis.json().rejected.some((item: { candidate: { providerMarketId: string }; reasons: string[] }) =>
+        item.candidate.providerMarketId === 'stale-roland-garros-market'
+        && item.reasons.includes('EVENT_START_STALE'),
+      ),
+      true,
+    );
 
     const ufc = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=ufc' });
     assert.equal(ufc.statusCode, 200);
@@ -215,6 +270,7 @@ function gammaEvent(input: {
   description?: string;
   tags: unknown[];
   series?: unknown[];
+  startTime?: string;
   markets: unknown[];
 }) {
   return {
@@ -228,8 +284,8 @@ function gammaEvent(input: {
     closed: false,
     archived: false,
     negRisk: false,
-    endDate: '2026-06-01T00:00:00.000Z',
-    startTime: '2026-05-25T00:00:00.000Z',
+    endDate: '2099-06-01T00:00:00.000Z',
+    startTime: input.startTime ?? '2099-05-25T00:00:00.000Z',
     markets: input.markets,
   };
 }
@@ -242,6 +298,8 @@ function gammaMarket(input: {
   conditionSeed: string;
   questionSeed: string;
   outcomes: string[];
+  closed?: boolean;
+  acceptingOrders?: boolean;
 }) {
   return {
     id: input.id,
@@ -253,12 +311,12 @@ function gammaMarket(input: {
     outcomes: input.outcomes,
     clobTokenIds: ['100', '200'],
     active: true,
-    closed: false,
+    closed: input.closed ?? false,
     archived: false,
-    acceptingOrders: true,
+    acceptingOrders: input.acceptingOrders ?? true,
     negRisk: false,
-    endDate: '2026-06-01T00:00:00.000Z',
-    startDate: '2026-05-25T00:00:00.000Z',
+    endDate: '2099-06-01T00:00:00.000Z',
+    startDate: '2099-05-25T00:00:00.000Z',
   };
 }
 
