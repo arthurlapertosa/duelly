@@ -48,7 +48,7 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.database.port, 5432);
     assert.equal(config.polymarket.discoveryMode, 'fixture');
     assert.equal(config.polymarket.allowNegativeRisk, false);
-    assert.equal(config.polymarket.minBettingCloseBufferSeconds, 2 * 60 * 60);
+    assert.equal(config.polymarket.minBettingCloseBufferSeconds, 0);
     assert.equal(config.polymarket.gammaBaseUrl, 'https://gamma-api.polymarket.com');
     assert.equal(config.invites.ttlSeconds, DEFAULT_INVITE_TTL_SECONDS);
     assert.equal(config.resolutionWorker.enabled, false);

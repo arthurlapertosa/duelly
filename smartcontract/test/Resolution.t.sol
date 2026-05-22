@@ -28,16 +28,18 @@ contract ResolutionTest is BetEscrowTestBase {
         assertEq(brl1.balanceOf(treasury), escrow.getBet(betId).loserFee, "treasury paid");
     }
 
-    function test_ResolutionEqualPartialAndBothNonZeroVoid() public {
+    function test_ResolutionEqualPayoutVoids() public {
         uint256 betId = fundDefaultBet();
         setPayout(1, 1, 1);
         escrow.resolveFromPolymarket(betId);
         assertEq(uint256(escrow.getBet(betId).status), uint256(BetEscrowBRL1.BetStatus.Voided), "equal void");
+    }
 
-        uint256 secondBetId = fundBet(3, 4, 0, 1);
+    function test_ResolutionPartialBothNonZeroVoids() public {
+        uint256 betId = fundDefaultBet();
         setPayout(2, 1, 3);
-        escrow.resolveFromPolymarket(secondBetId);
-        assertEq(uint256(escrow.getBet(secondBetId).status), uint256(BetEscrowBRL1.BetStatus.Voided), "partial void");
+        escrow.resolveFromPolymarket(betId);
+        assertEq(uint256(escrow.getBet(betId).status), uint256(BetEscrowBRL1.BetStatus.Voided), "partial void");
     }
 
     function test_ResolutionInvalidSlotCountVoids() public {

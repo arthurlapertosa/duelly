@@ -164,7 +164,7 @@ Reject:
 - Markets with ambiguous rules.
 - Markets based on opinion, sentiment, popularity, or subjective interpretation.
 - Markets that require odds/probability as final result.
-- Markets too close to settlement for safe invitation/funding.
+- Markets at or past the configured close cutoff.
 
 ## Polymarket usage
 
@@ -176,6 +176,7 @@ Resolution: smart contract reads final deterministic on-chain data when possible
 ```
 
 The backend must never treat odds, outcome prices, or implied probabilities as the final result.
+Funding must be blocked on-chain once the Polymarket CTF condition has a nonzero payout denominator.
 
 Preferred resolution path:
 

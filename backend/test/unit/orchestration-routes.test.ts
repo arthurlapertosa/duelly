@@ -25,6 +25,7 @@ test('relayer maps local contract reverts to stable API error codes', () => {
   assert.equal(relayerErrorCode(new Error('execution reverted: custom error 0xfa674946')), 'TEMPLATE_NOT_REGISTERED_ON_CHAIN');
   assert.equal(relayerErrorCode({ data: { errorName: 'TemplateNotRegistered' } }), 'TEMPLATE_NOT_REGISTERED_ON_CHAIN');
   assert.equal(relayerErrorCode({ cause: { data: { errorName: 'TemplateClosed' } } }), 'TEMPLATE_CLOSED');
+  assert.equal(relayerErrorCode({ cause: { data: { errorName: 'ConditionResolved' } } }), 'CONDITION_RESOLVED');
 });
 
 test('relayer registers missing accepted templates before funding', async () => {

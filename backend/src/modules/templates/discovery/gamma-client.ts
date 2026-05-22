@@ -55,7 +55,7 @@ export class GammaClient {
       }
     }
 
-    return sortBySoonestEndDate(dedupeCandidates(candidates));
+    return sortBySoonestStartDate(dedupeCandidates(candidates));
   }
 
   private async discoverFeedMarkets(sport: Sport): Promise<NormalizedMarketCandidate[]> {
@@ -141,13 +141,7 @@ export class GammaClient {
     const resolutionSource = stringField(market.resolutionSource) ?? stringField(event?.resolutionSource);
     const slug = stringField(market.slug) ?? stringField(event?.slug) ?? providerMarketId;
     const endDate = optionalString(market.endDate ?? market.endDateIso ?? event?.endDate);
-    const eventStartAt = optionalString(
-      market.gameStartTime
-      ?? market.eventStartTime
-      ?? event?.startTime
-      ?? market.startDate
-      ?? event?.startDate,
-    );
+    const eventStartAt = resolveEventStartAt(market, event);
     const sportMetadata = collectSportMetadataText(market, event);
     const marketIdentityText = [
       question,
@@ -419,6 +413,28 @@ function optionalString(value: unknown): string | undefined {
   return value === undefined || value === null ? undefined : String(value);
 }
 
+function resolveEventStartAt(market: GammaMarket, event?: GammaEvent): string | undefined {
+  return optionalString(
+    market.gameStartTime
+    ?? market.eventStartTime
+    ?? event?.startTime
+    ?? event?.startDate
+    ?? nestedEventStartAt(market.events)
+    ?? market.startDate,
+  );
+}
+
+function nestedEventStartAt(value: unknown): unknown {
+  if (!Array.isArray(value)) return undefined;
+  for (const item of value) {
+    if (!item || typeof item !== 'object') continue;
+    const event = item as GammaEvent;
+    const startAt = event.startTime ?? event.startDate;
+    if (startAt !== undefined && startAt !== null) return startAt;
+  }
+  return undefined;
+}
+
 function booleanField(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback;
 }
@@ -499,8 +515,13 @@ function dedupeCandidates(candidates: NormalizedMarketCandidate[]): NormalizedMa
   return [...byConditionOrMarket.values()];
 }
 
-function sortBySoonestEndDate(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
+function sortBySoonestStartDate(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
   return [...candidates].sort((left, right) => {
+    const leftStartTime = Date.parse(left.eventStartAt ?? '');
+    const rightStartTime = Date.parse(right.eventStartAt ?? '');
+    const startComparison = comparableTime(leftStartTime) - comparableTime(rightStartTime);
+    if (startComparison !== 0) return startComparison;
+
     const leftTime = Date.parse(left.endDate ?? '');
     const rightTime = Date.parse(right.endDate ?? '');
     return comparableTime(leftTime) - comparableTime(rightTime);

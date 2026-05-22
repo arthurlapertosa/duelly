@@ -364,5 +364,6 @@ If MetaMask shows stale token metadata, remove the imported token and import it 
 - `WALLET_ALREADY_LINKED`: the wallet is already linked to another local user. Reuse that user or reset local DB state.
 - `INVALID_SIGNATURE`: convert stringified EIP-712 integer fields to `BigInt` before signing typed data.
 - `SignatureExpired`, `INVITE_EXPIRED`, or `TEMPLATE_CLOSED`: check fork time, `INVITE_TTL_SECONDS`, and the template `bettingCloseAt`. The local default is one year, capped by `bettingCloseAt`.
+- `CONDITION_RESOLVED`: the Polymarket CTF payout denominator is already nonzero for the template condition, so the contract blocks new funding.
 - Final bet still reads `Funded` after resolution: run `POST /internal/indexer/reindex` again. The indexer deliberately rescans recent blocks, so a second reindex can pick up the latest settlement event after local fork timing changes.
 - MetaMask shows a wrong BRL1 amount: verify that the imported token uses decimals `18`, then remove and reimport the token if the field was cached.

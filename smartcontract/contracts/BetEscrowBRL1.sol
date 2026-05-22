@@ -570,6 +570,7 @@ contract BetEscrowBRL1 {
         if (!template.active) revert TemplateInactive();
         if (template.conditionId != offer.conditionId) revert InvalidTemplate();
         if (block.timestamp > template.bettingCloseAt) revert TemplateClosed();
+        if (polymarketCtf.payoutDenominator(offer.conditionId) != 0) revert ConditionResolved();
         if (offer.stake < minStake || offer.stake > maxStake) revert InvalidStake();
         if (template.loserFeeBps > maxLoserFeeBps) revert InvalidLoserFeeBps();
         if (calculateLoserFee(offer.stake, template.loserFeeBps) != offer.loserFee) revert InvalidLoserFee();

@@ -207,6 +207,7 @@ export function relayerErrorCode(error: unknown): string | null {
   if (errorName === 'InvalidSignature') return 'INVALID_SIGNATURE';
   if (errorName === 'InvalidStake') return 'INVALID_STAKE';
   if (errorName === 'InvalidLoserFee') return 'LOSER_FEE_MISMATCH';
+  if (errorName === 'ConditionResolved') return 'CONDITION_RESOLVED';
   if (errorName === 'PermitValueTooLow') return 'PERMIT_VALUE_MISMATCH';
   if (errorName === 'UnauthorizedTaker') return 'UNAUTHORIZED_TAKER';
   if (errorName === 'SameOutcome') return 'TAKER_OUTCOME_MUST_DIFFER';
