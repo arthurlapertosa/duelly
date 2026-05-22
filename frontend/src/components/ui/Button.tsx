@@ -1,11 +1,20 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { motion } from 'framer-motion';
 import { LoaderCircle } from 'lucide-react';
 import { cn } from '../../lib/cn';
+import { useMotion } from '../../lib/useMotion';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+// framer-motion redefines drag/animation event handlers; omit the React
+// DOM variants so the props stay compatible with `motion.button`.
+type NativeButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'
+>;
+
+interface ButtonProps extends NativeButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   loading?: boolean;
@@ -48,11 +57,14 @@ export function Button({
   type = 'button',
   ...rest
 }: ButtonProps) {
+  const m = useMotion();
+  const interactive = !disabled && !loading;
   return (
-    <button
+    <motion.button
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
+      whileTap={interactive ? m.tap : undefined}
       className={cn(
         'inline-flex items-center justify-center font-semibold transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
@@ -70,6 +82,6 @@ export function Button({
       )}
       {children}
       {!loading && iconRight}
-    </button>
+    </motion.button>
   );
 }

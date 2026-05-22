@@ -1,13 +1,16 @@
 import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { useMotion } from '../lib/useMotion';
 
-/** Standard inner-screen wrapper with a subtle enter transition and spacing rhythm. */
+/** Standard inner-screen wrapper with a route-aware enter/exit transition. */
 export function Page({ children }: { children: ReactNode }) {
+  const m = useMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.22, ease: 'easeOut' }}
+      variants={m.page}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       className="space-y-5 pb-2 pt-2"
     >
       {children}

@@ -1,7 +1,9 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AlertTriangle, CheckCircle2, Info, X } from 'lucide-react';
 import { cn } from '../../lib/cn';
+import { useMotion } from '../../lib/useMotion';
 
 export type ToastTone = 'success' | 'error' | 'info';
 
@@ -26,8 +28,9 @@ const toneConfig: Record<ToastTone, { icon: typeof Info; classes: string }> = {
 };
 
 /**
- * Toast scaffolding. The provider + host are mounted in Shell now;
- * call sites are wired incrementally in a later stage.
+ * Global toast host. Toasts slide/fade in and out via AnimatePresence and
+ * auto-dismiss after a short delay. Used for non-blocking confirmations
+ * (copy link, share). Form/submit errors keep the inline ErrorBanner.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
@@ -67,36 +70,43 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 function ToastHost({ toasts, onDismiss }: { toasts: ToastItem[]; onDismiss: (id: number) => void }) {
-  if (toasts.length === 0) return null;
+  const m = useMotion();
   return (
     <div
       className="pointer-events-none fixed inset-x-0 top-0 z-[60] flex flex-col items-center gap-2 px-5 pt-[max(1rem,env(safe-area-inset-top))]"
       role="region"
       aria-live="polite"
     >
-      {toasts.map((toast) => {
-        const { icon: Icon, classes } = toneConfig[toast.tone];
-        return (
-          <div
-            key={toast.id}
-            className={cn(
-              'pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl px-4 py-3 shadow-overlay',
-              classes,
-            )}
-          >
-            <Icon size={18} aria-hidden="true" className="shrink-0" />
-            <p className="flex-1 text-sm font-semibold">{toast.message}</p>
-            <button
-              type="button"
-              onClick={() => onDismiss(toast.id)}
-              aria-label="Dismiss"
-              className="shrink-0 rounded-md p-0.5 text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+      <AnimatePresence initial={false}>
+        {toasts.map((toast) => {
+          const { icon: Icon, classes } = toneConfig[toast.tone];
+          return (
+            <motion.div
+              key={toast.id}
+              layout={!m.reduced}
+              variants={m.toast}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className={cn(
+                'pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl px-4 py-3 shadow-overlay',
+                classes,
+              )}
             >
-              <X size={16} aria-hidden="true" />
-            </button>
-          </div>
-        );
-      })}
+              <Icon size={18} aria-hidden="true" className="shrink-0" />
+              <p className="flex-1 text-sm font-semibold">{toast.message}</p>
+              <button
+                type="button"
+                onClick={() => onDismiss(toast.id)}
+                aria-label="Dismiss"
+                className="shrink-0 rounded-md p-0.5 text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                <X size={16} aria-hidden="true" />
+              </button>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }
