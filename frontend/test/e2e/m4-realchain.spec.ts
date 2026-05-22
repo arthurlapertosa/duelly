@@ -26,18 +26,19 @@ test.describe('real-chain settlement', () => {
     await page.evaluate(() => window.localStorage.clear());
     await page.goto('/');
 
-    await page.getByRole('button', { name: 'Sign in' }).first().click();
+    // Sign-in mode is the default tab.
     await page.getByLabel('Email').fill('local-maker@example.test');
     await page.getByLabel('Password').fill('password-123');
-    await page.getByRole('button', { name: 'Sign in' }).last().click();
+    await page.getByRole('button', { name: 'Sign in' }).click();
 
     // Balance is read from BRL1 on the anvil fork, not a fixture.
-    await expect(page.getByText('Wallet ready')).toBeVisible();
+    await expect(page.getByText('Wallet ready')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/R\$[\d.,]+/).first()).toBeVisible();
 
-    await page.getByRole('button', { name: 'Explore' }).first().click();
-    await page.getByText('Will Driver B win the 2026 Austria sprint race?').click();
-    await page.getByRole('button', { name: 'Yes' }).click();
+    // Go straight to a known template — the QA maker may already have bets
+    // with the same title from earlier runs, so a text click would be ambiguous.
+    await page.goto('/templates/fixture-f1-sprint-winner');
+    await page.getByRole('radio', { name: 'Yes' }).click();
     await page.getByRole('button', { name: 'Create invite' }).click();
 
     await page.getByLabel('Opponent email').fill('local-taker@example.test');
