@@ -5,6 +5,7 @@ import { loadAppConfig, type AppConfig } from './config/env.js';
 import { registerHealthRoutes } from './routes/health.routes.js';
 import { registerOrchestrationRoutes } from './routes/orchestration.routes.js';
 import { registerTemplateRoutes } from './routes/template.routes.js';
+import { ResolutionWorker } from './modules/orchestration/services.js';
 
 export interface CreateAppOptions {
   config?: AppConfig;
@@ -37,7 +38,20 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
 
   await registerHealthRoutes(app, { config, dataSource: options.dataSource });
   await registerTemplateRoutes(app, { config, dataSource: options.dataSource });
-  await registerOrchestrationRoutes(app, { config, dataSource: options.dataSource });
+  const orchestration = await registerOrchestrationRoutes(app, { config, dataSource: options.dataSource });
+  const resolutionWorker = new ResolutionWorker(
+    config,
+    orchestration.repository,
+    orchestration.chain,
+    orchestration.indexer,
+    orchestration.resolution,
+    orchestration.resolutionMirror,
+    app.log,
+  );
+  resolutionWorker.start();
+  app.addHook('onClose', async () => {
+    resolutionWorker.stop();
+  });
 
   return app;
 }

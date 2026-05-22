@@ -11,6 +11,8 @@ import {
 import type { CanonicalSportsTemplate, NormalizedMarketCandidate, PublishableTemplatePayload, RejectedCandidate } from '../domain/types.js';
 
 export class TemplateRepository {
+  private readonly memoryAcceptedTemplates = new Map<string, CanonicalSportsTemplate>();
+
   constructor(private readonly dataSource?: DataSource) {}
 
   get enabled(): boolean {
@@ -46,6 +48,9 @@ export class TemplateRepository {
   }
 
   async saveAcceptedTemplates(templates: CanonicalSportsTemplate[]): Promise<void> {
+    for (const template of templates) {
+      this.memoryAcceptedTemplates.set(template.templateHash.toLowerCase(), template);
+    }
     if (!this.enabled) return;
     const records: SportsTemplateEntity[] = templates.map((template) => ({
       templateHash: template.templateHash,
@@ -65,6 +70,18 @@ export class TemplateRepository {
       records as QueryDeepPartialEntity<SportsTemplateEntity>[],
       ['templateHash'],
     );
+  }
+
+  async findAcceptedTemplate(templateHash: string): Promise<CanonicalSportsTemplate | undefined> {
+    const normalized = templateHash.toLowerCase();
+    const memoryTemplate = this.memoryAcceptedTemplates.get(normalized);
+    if (memoryTemplate) return memoryTemplate;
+    if (!this.enabled) return undefined;
+    const record = await this.dataSource!.getRepository(SportsTemplateEntity)
+      .createQueryBuilder('template')
+      .where('lower(template.templateHash) = :templateHash', { templateHash: normalized })
+      .getOne();
+    return canonicalSportsTemplate(record?.template);
   }
 
   async saveRejectedCandidates(rejected: RejectedCandidate[]): Promise<void> {
@@ -96,4 +113,17 @@ export class TemplateRepository {
     };
     await this.dataSource!.getRepository(TemplatePublishAuditEntity).save(record);
   }
+}
+
+function canonicalSportsTemplate(value: unknown): CanonicalSportsTemplate | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const template = value as Partial<CanonicalSportsTemplate>;
+  if (
+    typeof template.templateHash !== 'string'
+    || typeof template.conditionId !== 'string'
+    || typeof template.questionId !== 'string'
+  ) {
+    return undefined;
+  }
+  return template as CanonicalSportsTemplate;
 }

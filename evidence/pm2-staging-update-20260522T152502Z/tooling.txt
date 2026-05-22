@@ -1,0 +1,5 @@
+branch=codex/staging-fork-web3-e2e
+head=7dfee099c99b05dd97698a071e6c6ade7882c04e
+node=v22.21.0
+npm=10.9.4
+pm2=7.0.1

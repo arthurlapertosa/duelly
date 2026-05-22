@@ -60,7 +60,7 @@ export const useAppStore = create<AppStore>()(
         try {
           const session = await api.me(token);
           set({ user: session.user, wallet: session.wallet });
-          await Promise.all([get().refreshBalance(), get().refreshBets(), get().refreshPendingInvites()]);
+          await refreshSecondaryData(get());
         } catch {
           set({
             token: null,
@@ -84,7 +84,7 @@ export const useAppStore = create<AppStore>()(
           set({ token: result.token, user: result.user, wallet: null, balance: null });
           const session = await api.me(result.token);
           set({ user: session.user, wallet: session.wallet });
-          await Promise.all([get().refreshBalance(), get().refreshBets(), get().refreshPendingInvites()]);
+          await refreshSecondaryData(get());
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'AUTH_FAILED' });
           throw error;
@@ -174,3 +174,11 @@ export const useAppStore = create<AppStore>()(
     },
   ),
 );
+
+async function refreshSecondaryData(store: AppStore): Promise<void> {
+  await Promise.allSettled([
+    store.refreshBalance(),
+    store.refreshBets(),
+    store.refreshPendingInvites(),
+  ]);
+}

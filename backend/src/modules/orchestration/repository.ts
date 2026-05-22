@@ -210,6 +210,21 @@ export class OrchestrationRepository {
     return [...this.memory.indexedBets.values()].find((bet) => bet.inviteId === inviteId);
   }
 
+  async findIndexedBetsByStatus(status: IndexedBet['status'], limit: number): Promise<IndexedBet[]> {
+    if (this.enabled) {
+      return await this.repo(IndexedBetEntity)
+        .createQueryBuilder('bet')
+        .where('bet.status = :status', { status })
+        .orderBy('bet.updatedAt', 'ASC')
+        .limit(limit)
+        .getMany() as IndexedBet[];
+    }
+    return [...this.memory.indexedBets.values()]
+      .filter((bet) => bet.status === status)
+      .sort((left, right) => left.updatedAt.getTime() - right.updatedAt.getTime())
+      .slice(0, limit);
+  }
+
   async saveCursor(cursor: IndexerCursor): Promise<IndexerCursor> {
     if (this.enabled) await this.repo(IndexerCursorEntity).save(cursor);
     else this.memory.cursors.set(cursor.id, cursor);
@@ -230,6 +245,19 @@ export class OrchestrationRepository {
   async findResolutionAttempt(id: string): Promise<ResolutionAttempt | undefined> {
     if (this.enabled) return await this.repo(ResolutionAttemptEntity).findOneBy({ id }) as ResolutionAttempt | null ?? undefined;
     return this.memory.resolutionAttempts.get(id);
+  }
+
+  async findLatestResolutionAttemptForBet(betId: string): Promise<ResolutionAttempt | undefined> {
+    if (this.enabled) {
+      return await this.repo(ResolutionAttemptEntity)
+        .createQueryBuilder('attempt')
+        .where('attempt.betId = :betId', { betId })
+        .orderBy('attempt.createdAt', 'DESC')
+        .getOne() as ResolutionAttempt | null ?? undefined;
+    }
+    return [...this.memory.resolutionAttempts.values()]
+      .filter((attempt) => attempt.betId === betId)
+      .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())[0];
   }
 
   private repo<Entity extends object>(target: EntityTarget<Entity>) {

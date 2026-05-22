@@ -1,0 +1,7 @@
+evidence=/opt/duelly/evidence/staging-proxmox-web3-e2e-20260522T091532Z
+branch=codex/staging-fork-web3-e2e
+head=11bdd3f3670a83d64c055c66ed5c220b119ae6d0
+node=v22.21.0
+npm=10.9.4
+forge=forge Version: 1.7.1
+anvil=anvil Version: 1.7.1

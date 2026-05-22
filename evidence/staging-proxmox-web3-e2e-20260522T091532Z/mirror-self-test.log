@@ -1,0 +1,11 @@
+
+> duelly@0.1.0 blockchain:polymarket-mirror:self-test
+> node scripts/blockchain/mirror-polymarket-ctf-payout.mjs --self-test
+
+{
+  "ok": true,
+  "script": "mirror-polymarket-ctf-payout",
+  "defaultOracle": "0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74",
+  "sampleQuestionId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+  "sampleConditionId": "0x1e5afef09a58c86aa251e7ad5558643165377d2dfabf8e09772f60ceba14c683"
+}

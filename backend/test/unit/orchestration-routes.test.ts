@@ -1,9 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSignature, type Address } from 'viem';
+import {
+  encodeAbiParameters,
+  numberToHex,
+  pad,
+  parseAbiParameters,
+  parseSignature,
+  toEventSelector,
+  type Address,
+  type Hex,
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
+import { betAcceptanceTypes, betOfferTypes } from '../../src/modules/orchestration/chain.js';
+import type { BetInvite, IndexedBet } from '../../src/modules/orchestration/domain.js';
+import { inviteToAcceptance, inviteToOffer } from '../../src/modules/orchestration/services/invite-payloads.js';
 import { RelayerService, relayerErrorCode } from '../../src/modules/orchestration/services/relayer.service.js';
 
 const maker = privateKeyToAccount('0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
@@ -45,6 +57,137 @@ test('relayer registers missing accepted templates before funding', async () => 
   assert.equal(attempts[0].status, 'succeeded');
 });
 
+test('relayer persists funded bet from receipt before the indexer catches up', async () => {
+  const escrowAddress = '0x0000000000000000000000000000000000001002' as Address;
+  const tx = `0x${'44'.repeat(32)}` as Hex;
+  const templateHash = `0x${'11'.repeat(32)}` as Hex;
+  const conditionId = `0x${'22'.repeat(32)}` as Hex;
+  const offerHash = `0x${'33'.repeat(32)}` as Hex;
+  const expiresAt = new Date('2026-06-01T00:00:00.000Z');
+  const invite: BetInvite = {
+    id: 'invite-staging',
+    makerUserId: 'maker-user',
+    takerUserId: 'taker-user',
+    recipientEmail: null,
+    templateHash,
+    conditionId,
+    makerAddress: maker.address,
+    takerAddress: taker.address,
+    makerOutcomeIndex: 0,
+    takerOutcomeIndex: 1,
+    stake: '50000000000000000000',
+    loserFee: '3000000000000000000',
+    offerNonce: '1',
+    acceptanceNonce: '2',
+    offerHash,
+    offerPayload: {},
+    offerSignature: null,
+    makerPermit: {
+      value: '53000000000000000000',
+      nonce: '0',
+      deadline: '9999999999',
+      v: 27,
+      r: `0x${'55'.repeat(32)}` as Hex,
+      s: `0x${'66'.repeat(32)}` as Hex,
+    },
+    makerAuthorizedAt: new Date(),
+    acceptancePayload: {},
+    acceptanceSignature: null,
+    takerPermit: {
+      value: '53000000000000000000',
+      nonce: '0',
+      deadline: '9999999999',
+      v: 27,
+      r: `0x${'77'.repeat(32)}` as Hex,
+      s: `0x${'88'.repeat(32)}` as Hex,
+    },
+    takerAuthorizedAt: new Date(),
+    status: 'accepted',
+    betId: null,
+    expiresAt,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  const domain = {
+    name: 'DuellyBetEscrowBRL1',
+    version: '1',
+    chainId: 137,
+    verifyingContract: escrowAddress,
+  } as const;
+  invite.offerSignature = await maker.signTypedData({
+    domain,
+    types: betOfferTypes,
+    primaryType: 'BetOffer',
+    message: inviteToOffer(invite),
+  });
+  invite.acceptanceSignature = await taker.signTypedData({
+    domain,
+    types: betAcceptanceTypes,
+    primaryType: 'BetAcceptance',
+    message: inviteToAcceptance(invite),
+  });
+
+  const fundedLog = {
+    topics: [
+      toEventSelector('event BetFunded(uint256 indexed betId,bytes32 indexed templateHash,bytes32 indexed conditionId,address playerA,address playerB,uint8 playerAOutcomeIndex,uint8 playerBOutcomeIndex,uint256 stake,uint256 loserFee)'),
+      pad(numberToHex(1n), { size: 32 }),
+      templateHash,
+      conditionId,
+    ] as [Hex, ...Hex[]],
+    data: encodeAbiParameters(
+      parseAbiParameters('address playerA,address playerB,uint8 playerAOutcomeIndex,uint8 playerBOutcomeIndex,uint256 stake,uint256 loserFee'),
+      [maker.address, taker.address, 0, 1, 50_000_000_000_000_000_000n, 3_000_000_000_000_000_000n],
+    ),
+  };
+  let savedInvite: BetInvite | undefined;
+  let savedIndexedBet: IndexedBet | undefined;
+  const service = new RelayerService(
+    {
+      findInvite: async () => invite,
+      saveInvite: async (next: BetInvite) => {
+        savedInvite = next;
+        return next;
+      },
+      saveIndexedBet: async (bet: IndexedBet) => {
+        savedIndexedBet = bet;
+        return bet;
+      },
+      saveRelayerAttempt: async (attempt: unknown) => attempt,
+    } as never,
+    {
+      domain: () => domain,
+      readTemplate: async () => ({ registered: true, active: true }),
+      requireAddresses: () => ({
+        brl1Address: '0x0000000000000000000000000000000000001001' as Address,
+        escrowAddress,
+        polymarketCtfAddress: '0x0000000000000000000000000000000000001003' as Address,
+      }),
+      requireWalletClient: () => ({
+        account: '0x0000000000000000000000000000000000001004' as Address,
+        walletClient: {
+          writeContract: async () => tx,
+        },
+      }),
+      wait: async () => ({
+        status: 'success',
+        blockNumber: 123n,
+        logs: [{ address: escrowAddress, data: fundedLog.data, topics: fundedLog.topics }],
+      }),
+    } as never,
+  );
+
+  const result = await service.fund({ inviteId: invite.id });
+
+  assert.equal(result.betId, '1');
+  assert.equal(savedInvite?.status, 'funded');
+  assert.equal(savedInvite?.betId, '1');
+  assert.equal(savedIndexedBet?.betId, '1');
+  assert.equal(savedIndexedBet?.inviteId, invite.id);
+  assert.equal(savedIndexedBet?.status, 'Funded');
+  assert.equal(savedIndexedBet?.sourceBlockNumber, '123');
+  assert.equal(savedIndexedBet?.sourceTransactionHash, tx);
+});
+
 function testConfig(options: { inviteTtlSeconds?: number } = {}) {
   return {
     ...loadAppConfig(),
@@ -57,6 +200,19 @@ function testConfig(options: { inviteTtlSeconds?: number } = {}) {
     },
     invites: {
       ttlSeconds: options.inviteTtlSeconds ?? 3600,
+    },
+    resolutionWorker: {
+      enabled: false,
+      intervalMs: 60_000,
+      batchSize: 10,
+      pendingRetrySeconds: 900,
+    },
+    polymarketResolutionMirror: {
+      enabled: false,
+      sourceRpcUrl: undefined,
+      oracleAddress: undefined,
+      outcomeSlotCount: 2,
+      allowNonLocalForkRpc: false,
     },
     chain: {
       enabled: false,

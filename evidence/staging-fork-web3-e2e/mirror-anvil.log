@@ -1,0 +1,109 @@
+
+
+                             _   _
+                            (_) | |
+      __ _   _ __   __   __  _  | |
+     / _` | | '_ \  \ \ / / | | | |
+    | (_| | | | | |  \ V /  | | | |
+     \__,_| |_| |_|   \_/   |_| |_|
+
+    1.7.1 (4072e48705 2026-05-08T07:50:55.527285345Z)
+    https://github.com/foundry-rs/foundry
+
+Available Accounts
+==================
+
+
+Private Keys
+==================
+
+
+Wallet
+==================
+Mnemonic:          test test test test test test test test test test test junk
+Derivation path:   m/44'/60'/0'/0/
+
+
+Fork
+==================
+Endpoint:       <redacted-polygon-rpc-url>
+Block number:   86800000
+Block hash:     0x73c44cedea7a7f498b25f2d783cb46fa6d6e161494983bfc04dca460aeb669e9
+Chain ID:       137
+
+Base Fee
+==================
+
+250469247378
+
+Gas Limit
+==================
+
+140000000
+
+Genesis Timestamp
+==================
+
+1779438853
+
+Genesis Number
+==================
+
+0
+
+Listening on 127.0.0.1:18545
+[2m2026-05-22T08:34:13.968834Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_chainId
+[2m2026-05-22T08:34:14.263349Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_chainId
+[2m2026-05-22T08:34:14.753582Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_blockNumber
+[2m2026-05-22T08:34:14.755448Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_getLogs
+[2m2026-05-22T08:34:14.935560Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.438724Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.474506Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_blockNumber
+[2m2026-05-22T08:34:15.475966Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_getLogs
+[2m2026-05-22T08:34:15.490543Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.492539Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.610014Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.611778Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.611970Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.613660Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.617908Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.619762Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.621181Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.623166Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.773028Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:15.933636Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:16.113641Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m anvil_impersonateAccount
+[2m2026-05-22T08:34:16.115538Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m anvil_setBalance
+[2m2026-05-22T08:34:16.280505Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_sendTransaction
+[2m2026-05-22T08:34:16.280632Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_accounts
+[2m2026-05-22T08:34:16.615322Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_getTransactionReceipt
+[2m2026-05-22T08:34:16.954337Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m 
+[2m2026-05-22T08:34:16.954410Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Transaction: 0x250b9d99d4c5b63c85f5b0e6fd9b6044503c3c79c32d5901a749246b0a4ada58
+[2m2026-05-22T08:34:16.954420Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Gas used: 52226
+[2m2026-05-22T08:34:16.954443Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m 
+[2m2026-05-22T08:34:16.954451Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Block Number: 86800001
+[2m2026-05-22T08:34:16.954456Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Block Hash: 0x2e17bea8ade752b79383fb98ba2189cd1c0d63165850c51d4726072d7d236496
+[2m2026-05-22T08:34:16.954510Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Block Time: "Wed, 13 May 2026 02:35:11 +0000"
+
+[2m2026-05-22T08:34:17.278661Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_getTransactionReceipt
+[2m2026-05-22T08:34:17.280085Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_sendTransaction
+[2m2026-05-22T08:34:17.280163Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_accounts
+[2m2026-05-22T08:34:17.284851Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_getTransactionReceipt
+[2m2026-05-22T08:34:17.447944Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m 
+[2m2026-05-22T08:34:17.448035Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Transaction: 0x42444707c132752c58686941d92982aa59da7e6fb4865d1822f3e5d84517ca4a
+[2m2026-05-22T08:34:17.448045Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Gas used: 77088
+[2m2026-05-22T08:34:17.448049Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m 
+[2m2026-05-22T08:34:17.448055Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Block Number: 86800002
+[2m2026-05-22T08:34:17.448060Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Block Hash: 0x36b044a7e72502b4df6ae26b370754b1fb8a47e6095c2fc9c36bec2bf637ac95
+[2m2026-05-22T08:34:17.448094Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m     Block Time: "Wed, 13 May 2026 02:35:12 +0000"
+
+[2m2026-05-22T08:34:17.946503Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_getTransactionReceipt
+[2m2026-05-22T08:34:17.948265Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:17.949901Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:17.951723Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:17.953574Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:17.956728Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m anvil_stopImpersonatingAccount
+[2m2026-05-22T08:34:18.029920Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:18.039617Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:18.042534Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call
+[2m2026-05-22T08:34:18.044869Z[0m [32m INFO[0m [2mnode::user[0m[2m:[0m eth_call

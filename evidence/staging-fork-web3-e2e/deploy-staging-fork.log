@@ -1,0 +1,6 @@
+[staging-fork] starting Anvil fork at http://127.0.0.1:18545
+curl: (7) Failed to connect to 127.0.0.1 port 18545 after 0 ms: Couldn't connect to server
+[staging-fork] deploying BetEscrowBRL1 against real BRL1 and Polymarket CTF
+[staging-fork] configuring escrow roles and fee floor
+[staging-fork] deployment written to /home/arthur/lyth/worktrees/duelly-staging-fork-web3-e2e/cache/staging-fork/deployment.env
+[staging-fork] escrow: 0x6dDE35A60b27EAD23AcCF40313574cB5BCefdf75

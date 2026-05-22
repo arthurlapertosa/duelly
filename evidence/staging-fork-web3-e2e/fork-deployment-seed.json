@@ -1,0 +1,22 @@
+{
+  "rpcUrl": "http://127.0.0.1:18545/",
+  "chainId": "0x89",
+  "token": "0x5C067C80C00eCd2345b05E83A3e758eF799C40B5",
+  "sourceHolder": "0x2d610e4eceac64e46226b70613b6d7f81e719bc2",
+  "amountRaw": "1000000000000000000000",
+  "amountFormatted": "1000",
+  "wallets": [
+    "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+    "0xB4Dd9A1E85153ad142b89f79244e66B44F574236"
+  ],
+  "transactions": [
+    {
+      "wallet": "0xd843019D84A44bb1787A2742D42581569A8f06cA",
+      "transactionHash": "0x61426cc3a60fbd5647b6a15a1d1bfbce5076f75c331a7221ad91e73905535115"
+    },
+    {
+      "wallet": "0xB4Dd9A1E85153ad142b89f79244e66B44F574236",
+      "transactionHash": "0x1216ea01e06e027aea8ef3dc46d683361a4e89f8b8a7a23d2b0422a5321156c4"
+    }
+  ]
+}

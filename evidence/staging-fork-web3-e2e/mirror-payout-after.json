@@ -1,0 +1,23 @@
+{
+  "rpcUrl": "http://127.0.0.1:18545/",
+  "block": "latest",
+  "ctf": "0x4D97DCd97eC945f40cF65F87097ACe5EA0476045",
+  "conditionId": "0x78f935a4d5772a11dbd656fda8c72f4af2426f0432b929b8e8b3890239ec0ed8",
+  "selectors": {
+    "payoutDenominator": "0xdd34de67",
+    "payoutNumerators": "0x0504c814",
+    "getOutcomeSlotCount": "0xd42dc0c2"
+  },
+  "outcomeSlotCount": 2,
+  "payoutDenominator": "1",
+  "payoutNumerators": [
+    "0",
+    "1"
+  ],
+  "interpretation": {
+    "status": "resolved-strict-binary",
+    "winnerIndex": 1,
+    "voidLike": false
+  },
+  "errors": []
+}

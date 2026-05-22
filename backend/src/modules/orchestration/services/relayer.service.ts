@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { decodeEventLog, verifyTypedData, type Hex } from 'viem';
+import { decodeEventLog, verifyTypedData, type Address, type Hex } from 'viem';
 import { betAcceptanceTypes, betOfferTypes, escrowAbi } from '../chain.js';
 import type { ChainService } from '../chain.js';
 import type { OrchestrationRepository } from '../repository.js';
@@ -95,11 +95,43 @@ export class RelayerService {
       });
       const receipt = await this.chain.wait(tx);
       let betId: string | null = null;
+      let indexedBet: Parameters<OrchestrationRepository['saveIndexedBet']>[0] | null = null;
       for (const log of receipt.logs) {
         try {
+          if (log.address.toLowerCase() !== escrowAddress.toLowerCase()) continue;
           const decoded = decodeEventLog({ abi: escrowAbi, data: log.data, topics: log.topics as [Hex, ...Hex[]] });
           if (decoded.eventName === 'BetFunded') {
-            betId = ((decoded.args as { betId: bigint }).betId).toString();
+            const args = decoded.args as {
+              betId: bigint;
+              templateHash: Hex;
+              conditionId: Hex;
+              playerA: Address;
+              playerB: Address;
+              playerAOutcomeIndex: number;
+              playerBOutcomeIndex: number;
+              stake: bigint;
+              loserFee: bigint;
+            };
+            betId = args.betId.toString();
+            indexedBet = {
+              betId,
+              inviteId: invite.id,
+              templateHash: args.templateHash,
+              conditionId: args.conditionId,
+              playerA: args.playerA,
+              playerB: args.playerB,
+              playerAOutcomeIndex: args.playerAOutcomeIndex,
+              playerBOutcomeIndex: args.playerBOutcomeIndex,
+              stake: args.stake.toString(),
+              loserFee: args.loserFee.toString(),
+              status: 'Funded',
+              winner: null,
+              winnerPayout: null,
+              treasuryPayout: null,
+              sourceTransactionHash: tx,
+              sourceBlockNumber: receipt.blockNumber.toString(),
+              updatedAt: new Date(),
+            };
           }
         } catch {
           // Ignore non-escrow logs in the funding transaction.
@@ -109,6 +141,7 @@ export class RelayerService {
       invite.betId = betId;
       invite.updatedAt = new Date();
       await this.repository.saveInvite(invite);
+      if (indexedBet) await this.repository.saveIndexedBet(indexedBet);
       await this.repository.saveRelayerAttempt({
         id: `attempt-${randomUUID()}`,
         requestId,

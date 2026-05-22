@@ -151,7 +151,9 @@ async function main() {
   console.log(JSON.stringify(result, null, 2));
 }
 
-main().catch((error) => {
-  console.error(`[polymarket-condition-inspect] ${error.message}`);
-  process.exit(1);
-});
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error) => {
+    console.error(`[polymarket-condition-inspect] ${error.message}`);
+    process.exit(1);
+  });
+}

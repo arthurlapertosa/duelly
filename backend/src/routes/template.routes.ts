@@ -17,7 +17,7 @@ interface TemplateRouteOptions {
 }
 
 export async function registerTemplateRoutes(app: FastifyInstance, options: TemplateRouteOptions): Promise<void> {
-  const context = new TemplateControllerContext(options);
+  const context = new TemplateControllerContext({ ...options, logger: app.log });
   const candidates = new CandidateTemplatesController(context);
   const accepted = new AcceptedTemplatesController(context);
   const rejected = new RejectedCandidatesController(context);

@@ -13,8 +13,11 @@ import {
   WalletsController,
 } from '../controllers/orchestration/index.js';
 
-export async function registerOrchestrationRoutes(app: FastifyInstance, options: OrchestrationControllerOptions): Promise<void> {
-  const context = new OrchestrationControllerContext(options);
+export async function registerOrchestrationRoutes(
+  app: FastifyInstance,
+  options: OrchestrationControllerOptions,
+): Promise<OrchestrationControllerContext> {
+  const context = new OrchestrationControllerContext({ ...options, logger: app.log });
   const middleware = new OrchestrationAuthMiddleware(context);
   const authenticated = { preHandler: middleware.isAuthenticated };
   const auth = new AuthController(context);
@@ -58,6 +61,9 @@ export async function registerOrchestrationRoutes(app: FastifyInstance, options:
   app.get('/invites/:inviteId/bet', bets.getByInvite);
 
   app.post('/internal/resolution/run', resolution.run);
+  app.post('/internal/resolution/mirror', resolution.mirror);
   app.post('/internal/resolution/mock-payout', resolution.mockPayout);
   app.get('/resolution/attempts/:attemptId', resolution.attempt);
+
+  return context;
 }

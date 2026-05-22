@@ -1,6 +1,7 @@
 import type { BinaryMarketType, Competition, CompetitionLevel, EventType, Sport } from './types.js';
 
-export const MIN_BETTING_CLOSE_BUFFER_SECONDS = 72 * 60 * 60;
+export const DEFAULT_MIN_BETTING_CLOSE_BUFFER_HOURS = 2;
+export const DEFAULT_MIN_BETTING_CLOSE_BUFFER_SECONDS = DEFAULT_MIN_BETTING_CLOSE_BUFFER_HOURS * 60 * 60;
 export const DEFAULT_RESOLUTION_WINDOW_SECONDS = 14 * 24 * 60 * 60;
 export const DEFAULT_LOSER_FEE_BPS = 250;
 export const MIN_LOSER_FEE_BPS = 1;

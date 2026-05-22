@@ -4,6 +4,7 @@ import {
   createPublicClient,
   createWalletClient,
   decodeEventLog,
+  encodeFunctionData,
   getAddress,
   hashTypedData,
   http,
@@ -72,9 +73,11 @@ export const escrowAbi = parseAbi([
   'function minLoserFee() view returns (uint256)',
   'function calculateLoserFee(uint256 stake,uint16 loserFeeBps) view returns (uint256)',
   'function getTemplate(bytes32 templateHash) view returns ((bool registered,bool active,bytes32 templateHash,bytes32 marketIdHash,bytes32 conditionId,bytes32 questionIdHash,bytes32 rulesHash,uint64 bettingCloseAt,uint64 resolutionDeadline,uint16 loserFeeBps,uint8 outcomeAProviderIndex,uint8 outcomeBProviderIndex))',
+  'function getBet(uint256 betId) view returns ((address playerA,address playerB,bytes32 templateHash,bytes32 conditionId,uint8 playerAOutcomeIndex,uint8 playerBOutcomeIndex,uint256 stake,uint256 loserFee,uint64 fundedAt,uint64 resolutionDeadline,uint8 status))',
   'function registerTemplate((bytes32 templateHash,uint16 templateVersion,uint8 providerCode,bytes32 marketIdHash,bytes32 conditionId,bytes32 questionIdHash,uint16 sportCode,uint16 competitionCode,uint16 competitionLevelCode,bytes32 competitionDetailHash,uint16 eventTypeCode,uint16 binaryMarketTypeCode,bytes32 outcomeALabelHash,uint8 outcomeAProviderIndex,bytes32 outcomeBLabelHash,uint8 outcomeBProviderIndex,bytes32 rulesHash,bytes32 rulesSourceHash,uint64 eventStartAt,uint64 bettingCloseAt,uint64 resolutionDeadline,uint16 loserFeeBps,uint16 feePolicyVersion,bool active) registration)',
   'function acceptBetWithPermits((address maker,address taker,bytes32 templateHash,bytes32 conditionId,uint8 makerOutcomeIndex,uint256 stake,uint256 loserFee,uint256 nonce,uint64 deadline) offer,(address taker,bytes32 offerHash,uint8 takerOutcomeIndex,uint256 nonce,uint64 deadline) acceptance,bytes makerSignature,bytes takerSignature,(uint256 value,uint256 nonce,uint256 deadline,uint8 v,bytes32 r,bytes32 s) makerPermit,(uint256 value,uint256 nonce,uint256 deadline,uint8 v,bytes32 r,bytes32 s) takerPermit) returns (uint256 betId)',
   'function resolveFromPolymarket(uint256 betId)',
+  'function expireUnresolvedBet(uint256 betId)',
   'event TemplateRegistered(bytes32 indexed templateHash,bytes32 indexed conditionId,bytes32 indexed marketIdHash,bytes32 questionIdHash,uint8 outcomeAProviderIndex,uint8 outcomeBProviderIndex,uint64 bettingCloseAt,uint64 resolutionDeadline,uint16 loserFeeBps,bool active)',
   'event BetFunded(uint256 indexed betId,bytes32 indexed templateHash,bytes32 indexed conditionId,address playerA,address playerB,uint8 playerAOutcomeIndex,uint8 playerBOutcomeIndex,uint256 stake,uint256 loserFee)',
   'event BetSettled(uint256 indexed betId,address indexed winner,address indexed loser,uint8 winningOutcomeIndex,uint256 winnerPayout,uint256 treasuryPayout)',
@@ -82,9 +85,12 @@ export const escrowAbi = parseAbi([
 ]);
 
 export const ctfAbi = parseAbi([
+  'function getConditionId(address oracle,bytes32 questionId,uint256 outcomeSlotCount) pure returns (bytes32)',
   'function payoutDenominator(bytes32 conditionId) view returns (uint256)',
   'function payoutNumerators(bytes32 conditionId,uint256 index) view returns (uint256)',
   'function getOutcomeSlotCount(bytes32 conditionId) view returns (uint256)',
+  'function prepareCondition(address oracle,bytes32 questionId,uint256 outcomeSlotCount)',
+  'function reportPayouts(bytes32 questionId,uint256[] payouts)',
   'function setPayout(bytes32 conditionId,uint256 denominator,uint256[] numerators)',
 ]);
 
@@ -147,6 +153,28 @@ export interface PermitMessage {
   value: bigint;
   nonce: bigint;
   deadline: bigint;
+}
+
+export interface CtfPayoutState {
+  conditionId: Hex;
+  outcomeSlotCount: number;
+  denominator: bigint;
+  numerators: bigint[];
+}
+
+export interface MirrorCtfPayoutInput {
+  oracleAddress: Address;
+  questionId: Hex;
+  conditionId: Hex;
+  outcomeSlotCount: number;
+  numerators: bigint[];
+}
+
+export interface MirrorCtfPayoutResult {
+  status: 'already-resolved' | 'mirrored';
+  transactionHash: Hex | null;
+  prepareTransactionHash: Hex | null;
+  blockNumber: string | null;
 }
 
 export class ChainService {
@@ -259,6 +287,204 @@ export class ChainService {
     });
   }
 
+  async readEscrowBet(betId: string | bigint) {
+    const client = this.requirePublicClient();
+    const { escrowAddress } = this.requireAddresses();
+    const bet = await client.readContract({
+      address: escrowAddress,
+      abi: escrowAbi,
+      functionName: 'getBet',
+      args: [BigInt(betId)],
+    }) as {
+      playerA: Address;
+      playerB: Address;
+      templateHash: Hex;
+      conditionId: Hex;
+      playerAOutcomeIndex: number;
+      playerBOutcomeIndex: number;
+      stake: bigint;
+      loserFee: bigint;
+      fundedAt: bigint;
+      resolutionDeadline: bigint;
+      status: number;
+    };
+    return bet;
+  }
+
+  async readPayoutDenominator(conditionId: Hex): Promise<bigint> {
+    const client = this.requirePublicClient();
+    const { polymarketCtfAddress } = this.requireAddresses();
+    return await client.readContract({
+      address: polymarketCtfAddress,
+      abi: ctfAbi,
+      functionName: 'payoutDenominator',
+      args: [conditionId],
+    });
+  }
+
+  async readChainId(options: { rpcUrl?: string } = {}): Promise<number> {
+    const client = options.rpcUrl
+      ? createPublicClient({ transport: http(options.rpcUrl) })
+      : this.requirePublicClient();
+    return await client.getChainId();
+  }
+
+  async readCtfPayoutState(
+    conditionId: Hex,
+    options: { rpcUrl?: string; fallbackOutcomeSlotCount?: number } = {},
+  ): Promise<CtfPayoutState> {
+    const { polymarketCtfAddress } = this.requireAddresses();
+    const client = options.rpcUrl
+      ? createPublicClient({ transport: http(options.rpcUrl) })
+      : this.requirePublicClient();
+    const denominator = await client.readContract({
+      address: polymarketCtfAddress,
+      abi: ctfAbi,
+      functionName: 'payoutDenominator',
+      args: [conditionId],
+    });
+    let outcomeSlotCountRaw: bigint;
+    try {
+      outcomeSlotCountRaw = await client.readContract({
+        address: polymarketCtfAddress,
+        abi: ctfAbi,
+        functionName: 'getOutcomeSlotCount',
+        args: [conditionId],
+      });
+    } catch (error) {
+      if (options.fallbackOutcomeSlotCount === undefined) throw error;
+      outcomeSlotCountRaw = BigInt(options.fallbackOutcomeSlotCount);
+    }
+    if (outcomeSlotCountRaw > 256n) throw new Error('CTF outcome slot count is too large');
+    const outcomeSlotCount = Number(outcomeSlotCountRaw);
+    const numerators = await Promise.all(
+      Array.from({ length: outcomeSlotCount }, (_, index) => client.readContract({
+        address: polymarketCtfAddress,
+        abi: ctfAbi,
+        functionName: 'payoutNumerators',
+        args: [conditionId, BigInt(index)],
+      })),
+    );
+    return {
+      conditionId,
+      outcomeSlotCount,
+      denominator,
+      numerators,
+    };
+  }
+
+  async readCtfConditionId(oracleAddress: Address, questionId: Hex, outcomeSlotCount: number): Promise<Hex> {
+    const client = this.requirePublicClient();
+    const { polymarketCtfAddress } = this.requireAddresses();
+    return await client.readContract({
+      address: polymarketCtfAddress,
+      abi: ctfAbi,
+      functionName: 'getConditionId',
+      args: [oracleAddress, questionId, BigInt(outcomeSlotCount)],
+    });
+  }
+
+  async mirrorCtfPayout(input: MirrorCtfPayoutInput): Promise<MirrorCtfPayoutResult> {
+    const { polymarketCtfAddress } = this.requireAddresses();
+    const expectedConditionId = await this.readCtfConditionId(
+      input.oracleAddress,
+      input.questionId,
+      input.outcomeSlotCount,
+    );
+    if (expectedConditionId.toLowerCase() !== input.conditionId.toLowerCase()) {
+      throw new Error('CTF condition id does not match oracle, question id, and slot count');
+    }
+
+    if (input.numerators.length !== input.outcomeSlotCount) {
+      throw new Error('CTF payout numerator count does not match outcome slot count');
+    }
+
+    const localState = await this.readCtfPayoutState(input.conditionId, {
+      fallbackOutcomeSlotCount: 0,
+    });
+    if (localState.denominator > 0n) {
+      return {
+        status: 'already-resolved',
+        transactionHash: null,
+        prepareTransactionHash: null,
+        blockNumber: null,
+      };
+    }
+
+    let prepareTransactionHash: Hex | null = null;
+    if (localState.outcomeSlotCount === 0) {
+      prepareTransactionHash = await this.writePrepareCondition(
+        input.oracleAddress,
+        input.questionId,
+        input.outcomeSlotCount,
+      );
+      await this.wait(prepareTransactionHash);
+    }
+
+    await this.anvilRpc('anvil_impersonateAccount', [input.oracleAddress]);
+    try {
+      await this.anvilRpc('anvil_setBalance', [input.oracleAddress, '0x56BC75E2D63100000']);
+      const data = encodeFunctionData({
+        abi: ctfAbi,
+        functionName: 'reportPayouts',
+        args: [input.questionId, input.numerators],
+      });
+      const transactionHash = await this.anvilRpc<Hex>('eth_sendTransaction', [{
+        from: input.oracleAddress,
+        to: polymarketCtfAddress,
+        data,
+      }]);
+      const receipt = await this.wait(transactionHash);
+      return {
+        status: 'mirrored',
+        transactionHash,
+        prepareTransactionHash,
+        blockNumber: receipt.blockNumber.toString(),
+      };
+    } finally {
+      await this.anvilRpc('anvil_stopImpersonatingAccount', [input.oracleAddress]).catch(() => undefined);
+    }
+  }
+
+  async writePrepareCondition(oracleAddress: Address, questionId: Hex, outcomeSlotCount: number): Promise<Hex> {
+    const { polymarketCtfAddress } = this.requireAddresses();
+    const { walletClient, account } = this.requireWalletClient();
+    return await walletClient.writeContract({
+      account,
+      address: polymarketCtfAddress,
+      abi: ctfAbi,
+      functionName: 'prepareCondition',
+      args: [oracleAddress, questionId, BigInt(outcomeSlotCount)],
+      chain: null,
+    });
+  }
+
+  async writeResolveFromPolymarket(betId: string | bigint) {
+    const { escrowAddress } = this.requireAddresses();
+    const { walletClient, account } = this.requireWalletClient();
+    return await walletClient.writeContract({
+      account,
+      address: escrowAddress,
+      abi: escrowAbi,
+      functionName: 'resolveFromPolymarket',
+      args: [BigInt(betId)],
+      chain: null,
+    });
+  }
+
+  async writeExpireUnresolvedBet(betId: string | bigint) {
+    const { escrowAddress } = this.requireAddresses();
+    const { walletClient, account } = this.requireWalletClient();
+    return await walletClient.writeContract({
+      account,
+      address: escrowAddress,
+      abi: escrowAbi,
+      functionName: 'expireUnresolvedBet',
+      args: [BigInt(betId)],
+      chain: null,
+    });
+  }
+
   async writeRegisterTemplate(template: CanonicalSportsTemplate | PublishableTemplatePayload) {
     const { escrowAddress } = this.requireAddresses();
     const { walletClient, account } = this.requireWalletClient();
@@ -279,6 +505,25 @@ export class ChainService {
 
   decodeEscrowLog(log: { topics: Hex[]; data: Hex }) {
     return decodeEventLog({ abi: escrowAbi, topics: log.topics as [Hex, ...Hex[]], data: log.data });
+  }
+
+  private async anvilRpc<T = unknown>(method: string, params: unknown[]): Promise<T> {
+    const rpcUrl = this.config.chain.rpcUrl;
+    if (!rpcUrl) throw new Error('Chain RPC is not configured');
+    const response = await fetch(rpcUrl, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method,
+        params,
+      }),
+    });
+    if (!response.ok) throw new Error(`Fork RPC HTTP ${response.status}`);
+    const body = await response.json() as { result?: T; error?: { message?: string } };
+    if (body.error) throw new Error(`Fork RPC ${method} failed: ${body.error.message ?? 'unknown error'}`);
+    return body.result as T;
   }
 }
 
