@@ -4,6 +4,7 @@ import {
   FEE_POLICY_VERSION,
   TEMPLATE_VERSION,
 } from '../domain/sports-policy.js';
+import { buildPtBRTemplateDisplay } from '../display/template-display-localizer.js';
 import type {
   CanonicalSportsTemplate,
   Competition,
@@ -166,6 +167,16 @@ export function buildCanonicalTemplate(candidate: NormalizedMarketCandidate): Ca
       providerEventId: candidate.providerEventId,
       slug: candidate.slug,
       question: candidate.question,
+      ptBR: buildPtBRTemplateDisplay({
+        question: candidate.question,
+        sport: candidate.sport,
+        competition: candidate.competition,
+        eventType: candidate.eventType,
+        binaryMarketType: candidate.binaryMarketType,
+        outcomeA,
+        outcomeB,
+        participants: candidate.participants,
+      }),
       sourceUrl: candidate.sourceUrl,
       rawProviderPayloadHash: candidate.rawProviderPayloadHash,
     },

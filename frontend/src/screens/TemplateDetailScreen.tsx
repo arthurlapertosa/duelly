@@ -5,7 +5,7 @@ import { ShieldCheck } from 'lucide-react';
 import { api } from '../lib/api';
 import { brlToRaw, formatBRL, formatDateTime } from '../lib/format';
 import { customStakeToRaw, stakeOptions } from '../lib/betHelpers';
-import { localizeOutcomeLabel } from '../lib/i18n';
+import { templateDisplay } from '../lib/templateDisplay';
 import { useI18n } from '../lib/useI18n';
 import { useMotion } from '../lib/useMotion';
 import { springSoft } from '../lib/motion';
@@ -78,6 +78,7 @@ export function TemplateDetailScreen() {
 
   const stakeIsValid = BigInt(stakeRaw) > 0n;
   const canCreate = Boolean(wallet && quote && readiness?.canAttemptBet && outcomeIndex !== null);
+  const display = templateDisplay(template, locale);
   const createUrl = `/create-invite?templateId=${encodeURIComponent(template.id)}&outcomeIndex=${
     outcomeIndex ?? 0
   }&stakeRaw=${stakeRaw}&loserFeeRaw=${quote?.selectedLoserFeeRaw ?? '0'}`;
@@ -106,14 +107,14 @@ export function TemplateDetailScreen() {
 
   return (
     <Page>
-      <ScreenHeader title={template.title} eyebrow={template.category} back />
+      <ScreenHeader title={display.question} eyebrow={template.category} back />
 
       <Card padding="md">
         <div className="mb-2 flex items-center gap-2 text-slate-500">
           <ShieldCheck size={14} aria-hidden="true" className="shrink-0" />
           <span className="text-xs font-semibold">{t('template.rules')}</span>
         </div>
-        <p className="text-sm leading-relaxed text-slate-600">{template.rulesSummary}</p>
+        <p className="text-sm leading-relaxed text-slate-600">{display.rulesSummary}</p>
         <p className="mt-3 text-xs text-slate-400">
           {t('templates.resolve')} {formatDateTime(template.resolutionDeadline, locale)}
         </p>
@@ -122,7 +123,7 @@ export function TemplateDetailScreen() {
       <Card padding="md">
         <h2 className="mb-3 text-base font-semibold text-slate-950">{t('templates.pickSide')}</h2>
         <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label={t('templates.pickSide')}>
-          {template.outcomes.map((outcome, index) => {
+          {display.outcomes.map((outcome, index) => {
             const value = template.outcomeIndexes[index];
             const selected = outcomeIndex === value;
             return (
@@ -150,7 +151,7 @@ export function TemplateDetailScreen() {
                   />
                 ) : null}
                 <span className="relative z-10 break-words">
-                  {localizeOutcomeLabel(locale, outcome)}
+                  {outcome}
                 </span>
               </motion.button>
             );

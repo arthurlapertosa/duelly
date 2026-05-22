@@ -5,12 +5,18 @@ interface ApiOutcome {
   providerOutcomeIndex: number;
 }
 
+interface ApiLocalizedTemplateDisplay {
+  question: string;
+  rulesSummary: string;
+  outcomes: [string, string];
+}
+
 interface ApiTemplate {
   templateId: string;
   templateHash: Hex;
   conditionId: Hex;
   sport: TemplateView['category'];
-  display: { question: string; sourceUrl?: string };
+  display: { question: string; sourceUrl?: string; ptBR?: ApiLocalizedTemplateDisplay };
   outcomeA: ApiOutcome;
   outcomeB: ApiOutcome;
   bettingCloseAt: number;
@@ -29,11 +35,20 @@ export function mapTemplate(template: ApiTemplate): TemplateView {
     source: 'Polymarket',
     rulesSummary: template.display.question,
     outcomes: [normalizeOutcome(template.outcomeA.label), normalizeOutcome(template.outcomeB.label)],
+    display: template.display.ptBR ? { ptBR: mapLocalizedDisplay(template.display.ptBR) } : undefined,
     outcomeIndexes: [template.outcomeA.providerOutcomeIndex, template.outcomeB.providerOutcomeIndex],
     bettingCloseAt: new Date(template.bettingCloseAt * 1000).toISOString(),
     resolutionDeadline: new Date(template.resolutionDeadline * 1000).toISOString(),
     loserFeeBps: template.loserFeeBps,
     active: template.active,
+  };
+}
+
+function mapLocalizedDisplay(display: ApiLocalizedTemplateDisplay): NonNullable<TemplateView['display']>['ptBR'] {
+  return {
+    question: display.question,
+    rulesSummary: display.rulesSummary,
+    outcomes: [display.outcomes[0], display.outcomes[1]],
   };
 }
 

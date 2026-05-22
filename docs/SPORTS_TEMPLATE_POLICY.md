@@ -30,3 +30,5 @@ loserFee = max(stake * loserFeeBps / 10_000, minLoserFee)
 ## Hash Policy
 
 `templateHash` is computed with `keccak256(abi.encode(...))` over fixed-size canonical fields. The type hash is computed from the exact case-sensitive ABI type literal. Display text, raw provider payloads, audit metadata, and mutable `active` state are not identity inputs. `active` is stored and published as registry state so templates can be deactivated without changing identity.
+
+Localized display text, including Portuguese `display.ptBR` titles, rule summaries, and outcome labels, is presentation-only. It must not replace provider source text, drive filtering or resolution, alter hash inputs, or appear in on-chain registration calldata.

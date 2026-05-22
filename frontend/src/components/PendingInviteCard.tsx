@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Handshake } from 'lucide-react';
 import type { PendingInviteView } from '../lib/types';
 import { formatBRL } from '../lib/format';
+import { templateDisplay } from '../lib/templateDisplay';
 import { useI18n } from '../lib/useI18n';
 import { useMotion } from '../lib/useMotion';
 import { Badge } from './ui';
@@ -12,6 +13,7 @@ export function PendingInviteCard({ pending }: { pending: PendingInviteView }) {
   const { locale, t } = useI18n();
   const navigate = useNavigate();
   const m = useMotion();
+  const display = pending.template ? templateDisplay(pending.template, locale) : null;
 
   return (
     <motion.button
@@ -28,7 +30,7 @@ export function PendingInviteCard({ pending }: { pending: PendingInviteView }) {
         </span>
       </div>
       <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-800">
-        {pending.template?.title ?? t('invite.newBody')}
+        {display?.question ?? t('invite.newBody')}
       </p>
       <p className="mt-2.5 flex items-center gap-1 text-xs font-semibold text-brand-600">
         <Handshake size={13} aria-hidden="true" className="shrink-0" />

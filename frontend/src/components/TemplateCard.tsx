@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { CalendarClock } from 'lucide-react';
 import type { TemplateView } from '../lib/types';
 import { formatDateTime } from '../lib/format';
-import { localizeOutcomeLabel } from '../lib/i18n';
+import { templateDisplay } from '../lib/templateDisplay';
 import { useI18n } from '../lib/useI18n';
 import { useMotion } from '../lib/useMotion';
 import { Badge } from './ui';
@@ -13,6 +13,7 @@ export function TemplateCard({ template }: { template: TemplateView }) {
   const { locale, t } = useI18n();
   const navigate = useNavigate();
   const m = useMotion();
+  const display = templateDisplay(template, locale);
 
   return (
     <motion.button
@@ -26,14 +27,14 @@ export function TemplateCard({ template }: { template: TemplateView }) {
         <Badge tone="brand">{template.category}</Badge>
         <span className="shrink-0 text-[10px] font-medium text-slate-400">{template.source}</span>
       </div>
-      <h3 className="mb-3 text-base font-semibold leading-snug text-slate-950">{template.title}</h3>
+      <h3 className="mb-3 text-base font-semibold leading-snug text-slate-950">{display.question}</h3>
       <div className="mb-3 grid grid-cols-2 gap-2">
-        {template.outcomes.map((outcome) => (
+        {display.outcomes.map((outcome, index) => (
           <span
-            key={outcome}
+            key={`${outcome}-${index}`}
             className="break-words rounded-xl bg-surface-sunken px-3 py-2 text-center text-xs font-semibold text-slate-600"
           >
-            {localizeOutcomeLabel(locale, outcome)}
+            {outcome}
           </span>
         ))}
       </div>
