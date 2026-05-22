@@ -2,6 +2,8 @@
 
 Use this for Proxmox staging when the target is real Polygon contract code and real Polymarket data, with fork-local BRL1 balances only.
 
+For day-to-day VM layout, PM2 redeploys, contract redeploys, and Anvil service operations, see `docs/STAGING_OPERATIONS.md`.
+
 ## Model
 
 - Network: Anvil fork of Polygon with chain ID `137`.
