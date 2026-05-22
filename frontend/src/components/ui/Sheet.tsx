@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { useMotion } from '../../lib/useMotion';
+
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface SheetProps {
   open: boolean;
@@ -31,18 +34,49 @@ export function Sheet({
   footer,
 }: SheetProps) {
   const m = useMotion();
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
+    // Remember what was focused so we can restore it on close.
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        onClose();
+        return;
+      }
+      // Keep Tab focus inside the dialog while it is open.
+      if (event.key !== 'Tab' || !panelRef.current) return;
+      const items = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE),
+      ).filter((node) => node.offsetParent !== null);
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
+
     document.addEventListener('keydown', onKey);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // Move focus into the dialog so keyboard users land on its controls.
+    const focusTimer = window.setTimeout(() => {
+      const target = panelRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+      target?.focus();
+    }, 0);
+
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = previousOverflow;
+      window.clearTimeout(focusTimer);
+      previouslyFocused?.focus?.();
     };
   }, [open, onClose]);
 
@@ -66,6 +100,7 @@ export function Sheet({
             className="absolute inset-0 bg-slate-950/40"
           />
           <motion.div
+            ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-label={title}
