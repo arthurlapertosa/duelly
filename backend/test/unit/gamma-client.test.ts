@@ -233,7 +233,7 @@ test('Gamma search fallback does not force-label unrelated UFC results', async (
   });
 });
 
-test('Gamma tennis accepts current ATP match winners independent of Polymarket orderability', async () => {
+test('Gamma tennis accepts started ATP match winners independent of Polymarket orderability', async () => {
   await withMockedFetch(async (url) => {
     if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
       return jsonResponse([
@@ -267,15 +267,15 @@ test('Gamma tennis accepts current ATP match winners independent of Polymarket o
           ],
         }),
         tennisEvent({
-          id: 'stale-roland-garros-qualification',
+          id: 'started-roland-garros-qualification',
           title: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
           startTime: '2026-05-20T08:00:00.000Z',
           markets: [
             tennisMarket({
-              id: 'stale-rg-winner',
+              id: 'started-rg-winner',
               question: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
-              conditionSeed: 'stale-rg-winner',
-              questionSeed: 'stale-rg-winner-question',
+              conditionSeed: 'started-rg-winner',
+              questionSeed: 'started-rg-winner-question',
               outcomes: ['Thomas Faurel', 'Jay Clarke'],
             }),
           ],
@@ -292,13 +292,12 @@ test('Gamma tennis accepts current ATP match winners independent of Polymarket o
 
     assert.deepEqual(
       result.accepted.map((template) => template.providerMarketId).sort(),
-      ['geneva-open-winner', 'hamburg-open-winner'],
+      ['geneva-open-winner', 'hamburg-open-winner', 'started-rg-winner'],
     );
     assert.deepEqual(
       result.accepted.map((template) => template.competition).sort(),
-      ['ATP_250', 'ATP_500'],
+      ['ATP_250', 'ATP_500', 'GRAND_SLAM'],
     );
-    assert.equal(reasonSet(result, 'stale-rg-winner').has('EVENT_START_STALE'), true);
     assert.equal(candidates.find((candidate) => candidate.providerMarketId === 'geneva-open-winner')?.closed, true);
     assert.equal(candidates.find((candidate) => candidate.providerMarketId === 'geneva-open-winner')?.acceptingOrders, false);
     assert.equal(candidates.every((candidate) => candidate.resultSource === 'official_result'), true);

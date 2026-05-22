@@ -179,19 +179,19 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
           ],
         }),
         gammaEvent({
-          id: 'stale-roland-garros-event',
+          id: 'started-roland-garros-event',
           title: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
           startTime: '2020-05-20T08:00:00.000Z',
           tags: [{ slug: 'tennis', label: 'Tennis' }],
           series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
           markets: [
             gammaMarket({
-              id: 'stale-roland-garros-market',
+              id: 'started-roland-garros-market',
               slug: 'roland-garros-qualification-atp-thomas-faurel-vs-jay-clarke',
               question: 'Roland Garros, Qualification ATP: Thomas Faurel vs Jay Clarke',
               rules: 'This market resolves to the official match winner. If there is a retirement, walkover, cancellation, or no contest, this market resolves 50-50.',
-              conditionSeed: 'stale-roland-garros-market',
-              questionSeed: 'stale-roland-garros-market-question',
+              conditionSeed: 'started-roland-garros-market',
+              questionSeed: 'started-roland-garros-market-question',
               outcomes: ['Thomas Faurel', 'Jay Clarke'],
             }),
           ],
@@ -229,24 +229,14 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
   try {
     const tennis = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=tennis' });
     assert.equal(tennis.statusCode, 200);
-    assert.equal(tennis.json().count, 2);
+    assert.equal(tennis.json().count, 3);
     assert.deepEqual(
       tennis.json().templates.map((template: { providerMarketId: string }) => template.providerMarketId).sort(),
-      ['live-hamburg-market', 'live-tennis-market'],
+      ['live-hamburg-market', 'live-tennis-market', 'started-roland-garros-market'],
     );
     assert.deepEqual(
       tennis.json().templates.map((template: { competition: string }) => template.competition).sort(),
-      ['ATP_250', 'ATP_500'],
-    );
-
-    const rejectedTennis = await app.inject({ method: 'GET', url: '/templates/rejected?mode=live&sport=tennis' });
-    assert.equal(rejectedTennis.statusCode, 200);
-    assert.equal(
-      rejectedTennis.json().rejected.some((item: { candidate: { providerMarketId: string }; reasons: string[] }) =>
-        item.candidate.providerMarketId === 'stale-roland-garros-market'
-        && item.reasons.includes('EVENT_START_STALE'),
-      ),
-      true,
+      ['ATP_250', 'ATP_500', 'GRAND_SLAM'],
     );
 
     const ufc = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=ufc' });

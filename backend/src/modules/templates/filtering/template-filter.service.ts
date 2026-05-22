@@ -1,5 +1,4 @@
 import {
-  DEFAULT_MAX_LIVE_TENNIS_MATCH_START_AGE_SECONDS,
   DEFAULT_MIN_BETTING_CLOSE_BUFFER_SECONDS,
   DEFAULT_LOSER_FEE_BPS,
   MAX_LOSER_FEE_BPS,
@@ -74,7 +73,6 @@ export class TemplateFilterService {
       const closeAt = toUnixSeconds(candidate.endDate);
       if (closeAt - nowSeconds < minBettingCloseBufferSeconds) reasons.add('NEAR_EXPIRY');
     }
-    if (isStaleLiveTennisMatchWinner(candidate, nowSeconds)) reasons.add('EVENT_START_STALE');
 
     const loserFeeBps = candidate.loserFeeBps ?? DEFAULT_LOSER_FEE_BPS;
     if (!Number.isInteger(loserFeeBps) || loserFeeBps < MIN_LOSER_FEE_BPS || loserFeeBps > MAX_LOSER_FEE_BPS) {
@@ -139,16 +137,6 @@ function resolveMinBettingCloseBufferSeconds(options: FilterOptions): number {
     throw new Error('minBettingCloseBufferSeconds must be a non-negative integer');
   }
   return value;
-}
-
-function isStaleLiveTennisMatchWinner(candidate: NormalizedMarketCandidate, nowSeconds: number): boolean {
-  if (candidate.sport !== 'tennis') return false;
-  if (candidate.eventType !== 'MATCH') return false;
-  if (candidate.binaryMarketType !== 'TENNIS_MATCH_WINNER') return false;
-  if (!candidate.eventStartAt) return false;
-
-  const eventStartAt = toUnixSeconds(candidate.eventStartAt);
-  return nowSeconds - eventStartAt > DEFAULT_MAX_LIVE_TENNIS_MATCH_START_AGE_SECONDS;
 }
 
 function usesOddsOrProbabilityResult(candidate: NormalizedMarketCandidate): boolean {

@@ -10,14 +10,17 @@ test('fixture filter accepts only approved M1 sports templates', async () => {
   const candidates = await loadFixtureCandidates();
   const result = new TemplateFilterService().filter(candidates, { now: fixtureNow });
 
-  assert.equal(result.accepted.length, 8);
+  assert.equal(result.accepted.length, 9);
   assert.deepEqual(new Set(result.accepted.map((template) => template.sport)), new Set(['football', 'tennis', 'ufc', 'f1']));
   assert.equal(result.accepted.every((template) => template.templateHash.startsWith('0x')), true);
 });
 
 test('fixture rejection matrix covers every required M1 reason code', async () => {
   const candidates = await loadFixtureCandidates();
-  const result = new TemplateFilterService().filter(candidates, { now: fixtureNow });
+  const result = new TemplateFilterService().filter(candidates, {
+    now: fixtureNow,
+    minBettingCloseBufferSeconds: 2 * 60 * 60,
+  });
   const covered = new Set(result.rejected.flatMap((item) => item.reasons));
 
   for (const reason of rejectionReasonCodes) {
@@ -91,14 +94,17 @@ test('near-expiry rejection uses configurable close buffer and allows zero', asy
   };
   const filter = new TemplateFilterService();
 
-  assert.equal(filter.rejectionReasons(candidate, { now: fixtureNow }).includes('NEAR_EXPIRY'), true);
+  assert.equal(
+    filter.rejectionReasons(candidate, { now: fixtureNow, minBettingCloseBufferSeconds: 2 * 60 * 60 }).includes('NEAR_EXPIRY'),
+    true,
+  );
   assert.equal(
     filter.rejectionReasons(candidate, { now: fixtureNow, minBettingCloseBufferSeconds: 0 }).includes('NEAR_EXPIRY'),
     false,
   );
 });
 
-test('tennis match filtering uses stale start age instead of Polymarket orderability', async () => {
+test('tennis match filtering ignores event start age and Polymarket orderability', async () => {
   const candidates = await loadFixtureCandidates();
   const accepted = new TemplateFilterService()
     .filter(candidates, { now: fixtureNow })
@@ -132,10 +138,10 @@ test('tennis match filtering uses stale start age instead of Polymarket orderabi
     resultSource: 'official_result' as const,
     rawProviderPayloadHash: accepted.display.rawProviderPayloadHash,
   };
-  const stale = {
+  const startedButUnresolved = {
     ...currentButClosed,
-    id: 'live-tennis-stale',
-    providerMarketId: 'live-tennis-stale',
+    id: 'live-tennis-started-unresolved',
+    providerMarketId: 'live-tennis-started-unresolved',
     eventStartAt: '2026-05-18T00:00:00.000Z',
     closed: false,
     acceptingOrders: true,
@@ -143,5 +149,5 @@ test('tennis match filtering uses stale start age instead of Polymarket orderabi
   const filter = new TemplateFilterService();
 
   assert.deepEqual(filter.rejectionReasons(currentButClosed, { now: fixtureNow }), []);
-  assert.equal(filter.rejectionReasons(stale, { now: fixtureNow }).includes('EVENT_START_STALE'), true);
+  assert.deepEqual(filter.rejectionReasons(startedButUnresolved, { now: fixtureNow }), []);
 });

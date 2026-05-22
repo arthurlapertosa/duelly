@@ -138,4 +138,20 @@ contract TemplateTest is BetEscrowTestBase {
         vm.expectRevert(BetEscrowBRL1.TemplateClosed.selector);
         escrow.acceptBetWithPermits(offer, acceptance, makerSignature, takerSignature, makerPermit, takerPermit);
     }
+
+    function test_TemplateRejectsResolvedConditionFunding() public {
+        registerDefaultTemplate();
+        BetEscrowBRL1.BetOffer memory offer = defaultOffer(5, 0);
+        BetEscrowBRL1.BetAcceptance memory acceptance = defaultAcceptance(offer, 6, 1);
+        uint256 deposit = offer.stake + offer.loserFee;
+        BetEscrowBRL1.PermitData memory makerPermit = signPermit(MAKER_KEY, maker, deposit, block.timestamp + 1 hours);
+        BetEscrowBRL1.PermitData memory takerPermit = signPermit(TAKER_KEY, taker, deposit, block.timestamp + 1 hours);
+        bytes memory makerSignature = signOffer(offer, MAKER_KEY);
+        bytes memory takerSignature = signAcceptance(acceptance, TAKER_KEY);
+
+        setPayout(1, 0, 1);
+
+        vm.expectRevert(BetEscrowBRL1.ConditionResolved.selector);
+        escrow.acceptBetWithPermits(offer, acceptance, makerSignature, takerSignature, makerPermit, takerPermit);
+    }
 }

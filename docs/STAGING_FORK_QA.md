@@ -113,7 +113,7 @@ npm --workspace frontend run test:e2e:staging-fork
 
 The staging-fork E2E creates or reuses the local maker/taker accounts, verifies wallets through QA signing, funds one live-template bet with fork-local BRL1, and confirms the funded bet stays pending while the live Polymarket condition is unresolved.
 
-`POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS` controls how close to the market close time Duelly will still accept templates. The backend default is `2` hours. Set it to `0` for staging or production runs that intentionally need bets on markets resolving in the next few minutes; already-ended markets still reject as `NEAR_EXPIRY`. `POLYMARKET_MIN_BETTING_CLOSE_BUFFER_SECONDS` remains supported when the hours variable is unset.
+`POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS` controls how close to the market close time Duelly will still accept templates. The backend default is `0` hours, so bets can remain open until the provider event-end close time. Set a positive value for environments that need an additional pre-close safety buffer; already-ended markets still reject as `NEAR_EXPIRY`. `POLYMARKET_MIN_BETTING_CLOSE_BUFFER_SECONDS` remains supported when the hours variable is unset.
 
 ## Mirror Resolved CTF Payouts
 
