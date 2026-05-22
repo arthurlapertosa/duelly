@@ -8,6 +8,7 @@ import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
 import { deriveBetStatus, inviteHasExpired, mapPendingInvite } from '../src/lib/mappers.ts';
 import { filterTemplates } from '../src/lib/templateFilters.ts';
+import { templateDisplay } from '../src/lib/templateDisplay.ts';
 import { metaMaskTypedPayload } from '../src/lib/wallet.ts';
 import type { BetSummaryView, TemplateView } from '../src/lib/types.ts';
 
@@ -251,7 +252,14 @@ test('pending invite mapper preserves recipient access metadata', () => {
       templateHash: `0x${'01'.repeat(32)}`,
       conditionId: `0x${'02'.repeat(32)}`,
       sport: 'f1',
-      display: { question: 'Will Driver B win?' },
+      display: {
+        question: 'Will Driver B win?',
+        ptBR: {
+          question: 'Driver B vence?',
+          rulesSummary: 'A classificação oficial decide o duelo.',
+          outcomes: ['Sim', 'Não'],
+        },
+      },
       outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
       outcomeB: { label: 'No', providerOutcomeIndex: 1 },
       bettingCloseAt: 1782554400,
@@ -281,6 +289,41 @@ test('pending invite mapper preserves recipient access metadata', () => {
   assert.equal(pending.invite.recipientEmailHint, 't***@example.test');
   assert.equal(pending.invite.recipientAccess, 'allowed');
   assert.equal(pending.template?.title, 'Will Driver B win?');
+  assert.equal(pending.template?.display?.ptBR?.question, 'Driver B vence?');
+});
+
+test('template display selects PT backend copy and falls back to localized generic outcomes', () => {
+  const template = {
+    id: 'fixture-f1-sprint-winner',
+    templateHash: `0x${'01'.repeat(32)}`,
+    conditionId: `0x${'02'.repeat(32)}`,
+    title: 'Will Driver B win?',
+    category: 'f1',
+    source: 'Polymarket',
+    rulesSummary: 'Result follows the official classification.',
+    outcomes: ['Yes', 'No'],
+    outcomeIndexes: [0, 1],
+    bettingCloseAt: '2026-06-27T10:00:00.000Z',
+    resolutionDeadline: '2026-06-30T10:00:00.000Z',
+    loserFeeBps: 250,
+    active: true,
+    display: {
+      ptBR: {
+        question: 'Driver B vence?',
+        rulesSummary: 'A classificação oficial decide o duelo.',
+        outcomes: ['Sim', 'Não'],
+      },
+    },
+  } satisfies TemplateView;
+
+  assert.equal(templateDisplay(template, 'en-US').question, 'Will Driver B win?');
+  assert.deepEqual(templateDisplay(template, 'en-US').outcomes, ['Yes', 'No']);
+  assert.equal(templateDisplay(template, 'pt-BR').question, 'Driver B vence?');
+  assert.deepEqual(templateDisplay(template, 'pt-BR').outcomes, ['Sim', 'Não']);
+
+  const withoutPt = { ...template, display: undefined } satisfies TemplateView;
+  assert.equal(templateDisplay(withoutPt, 'pt-BR').question, 'Will Driver B win?');
+  assert.deepEqual(templateDisplay(withoutPt, 'pt-BR').outcomes, ['Sim', 'Não']);
 });
 
 function readSrcTree(): string {

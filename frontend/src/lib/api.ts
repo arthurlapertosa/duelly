@@ -273,6 +273,13 @@ const fixtureTemplates: TemplateView[] = [
     source: 'Polymarket',
     rulesSummary: 'Result follows the official Formula 1 sprint classification. Cancelled sprints or no official classification void the duel.',
     outcomes: ['Yes', 'No'],
+    display: {
+      ptBR: {
+        question: 'Driver B vence a sprint da Áustria de 2026?',
+        rulesSummary: 'A classificação oficial da sprint decide o duelo. Cancelamento ou ausência de classificação oficial anula o duelo.',
+        outcomes: ['Sim', 'Não'],
+      },
+    },
     outcomeIndexes: [0, 1],
     bettingCloseAt: '2026-06-27T10:00:00.000Z',
     resolutionDeadline: '2026-06-30T10:00:00.000Z',
@@ -288,6 +295,13 @@ const fixtureTemplates: TemplateView[] = [
     source: 'Polymarket',
     rulesSummary: 'Result follows the official ATP match winner. Cancelled matches before a declared winner void the duel.',
     outcomes: ['Player A', 'Player B'],
+    display: {
+      ptBR: {
+        question: 'Player A x Player B no ATP 250 Doha',
+        rulesSummary: 'O vencedor oficial da partida decide o duelo. Cancelamento, WO, desistência sem vencedor oficial ou ausência de resultado oficial anula o duelo.',
+        outcomes: ['Player A', 'Player B'],
+      },
+    },
     outcomeIndexes: [0, 1],
     bettingCloseAt: '2026-07-01T12:00:00.000Z',
     resolutionDeadline: '2026-07-02T12:00:00.000Z',
@@ -303,6 +317,13 @@ const fixtureTemplates: TemplateView[] = [
     source: 'Polymarket',
     rulesSummary: 'Result follows the official UFC main event winner. Draw, no-contest, cancellation, or no official winner voids the duel.',
     outcomes: ['Fighter A', 'Fighter B'],
+    display: {
+      ptBR: {
+        question: 'Fighter A x Fighter B na luta principal do UFC 400',
+        rulesSummary: 'O vencedor oficial da luta principal decide o duelo. Empate, no-contest, cancelamento ou ausência de vencedor oficial anula o duelo.',
+        outcomes: ['Fighter A', 'Fighter B'],
+      },
+    },
     outcomeIndexes: [0, 1],
     bettingCloseAt: '2026-11-01T02:00:00.000Z',
     resolutionDeadline: '2026-11-02T02:00:00.000Z',

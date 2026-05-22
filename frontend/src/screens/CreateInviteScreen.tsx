@@ -4,7 +4,7 @@ import { Mail, ShieldCheck } from 'lucide-react';
 import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { connectLinkedWallet, isValidEmail } from '../lib/betHelpers';
-import { localizeOutcomeLabel } from '../lib/i18n';
+import { templateDisplay, templateOutcomeLabel } from '../lib/templateDisplay';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
 import { createWalletAdapter } from '../lib/wallet';
@@ -50,6 +50,7 @@ export function CreateInviteScreen() {
   const recipientReady = !requiresEmail || isValidEmail(normalizedRecipient);
   const emailInvalid = requiresEmail && Boolean(recipientEmail) && !recipientReady;
   const busy = createState !== 'idle';
+  const display = templateDisplay(template, locale);
   const buttonLabel =
     createState === 'creating'
       ? t('invite.creating')
@@ -121,12 +122,9 @@ export function CreateInviteScreen() {
       <Card padding="md">
         <p className="mb-1 text-xs font-semibold text-slate-400">{t('templates.pickSide')}</p>
         <p className="mb-3 text-base font-semibold text-brand-600">
-          {localizeOutcomeLabel(
-            locale,
-            template.outcomes[template.outcomeIndexes.indexOf(outcomeIndex)],
-          )}
+          {templateOutcomeLabel(template, locale, outcomeIndex)}
         </p>
-        <p className="text-sm leading-relaxed text-slate-600">{template.title}</p>
+        <p className="text-sm leading-relaxed text-slate-600">{display.question}</p>
       </Card>
 
       <AmountBreakdown

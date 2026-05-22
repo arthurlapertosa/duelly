@@ -6,7 +6,7 @@ import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { formatBRL } from '../lib/format';
 import { connectLinkedWallet } from '../lib/betHelpers';
-import { localizeOutcomeLabel } from '../lib/i18n';
+import { templateDisplay, templateOutcomeLabel } from '../lib/templateDisplay';
 import { deriveBetStatus, inviteHasExpired } from '../lib/mappers';
 import { springPop } from '../lib/motion';
 import { useI18n } from '../lib/useI18n';
@@ -111,6 +111,7 @@ export function BetDetailScreen() {
       : '0'
     : bet?.winnerPayoutRaw ?? '0';
   const stakedRaw = summary?.invite.stakeRaw ?? bet?.stakeRaw ?? '0';
+  const display = templateDisplay(template, locale);
 
   const finishAcceptance = async () => {
     if (!summary || !template || !token || !wallet || accepting || isInviteExpired) return;
@@ -161,29 +162,19 @@ export function BetDetailScreen() {
   return (
     <Page>
       <ScreenHeader title={t('bet.detail')} back trailing={<StatusBadge status={status} />} />
-      <p className="text-sm leading-relaxed text-slate-600">{template.title}</p>
+      <p className="text-sm leading-relaxed text-slate-600">{display.question}</p>
 
       <Card padding="md">
         <h2 className="mb-3 text-sm font-semibold text-slate-950">{t('bet.players')}</h2>
         <div className="grid grid-cols-2 gap-3">
           <SideBox
             label="A"
-            value={localizeOutcomeLabel(
-              locale,
-              template.outcomes[template.outcomeIndexes.indexOf(playerAOutcomeIndex)],
-            )}
+            value={templateOutcomeLabel(template, locale, playerAOutcomeIndex)}
             selected={selectedOutcomeIndex === playerAOutcomeIndex}
           />
           <SideBox
             label="B"
-            value={
-              template.outcomes[template.outcomeIndexes.indexOf(playerBOutcomeIndex)]
-                ? localizeOutcomeLabel(
-                    locale,
-                    template.outcomes[template.outcomeIndexes.indexOf(playerBOutcomeIndex)],
-                  )
-                : '-'
-            }
+            value={templateOutcomeLabel(template, locale, playerBOutcomeIndex)}
             selected={selectedOutcomeIndex === playerBOutcomeIndex}
           />
         </div>

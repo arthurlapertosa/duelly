@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import type { BetSummaryView } from '../lib/types';
 import { formatBRL } from '../lib/format';
 import { deriveBetStatus } from '../lib/mappers';
+import { templateDisplay } from '../lib/templateDisplay';
 import { useI18n } from '../lib/useI18n';
 import { useMotion } from '../lib/useMotion';
 import { StatusBadge } from './StatusBadge';
@@ -13,6 +14,7 @@ export function BetCard({ bet }: { bet: BetSummaryView }) {
   const navigate = useNavigate();
   const m = useMotion();
   const status = deriveBetStatus(bet);
+  const display = bet.template ? templateDisplay(bet.template, locale) : null;
 
   return (
     <motion.button
@@ -29,7 +31,7 @@ export function BetCard({ bet }: { bet: BetSummaryView }) {
         </span>
       </div>
       <p className="line-clamp-2 text-sm font-semibold leading-snug text-slate-800">
-        {bet.template?.title}
+        {display?.question}
       </p>
     </motion.button>
   );

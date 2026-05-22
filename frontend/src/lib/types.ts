@@ -33,6 +33,12 @@ export interface FundingReadinessView extends BalanceView {
   canAttemptBet: boolean;
 }
 
+export interface TemplateLocalizedDisplay {
+  question: string;
+  rulesSummary: string;
+  outcomes: [string, string];
+}
+
 export interface TemplateView {
   id: string;
   templateHash: Hex;
@@ -42,6 +48,9 @@ export interface TemplateView {
   source: string;
   rulesSummary: string;
   outcomes: [string, string];
+  display?: {
+    ptBR?: TemplateLocalizedDisplay;
+  };
   outcomeIndexes: [number, number];
   bettingCloseAt: string;
   resolutionDeadline: string;

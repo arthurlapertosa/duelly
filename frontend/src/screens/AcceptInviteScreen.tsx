@@ -4,7 +4,7 @@ import { Inbox } from 'lucide-react';
 import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { connectLinkedWallet } from '../lib/betHelpers';
-import { localizeOutcomeLabel } from '../lib/i18n';
+import { templateDisplay, templateOutcomeLabel } from '../lib/templateDisplay';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
 import { createWalletAdapter } from '../lib/wallet';
@@ -77,8 +77,9 @@ export function AcceptInviteScreen() {
   const takerOutcomeIndex =
     template.outcomeIndexes.find((index) => index !== invite.makerOutcomeIndex) ??
     template.outcomeIndexes[1];
-  const takerOutcome = template.outcomes[template.outcomeIndexes.indexOf(takerOutcomeIndex)];
-  const makerOutcome = template.outcomes[template.outcomeIndexes.indexOf(invite.makerOutcomeIndex)];
+  const display = templateDisplay(template, locale);
+  const takerOutcome = templateOutcomeLabel(template, locale, takerOutcomeIndex);
+  const makerOutcome = templateOutcomeLabel(template, locale, invite.makerOutcomeIndex);
   const blocked = invite.recipientAccess === 'blocked';
   const canAccept = Boolean(wallet) && !blocked;
   // Concise reason shown under a disabled "Accept bet".
@@ -128,10 +129,10 @@ export function AcceptInviteScreen() {
       <ScreenHeader title={t('invite.acceptTitle')} back="/home" />
 
       <Card padding="md">
-        <p className="mb-3 text-sm font-semibold text-slate-950">{template.title}</p>
+        <p className="mb-3 text-sm font-semibold text-slate-950">{display.question}</p>
         <div className="grid grid-cols-2 gap-3">
-          <SideBox label="A" value={localizeOutcomeLabel(locale, makerOutcome)} muted />
-          <SideBox label="B" value={localizeOutcomeLabel(locale, takerOutcome)} />
+          <SideBox label="A" value={makerOutcome} muted />
+          <SideBox label="B" value={takerOutcome} />
         </div>
       </Card>
 
