@@ -90,6 +90,8 @@ test('template routes expose fixture candidates, accepted templates, rejected ca
   assert.equal(accepted.statusCode, 200);
   assert.equal(accepted.json().count, 2);
   assert.match(accepted.json().templates[0].templateHash, /^0x[0-9a-f]{64}$/);
+  assert.equal(accepted.json().templates[0].display.ptBR.outcomes[0], 'Sim');
+  assert.match(accepted.json().templates[0].display.ptBR.rulesSummary, /classificação oficial/);
 
   const rejected = await app.inject({ method: 'GET', url: '/templates/rejected?mode=fixture&sport=f1' });
   assert.equal(rejected.statusCode, 200);
@@ -229,15 +231,24 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
   try {
     const tennis = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=tennis' });
     assert.equal(tennis.statusCode, 200);
-    assert.equal(tennis.json().count, 3);
+    const tennisBody = tennis.json();
+    assert.equal(tennisBody.count, 3);
     assert.deepEqual(
-      tennis.json().templates.map((template: { providerMarketId: string }) => template.providerMarketId).sort(),
+      tennisBody.templates.map((template: { providerMarketId: string }) => template.providerMarketId).sort(),
       ['live-hamburg-market', 'live-tennis-market', 'started-roland-garros-market'],
     );
     assert.deepEqual(
-      tennis.json().templates.map((template: { competition: string }) => template.competition).sort(),
+      tennisBody.templates.map((template: { competition: string }) => template.competition).sort(),
       ['ATP_250', 'ATP_500', 'GRAND_SLAM'],
     );
+    const geneva = tennisBody.templates.find(
+      (template: { providerMarketId: string }) => template.providerMarketId === 'live-tennis-market',
+    );
+    assert.ok(geneva);
+    assert.equal(geneva.sport, 'tennis');
+    assert.equal(geneva.competition, 'ATP_250');
+    assert.equal(geneva.display.ptBR.question, 'Geneva Open: Learner Tien x Alexander Bublik');
+    assert.deepEqual(geneva.display.ptBR.outcomes, ['Learner Tien', 'Alexander Bublik']);
 
     const ufc = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=ufc' });
     assert.equal(ufc.statusCode, 200);

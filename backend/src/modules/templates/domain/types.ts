@@ -58,6 +58,12 @@ export interface Outcome {
   tokenId?: string;
 }
 
+export interface LocalizedTemplateDisplay {
+  question: string;
+  rulesSummary: string;
+  outcomes: [string, string];
+}
+
 export interface NormalizedMarketCandidate {
   id: string;
   provider: Provider;
@@ -129,6 +135,7 @@ export interface CanonicalSportsTemplate {
     providerEventId?: string;
     slug: string;
     question: string;
+    ptBR: LocalizedTemplateDisplay;
     sourceUrl?: string;
     rawProviderPayloadHash: string;
   };
