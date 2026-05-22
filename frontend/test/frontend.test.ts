@@ -19,9 +19,9 @@ test('locales are complete and provide both default languages', () => {
 });
 
 test('onboarding defaults to sign in with empty credentials', () => {
-  const source = readFileSync(resolve('src/App.tsx'), 'utf8');
+  const source = readFileSync(resolve('src/screens/OnboardingScreen.tsx'), 'utf8');
   assert.match(source, /useState<'login' \| 'register'>\('login'\)/);
-  assert.match(source, /\(\['login', 'register'\] as const\)/);
+  assert.match(source, /useState\(''\)/);
   assert.equal(source.includes("useState('maker@duelly.test')"), false);
   assert.equal(source.includes("useState('password-123')"), false);
 });
@@ -105,9 +105,7 @@ test('BRL1 raw values format per active locale', () => {
 function discoverStructuredErrorCodes(): string[] {
   const files = [
     ...walk(resolve('..', 'backend', 'src')),
-    resolve('src/lib/api.ts'),
-    resolve('src/lib/wallet.ts'),
-    resolve('src/App.tsx'),
+    ...walk(resolve('src')),
   ];
   const codes = new Set<string>();
   const patterns = [
@@ -205,13 +203,20 @@ test('pending invite mapper preserves recipient access metadata', () => {
   assert.equal(pending.template?.title, 'Will Driver B win?');
 });
 
+function readSrcTree(): string {
+  return walk(resolve('src'))
+    .filter((file) => file.endsWith('.ts') || file.endsWith('.tsx'))
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n');
+}
+
 test('invite UI includes email/link modes, pending inbox, and login return path', () => {
-  const source = readFileSync(resolve('src/App.tsx'), 'utf8');
+  const source = readSrcTree();
   assert.match(source, /useState<'email' \| 'link'>\('email'\)/);
   assert.match(source, /refreshPendingInvites/);
-  assert.match(source, /pendingInvites\.map\(\(invite\) => <PendingInviteCard/);
+  assert.match(source, /pendingInvites\.map\(/);
+  assert.match(source, /<PendingInviteCard/);
   assert.match(source, /safeReturnTo\(params\.get\('returnTo'\)\)/);
-  assert.match(source, /PendingInvitePrompt/);
   assert.match(source, /cancelInvite\(token, draftInviteId\)/);
   assert.match(source, /finishAcceptance/);
   assert.match(source, /inviteHasExpired/);
@@ -227,11 +232,23 @@ test('invite UI includes email/link modes, pending inbox, and login return path'
   assert.match(source, /unlinkWallet/);
 });
 
+test('the floating pending-invite prompt is not rendered alongside the in-page inbox', () => {
+  const source = readSrcTree();
+  assert.equal(source.includes('PendingInvitePrompt'), false);
+});
+
 test('frontend source does not expose M3.5 primary flow labels or raw web3 jargon', () => {
+  // The user-facing surface (screens, components, app shell, copy) must hide web3
+  // jargon. The lib/ abstraction layer legitimately handles those internals.
   const source = [
-    readFileSync(resolve('src/App.tsx'), 'utf8'),
-    readFileSync(resolve('src/lib/i18n.ts'), 'utf8'),
-  ].join('\n');
+    ...walk(resolve('src/app')),
+    ...walk(resolve('src/screens')),
+    ...walk(resolve('src/components')),
+    resolve('src/lib/i18n.ts'),
+  ]
+    .filter((file) => file.endsWith('.ts') || file.endsWith('.tsx'))
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n');
   for (const forbidden of ['Pix', 'Stripe', 'Depositar', 'Sacar', 'ERC-2612', 'EIP-712', 'Polygon', 'escrow']) {
     assert.equal(source.includes(forbidden), false, forbidden);
   }

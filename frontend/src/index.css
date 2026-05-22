@@ -2,20 +2,68 @@
 
 @theme {
   --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Brand blue scale — primary identity is #2563eb */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+
+  /* Backwards-compatible primary aliases */
   --color-primary-50: #eff6ff;
   --color-primary-600: #2563eb;
   --color-primary-700: #1d4ed8;
+
+  /* Semantic surfaces */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-surface-sunken: #f1f5f9;
+
+  /* Semantic status colors */
+  --color-success-50: #ecfdf5;
+  --color-success-100: #d1fae5;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+
+  /* Elevation / shadow scale */
+  --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+  --shadow-raised: 0 4px 12px -2px rgb(15 23 42 / 0.08), 0 2px 6px -2px rgb(15 23 42 / 0.06);
+  --shadow-overlay: 0 20px 40px -12px rgb(15 23 42 / 0.22), 0 8px 16px -8px rgb(15 23 42 / 0.12);
+  --shadow-brand: 0 8px 24px -8px rgb(37 99 235 / 0.45);
+
+  /* Radii */
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+  --radius-3xl: 1.5rem;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
-  background: #f8fafc;
+}
+
+body {
+  background: var(--color-surface-muted);
   color: #020617;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -31,4 +79,66 @@ button {
 
 button:disabled {
   cursor: not-allowed;
+}
+
+/* Bottom-sheet entrance used by the Sheet primitive */
+@keyframes sheet-rise {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-rise {
+  animation: sheet-rise 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-overlay-fade {
+  animation: overlay-fade 0.18s ease-out;
+}
+
+/* Shimmer sweep used by the Skeleton loading primitive */
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.animate-skeleton-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    rgb(226 232 240 / 0.85) 0%,
+    rgb(241 245 249 / 0.95) 50%,
+    rgb(226 232 240 / 0.85) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet-rise,
+  .animate-overlay-fade {
+    animation: none;
+  }
+
+  /* Reduced motion: keep a static placeholder, no shimmer sweep. */
+  .animate-skeleton-shimmer {
+    animation: none;
+    background-image: none;
+    background-color: rgb(226 232 240 / 0.85);
+  }
 }
