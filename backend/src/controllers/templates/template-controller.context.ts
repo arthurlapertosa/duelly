@@ -409,13 +409,13 @@ function paginateTemplates(
   cursor: TemplatePageCursor | undefined,
 ): { templates: CanonicalSportsTemplate[]; nextCursor: TemplatePageCursor | null } {
   const sorted = [...templates].sort((left, right) => (
-    left.bettingCloseAt - right.bettingCloseAt
+    left.eventStartAt - right.eventStartAt
     || left.templateId.localeCompare(right.templateId)
   ));
   const startIndex = cursor
     ? sorted.findIndex((template) => (
-      template.bettingCloseAt > cursor.bettingCloseAt
-      || (template.bettingCloseAt === cursor.bettingCloseAt && template.templateId > cursor.templateId)
+      template.eventStartAt > cursor.eventStartAt
+      || (template.eventStartAt === cursor.eventStartAt && template.templateId > cursor.templateId)
     ))
     : 0;
   const page = sorted.slice(Math.max(0, startIndex), Math.max(0, startIndex) + limit + 1);
@@ -423,7 +423,7 @@ function paginateTemplates(
   const last = visible.at(-1);
   return {
     templates: visible,
-    nextCursor: page.length > limit && last ? { bettingCloseAt: last.bettingCloseAt, templateId: last.templateId } : null,
+    nextCursor: page.length > limit && last ? { eventStartAt: last.eventStartAt, templateId: last.templateId } : null,
   };
 }
 
@@ -436,8 +436,8 @@ function decodeCursor(value: string | undefined): TemplatePageCursor | undefined
   if (!value) return undefined;
   try {
     const parsed = JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as Partial<TemplatePageCursor>;
-    if (typeof parsed.bettingCloseAt !== 'number' || typeof parsed.templateId !== 'string') return undefined;
-    return { bettingCloseAt: parsed.bettingCloseAt, templateId: parsed.templateId };
+    if (typeof parsed.eventStartAt !== 'number' || typeof parsed.templateId !== 'string') return undefined;
+    return { eventStartAt: parsed.eventStartAt, templateId: parsed.templateId };
   } catch {
     return undefined;
   }
