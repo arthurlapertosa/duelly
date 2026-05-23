@@ -36,6 +36,7 @@ export interface AppConfig {
     minBettingCloseBufferSeconds: number;
     templateResolutionCacheTtlSeconds: number;
     templateResolutionRefreshConcurrency: number;
+    templateDiscoveryRefreshIntervalMs: number;
     timeoutMs: number;
     maxResults: number;
   };
@@ -226,6 +227,7 @@ export function loadAppConfig(): AppConfig {
       minBettingCloseBufferSeconds: readTemplateCloseBufferSeconds(),
       templateResolutionCacheTtlSeconds: readInteger('POLYMARKET_TEMPLATE_RESOLUTION_CACHE_TTL_SECONDS', 60),
       templateResolutionRefreshConcurrency: readInteger('POLYMARKET_TEMPLATE_RESOLUTION_REFRESH_CONCURRENCY', 5),
+      templateDiscoveryRefreshIntervalMs: readInteger('POLYMARKET_TEMPLATE_DISCOVERY_REFRESH_INTERVAL_MS', 15 * 60 * 1000),
       timeoutMs: readInteger('POLYMARKET_DISCOVERY_TIMEOUT_MS', 8000),
       maxResults: readInteger('POLYMARKET_DISCOVERY_MAX_RESULTS', 25),
     },

@@ -16,6 +16,7 @@ import { AddInviteRecipientEmail1716400000000 } from './migrations/1716400000000
 import { CreateConditionResolutionStatuses1716500000000 } from './migrations/1716500000000-CreateConditionResolutionStatuses.js';
 import { AddDeploymentScopedOrchestration1716600000000 } from './migrations/1716600000000-AddDeploymentScopedOrchestration.js';
 import { AddRelayerAttemptLocks1716601000000 } from './migrations/1716601000000-AddRelayerAttemptLocks.js';
+import { AddTemplateSnapshotIndexes1716700000000 } from './migrations/1716700000000-AddTemplateSnapshotIndexes.js';
 
 export function createDataSource(config: AppConfig = loadAppConfig()): DataSource {
   if (!config.database.enabled) {
@@ -42,6 +43,7 @@ export function createDataSource(config: AppConfig = loadAppConfig()): DataSourc
       CreateConditionResolutionStatuses1716500000000,
       AddDeploymentScopedOrchestration1716600000000,
       AddRelayerAttemptLocks1716601000000,
+      AddTemplateSnapshotIndexes1716700000000,
     ],
   };
 

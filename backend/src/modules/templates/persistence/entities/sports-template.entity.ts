@@ -38,4 +38,22 @@ export class SportsTemplateEntity {
 
   @Column({ type: 'timestamptz', name: 'accepted_at' })
   acceptedAt!: Date;
+
+  @Column({ type: 'bigint', name: 'event_start_at' })
+  eventStartAt!: string;
+
+  @Column({ type: 'bigint', name: 'betting_close_at' })
+  bettingCloseAt!: string;
+
+  @Column({ type: 'bigint', name: 'resolution_deadline' })
+  resolutionDeadline!: string;
+
+  @Column({ type: 'text', name: 'search_text' })
+  searchText!: string;
+
+  @Column({ type: 'timestamptz', name: 'last_seen_at' })
+  lastSeenAt!: Date;
+
+  @Column({ type: 'text', name: 'last_discovery_run_id', nullable: true })
+  lastDiscoveryRunId?: string | null;
 }

@@ -19,6 +19,7 @@ const keys = [
   'POLYMARKET_MIN_BETTING_CLOSE_BUFFER_SECONDS',
   'POLYMARKET_TEMPLATE_RESOLUTION_CACHE_TTL_SECONDS',
   'POLYMARKET_TEMPLATE_RESOLUTION_REFRESH_CONCURRENCY',
+  'POLYMARKET_TEMPLATE_DISCOVERY_REFRESH_INTERVAL_MS',
   'POLYMARKET_DISCOVERY_TIMEOUT_MS',
   'POLYMARKET_DISCOVERY_MAX_RESULTS',
   'INVITE_TTL_SECONDS',
@@ -57,6 +58,7 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.polymarket.minBettingCloseBufferSeconds, 0);
     assert.equal(config.polymarket.templateResolutionCacheTtlSeconds, 60);
     assert.equal(config.polymarket.templateResolutionRefreshConcurrency, 5);
+    assert.equal(config.polymarket.templateDiscoveryRefreshIntervalMs, 900000);
     assert.equal(config.polymarket.gammaBaseUrl, 'https://gamma-api.polymarket.com');
     assert.equal(config.invites.ttlSeconds, DEFAULT_INVITE_TTL_SECONDS);
     assert.equal(config.resolutionWorker.enabled, false);
@@ -73,6 +75,20 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.polymarketResolutionMirror.outcomeSlotCount, 2);
     assert.equal(config.polymarketResolutionMirror.allowNonLocalForkRpc, false);
     assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
+test('loadAppConfig supports template discovery worker interval settings', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.POLYMARKET_TEMPLATE_DISCOVERY_REFRESH_INTERVAL_MS = '600000';
+
+    const config = loadAppConfig();
+
+    assert.equal(config.polymarket.templateDiscoveryRefreshIntervalMs, 600000);
   } finally {
     restoreEnv(previous);
   }

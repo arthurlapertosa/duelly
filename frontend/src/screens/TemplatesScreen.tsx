@@ -1,28 +1,97 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Compass, Search, X } from 'lucide-react';
+import { api } from '../lib/api';
+import { errorMessage } from '../lib/errors';
 import { useI18n } from '../lib/useI18n';
-import { filterTemplates, type TemplateCategoryFilter } from '../lib/templateFilters';
+import type { TemplateCategoryFilter } from '../lib/templateFilters';
 import { useAppStore } from '../store/useAppStore';
 import { EmptyState, ScreenHeader, SegmentedControl, SkeletonList } from '../components/ui';
 import { MotionList, Page, TemplateCard } from '../components';
 import { cn } from '../lib/cn';
+import type { TemplateView } from '../lib/types';
 
 const CATEGORIES: TemplateCategoryFilter[] = ['all', 'football', 'tennis', 'ufc', 'f1'];
+const PAGE_SIZE = 25;
+const SEARCH_DEBOUNCE_MS = 300;
 
 /** Browse approved betting templates with category and text filters. */
 export function TemplatesScreen() {
-  const { t } = useI18n();
-  const templates = useAppStore((state) => state.templates);
-  const templatesLoaded = useAppStore((state) => state.templatesLoaded);
-  const refreshTemplates = useAppStore((state) => state.refreshTemplates);
+  const { locale, t } = useI18n();
+  const upsertTemplates = useAppStore((state) => state.upsertTemplates);
   const [category, setCategory] = useState<TemplateCategoryFilter>('all');
   const [query, setQuery] = useState('');
-  const filtered = filterTemplates(templates, { category, query });
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [templates, setTemplates] = useState<TemplateView[]>([]);
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
+  const loadingRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const hasQuery = query.trim().length > 0;
+  const backendCategory = category === 'all' ? undefined : category;
 
   useEffect(() => {
-    void refreshTemplates();
-  }, [refreshTemplates]);
+    const timer = window.setTimeout(() => setDebouncedQuery(query.trim()), SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  const loadPage = useCallback(async (cursor: string | null, reset: boolean) => {
+    if (loadingRef.current && !reset) return;
+    if (reset) abortRef.current?.abort();
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    const controller = new AbortController();
+    abortRef.current = controller;
+    loadingRef.current = true;
+    setLoading(true);
+    setError(null);
+    if (reset) {
+      setTemplatesLoaded(false);
+      setNextCursor(null);
+    }
+    try {
+      const page = await api.listTemplates({
+        category: backendCategory,
+        query: debouncedQuery,
+        limit: PAGE_SIZE,
+        cursor,
+        signal: controller.signal,
+      });
+      if (requestIdRef.current !== requestId) return;
+      setTemplates((current) => reset ? page.templates : appendTemplates(current, page.templates));
+      upsertTemplates(page.templates);
+      setNextCursor(page.nextCursor);
+      setTemplatesLoaded(true);
+    } catch (cause) {
+      if (controller.signal.aborted || requestIdRef.current !== requestId) return;
+      setError(errorMessage(locale, cause));
+      setTemplatesLoaded(true);
+    } finally {
+      if (requestIdRef.current === requestId) {
+        loadingRef.current = false;
+        setLoading(false);
+      }
+    }
+  }, [backendCategory, debouncedQuery, locale, upsertTemplates]);
+
+  useEffect(() => {
+    void loadPage(null, true);
+    return () => abortRef.current?.abort();
+  }, [loadPage]);
+
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || !nextCursor) return;
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.some((entry) => entry.isIntersecting);
+      if (visible && nextCursor && !loadingRef.current) void loadPage(nextCursor, false);
+    }, { rootMargin: '360px 0px' });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loadPage, nextCursor]);
 
   return (
     <Page>
@@ -79,18 +148,33 @@ export function TemplatesScreen() {
 
       {!templatesLoaded ? (
         <SkeletonList count={4} />
-      ) : filtered.length === 0 ? (
+      ) : error ? (
+        <EmptyState
+          icon={<Compass size={22} aria-hidden="true" />}
+          title={error}
+        />
+      ) : templates.length === 0 ? (
         <EmptyState
           icon={<Compass size={22} aria-hidden="true" />}
           title={hasQuery ? t('templates.searchEmpty') : t('templates.empty')}
         />
       ) : (
-        <MotionList>
-          {filtered.map((template) => (
-            <TemplateCard key={template.id} template={template} />
-          ))}
-        </MotionList>
+        <>
+          <MotionList>
+            {templates.map((template) => (
+              <TemplateCard key={template.id} template={template} />
+            ))}
+          </MotionList>
+          {nextCursor ? <div ref={sentinelRef} className="h-1" aria-hidden="true" /> : null}
+          {loading ? <SkeletonList count={2} /> : null}
+        </>
       )}
     </Page>
   );
+}
+
+function appendTemplates(current: TemplateView[], next: TemplateView[]): TemplateView[] {
+  const byId = new Map(current.map((template) => [template.id, template]));
+  for (const template of next) byId.set(template.id, template);
+  return [...byId.values()];
 }

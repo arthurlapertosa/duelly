@@ -11,6 +11,8 @@ import type {
   InviteView,
   PendingInviteView,
   PermitSubmission,
+  TemplateListInput,
+  TemplateListResult,
   TemplateView,
   TypedPayload,
   UserView,
@@ -59,7 +61,7 @@ export interface DuellyApi {
   getWallet(token: string): Promise<WalletView | null>;
   getBalance(token: string): Promise<BalanceView | null>;
   getReadiness(token: string, stakeRaw: string, loserFeeRaw: string): Promise<FundingReadinessView>;
-  listTemplates(): Promise<TemplateView[]>;
+  listTemplates(input?: TemplateListInput): Promise<TemplateListResult>;
   getTemplate(id: string): Promise<TemplateView | null>;
   quoteLoserFee(stakeRaw: string, loserFeeBps: number): Promise<FeeQuoteView>;
   createInvite(token: string, input: { templateId: string; stakeRaw: string; loserFeeRaw: string; makerOutcomeIndex: number; recipientEmail?: string }): Promise<InviteCreateResult>;
@@ -140,9 +142,28 @@ function createHttpApi(baseUrl: string): DuellyApi {
       token,
       body: JSON.stringify({ stake: stakeRaw, loserFee: loserFeeRaw }),
     }),
-    listTemplates: async () => {
-      const body = await request<{ templates: unknown[] }>(`/templates?mode=${templateMode}`);
-      return body.templates.map((item) => mapTemplate(item as never));
+    listTemplates: async (input = {}) => {
+      const params = new URLSearchParams({ mode: templateMode, limit: String(input.limit ?? 25) });
+      if (input.category && input.category !== 'all') params.set('sport', input.category);
+      const query = input.query?.trim();
+      if (query) params.set('q', query);
+      if (input.cursor) params.set('cursor', input.cursor);
+      const body = await request<{
+        templates: unknown[];
+        count?: number;
+        pageCount?: number;
+        nextCursor?: string | null;
+        refreshedAt?: string | null;
+        stale?: boolean;
+      }>(`/templates?${params.toString()}`, { signal: input.signal });
+      return {
+        templates: body.templates.map((item) => mapTemplate(item as never)),
+        count: Number(body.count ?? body.templates.length),
+        pageCount: Number(body.pageCount ?? body.templates.length),
+        nextCursor: body.nextCursor ?? null,
+        refreshedAt: body.refreshedAt ?? null,
+        stale: Boolean(body.stale),
+      };
     },
     getTemplate: async (id) => {
       try {
@@ -345,6 +366,79 @@ const fixtureTemplates: TemplateView[] = [
   },
 ];
 
+function fixtureTemplatePage(input: TemplateListInput): TemplateListResult {
+  const limit = Math.min(Math.max(input.limit ?? 25, 1), 100);
+  const terms = searchTerms(input.query ?? '');
+  const filtered = fixtureTemplates
+    .filter((template) => !input.category || input.category === 'all' || template.category === input.category)
+    .filter((template) => {
+      if (terms.length === 0) return true;
+      const searchable = normalizeTemplateSearchText(template);
+      return terms.every((term) => searchable.includes(term));
+    })
+    .sort((left, right) => (
+      Date.parse(left.eventStartAt) - Date.parse(right.eventStartAt)
+      || left.id.localeCompare(right.id)
+    ));
+  const cursor = decodeTemplateCursor(input.cursor ?? null);
+  const startIndex = cursor
+    ? filtered.findIndex((template) => (
+      Date.parse(template.eventStartAt) > cursor.eventStartAt
+      || (Date.parse(template.eventStartAt) === cursor.eventStartAt && template.id > cursor.templateId)
+    ))
+    : 0;
+  const page = filtered.slice(Math.max(0, startIndex), Math.max(0, startIndex) + limit + 1);
+  const visible = page.length > limit ? page.slice(0, limit) : page;
+  const last = visible.at(-1);
+  return {
+    templates: visible,
+    count: filtered.length,
+    pageCount: visible.length,
+    nextCursor: page.length > limit && last ? encodeTemplateCursor({
+      eventStartAt: Date.parse(last.eventStartAt),
+      templateId: last.id,
+    }) : null,
+    refreshedAt: new Date().toISOString(),
+    stale: false,
+  };
+}
+
+function searchTerms(query: string): string[] {
+  return normalizeSearchText(query).split(/\s+/).filter(Boolean);
+}
+
+function normalizeTemplateSearchText(template: TemplateView): string {
+  return normalizeSearchText([
+    template.title,
+    template.category,
+    template.source,
+    template.rulesSummary,
+    ...template.outcomes,
+    template.display?.ptBR?.question,
+    template.display?.ptBR?.rulesSummary,
+    ...(template.display?.ptBR?.outcomes ?? []),
+  ].filter(Boolean).join(' '));
+}
+
+function normalizeSearchText(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function encodeTemplateCursor(cursor: { eventStartAt: number; templateId: string }): string {
+  return encodeURIComponent(JSON.stringify(cursor));
+}
+
+function decodeTemplateCursor(value: string | null): { eventStartAt: number; templateId: string } | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(decodeURIComponent(value)) as { eventStartAt?: unknown; templateId?: unknown };
+    if (typeof parsed.eventStartAt !== 'number' || typeof parsed.templateId !== 'string') return null;
+    return { eventStartAt: parsed.eventStartAt, templateId: parsed.templateId };
+  } catch {
+    return null;
+  }
+}
+
 function createFixtureApi(): DuellyApi {
   return {
     mode: 'fixture',
@@ -425,7 +519,7 @@ function createFixtureApi(): DuellyApi {
         canAttemptBet: available >= required,
       };
     },
-    listTemplates: async () => fixtureTemplates,
+    listTemplates: async (input = {}) => fixtureTemplatePage(input),
     getTemplate: async (id) => fixtureTemplates.find((template) => template.id === id || template.templateHash === id) ?? null,
     quoteLoserFee: async (stakeRaw, loserFeeBps) => {
       const percentFee = BigInt(stakeRaw) * BigInt(loserFeeBps) / 10_000n;

@@ -59,6 +59,23 @@ export interface TemplateView {
   active: boolean;
 }
 
+export interface TemplateListInput {
+  category?: TemplateView['category'] | 'all';
+  query?: string;
+  limit?: number;
+  cursor?: string | null;
+  signal?: AbortSignal;
+}
+
+export interface TemplateListResult {
+  templates: TemplateView[];
+  count: number;
+  pageCount: number;
+  nextCursor: string | null;
+  refreshedAt: string | null;
+  stale: boolean;
+}
+
 export interface FeeQuoteView {
   stakeRaw: string;
   loserFeeBps: number;
