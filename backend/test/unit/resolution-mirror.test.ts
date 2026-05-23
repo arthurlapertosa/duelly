@@ -91,8 +91,17 @@ test('resolution mirror reads source CTF payout and writes it to the fork as the
         assert.equal(options?.rpcUrl ?? 'fork', options?.rpcUrl ? 'https://polygon-rpc.example' : 'fork');
         return 137;
       },
-      readCtfPayoutState: async (readConditionId: string, options: { rpcUrl?: string }) => {
+      readCtfConditionId: async () => conditionId,
+      readCtfPayoutState: async (readConditionId: string, options: { rpcUrl?: string } = {}) => {
         assert.equal(readConditionId, conditionId);
+        if (!options.rpcUrl) {
+          return {
+            conditionId,
+            outcomeSlotCount: 2,
+            denominator: 0n,
+            numerators: [0n, 0n],
+          };
+        }
         assert.equal(options.rpcUrl, 'https://polygon-rpc.example');
         return {
           conditionId,
@@ -134,12 +143,13 @@ test('resolution mirror leaves fork untouched when source CTF is unresolved', as
     config(),
     {
       readChainId: async () => 137,
+      readCtfConditionId: async () => conditionId,
       readCtfPayoutState: async () => ({
-        conditionId,
-        outcomeSlotCount: 2,
-        denominator: 0n,
-        numerators: [0n, 0n],
-      }),
+          conditionId,
+          outcomeSlotCount: 2,
+          denominator: 0n,
+          numerators: [0n, 0n],
+        }),
       mirrorCtfPayout: async () => {
         mirrorCalls += 1;
         throw new Error('unexpected mirror');
@@ -153,6 +163,92 @@ test('resolution mirror leaves fork untouched when source CTF is unresolved', as
   assert.equal(result.status, 'source-unresolved');
   assert.equal(result.sourceDenominator, '0');
   assert.equal(mirrorCalls, 0);
+});
+
+test('resolution mirror prepares missing fork CTF condition when source is unresolved', async () => {
+  let prepared = false;
+  const service = new ResolutionMirrorService(
+    config(),
+    {
+      readChainId: async () => 137,
+      readCtfConditionId: async () => conditionId,
+      readCtfPayoutState: async (_readConditionId: string, options: { rpcUrl?: string } = {}) => ({
+        conditionId,
+        outcomeSlotCount: options.rpcUrl ? 2 : 0,
+        denominator: 0n,
+        numerators: options.rpcUrl ? [0n, 0n] : [],
+      }),
+      writePrepareCondition: async () => {
+        prepared = true;
+        return `0x${'07'.repeat(32)}`;
+      },
+      wait: async () => ({ blockNumber: 12n }),
+      mirrorCtfPayout: async () => {
+        throw new Error('unexpected mirror');
+      },
+    } as never,
+    async () => template(),
+  );
+
+  const result = await service.syncTemplate(template());
+
+  assert.equal(result.status, 'prepared');
+  assert.equal(result.prepareTransactionHash, `0x${'07'.repeat(32)}`);
+  assert.equal(result.blockNumber, '12');
+  assert.equal(prepared, true);
+});
+
+test('resolution mirror no-ops when fork condition is already resolved', async () => {
+  let mirrorCalls = 0;
+  const service = new ResolutionMirrorService(
+    config(),
+    {
+      readChainId: async () => 137,
+      readCtfConditionId: async () => conditionId,
+      readCtfPayoutState: async (_readConditionId: string, options: { rpcUrl?: string } = {}) => ({
+        conditionId,
+        outcomeSlotCount: 2,
+        denominator: options.rpcUrl ? 0n : 1n,
+        numerators: options.rpcUrl ? [0n, 0n] : [1n, 0n],
+      }),
+      mirrorCtfPayout: async () => {
+        mirrorCalls += 1;
+        throw new Error('unexpected mirror');
+      },
+    } as never,
+    async () => template(),
+  );
+
+  const result = await service.syncTemplate(template());
+
+  assert.equal(result.status, 'already-resolved');
+  assert.equal(result.forkDenominator, '1');
+  assert.equal(mirrorCalls, 0);
+});
+
+test('resolution mirror rejects templates whose conditionId does not match questionId', async () => {
+  let sourceReads = 0;
+  const service = new ResolutionMirrorService(
+    config(),
+    {
+      readChainId: async () => 137,
+      readCtfConditionId: async () => `0x${'09'.repeat(32)}`,
+      readCtfPayoutState: async () => {
+        sourceReads += 1;
+        throw new Error('unexpected source read');
+      },
+      mirrorCtfPayout: async () => {
+        throw new Error('unexpected mirror');
+      },
+    } as never,
+    async () => template(),
+  );
+
+  const result = await service.syncTemplate(template());
+
+  assert.equal(result.status, 'invalid-template');
+  assert.match(result.error ?? '', /condition id/);
+  assert.equal(sourceReads, 0);
 });
 
 test('resolution mirror refuses to write when source or fork chain id is not Polygon', async () => {

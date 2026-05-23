@@ -11,6 +11,7 @@ import {
   CandidateSnapshotEntity,
   RejectedCandidateEntity,
   SportsTemplateEntity,
+  TemplateCtfSyncStatusEntity,
   TemplatePublishAuditEntity,
 } from '../../src/modules/templates/persistence/entities/index.js';
 import { OrchestrationRepository } from '../../src/modules/orchestration/repository.js';
@@ -87,11 +88,26 @@ test('TypeORM repositories persist M1 template records in PostgreSQL', { skip: !
   await repository.saveAcceptedTemplates(result.accepted);
   await repository.saveRejectedCandidates(result.rejected);
   await repository.savePublishAudit(result.accepted[0], payload);
+  await repository.saveTemplateCtfSyncStatus({
+    conditionId: result.accepted[0].conditionId,
+    templateHash: result.accepted[0].templateHash,
+    templateId: result.accepted[0].templateId,
+    status: 'prepared',
+    sourceDenominator: '0',
+    forkDenominator: '0',
+    prepareTransactionHash: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    mirrorTransactionHash: null,
+    blockNumber: '1',
+    error: null,
+    checkedAt: new Date(),
+    updatedAt: new Date(),
+  });
 
   assert.ok(await dataSource.getRepository(CandidateSnapshotEntity).count() >= candidates.length);
   assert.ok(await dataSource.getRepository(SportsTemplateEntity).count() >= result.accepted.length);
   assert.ok(await dataSource.getRepository(RejectedCandidateEntity).count() >= result.rejected.length);
   assert.ok(await dataSource.getRepository(TemplatePublishAuditEntity).count() >= 1);
+  assert.ok(await dataSource.getRepository(TemplateCtfSyncStatusEntity).count() >= 1);
 });
 
 test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL', { skip: !hasDb }, async () => {

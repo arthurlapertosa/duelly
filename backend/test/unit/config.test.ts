@@ -36,6 +36,9 @@ const keys = [
   'POLYMARKET_CTF_ORACLE_ADDRESS',
   'POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT',
   'POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC',
+  'POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED',
+  'POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE',
+  'POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY',
   'NODE_ENV',
   'CORS_ORIGINS',
 ];
@@ -74,6 +77,9 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.polymarketResolutionMirror.oracleAddress, undefined);
     assert.equal(config.polymarketResolutionMirror.outcomeSlotCount, 2);
     assert.equal(config.polymarketResolutionMirror.allowNonLocalForkRpc, false);
+    assert.equal(config.templateCtfSync.enabled, false);
+    assert.equal(config.templateCtfSync.batchSize, 50);
+    assert.equal(config.templateCtfSync.concurrency, 2);
     assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
   } finally {
     restoreEnv(previous);
@@ -205,6 +211,30 @@ test('loadAppConfig supports Polymarket resolution mirror settings', () => {
     assert.equal(config.polymarketResolutionMirror.oracleAddress, '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74');
     assert.equal(config.polymarketResolutionMirror.outcomeSlotCount, 2);
     assert.equal(config.polymarketResolutionMirror.allowNonLocalForkRpc, true);
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
+test('loadAppConfig supports template CTF sync settings', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.POLYMARKET_RESOLUTION_MIRROR_ENABLED = 'true';
+
+    let config = loadAppConfig();
+    assert.equal(config.templateCtfSync.enabled, true);
+    assert.equal(config.templateCtfSync.batchSize, 50);
+    assert.equal(config.templateCtfSync.concurrency, 2);
+
+    process.env.POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED = 'false';
+    process.env.POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE = '7';
+    process.env.POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY = '3';
+    config = loadAppConfig();
+
+    assert.equal(config.templateCtfSync.enabled, false);
+    assert.equal(config.templateCtfSync.batchSize, 7);
+    assert.equal(config.templateCtfSync.concurrency, 3);
   } finally {
     restoreEnv(previous);
   }

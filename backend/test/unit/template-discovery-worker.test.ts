@@ -52,3 +52,47 @@ test('template discovery worker skips overlapping ticks', async () => {
   assert.deepEqual(firstResult, { refreshed: true });
   assert.equal(refreshes, 1);
 });
+
+test('template discovery worker runs CTF sync after refreshing discovery', async () => {
+  const calls: string[] = [];
+  const worker = new TemplateDiscoveryWorker(
+    config(),
+    {
+      refreshCurrentDiscoverySnapshot: async () => {
+        calls.push('refresh');
+      },
+      syncCurrentTemplateCtf: async () => {
+        calls.push('sync');
+      },
+    },
+  );
+
+  const result = await worker.tick();
+
+  assert.deepEqual(result, { refreshed: true });
+  assert.deepEqual(calls, ['refresh', 'sync']);
+});
+
+test('template discovery worker logs CTF sync failures without failing discovery', async () => {
+  let logged = false;
+  const worker = new TemplateDiscoveryWorker(
+    config(),
+    {
+      refreshCurrentDiscoverySnapshot: async () => ({}),
+      syncCurrentTemplateCtf: async () => {
+        throw new Error('sync failed');
+      },
+    },
+    {
+      info: () => undefined,
+      error: () => {
+        logged = true;
+      },
+    },
+  );
+
+  const result = await worker.tick();
+
+  assert.deepEqual(result, { refreshed: true });
+  assert.equal(logged, true);
+});
