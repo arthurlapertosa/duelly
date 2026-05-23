@@ -55,7 +55,7 @@ export class GammaClient {
       }
     }
 
-    return sortBySoonestCloseDate(dedupeCandidates(candidates));
+    return sortBySoonestStartDate(dedupeCandidates(candidates));
   }
 
   private async discoverFeedMarkets(sport: Sport): Promise<NormalizedMarketCandidate[]> {
@@ -562,16 +562,16 @@ function dedupeCandidates(candidates: NormalizedMarketCandidate[]): NormalizedMa
   return [...byConditionOrMarket.values()];
 }
 
-function sortBySoonestCloseDate(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
+function sortBySoonestStartDate(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
   return [...candidates].sort((left, right) => {
-    const leftTime = Date.parse(left.endDate ?? '');
-    const rightTime = Date.parse(right.endDate ?? '');
-    const closeComparison = comparableTime(leftTime) - comparableTime(rightTime);
-    if (closeComparison !== 0) return closeComparison;
-
     const leftStartTime = Date.parse(left.eventStartAt ?? '');
     const rightStartTime = Date.parse(right.eventStartAt ?? '');
-    return comparableTime(leftStartTime) - comparableTime(rightStartTime);
+    const startComparison = comparableTime(leftStartTime) - comparableTime(rightStartTime);
+    if (startComparison !== 0) return startComparison;
+
+    const leftTime = Date.parse(left.endDate ?? '');
+    const rightTime = Date.parse(right.endDate ?? '');
+    return comparableTime(leftTime) - comparableTime(rightTime);
   });
 }
 
