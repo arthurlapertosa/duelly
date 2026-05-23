@@ -27,6 +27,8 @@ Short map for agents working in the Duelly monorepo. The detailed source of trut
 - Use granular and descriptive commits.
 - Add tests for behavior changes, or include an explicit justification.
 - Include QA commands, evidence, and Definition of Done status in the PR.
+- When `frontend/` and/or `backend/` is touched, start the real backend and real frontend for exploratory QA and record the flow evidence.
+- Fork-backed QA may use staging Anvil at `http://10.0.1.220:8545` when reachable and no contract changes or conditionId resolution/mirroring are needed; use a local Anvil fork when contracts change, conditionId resolution/mirroring is needed, staging is unavailable, or fork safety is ambiguous.
 - For frontend work, treat `.prototype/` as the source of truth and attach parity screenshots in the PR evidence.
 - Code only moves forward after QA/HITL.
 - Agents never merge and never mark a task as finally approved.
