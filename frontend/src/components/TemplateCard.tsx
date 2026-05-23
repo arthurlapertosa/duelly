@@ -38,12 +38,20 @@ export function TemplateCard({ template }: { template: TemplateView }) {
           </span>
         ))}
       </div>
-      <p className="flex items-center gap-1.5 text-xs text-slate-400">
-        <CalendarClock size={13} aria-hidden="true" className="shrink-0" />
-        <span className="min-w-0">
-          {t('templates.close')} {formatDateTime(template.bettingCloseAt, locale)}
-        </span>
-      </p>
+      <div className="space-y-1 text-xs text-slate-400">
+        <p className="flex items-center gap-1.5">
+          <CalendarClock size={13} aria-hidden="true" className="shrink-0" />
+          <span className="min-w-0">
+            {t('templates.starts')} {formatDateTime(template.eventStartAt, locale)}
+          </span>
+        </p>
+        <p className="flex items-center gap-1.5">
+          <CalendarClock size={13} aria-hidden="true" className="shrink-0" />
+          <span className="min-w-0">
+            {t('templates.close')} {formatDateTime(template.bettingCloseAt, locale)}
+          </span>
+        </p>
+      </div>
     </motion.button>
   );
 }

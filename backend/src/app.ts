@@ -37,8 +37,8 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
   });
 
   await registerHealthRoutes(app, { config, dataSource: options.dataSource });
-  await registerTemplateRoutes(app, { config, dataSource: options.dataSource });
-  const orchestration = await registerOrchestrationRoutes(app, { config, dataSource: options.dataSource });
+  const templates = await registerTemplateRoutes(app, { config, dataSource: options.dataSource });
+  const orchestration = await registerOrchestrationRoutes(app, { config, dataSource: options.dataSource, templates });
   const resolutionWorker = new ResolutionWorker(
     config,
     orchestration.repository,

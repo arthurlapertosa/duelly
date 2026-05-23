@@ -20,8 +20,11 @@ export class InvitesController {
   create = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
     const user = request.user!;
     const body = objectBody(request.body);
-    const template = await findTemplate(this.context, stringField(body, 'templateId'), {});
+    const template = await this.context.templates.findTemplateForSelection(stringField(body, 'templateId'), {});
     if (!template) throw httpError(404, 'TEMPLATE_NOT_FOUND');
+    if (await this.context.templates.isTemplateResolved(template)) {
+      throw httpError(410, 'CONDITION_RESOLVED');
+    }
     const stake = bigintField(body, 'stake');
     const loserFee = BigInt((await this.context.fees.quote(stake, template.loserFeeBps)).selectedLoserFeeRaw);
     if (body.loserFee !== undefined && bigintField(body, 'loserFee') !== loserFee) {

@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { OrchestrationControllerContext } from './orchestration-controller.context.js';
-import { bigintField, findTemplate, numberField, objectBody, stringField, wrap } from './helpers.js';
+import { bigintField, numberField, objectBody, stringField, wrap } from './helpers.js';
 import { httpError } from '../../modules/orchestration/services.js';
 
 export class OrchestrationTemplatesController {
@@ -11,8 +11,11 @@ export class OrchestrationTemplatesController {
     const query = this.context.templates.parseTemplateQuery(objectBody(request.query));
     const modeCheck = this.context.templates.validateMode(query);
     if (modeCheck) return modeCheck(reply);
-    const template = await findTemplate(this.context, stringField(params, 'templateId'), query as Record<string, unknown>);
+    const template = await this.context.templates.findTemplateForSelection(stringField(params, 'templateId'), query);
     if (!template) throw httpError(404, 'TEMPLATE_NOT_FOUND');
+    if (await this.context.templates.isTemplateResolved(template)) {
+      throw httpError(410, 'CONDITION_RESOLVED');
+    }
     return { template };
   });
 

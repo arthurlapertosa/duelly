@@ -20,6 +20,7 @@ import { TemplateControllerContext } from '../templates/index.js';
 export interface OrchestrationControllerOptions {
   config: AppConfig;
   dataSource?: DataSource;
+  templates?: TemplateControllerContext;
   logger?: {
     info(input: unknown, message?: string): void;
   };
@@ -51,7 +52,7 @@ export class OrchestrationControllerContext {
     this.wallets = new WalletService(this.repository, options.config, this.chain);
     this.brl1 = new Brl1Service(this.repository, this.chain);
     this.fees = new FeeService(this.chain);
-    this.templates = new TemplateControllerContext(options);
+    this.templates = options.templates ?? new TemplateControllerContext(options);
     this.invites = new InviteService(this.repository, this.wallets, this.chain, options.config, this.brl1);
     this.relayer = new RelayerService(
       this.repository,

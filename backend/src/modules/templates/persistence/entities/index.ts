@@ -7,6 +7,9 @@ import {
   BetInviteEntity,
 } from './bet-invite.entity.js';
 import {
+  ConditionResolutionStatusEntity,
+} from './condition-resolution-status.entity.js';
+import {
   IndexedBetEntity,
 } from './indexed-bet.entity.js';
 import {
@@ -40,6 +43,12 @@ export {
 export {
   CandidateSnapshotEntity,
 } from './candidate-snapshot.entity.js';
+export {
+  ConditionResolutionStatusEntity,
+} from './condition-resolution-status.entity.js';
+export type {
+  PersistedConditionResolutionStatus,
+} from './condition-resolution-status.entity.js';
 export {
   DiscoveryRunEntity,
 } from './discovery-run.entity.js';
@@ -88,4 +97,5 @@ export const orchestrationEntities = [
   IndexedBetEntity,
   IndexerCursorEntity,
   ResolutionAttemptEntity,
+  ConditionResolutionStatusEntity,
 ];

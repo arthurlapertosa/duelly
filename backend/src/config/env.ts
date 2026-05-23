@@ -34,6 +34,8 @@ export interface AppConfig {
     liveDiscoveryEnabled: boolean;
     allowNegativeRisk: boolean;
     minBettingCloseBufferSeconds: number;
+    templateResolutionCacheTtlSeconds: number;
+    templateResolutionRefreshConcurrency: number;
     timeoutMs: number;
     maxResults: number;
   };
@@ -202,6 +204,8 @@ export function loadAppConfig(): AppConfig {
       liveDiscoveryEnabled: readBoolean('POLYMARKET_LIVE_DISCOVERY_ENABLED', false),
       allowNegativeRisk: readBoolean('POLYMARKET_ALLOW_NEG_RISK', false),
       minBettingCloseBufferSeconds: readTemplateCloseBufferSeconds(),
+      templateResolutionCacheTtlSeconds: readInteger('POLYMARKET_TEMPLATE_RESOLUTION_CACHE_TTL_SECONDS', 60),
+      templateResolutionRefreshConcurrency: readInteger('POLYMARKET_TEMPLATE_RESOLUTION_REFRESH_CONCURRENCY', 5),
       timeoutMs: readInteger('POLYMARKET_DISCOVERY_TIMEOUT_MS', 8000),
       maxResults: readInteger('POLYMARKET_DISCOVERY_MAX_RESULTS', 25),
     },

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import { api } from '../lib/api';
+import { errorMessage } from '../lib/errors';
 import { brlToRaw, formatBRL, formatDateTime } from '../lib/format';
 import { customStakeToRaw, stakeOptions } from '../lib/betHelpers';
 import { templateDisplay } from '../lib/templateDisplay';
@@ -10,7 +11,7 @@ import { useI18n } from '../lib/useI18n';
 import { useMotion } from '../lib/useMotion';
 import { springSoft } from '../lib/motion';
 import { useAppStore } from '../store/useAppStore';
-import type { FeeQuoteView, FundingReadinessView } from '../lib/types';
+import type { FeeQuoteView, FundingReadinessView, TemplateView } from '../lib/types';
 import { Button, Card, EmptyState, Field, ScreenHeader, Skeleton } from '../components/ui';
 import { AmountBreakdown, Page, WalletReadinessCard } from '../components';
 import { cn } from '../lib/cn';
@@ -26,7 +27,10 @@ export function TemplateDetailScreen() {
   const templates = useAppStore((state) => state.templates);
   const templatesLoaded = useAppStore((state) => state.templatesLoaded);
   const refreshTemplates = useAppStore((state) => state.refreshTemplates);
-  const template = templates.find((item) => item.id === id);
+  const storeTemplate = templates.find((item) => item.id === id);
+  const [detailTemplate, setDetailTemplate] = useState<TemplateView | null>(null);
+  const [detailLoaded, setDetailLoaded] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
   const [outcomeIndex, setOutcomeIndex] = useState<number | null>(null);
   const [stakeRaw, setStakeRaw] = useState(brlToRaw(50));
   const [customStake, setCustomStake] = useState('');
@@ -38,7 +42,33 @@ export function TemplateDetailScreen() {
   }, [templatesLoaded, refreshTemplates]);
 
   useEffect(() => {
-    if (!template || !token) return;
+    if (!id) return;
+    let active = true;
+    setDetailLoaded(false);
+    setDetailTemplate(null);
+    setDetailError(null);
+    setOutcomeIndex(null);
+    setQuote(null);
+    setReadiness(null);
+    void api.getTemplate(id).then((item) => {
+      if (!active) return;
+      setDetailTemplate(item);
+      setDetailLoaded(true);
+    }).catch((error) => {
+      if (!active) return;
+      setDetailError(errorMessage(locale, error));
+      setDetailLoaded(true);
+      void refreshTemplates();
+    });
+    return () => {
+      active = false;
+    };
+  }, [id, locale, refreshTemplates]);
+
+  const template = detailLoaded ? detailTemplate : storeTemplate ?? null;
+
+  useEffect(() => {
+    if (!detailLoaded || !template || !token) return;
     if (BigInt(stakeRaw) <= 0n) {
       setQuote(null);
       setReadiness(null);
@@ -53,16 +83,29 @@ export function TemplateDetailScreen() {
     return () => {
       active = false;
     };
-  }, [stakeRaw, template, token, wallet]);
+  }, [detailLoaded, stakeRaw, template, token, wallet]);
 
-  // Still loading the template list — show a skeleton, not the "not found" state.
-  if (!template && !templatesLoaded) {
+  if (!detailLoaded) {
     return (
       <Page>
         <ScreenHeader title={t('templates.title')} back />
         <Skeleton variant="line" width="70%" height="1.5rem" />
         <Skeleton variant="block" height="6rem" />
         <Skeleton variant="block" height="8rem" />
+      </Page>
+    );
+  }
+
+  if (detailError) {
+    return (
+      <Page>
+        <ScreenHeader title={t('templates.title')} back />
+        <EmptyState
+          icon={<ShieldCheck size={22} aria-hidden="true" />}
+          title={detailError}
+          actionLabel={t('common.back')}
+          onAction={() => navigate('/templates')}
+        />
       </Page>
     );
   }
@@ -115,6 +158,12 @@ export function TemplateDetailScreen() {
           <span className="text-xs font-semibold">{t('template.rules')}</span>
         </div>
         <p className="text-sm leading-relaxed text-slate-600">{display.rulesSummary}</p>
+        <p className="mt-3 text-xs text-slate-400">
+          {t('templates.starts')} {formatDateTime(template.eventStartAt, locale)}
+        </p>
+        <p className="mt-1 text-xs text-slate-400">
+          {t('templates.close')} {formatDateTime(template.bettingCloseAt, locale)}
+        </p>
         <p className="mt-3 text-xs text-slate-400">
           {t('templates.resolve')} {formatDateTime(template.resolutionDeadline, locale)}
         </p>

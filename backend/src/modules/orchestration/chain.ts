@@ -311,9 +311,11 @@ export class ChainService {
     return bet;
   }
 
-  async readPayoutDenominator(conditionId: Hex): Promise<bigint> {
-    const client = this.requirePublicClient();
+  async readPayoutDenominator(conditionId: Hex, options: { rpcUrl?: string } = {}): Promise<bigint> {
     const { polymarketCtfAddress } = this.requireAddresses();
+    const client = options.rpcUrl
+      ? createPublicClient({ transport: http(options.rpcUrl) })
+      : this.requirePublicClient();
     return await client.readContract({
       address: polymarketCtfAddress,
       abi: ctfAbi,

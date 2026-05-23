@@ -52,6 +52,7 @@ export interface TemplateView {
     ptBR?: TemplateLocalizedDisplay;
   };
   outcomeIndexes: [number, number];
+  eventStartAt: string;
   bettingCloseAt: string;
   resolutionDeadline: string;
   loserFeeBps: number;

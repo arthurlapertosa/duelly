@@ -16,7 +16,10 @@ interface TemplateRouteOptions {
   dataSource?: DataSource;
 }
 
-export async function registerTemplateRoutes(app: FastifyInstance, options: TemplateRouteOptions): Promise<void> {
+export async function registerTemplateRoutes(
+  app: FastifyInstance,
+  options: TemplateRouteOptions,
+): Promise<TemplateControllerContext> {
   const context = new TemplateControllerContext({ ...options, logger: app.log });
   const candidates = new CandidateTemplatesController(context);
   const accepted = new AcceptedTemplatesController(context);
@@ -27,4 +30,6 @@ export async function registerTemplateRoutes(app: FastifyInstance, options: Temp
   app.get<{ Querystring: TemplateQuery }>('/templates', accepted.list);
   app.get<{ Querystring: TemplateQuery }>('/templates/rejected', rejected.list);
   app.post<{ Querystring: TemplateQuery; Body: PublishBody }>('/templates/publish', publisher.publish);
+
+  return context;
 }

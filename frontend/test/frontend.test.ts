@@ -6,7 +6,7 @@ import { ApiError } from '../src/lib/api.ts';
 import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../src/lib/errors.ts';
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
-import { deriveBetStatus, inviteHasExpired, mapPendingInvite } from '../src/lib/mappers.ts';
+import { deriveBetStatus, inviteHasExpired, mapPendingInvite, mapTemplate } from '../src/lib/mappers.ts';
 import { filterTemplates } from '../src/lib/templateFilters.ts';
 import { templateDisplay } from '../src/lib/templateDisplay.ts';
 import { metaMaskTypedPayload } from '../src/lib/wallet.ts';
@@ -146,6 +146,7 @@ function filterFixtureTemplates(): TemplateView[] {
     source: 'Polymarket',
     rulesSummary: 'Official result',
     outcomeIndexes: [0, 1],
+    eventStartAt: '2026-06-01T10:00:00.000Z',
     bettingCloseAt: '2026-06-01T12:00:00.000Z',
     resolutionDeadline: '2026-06-02T12:00:00.000Z',
     loserFeeBps: 250,
@@ -262,6 +263,7 @@ test('pending invite mapper preserves recipient access metadata', () => {
       },
       outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
       outcomeB: { label: 'No', providerOutcomeIndex: 1 },
+      eventStartAt: 1782547200,
       bettingCloseAt: 1782554400,
       resolutionDeadline: 1782813600,
       loserFeeBps: 250,
@@ -292,6 +294,40 @@ test('pending invite mapper preserves recipient access metadata', () => {
   assert.equal(pending.template?.display?.ptBR?.question, 'Driver B vence?');
 });
 
+test('template mapper preserves event start separately from provider close', () => {
+  const template = mapTemplate({
+    templateId: 'live-tennis',
+    templateHash: `0x${'01'.repeat(32)}`,
+    conditionId: `0x${'02'.repeat(32)}`,
+    sport: 'tennis',
+    display: {
+      question: 'Geneva Open: Mariano Navone vs Learner Tien',
+    },
+    outcomeA: { label: 'Mariano Navone', providerOutcomeIndex: 0 },
+    outcomeB: { label: 'Learner Tien', providerOutcomeIndex: 1 },
+    eventStartAt: 1779541200,
+    bettingCloseAt: 1780146000,
+    resolutionDeadline: 1781355600,
+    loserFeeBps: 250,
+    active: true,
+  });
+
+  assert.equal(template.eventStartAt, '2026-05-23T13:00:00.000Z');
+  assert.equal(template.bettingCloseAt, '2026-05-30T13:00:00.000Z');
+});
+
+test('template screens render event start and block resolved detail errors', () => {
+  const card = readFileSync(resolve('src/components/TemplateCard.tsx'), 'utf8');
+  const detail = readFileSync(resolve('src/screens/TemplateDetailScreen.tsx'), 'utf8');
+
+  assert.match(card, /templates\.starts/);
+  assert.match(detail, /api\.getTemplate\(id\)/);
+  assert.match(detail, /setDetailError\(errorMessage\(locale, error\)\)/);
+  assert.match(detail, /if \(detailError\)/);
+  assert.match(detail, /navigate\('\/templates'\)/);
+  assert.match(detail, /templates\.starts/);
+});
+
 test('template display selects PT backend copy and falls back to localized generic outcomes', () => {
   const template = {
     id: 'fixture-f1-sprint-winner',
@@ -303,6 +339,7 @@ test('template display selects PT backend copy and falls back to localized gener
     rulesSummary: 'Result follows the official classification.',
     outcomes: ['Yes', 'No'],
     outcomeIndexes: [0, 1],
+    eventStartAt: '2026-06-27T08:00:00.000Z',
     bettingCloseAt: '2026-06-27T10:00:00.000Z',
     resolutionDeadline: '2026-06-30T10:00:00.000Z',
     loserFeeBps: 250,
