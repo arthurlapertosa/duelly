@@ -28,6 +28,9 @@ import {
   ResolutionAttemptEntity,
 } from './resolution-attempt.entity.js';
 import {
+  TemplateCtfSyncStatusEntity,
+} from './template-ctf-sync-status.entity.js';
+import {
   UserAccountEntity,
 } from './user-account.entity.js';
 import {
@@ -80,6 +83,12 @@ export {
   TemplatePublishAuditEntity,
 } from './template-publish-audit.entity.js';
 export {
+  TemplateCtfSyncStatusEntity,
+} from './template-ctf-sync-status.entity.js';
+export type {
+  TemplateCtfSyncStatus,
+} from './template-ctf-sync-status.entity.js';
+export {
   UserAccountEntity,
 } from './user-account.entity.js';
 export {
@@ -98,4 +107,5 @@ export const orchestrationEntities = [
   IndexerCursorEntity,
   ResolutionAttemptEntity,
   ConditionResolutionStatusEntity,
+  TemplateCtfSyncStatusEntity,
 ];

@@ -183,6 +183,33 @@ test('template routes honor zero close buffer config', async () => {
   );
 });
 
+test('template CTF sync endpoint returns disabled when live DB-backed sync is unavailable', async () => {
+  const app = await createApp({
+    config: {
+      ...routeTestConfig(),
+      templateCtfSync: {
+        enabled: true,
+        batchSize: 5,
+        concurrency: 1,
+      },
+      polymarketResolutionMirror: {
+        ...routeTestConfig().polymarketResolutionMirror,
+        enabled: true,
+      },
+    },
+  });
+  test.after(async () => app.close());
+
+  const response = await app.inject({
+    method: 'POST',
+    url: '/internal/templates/ctf-sync/run',
+    payload: { limit: 1 },
+  });
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.json(), { enabled: false, checked: 0, results: [] });
+});
+
 test('template routes return accepted mocked live tennis and UFC templates', async () => {
   const previousFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {

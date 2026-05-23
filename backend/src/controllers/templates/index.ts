@@ -2,6 +2,7 @@ export { AcceptedTemplatesController } from './accepted-templates.controller.js'
 export { CandidateTemplatesController } from './candidate-templates.controller.js';
 export { PublishTemplateController } from './publish-template.controller.js';
 export { RejectedCandidatesController } from './rejected-candidates.controller.js';
+export { TemplateCtfSyncController } from './template-ctf-sync.controller.js';
 export {
   TemplateControllerContext,
   type PublishBody,

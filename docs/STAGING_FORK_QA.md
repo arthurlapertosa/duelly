@@ -151,6 +151,27 @@ curl -sS -X POST "$API/internal/resolution/run" \
 curl -sS -X POST "$API/internal/indexer/reindex"
 ```
 
+## Explore Template CTF Sync
+
+Use this after backend changes that touch proactive template CTF sync. It starts a temporary backend process against the local/staging fork, picks a live accepted template, removes an already-prepared fork CTF condition under an Anvil snapshot when needed, syncs it, reverts the fork snapshot to remove that condition again, then syncs again to prove the backend recreates it.
+
+```bash
+set -a
+source .env
+source cache/staging-fork/deployment.env
+set +a
+
+node scripts/qa/explore-template-ctf-sync.mjs \
+  --deployment-env cache/staging-fork/deployment.env \
+  --port 3091
+```
+
+Expected evidence:
+
+- JSON output with `ok: true`, the target `templateId`, target `conditionId`, first and second sync statuses, source/fork denominator, fork outcome slot count, and backend log path.
+- Backend log lines containing the target `conditionId` and `template CTF sync prepared`, `template CTF sync source-unresolved`, `template CTF sync mirrored`, or `template CTF sync already-resolved`.
+- Current staging live football templates are negative-risk markets. Keep `POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS` set to Polymarket's negative-risk adapter oracle so `conditionId` validation uses the correct oracle fallback.
+
 ## Resolution Worker
 
 The backend worker runs only when `RESOLUTION_WORKER_ENABLED=true`.

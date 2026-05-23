@@ -64,8 +64,14 @@ export interface AppConfig {
     enabled: boolean;
     sourceRpcUrl?: string;
     oracleAddress?: Address;
+    negRiskOracleAddress?: Address;
     outcomeSlotCount: number;
     allowNonLocalForkRpc: boolean;
+  };
+  templateCtfSync: {
+    enabled: boolean;
+    batchSize: number;
+    concurrency: number;
   };
   chain: {
     enabled: boolean;
@@ -260,8 +266,14 @@ export function loadAppConfig(): AppConfig {
       enabled: resolutionMirrorEnabled,
       sourceRpcUrl: readOptionalString('POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL') ?? readOptionalString('POLYGON_RPC_URL'),
       oracleAddress: readAddress('POLYMARKET_CTF_ORACLE_ADDRESS'),
+      negRiskOracleAddress: readAddress('POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS'),
       outcomeSlotCount: readInteger('POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT', 2),
       allowNonLocalForkRpc: readBoolean('POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC', false),
+    },
+    templateCtfSync: {
+      enabled: readBoolean('POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED', resolutionMirrorEnabled),
+      batchSize: readInteger('POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE', 50),
+      concurrency: readInteger('POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY', 2),
     },
     chain: {
       enabled: readBoolean('CHAIN_ENABLED', Boolean(process.env.CHAIN_RPC_URL || process.env.POLYGON_RPC_URL || process.env.EVM_RPC_URL)),

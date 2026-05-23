@@ -21,6 +21,11 @@ import {
 import { TemplatePublisherService } from '../../modules/templates/publisher/template-publisher.service.js';
 import { ConditionResolutionStatusService } from '../../modules/templates/resolution/condition-resolution-status.service.js';
 import { httpError } from '../../modules/orchestration/services/errors.js';
+import {
+  ResolutionMirrorService,
+  type TemplateCtfMirrorResult,
+} from '../../modules/orchestration/services/resolution-mirror.service.js';
+import type { TemplateCtfSyncStatus } from '../../modules/templates/persistence/entities/index.js';
 
 export interface TemplateControllerOptions {
   config: AppConfig;
@@ -57,6 +62,33 @@ export interface PublishBody {
 
 export interface TemplatePolicyLogger {
   info(input: unknown, message?: string): void;
+  warn?(input: unknown, message?: string): void;
+  error?(input: unknown, message?: string): void;
+}
+
+export interface TemplateCtfSyncRunInput {
+  conditionId?: string;
+  templateId?: string;
+  limit?: number;
+}
+
+export interface TemplateCtfSyncRunResult {
+  enabled: boolean;
+  checked: number;
+  results: TemplateCtfSyncResult[];
+}
+
+export interface TemplateCtfSyncResult {
+  status: TemplateCtfSyncStatus;
+  templateHash: string;
+  templateId: string;
+  conditionId: string;
+  sourceDenominator: string | null;
+  forkDenominator: string | null;
+  prepareTransactionHash: string | null;
+  mirrorTransactionHash: string | null;
+  blockNumber: string | null;
+  error: string | null;
 }
 
 const fixtureNow = new Date('2026-05-19T00:00:00.000Z');
@@ -72,6 +104,7 @@ export class TemplateControllerContext {
   readonly conditionResolution: ConditionResolutionStatusService;
   readonly config: AppConfig;
   private readonly chain: ChainService;
+  private readonly ctfMirror: ResolutionMirrorService;
   private readonly logger?: TemplatePolicyLogger;
   private readonly discoveryCache = new Map<string, { expiresAt: number; result: TemplateFilterResult }>();
   private readonly inFlightDiscovery = new Map<string, Promise<TemplateFilterResult>>();
@@ -82,6 +115,12 @@ export class TemplateControllerContext {
     this.adapter = new DiscoveryAdapter(options.config);
     this.repository = new TemplateRepository(options.dataSource);
     this.chain = new ChainService(options.config);
+    this.ctfMirror = new ResolutionMirrorService(
+      options.config,
+      this.chain,
+      (templateHash) => this.findAcceptedTemplate(templateHash),
+      options.logger,
+    );
     this.conditionResolution = new ConditionResolutionStatusService(
       options.config,
       this.repository,
@@ -244,6 +283,21 @@ export class TemplateControllerContext {
     };
   }
 
+  async syncCurrentTemplateCtf(input: TemplateCtfSyncRunInput = {}): Promise<TemplateCtfSyncRunResult> {
+    if (!this.config.templateCtfSync.enabled || !this.shouldUseCurrentSnapshot('live')) {
+      return { enabled: false, checked: 0, results: [] };
+    }
+    await this.ensureCurrentSnapshot('live');
+    const templates = await this.repository.findTemplatesForCtfSync({
+      mode: 'live',
+      conditionId: input.conditionId,
+      templateId: input.templateId,
+      limit: normalizeSyncLimit(input.limit, this.config.templateCtfSync.batchSize),
+    });
+    const results = await this.syncTemplateCtfBatch(templates);
+    return { enabled: true, checked: results.length, results };
+  }
+
   private async discoverAndFilterFresh(query: { mode?: DiscoveryMode; sport?: Sport }, mode: DiscoveryMode) {
     const candidates = await this.adapter.discover(query);
     const result = await this.filterDiscoveryResult(candidates, mode);
@@ -368,6 +422,83 @@ export class TemplateControllerContext {
     if (run) return;
     await this.refreshCurrentDiscoverySnapshot({ mode, persistSnapshots: false });
   }
+
+  private async syncTemplateCtfBatch(templates: CanonicalSportsTemplate[]): Promise<TemplateCtfSyncResult[]> {
+    const uniqueTemplates = uniqueTemplatesByConditionId(templates);
+    const results: TemplateCtfSyncResult[] = [];
+    const concurrency = Math.max(1, this.config.templateCtfSync.concurrency);
+    let cursor = 0;
+
+    const workers = Array.from({ length: Math.min(concurrency, uniqueTemplates.length) }, async () => {
+      while (cursor < uniqueTemplates.length) {
+        const index = cursor;
+        cursor += 1;
+        results[index] = await this.syncOneTemplateCtf(uniqueTemplates[index]);
+      }
+    });
+
+    await Promise.all(workers);
+    return results;
+  }
+
+  private async syncOneTemplateCtf(template: CanonicalSportsTemplate): Promise<TemplateCtfSyncResult> {
+    try {
+      const mirror = await this.ctfMirror.syncTemplate(template);
+      const result = syncResultFromMirror(mirror);
+      await this.saveTemplateCtfSyncStatus(result);
+      this.logger?.info({
+        status: result.status,
+        templateId: result.templateId,
+        templateHash: result.templateHash,
+        conditionId: result.conditionId,
+        sourceDenominator: result.sourceDenominator,
+        forkDenominator: result.forkDenominator,
+        prepareTransactionHash: result.prepareTransactionHash,
+        mirrorTransactionHash: result.mirrorTransactionHash,
+      }, `template CTF sync ${result.status}`);
+      return result;
+    } catch (error) {
+      const result: TemplateCtfSyncResult = {
+        status: 'failed',
+        templateHash: template.templateHash,
+        templateId: template.templateId,
+        conditionId: template.conditionId,
+        sourceDenominator: null,
+        forkDenominator: null,
+        prepareTransactionHash: null,
+        mirrorTransactionHash: null,
+        blockNumber: null,
+        error: error instanceof Error ? error.message : String(error),
+      };
+      await this.saveTemplateCtfSyncStatus(result);
+      this.logger?.warn?.({
+        status: result.status,
+        templateId: result.templateId,
+        templateHash: result.templateHash,
+        conditionId: result.conditionId,
+        error: result.error,
+      }, 'template CTF sync failed');
+      return result;
+    }
+  }
+
+  private async saveTemplateCtfSyncStatus(result: TemplateCtfSyncResult): Promise<void> {
+    const now = new Date();
+    await this.repository.saveTemplateCtfSyncStatus({
+      conditionId: result.conditionId,
+      templateHash: result.templateHash,
+      templateId: result.templateId,
+      status: result.status,
+      sourceDenominator: result.sourceDenominator,
+      forkDenominator: result.forkDenominator,
+      prepareTransactionHash: result.prepareTransactionHash,
+      mirrorTransactionHash: result.mirrorTransactionHash,
+      blockNumber: result.blockNumber,
+      error: result.error,
+      checkedAt: now,
+      updatedAt: now,
+    });
+  }
 }
 
 function parseLimit(value: number | string | undefined): number {
@@ -430,6 +561,39 @@ function paginateTemplates(
 function encodeCursor(cursor: TemplatePageCursor | null): string | null {
   if (!cursor) return null;
   return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
+}
+
+function normalizeSyncLimit(limit: number | undefined, fallback: number): number {
+  if (limit === undefined) return fallback;
+  if (!Number.isFinite(limit) || limit <= 0) return fallback;
+  return Math.min(Math.floor(limit), 500);
+}
+
+function uniqueTemplatesByConditionId(templates: CanonicalSportsTemplate[]): CanonicalSportsTemplate[] {
+  const seen = new Set<string>();
+  const result: CanonicalSportsTemplate[] = [];
+  for (const template of templates) {
+    const conditionId = template.conditionId.toLowerCase();
+    if (seen.has(conditionId)) continue;
+    seen.add(conditionId);
+    result.push(template);
+  }
+  return result;
+}
+
+function syncResultFromMirror(result: TemplateCtfMirrorResult): TemplateCtfSyncResult {
+  return {
+    status: result.status as TemplateCtfSyncStatus,
+    templateHash: result.templateHash,
+    templateId: result.templateId,
+    conditionId: result.conditionId,
+    sourceDenominator: result.sourceDenominator,
+    forkDenominator: result.forkDenominator,
+    prepareTransactionHash: result.prepareTransactionHash,
+    mirrorTransactionHash: result.transactionHash,
+    blockNumber: result.blockNumber,
+    error: result.error,
+  };
 }
 
 function decodeCursor(value: string | undefined): TemplatePageCursor | undefined {
