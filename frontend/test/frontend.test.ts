@@ -141,6 +141,21 @@ test('template text filter combines category tabs with searchable template text'
   );
 });
 
+test('explore screen requests backend paginated template filters', () => {
+  const source = readFileSync(resolve('src/screens/TemplatesScreen.tsx'), 'utf8');
+  assert.match(source, /api\.listTemplates\(\{/);
+  assert.match(source, /category: backendCategory/);
+  assert.match(source, /query: debouncedQuery/);
+  assert.match(source, /cursor/);
+  assert.match(source, /IntersectionObserver/);
+});
+
+test('create invite screen fetches a missing template by id', () => {
+  const source = readFileSync(resolve('src/screens/CreateInviteScreen.tsx'), 'utf8');
+  assert.match(source, /api\.getTemplate\(templateId\)/);
+  assert.match(source, /upsertTemplate\(item\)/);
+});
+
 function filterFixtureTemplates(): TemplateView[] {
   const base = {
     source: 'Polymarket',

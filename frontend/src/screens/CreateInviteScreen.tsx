@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, ShieldCheck } from 'lucide-react';
 import { api } from '../lib/api';
@@ -8,8 +8,8 @@ import { templateDisplay, templateOutcomeLabel } from '../lib/templateDisplay';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
 import { createWalletAdapter } from '../lib/wallet';
-import type { InviteView } from '../lib/types';
-import { Button, Card, EmptyState, Field, ScreenHeader, SegmentedControl } from '../components/ui';
+import type { InviteView, TemplateView } from '../lib/types';
+import { Button, Card, EmptyState, Field, ScreenHeader, SegmentedControl, Skeleton } from '../components/ui';
 import { AmountBreakdown, ErrorBanner, InviteLink, Page, SuccessState } from '../components';
 
 type CreateState = 'idle' | 'creating' | 'signing';
@@ -23,8 +23,14 @@ export function CreateInviteScreen() {
   const wallet = useAppStore((state) => state.wallet);
   const refreshBets = useAppStore((state) => state.refreshBets);
   const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
+  const upsertTemplate = useAppStore((state) => state.upsertTemplate);
   const templates = useAppStore((state) => state.templates);
-  const template = templates.find((item) => item.id === params.get('templateId'));
+  const templateId = params.get('templateId');
+  const storeTemplate = templates.find((item) => item.id === templateId);
+  const [loadedTemplate, setLoadedTemplate] = useState<TemplateView | null>(null);
+  const [templateLoaded, setTemplateLoaded] = useState(Boolean(storeTemplate));
+  const [templateError, setTemplateError] = useState<string | null>(null);
+  const template = storeTemplate ?? loadedTemplate;
   const outcomeIndex = Number(params.get('outcomeIndex') ?? 0);
   const stakeRaw = params.get('stakeRaw') ?? '0';
   const loserFeeRaw = params.get('loserFeeRaw') ?? '0';
@@ -36,11 +42,45 @@ export function CreateInviteScreen() {
   const [createdInvite, setCreatedInvite] = useState<InviteView | null>(null);
   const [error, setError] = useState<unknown | null>(null);
 
-  if (!template || !token) {
+  useEffect(() => {
+    if (!templateId || storeTemplate) {
+      setTemplateLoaded(true);
+      setTemplateError(null);
+      return;
+    }
+    let active = true;
+    setTemplateLoaded(false);
+    setTemplateError(null);
+    void api.getTemplate(templateId).then((item) => {
+      if (!active) return;
+      setLoadedTemplate(item);
+      if (item) upsertTemplate(item);
+      setTemplateLoaded(true);
+    }).catch((cause) => {
+      if (!active) return;
+      setTemplateError(errorMessage(locale, cause));
+      setTemplateLoaded(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, [locale, storeTemplate, templateId, upsertTemplate]);
+
+  if (!templateLoaded) {
     return (
       <Page>
         <ScreenHeader title={t('invite.confirmTitle')} back />
-        <EmptyState icon={<ShieldCheck size={22} aria-hidden="true" />} title={t('templates.empty')} />
+        <Skeleton variant="block" height="6rem" />
+        <Skeleton variant="block" height="10rem" />
+      </Page>
+    );
+  }
+
+  if (templateError || !template || !token) {
+    return (
+      <Page>
+        <ScreenHeader title={t('invite.confirmTitle')} back />
+        <EmptyState icon={<ShieldCheck size={22} aria-hidden="true" />} title={templateError ?? t('templates.empty')} />
       </Page>
     );
   }

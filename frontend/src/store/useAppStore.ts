@@ -30,6 +30,8 @@ interface AppStore {
   unlinkWallet(): Promise<void>;
   refreshBalance(): Promise<void>;
   refreshTemplates(): Promise<void>;
+  upsertTemplate(template: TemplateView): void;
+  upsertTemplates(templates: TemplateView[]): void;
   refreshBets(): Promise<void>;
   refreshPendingInvites(): Promise<void>;
 }
@@ -55,7 +57,6 @@ export const useAppStore = create<AppStore>()(
       bootstrap: async () => {
         const token = get().token;
         set({ locale: normalizeLocale(get().locale) });
-        await get().refreshTemplates();
         if (!token) return;
         try {
           const session = await api.me(token);
@@ -146,8 +147,17 @@ export const useAppStore = create<AppStore>()(
         set({ balance });
       },
       refreshTemplates: async () => {
-        const templates = await api.listTemplates();
-        set({ templates, templatesLoaded: true });
+        const result = await api.listTemplates({ limit: 25 });
+        set({ templates: result.templates, templatesLoaded: true });
+      },
+      upsertTemplate: (template) => {
+        set((state) => ({ templates: upsertTemplatesById(state.templates, [template]) }));
+      },
+      upsertTemplates: (templates) => {
+        set((state) => ({
+          templates: upsertTemplatesById(state.templates, templates),
+          templatesLoaded: state.templatesLoaded || templates.length > 0,
+        }));
       },
       refreshBets: async () => {
         const token = get().token;
@@ -174,6 +184,12 @@ export const useAppStore = create<AppStore>()(
     },
   ),
 );
+
+function upsertTemplatesById(existing: TemplateView[], next: TemplateView[]): TemplateView[] {
+  const byId = new Map(existing.map((template) => [template.id, template]));
+  for (const template of next) byId.set(template.id, template);
+  return [...byId.values()];
+}
 
 async function refreshSecondaryData(store: AppStore): Promise<void> {
   await Promise.allSettled([
