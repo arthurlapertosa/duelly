@@ -2,6 +2,7 @@ import type { AppConfig } from '../../../config/env.js';
 
 interface TemplateDiscoveryRunner {
   refreshCurrentDiscoverySnapshot(input: { mode: 'live'; persistSnapshots: boolean }): Promise<unknown>;
+  syncCurrentTemplateCtf?(input?: { limit?: number }): Promise<unknown>;
 }
 
 interface WorkerLogger {
@@ -44,6 +45,13 @@ export class TemplateDiscoveryWorker {
     this.running = true;
     try {
       await this.runner.refreshCurrentDiscoverySnapshot({ mode: 'live', persistSnapshots: false });
+      if (this.runner.syncCurrentTemplateCtf) {
+        try {
+          await this.runner.syncCurrentTemplateCtf();
+        } catch (error) {
+          this.logger?.error({ error }, 'template discovery worker CTF sync failed');
+        }
+      }
       return { refreshed: true };
     } finally {
       this.running = false;

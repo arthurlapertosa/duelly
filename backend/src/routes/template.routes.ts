@@ -6,6 +6,7 @@ import {
   CandidateTemplatesController,
   PublishTemplateController,
   RejectedCandidatesController,
+  TemplateCtfSyncController,
   TemplateControllerContext,
   type PublishBody,
   type TemplateQuery,
@@ -25,11 +26,13 @@ export async function registerTemplateRoutes(
   const accepted = new AcceptedTemplatesController(context);
   const rejected = new RejectedCandidatesController(context);
   const publisher = new PublishTemplateController(context);
+  const ctfSync = new TemplateCtfSyncController(context);
 
   app.get<{ Querystring: TemplateQuery }>('/templates/candidates', candidates.list);
   app.get<{ Querystring: TemplateQuery }>('/templates', accepted.list);
   app.get<{ Querystring: TemplateQuery }>('/templates/rejected', rejected.list);
   app.post<{ Querystring: TemplateQuery; Body: PublishBody }>('/templates/publish', publisher.publish);
+  app.post('/internal/templates/ctf-sync/run', ctfSync.run);
 
   return context;
 }

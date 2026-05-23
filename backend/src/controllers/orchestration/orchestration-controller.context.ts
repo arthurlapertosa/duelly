@@ -72,6 +72,7 @@ export class OrchestrationControllerContext {
       options.config,
       this.chain,
       (templateHash) => this.templates.findAcceptedTemplate(templateHash),
+      options.logger,
     );
   }
 }
