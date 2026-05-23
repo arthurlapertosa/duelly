@@ -3,6 +3,9 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'indexed_bets' })
 export class IndexedBetEntity {
+  @PrimaryColumn({ type: 'text', name: 'deployment_key' })
+  deploymentKey!: string;
+
   @PrimaryColumn({ type: 'text', name: 'bet_id' })
   betId!: string;
 

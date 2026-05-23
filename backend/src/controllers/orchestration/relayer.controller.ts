@@ -17,7 +17,10 @@ export class RelayerController {
 
   transaction = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const params = objectBody(request.params);
-    const attempt = await this.context.repository.findRelayerAttemptByRequestId(stringField(params, 'requestId'));
+    const attempt = await this.context.repository.findRelayerAttemptByRequestId(
+      stringField(params, 'requestId'),
+      this.context.chain.deploymentKey(),
+    );
     if (!attempt) throw httpError(404, 'RELAYER_ATTEMPT_NOT_FOUND');
     return { attempt };
   });

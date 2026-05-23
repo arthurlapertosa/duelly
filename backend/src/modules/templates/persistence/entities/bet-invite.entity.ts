@@ -78,6 +78,9 @@ export class BetInviteEntity {
   @Column({ type: 'text', name: 'bet_id', nullable: true })
   betId!: string | null;
 
+  @Column({ type: 'text', name: 'deployment_key', nullable: true })
+  deploymentKey!: string | null;
+
   @Column({ type: 'timestamptz', name: 'expires_at' })
   expiresAt!: Date;
 

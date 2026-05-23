@@ -21,7 +21,7 @@ export class ResolutionController {
   mirror = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const body = objectBody(request.body);
     const betId = stringField(body, 'betId');
-    const bet = await this.context.repository.findIndexedBet(betId);
+    const bet = await this.context.repository.findIndexedBet(betId, this.context.chain.deploymentKey());
     if (!bet) throw httpError(404, 'BET_NOT_FOUND');
     return { mirror: await this.context.resolutionMirror.syncBet(bet) };
   });

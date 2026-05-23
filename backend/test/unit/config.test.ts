@@ -26,6 +26,10 @@ const keys = [
   'RESOLUTION_WORKER_INTERVAL_MS',
   'RESOLUTION_WORKER_BATCH_SIZE',
   'RESOLUTION_WORKER_PENDING_RETRY_SECONDS',
+  'RELAYER_WORKER_ENABLED',
+  'RELAYER_WORKER_INTERVAL_MS',
+  'RELAYER_WORKER_BATCH_SIZE',
+  'RELAYER_WORKER_PROCESSING_TIMEOUT_MS',
   'POLYMARKET_RESOLUTION_MIRROR_ENABLED',
   'POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL',
   'POLYMARKET_CTF_ORACLE_ADDRESS',
@@ -59,6 +63,10 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.resolutionWorker.intervalMs, 60_000);
     assert.equal(config.resolutionWorker.batchSize, 10);
     assert.equal(config.resolutionWorker.pendingRetrySeconds, 900);
+    assert.equal(config.relayerWorker.enabled, false);
+    assert.equal(config.relayerWorker.intervalMs, 3000);
+    assert.equal(config.relayerWorker.batchSize, 5);
+    assert.equal(config.relayerWorker.processingTimeoutMs, 120000);
     assert.equal(config.polymarketResolutionMirror.enabled, false);
     assert.equal(config.polymarketResolutionMirror.sourceRpcUrl, undefined);
     assert.equal(config.polymarketResolutionMirror.oracleAddress, undefined);
@@ -123,6 +131,26 @@ test('loadAppConfig supports resolution worker settings', () => {
     assert.equal(config.resolutionWorker.intervalMs, 5000);
     assert.equal(config.resolutionWorker.batchSize, 3);
     assert.equal(config.resolutionWorker.pendingRetrySeconds, 30);
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
+test('loadAppConfig supports relayer worker settings', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.RELAYER_WORKER_ENABLED = 'true';
+    process.env.RELAYER_WORKER_INTERVAL_MS = '2500';
+    process.env.RELAYER_WORKER_BATCH_SIZE = '2';
+    process.env.RELAYER_WORKER_PROCESSING_TIMEOUT_MS = '45000';
+
+    const config = loadAppConfig();
+
+    assert.equal(config.relayerWorker.enabled, true);
+    assert.equal(config.relayerWorker.intervalMs, 2500);
+    assert.equal(config.relayerWorker.batchSize, 2);
+    assert.equal(config.relayerWorker.processingTimeoutMs, 45000);
   } finally {
     restoreEnv(previous);
   }
