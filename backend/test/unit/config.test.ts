@@ -242,6 +242,10 @@ test('loadAppConfig requires explicit CORS origins in production', () => {
     process.env.CORS_ORIGINS = 'https://app.duelly.test,https://admin.duelly.test';
     const config = loadAppConfig();
     assert.deepEqual(config.cors.origins, ['https://app.duelly.test', 'https://admin.duelly.test']);
+
+    process.env.CORS_ORIGINS = 'https://duelly-hml.typewith.ai/';
+    const stagingConfig = loadAppConfig();
+    assert.deepEqual(stagingConfig.cors.origins, ['https://duelly-hml.typewith.ai']);
   } finally {
     restoreEnv(previous);
   }

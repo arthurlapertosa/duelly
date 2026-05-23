@@ -30,6 +30,14 @@ required_env() {
   fi
 }
 
+frontend_api_base_url="${VITE_API_BASE_URL:-${API_HOST:-${API_BASE_URL:-http://127.0.0.1:3000}}}"
+case "$frontend_api_base_url" in
+  http://*|https://*) ;;
+  localhost:*|127.*|0.0.0.0:*) frontend_api_base_url="http://$frontend_api_base_url" ;;
+  *) frontend_api_base_url="https://$frontend_api_base_url" ;;
+esac
+frontend_api_base_url="${frontend_api_base_url%/}"
+frontend_allowed_hosts="${VITE_ALLOWED_HOSTS:-${FRONTEND_ALLOWED_HOSTS:-duelly-hml.typewith.ai}}"
 QA_WALLET="${VITE_QA_WALLET:-false}"
 if [[ "$QA_WALLET" != "true" && "$QA_WALLET" != "false" ]]; then
   echo "[frontend-env] VITE_QA_WALLET must be true or false" >&2
@@ -39,7 +47,8 @@ fi
 cat > "$FRONTEND_ENV" <<EOF
 VITE_DUELLY_API_MODE=http
 VITE_DUELLY_TEMPLATE_MODE=live
-VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://127.0.0.1:3000}
+VITE_API_BASE_URL=$frontend_api_base_url
+VITE_ALLOWED_HOSTS=$frontend_allowed_hosts
 VITE_QA_WALLET=$QA_WALLET
 EOF
 
