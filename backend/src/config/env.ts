@@ -159,13 +159,27 @@ function readPrivateKey(name: string): Hex | undefined {
   return normalized as Hex;
 }
 
+function normalizeCorsOrigin(raw: string): string | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  try {
+    const url = new URL(trimmed);
+    if ((url.protocol === 'http:' || url.protocol === 'https:') && !url.search && !url.hash) {
+      return url.origin;
+    }
+  } catch {
+    // Fall through for non-URL values so existing local/test configuration keeps working.
+  }
+  return trimmed.replace(/\/+$/, '');
+}
+
 function readCorsOrigins(nodeEnv: string): string[] {
   const raw = process.env.CORS_ORIGINS;
   if (!raw) {
     if (nodeEnv === 'production') throw new Error('CORS_ORIGINS must be configured in production');
     return ['http://localhost:5173', 'http://127.0.0.1:5173'];
   }
-  const origins = raw.split(',').map((origin) => origin.trim()).filter(Boolean);
+  const origins = raw.split(',').map(normalizeCorsOrigin).filter((origin): origin is string => Boolean(origin));
   if (nodeEnv === 'production' && origins.length === 0) throw new Error('CORS_ORIGINS must include at least one origin in production');
   return origins;
 }

@@ -32,10 +32,20 @@ required_env() {
 required_env QA_MAKER_PRIVATE_KEY
 required_env QA_TAKER_PRIVATE_KEY
 
+frontend_api_base_url="${VITE_API_BASE_URL:-${API_HOST:-${API_BASE_URL:-http://127.0.0.1:3000}}}"
+case "$frontend_api_base_url" in
+  http://*|https://*) ;;
+  localhost:*|127.*|0.0.0.0:*) frontend_api_base_url="http://$frontend_api_base_url" ;;
+  *) frontend_api_base_url="https://$frontend_api_base_url" ;;
+esac
+frontend_api_base_url="${frontend_api_base_url%/}"
+frontend_allowed_hosts="${VITE_ALLOWED_HOSTS:-${FRONTEND_ALLOWED_HOSTS:-duelly-hml.typewith.ai}}"
+
 cat > "$FRONTEND_ENV" <<EOF
 VITE_DUELLY_API_MODE=http
 VITE_DUELLY_TEMPLATE_MODE=live
-VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://127.0.0.1:3000}
+VITE_API_BASE_URL=$frontend_api_base_url
+VITE_ALLOWED_HOSTS=$frontend_allowed_hosts
 VITE_QA_WALLET=true
 VITE_QA_MAKER_PRIVATE_KEY=$QA_MAKER_PRIVATE_KEY
 VITE_QA_TAKER_PRIVATE_KEY=$QA_TAKER_PRIVATE_KEY
