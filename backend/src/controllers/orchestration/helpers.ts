@@ -10,8 +10,8 @@ export async function findTemplate(
   id: string,
   query: Record<string, unknown>,
 ): Promise<CanonicalSportsTemplate | undefined> {
-  const result = await context.templates.discoverAndFilter(query);
-  return result.accepted.find((template) => template.templateId === id || template.templateHash.toLowerCase() === id.toLowerCase());
+  void query;
+  return await context.templates.findTemplateForDisplay(id);
 }
 
 export async function wrap(reply: FastifyReply, handler: () => Promise<unknown>) {

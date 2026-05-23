@@ -8,11 +8,19 @@ export class AcceptedTemplatesController {
     request: FastifyRequest<{ Querystring: TemplateQuery }>,
     reply: FastifyReply,
   ) => {
-    const query = this.context.parseTemplateQuery(request.query);
+    const query = this.context.parseTemplateListQuery(request.query);
     const modeCheck = this.context.validateMode(query);
     if (modeCheck) return modeCheck(reply);
 
-    const result = await this.context.discoverAndFilter(query);
-    return { mode: this.context.resolveMode(query), count: result.accepted.length, templates: result.accepted };
+    const result = await this.context.listAcceptedTemplates(query);
+    return {
+      mode: result.mode,
+      count: result.count,
+      pageCount: result.pageCount,
+      nextCursor: result.nextCursor,
+      refreshedAt: result.refreshedAt?.toISOString() ?? null,
+      stale: result.stale,
+      templates: result.templates,
+    };
   };
 }

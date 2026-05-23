@@ -6,6 +6,7 @@ import { registerHealthRoutes } from './routes/health.routes.js';
 import { registerOrchestrationRoutes } from './routes/orchestration.routes.js';
 import { registerTemplateRoutes } from './routes/template.routes.js';
 import { RelayerWorker, ResolutionWorker } from './modules/orchestration/services.js';
+import { TemplateDiscoveryWorker } from './modules/templates/discovery/template-discovery-worker.service.js';
 
 export interface CreateAppOptions {
   config?: AppConfig;
@@ -53,9 +54,16 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
     orchestration.relayer,
     app.log,
   );
+  const templateDiscoveryWorker = new TemplateDiscoveryWorker(
+    config,
+    templates,
+    app.log,
+  );
+  templateDiscoveryWorker.start();
   relayerWorker.start();
   resolutionWorker.start();
   app.addHook('onClose', async () => {
+    templateDiscoveryWorker.stop();
     relayerWorker.stop();
     resolutionWorker.stop();
   });
