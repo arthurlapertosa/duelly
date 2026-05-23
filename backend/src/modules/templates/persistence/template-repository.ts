@@ -29,7 +29,7 @@ export interface CurrentTemplateListResult {
 }
 
 export interface TemplatePageCursor {
-  eventStartAt: number;
+  bettingCloseAt: number;
   templateId: string;
 }
 
@@ -167,15 +167,15 @@ export class TemplateRepository {
     const base = this.currentTemplateQuery(run.id, input.sport, input.searchTerms);
     const count = await base.clone().getCount();
     const page = base.clone()
-      .orderBy('template.eventStartAt', 'ASC')
+      .orderBy('template.bettingCloseAt', 'ASC')
       .addOrderBy('template.templateId', 'ASC')
       .take(input.limit + 1);
     if (input.cursor) {
       page.andWhere(new Brackets((cursor) => {
         cursor
-          .where('template.eventStartAt > :cursorEventStartAt', { cursorEventStartAt: String(input.cursor!.eventStartAt) })
-          .orWhere('template.eventStartAt = :cursorEventStartAt and template.templateId > :cursorTemplateId', {
-            cursorEventStartAt: String(input.cursor!.eventStartAt),
+          .where('template.bettingCloseAt > :cursorBettingCloseAt', { cursorBettingCloseAt: String(input.cursor!.bettingCloseAt) })
+          .orWhere('template.bettingCloseAt = :cursorBettingCloseAt and template.templateId > :cursorTemplateId', {
+            cursorBettingCloseAt: String(input.cursor!.bettingCloseAt),
             cursorTemplateId: input.cursor!.templateId,
           });
       }));
@@ -189,7 +189,7 @@ export class TemplateRepository {
       templates: visible.map((record) => canonicalSportsTemplate(record.template)).filter(isTemplate),
       count,
       nextCursor: hasMore && last ? {
-        eventStartAt: Number(last.eventStartAt),
+        bettingCloseAt: Number(last.bettingCloseAt),
         templateId: last.templateId,
       } : null,
       refreshedAt: run.finishedAt ?? null,

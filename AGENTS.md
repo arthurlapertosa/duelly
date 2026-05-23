@@ -23,7 +23,9 @@ Short map for agents working in the Duelly monorepo. The detailed source of trut
 ## Mandatory operating model
 
 - Start every task in an independent worktree.
+- Sync the base branch first: run `git pull --ff-only` on `main` before deriving the worktree.
 - Open every PR as draft.
+- After opening a PR, check merge eligibility; if it is outdated or has conflicts, sync with `main` and resolve before handing off.
 - Use granular and descriptive commits.
 - Add tests for behavior changes, or include an explicit justification.
 - Include QA commands, evidence, and Definition of Done status in the PR.
