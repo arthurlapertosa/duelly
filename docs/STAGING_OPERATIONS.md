@@ -74,7 +74,7 @@ The script:
 - Fetches and resets `/opt/duelly/app` to `origin/$BRANCH`.
 - Runs `npm ci`.
 - Sources `/opt/duelly/app/.env` and `cache/staging-fork/deployment.env`.
-- Regenerates `frontend/.env`.
+- Regenerates `frontend/.env` with `VITE_QA_WALLET=false` unless explicitly overridden for agent QA.
 - Builds the backend.
 - Runs backend migrations.
 - Restarts `duelly-backend` and `duelly-frontend` in PM2.
