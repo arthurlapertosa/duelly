@@ -76,7 +76,7 @@ test('PT display localizes UFC fight titles and falls back safely for unknown pa
   assert.deepEqual(unknown.outcomes, ['Sim', 'Não']);
 });
 
-test('PT display localizes accepted live F1 and football condition titles', () => {
+test('PT display localizes accepted live F1 and football result titles', () => {
   const f1RedFlag = buildPtBRTemplateDisplay({
     question: 'Will there be a red flag during the 2026 F1 Canadian Grand Prix?',
     sport: 'f1',
@@ -96,12 +96,21 @@ test('PT display localizes accepted live F1 and football condition titles', () =
     outcomeB: { label: 'Gasly', providerOutcomeIndex: 1 },
     participants: ['Colapinto', 'Gasly'],
   });
-  const football = buildPtBRTemplateDisplay({
-    question: 'EC Vitória vs. SC Internacional: Both Teams to Score',
+  const footballTeamWin = buildPtBRTemplateDisplay({
+    question: 'Will Cruzeiro EC win on 2026-05-24?',
     sport: 'football',
     competition: 'BRASILEIRAO',
     eventType: 'MATCH',
-    binaryMarketType: 'FOOTBALL_BINARY_MATCH_CONDITION',
+    binaryMarketType: 'FOOTBALL_MATCH_TEAM_WIN_YES_NO',
+    outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
+    outcomeB: { label: 'No', providerOutcomeIndex: 1 },
+  });
+  const footballDraw = buildPtBRTemplateDisplay({
+    question: 'Will Cruzeiro EC vs. Associação Chapecoense de Futebol end in a draw?',
+    sport: 'football',
+    competition: 'BRASILEIRAO',
+    eventType: 'MATCH',
+    binaryMarketType: 'FOOTBALL_MATCH_DRAW_YES_NO',
     outcomeA: { label: 'Yes', providerOutcomeIndex: 0 },
     outcomeB: { label: 'No', providerOutcomeIndex: 1 },
   });
@@ -111,6 +120,10 @@ test('PT display localizes accepted live F1 and football condition titles', () =
   assert.match(f1RedFlag.rulesSummary, /bandeira vermelha/);
   assert.equal(f1HeadToHead.question, 'Quem termina melhor: Colapinto ou Gasly?');
   assert.deepEqual(f1HeadToHead.outcomes, ['Colapinto', 'Gasly']);
-  assert.equal(football.question, 'EC Vitória x SC Internacional: Ambos marcam?');
-  assert.deepEqual(football.outcomes, ['Sim', 'Não']);
+  assert.equal(footballTeamWin.question, 'Cruzeiro EC vence em 24/05/2026?');
+  assert.deepEqual(footballTeamWin.outcomes, ['Sim', 'Não']);
+  assert.match(footballTeamWin.rulesSummary, /resultado oficial da partida/);
+  assert.equal(footballDraw.question, 'Cruzeiro EC x Associação Chapecoense de Futebol termina empatado?');
+  assert.deepEqual(footballDraw.outcomes, ['Sim', 'Não']);
+  assert.match(footballDraw.rulesSummary, /resultado oficial da partida/);
 });

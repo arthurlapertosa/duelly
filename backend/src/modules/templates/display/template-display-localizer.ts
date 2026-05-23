@@ -68,6 +68,8 @@ function buildPtBRRulesSummary(input: TemplateDisplayInput): string {
       return 'A classificação oficial da corrida ou sprint decide o duelo. Cancelamento ou ausência de classificação oficial anula o duelo.';
     case 'FOOTBALL_TOURNAMENT_WINNER_YES_NO':
       return 'O campeão oficial da competição decide o duelo. Cancelamento ou ausência de campeão oficial anula o duelo.';
+    case 'FOOTBALL_MATCH_TEAM_WIN_YES_NO':
+    case 'FOOTBALL_MATCH_DRAW_YES_NO':
     case 'FOOTBALL_BINARY_MATCH_CONDITION':
       return 'O resultado oficial da partida decide o duelo. Cancelamento ou ausência de resultado oficial anula o duelo.';
     default:
@@ -76,7 +78,18 @@ function buildPtBRRulesSummary(input: TemplateDisplayInput): string {
 }
 
 function parseFootballMatchCondition(question: string): string | undefined {
-  const bothTeamsToScore = /^(.+?)\s+vs\.?\s+(.+?):\s+Both Teams to Score\??$/i.exec(question.trim());
+  const trimmed = question.trim();
+  const teamWin = /^Will\s+(.+?)\s+win\s+on\s+(\d{4})-(\d{2})-(\d{2})\??$/i.exec(trimmed);
+  if (teamWin?.[1] && teamWin[2] && teamWin[3] && teamWin[4]) {
+    return `${teamWin[1].trim()} vence em ${teamWin[4]}/${teamWin[3]}/${teamWin[2]}?`;
+  }
+
+  const draw = /^Will\s+(.+?)\s+vs\.?\s+(.+?)\s+end\s+in\s+a\s+draw\??$/i.exec(trimmed);
+  if (draw?.[1] && draw[2]) {
+    return `${draw[1].trim()} x ${draw[2].trim()} termina empatado?`;
+  }
+
+  const bothTeamsToScore = /^(.+?)\s+vs\.?\s+(.+?):\s+Both Teams to Score\??$/i.exec(trimmed);
   if (bothTeamsToScore?.[1] && bothTeamsToScore[2]) {
     return `${bothTeamsToScore[1].trim()} x ${bothTeamsToScore[2].trim()}: Ambos marcam?`;
   }

@@ -10,9 +10,11 @@ test('fixture filter accepts only approved M1 sports templates', async () => {
   const candidates = await loadFixtureCandidates();
   const result = new TemplateFilterService().filter(candidates, { now: fixtureNow });
 
-  assert.equal(result.accepted.length, 9);
+  assert.equal(result.accepted.length, 11);
   assert.deepEqual(new Set(result.accepted.map((template) => template.sport)), new Set(['football', 'tennis', 'ufc', 'f1']));
   assert.equal(result.accepted.every((template) => template.templateHash.startsWith('0x')), true);
+  assert.equal(result.accepted.some((template) => template.binaryMarketType === 'FOOTBALL_MATCH_TEAM_WIN_YES_NO'), true);
+  assert.equal(result.accepted.some((template) => template.binaryMarketType === 'FOOTBALL_MATCH_DRAW_YES_NO'), true);
 });
 
 test('fixture rejection matrix covers every required M1 reason code', async () => {

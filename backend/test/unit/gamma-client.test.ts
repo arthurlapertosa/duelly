@@ -182,6 +182,113 @@ test('Gamma discovery flattens sports-tagged events into market candidates', asy
     assert.equal(result.accepted.length, 1);
     assert.equal(result.accepted[0].competition, 'BRASILEIRAO');
     assert.equal(result.accepted[0].eventType, 'MATCH');
+    assert.equal(result.accepted[0].binaryMarketType, 'FOOTBALL_MATCH_TEAM_WIN_YES_NO');
+  });
+});
+
+test('Gamma football pagination accepts full-time results and rejects derivative match props', async () => {
+  const requestedUrls: URL[] = [];
+
+  await withMockedFetch(async (url) => {
+    requestedUrls.push(url);
+
+    if (url.pathname === '/events' && url.searchParams.get('tag_slug') === 'soccer') {
+      if (!url.searchParams.has('offset')) {
+        return jsonResponse(Array.from({ length: 100 }, (_, index) => gammaEvent({
+          id: `football-filler-${index}`,
+          title: `Unrelated soccer event ${index}`,
+          tags: [{ slug: 'soccer', label: 'Soccer' }],
+          markets: [],
+        })));
+      }
+
+      if (url.searchParams.get('offset') === '100') {
+        return jsonResponse([
+          gammaEvent({
+            id: 'cruzeiro-chapecoense',
+            slug: 'cruzeiro-ec-vs-associacao-chapecoense-de-futebol',
+            title: 'Cruzeiro EC vs. Associação Chapecoense de Futebol',
+            description: 'Brazil Série A match between Cruzeiro EC and Associação Chapecoense de Futebol.',
+            tags: [{ slug: 'soccer', label: 'Soccer' }, { slug: 'brasileirao', label: 'Brasileirão' }],
+            negRisk: true,
+            endDate: '2026-05-24T19:00:00.000Z',
+            startTime: '2026-05-24T19:00:00.000Z',
+            markets: [
+              footballMarket({
+                id: 'cruzeiro-win',
+                question: 'Will Cruzeiro EC win on 2026-05-24?',
+                conditionSeed: 'cruzeiro-win',
+                questionSeed: 'cruzeiro-win-question',
+              }),
+              footballMarket({
+                id: 'cruzeiro-chapecoense-draw',
+                question: 'Will Cruzeiro EC vs. Associação Chapecoense de Futebol end in a draw?',
+                conditionSeed: 'cruzeiro-chapecoense-draw',
+                questionSeed: 'cruzeiro-chapecoense-draw-question',
+              }),
+              footballMarket({
+                id: 'chapecoense-win',
+                question: 'Will Associação Chapecoense de Futebol win on 2026-05-24?',
+                conditionSeed: 'chapecoense-win',
+                questionSeed: 'chapecoense-win-question',
+              }),
+              footballMarket({
+                id: 'cruzeiro-btts',
+                question: 'Cruzeiro EC vs. Associação Chapecoense de Futebol: Both Teams to Score',
+                conditionSeed: 'cruzeiro-btts',
+                questionSeed: 'cruzeiro-btts-question',
+              }),
+              footballMarket({
+                id: 'cruzeiro-halftime',
+                question: 'Cruzeiro EC leading at halftime?',
+                conditionSeed: 'cruzeiro-halftime',
+                questionSeed: 'cruzeiro-halftime-question',
+              }),
+              footballMarket({
+                id: 'cruzeiro-exact-score',
+                question: 'Cruzeiro EC vs. Associação Chapecoense de Futebol: Exact Score',
+                conditionSeed: 'cruzeiro-exact-score',
+                questionSeed: 'cruzeiro-exact-score-question',
+              }),
+              footballMarket({
+                id: 'cruzeiro-spread',
+                question: 'Will Cruzeiro EC cover the spread?',
+                conditionSeed: 'cruzeiro-spread',
+                questionSeed: 'cruzeiro-spread-question',
+              }),
+            ],
+          }),
+        ]);
+      }
+    }
+
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfig({ maxResults: 25 })).discoverMarkets('football');
+    const result = new TemplateFilterService().filter(candidates, {
+      now: filterNow,
+      allowNegativeRisk: true,
+      minBettingCloseBufferSeconds: 0,
+    });
+
+    assert.equal(
+      requestedUrls.some((url) => url.pathname === '/events' && url.searchParams.get('limit') === '100' && url.searchParams.get('offset') === '100'),
+      true,
+    );
+    assert.deepEqual(
+      result.accepted.map((template) => template.providerMarketId).sort(),
+      ['chapecoense-win', 'cruzeiro-chapecoense-draw', 'cruzeiro-win'],
+    );
+    assert.deepEqual(
+      result.accepted.map((template) => template.binaryMarketType).sort(),
+      ['FOOTBALL_MATCH_DRAW_YES_NO', 'FOOTBALL_MATCH_TEAM_WIN_YES_NO', 'FOOTBALL_MATCH_TEAM_WIN_YES_NO'],
+    );
+    assert.equal(result.accepted.every((template) => template.eventType === 'MATCH'), true);
+    assert.equal(result.accepted.every((template) => template.competition === 'BRASILEIRAO'), true);
+    assert.equal(reasonSet(result, 'cruzeiro-btts').has('DISALLOWED_FOOTBALL_MARKET_TYPE'), true);
+    assert.equal(reasonSet(result, 'cruzeiro-halftime').has('DISALLOWED_FOOTBALL_MARKET_TYPE'), true);
+    assert.equal(reasonSet(result, 'cruzeiro-exact-score').has('DISALLOWED_FOOTBALL_MARKET_TYPE'), true);
+    assert.equal(reasonSet(result, 'cruzeiro-spread').has('DISALLOWED_FOOTBALL_MARKET_TYPE'), true);
   });
 });
 
@@ -608,6 +715,30 @@ function ufcMarket(input: {
     outcomes: input.outcomes ?? ['Song Yadong', 'Deiveson Figueiredo'],
     tags: [{ slug: 'ufc', label: 'UFC' }],
     endDate: input.endDate,
+  });
+}
+
+function footballMarket(input: {
+  id: string;
+  question: string;
+  conditionSeed: string;
+  questionSeed: string;
+  rules?: string;
+  outcomes?: string[];
+  negRisk?: boolean;
+}) {
+  return gammaMarket({
+    id: input.id,
+    slug: input.id,
+    question: input.question,
+    rules: input.rules ?? 'This market resolves based on the official full-time match result.',
+    conditionSeed: input.conditionSeed,
+    questionSeed: input.questionSeed,
+    outcomes: input.outcomes ?? ['Yes', 'No'],
+    tags: [{ slug: 'soccer', label: 'Soccer' }, { slug: 'brasileirao', label: 'Brasileirão' }],
+    negRisk: input.negRisk ?? true,
+    endDate: '2026-05-24T19:00:00.000Z',
+    startDate: '2026-05-24T19:00:00.000Z',
   });
 }
 
