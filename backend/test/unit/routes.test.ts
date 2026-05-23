@@ -189,6 +189,7 @@ test('template CTF sync endpoint returns disabled when live DB-backed sync is un
       ...routeTestConfig(),
       templateCtfSync: {
         enabled: true,
+        sourceRpcUrl: undefined,
         batchSize: 5,
         concurrency: 1,
       },

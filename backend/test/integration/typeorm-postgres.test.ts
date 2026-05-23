@@ -108,6 +108,14 @@ test('TypeORM repositories persist M1 template records in PostgreSQL', { skip: !
   assert.ok(await dataSource.getRepository(RejectedCandidateEntity).count() >= result.rejected.length);
   assert.ok(await dataSource.getRepository(TemplatePublishAuditEntity).count() >= 1);
   assert.ok(await dataSource.getRepository(TemplateCtfSyncStatusEntity).count() >= 1);
+  assert.equal(
+    (await repository.findTemplatesForCtfSync({
+      mode: 'live',
+      conditionId: result.accepted[0].conditionId,
+      limit: 10,
+    }))[0]?.templateHash,
+    result.accepted[0].templateHash,
+  );
 });
 
 test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL', { skip: !hasDb }, async () => {

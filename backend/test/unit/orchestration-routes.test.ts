@@ -471,6 +471,8 @@ function testConfig(options: { inviteTtlSeconds?: number } = {}) {
       enabled: false,
       sourceRpcUrl: undefined,
       oracleAddress: undefined,
+      oracleAddresses: [],
+      negRiskOracleAddress: undefined,
       outcomeSlotCount: 2,
       allowNonLocalForkRpc: false,
     },

@@ -265,8 +265,9 @@ export class TemplateRepository {
         .slice(0, limit);
     }
 
-    const run = await this.findLatestSuccessfulDiscoveryRun(input.mode);
-    if (!run) return [];
+    const exactLookup = Boolean(input.conditionId || input.templateId);
+    const run = exactLookup ? undefined : await this.findLatestSuccessfulDiscoveryRun(input.mode);
+    if (!exactLookup && !run) return [];
     const query = this.dataSource!.getRepository(SportsTemplateEntity)
       .createQueryBuilder('template')
       .leftJoin(TemplateCtfSyncStatusEntity, 'ctfSync', 'lower(ctfSync.conditionId) = lower(template.conditionId)')
@@ -279,12 +280,17 @@ export class TemplateRepository {
         end
       `, 'ctf_sync_priority')
       .addSelect('ctfSync.updatedAt', 'ctf_sync_updated_at')
-      .where('template.lastDiscoveryRunId = :discoveryRunId', { discoveryRunId: run.id })
-      .andWhere('template.active = true')
       .orderBy('ctf_sync_priority', 'ASC')
       .addOrderBy('ctf_sync_updated_at', 'ASC', 'NULLS FIRST')
       .addOrderBy('template.eventStartAt', 'ASC')
       .take(limit);
+    if (run) {
+      query
+        .where('template.lastDiscoveryRunId = :discoveryRunId', { discoveryRunId: run.id })
+        .andWhere('template.active = true');
+    } else {
+      query.where('1 = 1');
+    }
     if (input.conditionId) {
       query.andWhere('lower(template.conditionId) = :conditionId', { conditionId: input.conditionId.toLowerCase() });
     }

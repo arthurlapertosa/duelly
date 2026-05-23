@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TemplateRepository } from '../../src/modules/templates/persistence/template-repository.js';
 import type { CanonicalSportsTemplate } from '../../src/modules/templates/domain/types.js';
+import type { DataSource } from 'typeorm';
 
 const conditionId = `0x${'ab'.repeat(32)}`;
 
@@ -44,6 +45,55 @@ test('template repository finds in-memory templates for CTF sync by template or 
     (await repository.findTemplatesForCtfSync({ mode: 'live', conditionId, limit: 10 })).map((item) => item.templateId),
     ['template-1'],
   );
+});
+
+test('template repository exact CTF sync lookup bypasses latest discovery run in SQL path', async () => {
+  const repositoryNames: string[] = [];
+  const whereCalls: Array<{ condition: unknown; params?: unknown }> = [];
+  const andWhereCalls: Array<{ condition: unknown; params?: unknown }> = [];
+  let takeLimit: number | undefined;
+  const storedTemplate = template({ templateId: 'historical-template', conditionId });
+  const queryBuilder = {
+    leftJoin: () => queryBuilder,
+    addSelect: () => queryBuilder,
+    orderBy: () => queryBuilder,
+    addOrderBy: () => queryBuilder,
+    take: (limit: number) => {
+      takeLimit = limit;
+      return queryBuilder;
+    },
+    where: (condition: unknown, params?: unknown) => {
+      whereCalls.push({ condition, params });
+      return queryBuilder;
+    },
+    andWhere: (condition: unknown, params?: unknown) => {
+      andWhereCalls.push({ condition, params });
+      return queryBuilder;
+    },
+    getMany: async () => [{ template: storedTemplate }],
+  };
+  const dataSource = {
+    isInitialized: true,
+    getRepository: (entity: { name?: string }) => {
+      repositoryNames.push(entity.name ?? 'unknown');
+      assert.notEqual(entity.name, 'DiscoveryRunEntity', 'exact lookup should not query latest discovery run');
+      return { createQueryBuilder: () => queryBuilder };
+    },
+  } as unknown as DataSource;
+  const repository = new TemplateRepository(dataSource);
+
+  const result = await repository.findTemplatesForCtfSync({
+    mode: 'live',
+    conditionId,
+    limit: 3,
+  });
+
+  assert.deepEqual(result.map((item) => item.templateId), ['historical-template']);
+  assert.equal(takeLimit, 3);
+  assert.deepEqual(repositoryNames, ['SportsTemplateEntity']);
+  assert.equal(whereCalls[0].condition, '1 = 1');
+  assert.equal(andWhereCalls[0].condition, 'lower(template.conditionId) = :conditionId');
+  assert.deepEqual(andWhereCalls[0].params, { conditionId });
 });
 
 function template(overrides: Partial<CanonicalSportsTemplate>): CanonicalSportsTemplate {
