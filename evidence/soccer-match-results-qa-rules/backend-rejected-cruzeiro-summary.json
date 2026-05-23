@@ -1,0 +1,32 @@
+{
+  "command": "curl -fsS --max-time 60 'http://127.0.0.1:3000/templates/rejected?mode=live&sport=football'",
+  "summary": {
+    "totalRejectedFootballCandidates": 6628,
+    "cruzeiroRejectedExamples": [
+      {
+        "providerMarketId": "2195895",
+        "question": "Exact Score: Cruzeiro EC 0 - 3 Associação Chapecoense de Futebol?",
+        "binaryMarketType": "DISALLOWED_PROP",
+        "reasons": ["DISALLOWED_FOOTBALL_MARKET_TYPE"]
+      },
+      {
+        "providerMarketId": "2195847",
+        "question": "Cruzeiro EC leading at halftime?",
+        "binaryMarketType": "DISALLOWED_PROP",
+        "reasons": ["DISALLOWED_FOOTBALL_MARKET_TYPE"]
+      },
+      {
+        "providerMarketId": "2195848",
+        "question": "Cruzeiro EC vs. Associação Chapecoense de Futebol: Draw at halftime?",
+        "binaryMarketType": "DISALLOWED_PROP",
+        "reasons": ["DISALLOWED_FOOTBALL_MARKET_TYPE"]
+      },
+      {
+        "providerMarketId": "2095459",
+        "question": "Spread: Cruzeiro EC (-2.5)",
+        "binaryMarketType": "DISALLOWED_PROP",
+        "reasons": ["DISALLOWED_FOOTBALL_MARKET_TYPE"]
+      }
+    ]
+  }
+}
