@@ -34,6 +34,7 @@ const keys = [
   'POLYMARKET_RESOLUTION_MIRROR_ENABLED',
   'POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL',
   'POLYMARKET_CTF_ORACLE_ADDRESS',
+  'POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS',
   'POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT',
   'POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC',
   'POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED',
@@ -75,6 +76,7 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.polymarketResolutionMirror.enabled, false);
     assert.equal(config.polymarketResolutionMirror.sourceRpcUrl, undefined);
     assert.equal(config.polymarketResolutionMirror.oracleAddress, undefined);
+    assert.equal(config.polymarketResolutionMirror.negRiskOracleAddress, undefined);
     assert.equal(config.polymarketResolutionMirror.outcomeSlotCount, 2);
     assert.equal(config.polymarketResolutionMirror.allowNonLocalForkRpc, false);
     assert.equal(config.templateCtfSync.enabled, false);
@@ -201,6 +203,7 @@ test('loadAppConfig supports Polymarket resolution mirror settings', () => {
     process.env.POLYMARKET_RESOLUTION_MIRROR_ENABLED = 'true';
     process.env.POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL = 'https://polygon-rpc.example';
     process.env.POLYMARKET_CTF_ORACLE_ADDRESS = '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74';
+    process.env.POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS = '0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296';
     process.env.POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT = '2';
     process.env.POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC = 'true';
 
@@ -209,6 +212,7 @@ test('loadAppConfig supports Polymarket resolution mirror settings', () => {
     assert.equal(config.polymarketResolutionMirror.enabled, true);
     assert.equal(config.polymarketResolutionMirror.sourceRpcUrl, 'https://polygon-rpc.example');
     assert.equal(config.polymarketResolutionMirror.oracleAddress, '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74');
+    assert.equal(config.polymarketResolutionMirror.negRiskOracleAddress, '0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296');
     assert.equal(config.polymarketResolutionMirror.outcomeSlotCount, 2);
     assert.equal(config.polymarketResolutionMirror.allowNonLocalForkRpc, true);
   } finally {

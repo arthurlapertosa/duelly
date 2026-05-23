@@ -4,10 +4,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { encodeAbiParameters, keccak256 } from 'viem';
 import { inspectCondition } from '../blockchain/polymarket-condition-inspect.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '../..');
+const ZERO_BYTES32 = `0x${'0'.repeat(64)}`;
+const CTF_PAYOUT_NUMERATORS_SLOT = BigInt(process.env.POLYMARKET_CTF_PAYOUT_NUMERATORS_SLOT ?? '3');
+const CTF_PAYOUT_DENOMINATOR_SLOT = BigInt(process.env.POLYMARKET_CTF_PAYOUT_DENOMINATOR_SLOT ?? '4');
 
 function parseArgs(argv) {
   const args = {};
@@ -117,6 +121,7 @@ async function main() {
   const logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'duelly-template-ctf-sync-'));
   const backendLogPath = path.join(logDir, 'backend.log');
   const backendLog = fs.openSync(backendLogPath, 'w');
+  let originalSnapshot;
   const env = {
     ...process.env,
     PORT: String(port),
@@ -154,7 +159,18 @@ async function main() {
       : await findMissingForkConditionTemplate(templatesBody.templates, { rpcUrl: forkRpcUrl, ctf });
     if (!target) throw new Error('No accepted live template found for CTF sync exploration');
 
-    const snapshot = await rpc(forkRpcUrl, 'anvil_snapshot');
+    originalSnapshot = await rpc(forkRpcUrl, 'anvil_snapshot');
+    const forkBeforeRemoval = await inspectCondition({ rpcUrl: forkRpcUrl, ctf, conditionId: target.conditionId, outcomes: 2 });
+    const removedExistingCondition = isForkConditionPresent(forkBeforeRemoval);
+    if (removedExistingCondition) {
+      await removeForkCondition({ rpcUrl: forkRpcUrl, ctf, conditionId: target.conditionId });
+      const forkAfterRemoval = await inspectCondition({ rpcUrl: forkRpcUrl, ctf, conditionId: target.conditionId, outcomes: 2 });
+      if (isForkConditionPresent(forkAfterRemoval)) {
+        throw new Error(`Fork condition removal failed; state is ${JSON.stringify(forkAfterRemoval)}`);
+      }
+    }
+
+    const missingSnapshot = await rpc(forkRpcUrl, 'anvil_snapshot');
     const firstSync = await postJson(`${apiBaseUrl}/internal/templates/ctf-sync/run`, {
       conditionId: target.conditionId,
       limit: 1,
@@ -177,10 +193,10 @@ async function main() {
       throw new Error(`Backend log did not include expected CTF sync evidence for ${target.conditionId}`);
     }
 
-    await rpc(forkRpcUrl, 'anvil_revert', [snapshot]);
+    await rpc(forkRpcUrl, 'anvil_revert', [missingSnapshot]);
     const forkAfterRevert = await inspectCondition({ rpcUrl: forkRpcUrl, ctf, conditionId: target.conditionId, outcomes: 2 });
-    if (BigInt(forkAfterRevert.payoutDenominator) !== 0n && BigInt(source.payoutDenominator) === 0n) {
-      throw new Error('Fork condition did not revert to unresolved state');
+    if (isForkConditionPresent(forkAfterRevert)) {
+      throw new Error('Fork condition did not revert to removed state');
     }
 
     const secondSync = await postJson(`${apiBaseUrl}/internal/templates/ctf-sync/run`, {
@@ -208,9 +224,17 @@ async function main() {
       sourceDenominator: source.payoutDenominator,
       forkDenominator: forkAfterSecond.payoutDenominator,
       forkOutcomeSlotCount: forkAfterSecond.outcomeSlotCount,
+      removedExistingCondition,
       backendLogPath,
     }, null, 2));
   } finally {
+    if (originalSnapshot) {
+      try {
+        await rpc(forkRpcUrl, 'anvil_revert', [originalSnapshot]);
+      } catch {
+        // The QA run has already finished or failed; avoid hiding the original result.
+      }
+    }
     if (backend.pid) {
       try {
         process.kill(-backend.pid, 'SIGTERM');
@@ -232,5 +256,29 @@ async function findMissingForkConditionTemplate(templates, { rpcUrl, ctf }) {
     const fork = await inspectCondition({ rpcUrl, ctf, conditionId: template.conditionId, outcomes: 2 });
     if (Number(fork.outcomeSlotCount) === 0) return template;
   }
-  throw new Error('No live template with a missing fork CTF condition was found; use a fresh fork or pass --condition-id for a known unsynced template');
+  return templates[0];
+}
+
+function isForkConditionPresent(state) {
+  return Number(state.outcomeSlotCount) > 0 || BigInt(state.payoutDenominator) > 0n;
+}
+
+async function removeForkCondition({ rpcUrl, ctf, conditionId }) {
+  await rpc(rpcUrl, 'anvil_setStorageAt', [
+    ctf,
+    mappingSlot(conditionId, CTF_PAYOUT_NUMERATORS_SLOT),
+    ZERO_BYTES32,
+  ]);
+  await rpc(rpcUrl, 'anvil_setStorageAt', [
+    ctf,
+    mappingSlot(conditionId, CTF_PAYOUT_DENOMINATOR_SLOT),
+    ZERO_BYTES32,
+  ]);
+}
+
+function mappingSlot(key, slot) {
+  return keccak256(encodeAbiParameters(
+    [{ type: 'bytes32' }, { type: 'uint256' }],
+    [key, slot],
+  ));
 }

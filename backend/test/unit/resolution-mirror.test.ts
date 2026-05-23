@@ -9,6 +9,7 @@ import type { CanonicalSportsTemplate } from '../../src/modules/templates/domain
 const conditionId = `0x${'02'.repeat(32)}` as const;
 const questionId = `0x${'11'.repeat(32)}` as const;
 const oracleAddress = '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74' as const;
+const negRiskOracleAddress = '0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296' as const;
 
 function config() {
   const base = loadAppConfig();
@@ -20,6 +21,7 @@ function config() {
       enabled: true,
       sourceRpcUrl: 'https://polygon-rpc.example',
       oracleAddress,
+      negRiskOracleAddress,
       outcomeSlotCount: 2,
       allowNonLocalForkRpc: true,
     },
@@ -196,6 +198,41 @@ test('resolution mirror prepares missing fork CTF condition when source is unres
   assert.equal(result.prepareTransactionHash, `0x${'07'.repeat(32)}`);
   assert.equal(result.blockNumber, '12');
   assert.equal(prepared, true);
+});
+
+test('resolution mirror falls back to negative-risk oracle when condition id matches it', async () => {
+  let preparedOracle: string | undefined;
+  const service = new ResolutionMirrorService(
+    config(),
+    {
+      readChainId: async () => 137,
+      readCtfConditionId: async (oracle: string) => (
+        oracle.toLowerCase() === negRiskOracleAddress.toLowerCase()
+          ? conditionId
+          : `0x${'09'.repeat(32)}`
+      ),
+      readCtfPayoutState: async (_readConditionId: string, options: { rpcUrl?: string } = {}) => ({
+        conditionId,
+        outcomeSlotCount: options.rpcUrl ? 2 : 0,
+        denominator: 0n,
+        numerators: options.rpcUrl ? [0n, 0n] : [],
+      }),
+      writePrepareCondition: async (oracle: string) => {
+        preparedOracle = oracle;
+        return `0x${'08'.repeat(32)}`;
+      },
+      wait: async () => ({ blockNumber: 13n }),
+      mirrorCtfPayout: async () => {
+        throw new Error('unexpected mirror');
+      },
+    } as never,
+    async () => template(),
+  );
+
+  const result = await service.syncTemplate(template());
+
+  assert.equal(result.status, 'prepared');
+  assert.equal(preparedOracle, negRiskOracleAddress);
 });
 
 test('resolution mirror no-ops when fork condition is already resolved', async () => {

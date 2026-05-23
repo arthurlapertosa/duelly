@@ -270,17 +270,19 @@ export class TemplateRepository {
     const query = this.dataSource!.getRepository(SportsTemplateEntity)
       .createQueryBuilder('template')
       .leftJoin(TemplateCtfSyncStatusEntity, 'ctfSync', 'lower(ctfSync.conditionId) = lower(template.conditionId)')
-      .where('template.lastDiscoveryRunId = :discoveryRunId', { discoveryRunId: run.id })
-      .andWhere('template.active = true')
-      .orderBy(`
+      .addSelect(`
         case
           when ctfSync.status is null then 0
           when ctfSync.status in ('failed', 'invalid-chain-id', 'missing-source-rpc', 'missing-oracle', 'non-local-fork-rpc') then 1
           when ctfSync.status in ('source-unresolved', 'prepared') then 2
           else 3
         end
-      `, 'ASC')
-      .addOrderBy('ctfSync.updatedAt', 'ASC', 'NULLS FIRST')
+      `, 'ctf_sync_priority')
+      .addSelect('ctfSync.updatedAt', 'ctf_sync_updated_at')
+      .where('template.lastDiscoveryRunId = :discoveryRunId', { discoveryRunId: run.id })
+      .andWhere('template.active = true')
+      .orderBy('ctf_sync_priority', 'ASC')
+      .addOrderBy('ctf_sync_updated_at', 'ASC', 'NULLS FIRST')
       .addOrderBy('template.eventStartAt', 'ASC')
       .take(limit);
     if (input.conditionId) {

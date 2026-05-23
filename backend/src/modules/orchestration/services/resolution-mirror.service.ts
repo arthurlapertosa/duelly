@@ -112,12 +112,8 @@ export class ResolutionMirrorService {
     }
 
     const outcomeSlotCount = this.config.polymarketResolutionMirror.outcomeSlotCount;
-    const expectedConditionId = await this.chain.readCtfConditionId(
-      this.config.polymarketResolutionMirror.oracleAddress as Address,
-      template.questionId as Hex,
-      outcomeSlotCount,
-    );
-    if (expectedConditionId.toLowerCase() !== template.conditionId.toLowerCase()) {
+    const oracleAddress = await this.resolveOracleAddress(template, outcomeSlotCount);
+    if (!oracleAddress) {
       return this.templateResult('invalid-template', template, {
         error: 'CTF condition id does not match oracle, question id, and slot count',
       });
@@ -151,7 +147,7 @@ export class ResolutionMirrorService {
     if (sourceState.denominator === 0n) {
       if (localState.outcomeSlotCount === 0) {
         const prepareTransactionHash = await this.chain.writePrepareCondition(
-          this.config.polymarketResolutionMirror.oracleAddress as Address,
+          oracleAddress,
           template.questionId as Hex,
           outcomeSlotCount,
         );
@@ -187,7 +183,7 @@ export class ResolutionMirrorService {
     }
 
     const mirrored = await this.chain.mirrorCtfPayout({
-      oracleAddress: this.config.polymarketResolutionMirror.oracleAddress as Address,
+      oracleAddress,
       questionId: template.questionId as Hex,
       conditionId,
       outcomeSlotCount,
@@ -268,6 +264,30 @@ export class ResolutionMirrorService {
     } catch {
       return false;
     }
+  }
+
+  private async resolveOracleAddress(
+    template: CanonicalSportsTemplate,
+    outcomeSlotCount: number,
+  ): Promise<Address | null> {
+    const conditionId = template.conditionId.toLowerCase();
+    const questionId = template.questionId as Hex;
+    const candidates = [
+      this.config.polymarketResolutionMirror.oracleAddress,
+      this.config.polymarketResolutionMirror.negRiskOracleAddress,
+    ].filter((address, index, values): address is Address => (
+      Boolean(address) && values.indexOf(address) === index
+    ));
+
+    for (const oracleAddress of candidates) {
+      const expectedConditionId = await this.chain.readCtfConditionId(
+        oracleAddress,
+        questionId,
+        outcomeSlotCount,
+      );
+      if (expectedConditionId.toLowerCase() === conditionId) return oracleAddress;
+    }
+    return null;
   }
 }
 
