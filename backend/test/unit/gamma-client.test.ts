@@ -1,10 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadAppConfig, type AppConfig } from '../../src/config/env.js';
+import { ctfConditionIdFor } from '../../src/modules/templates/domain/ctf-oracle.js';
 import { GammaClient } from '../../src/modules/templates/discovery/gamma-client.js';
 import { TemplateFilterService } from '../../src/modules/templates/filtering/template-filter.service.js';
 
 const filterNow = new Date('2026-05-22T00:00:00.000Z');
+const oldDefaultOracle = '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74';
+const tennisResolvedByOracle = '0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7';
+const negRiskOracle = '0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296';
+const unrelatedResolvedBy = '0x2F5e3684cb1F318ec51b00Edba38d79Ac2c0aA9d';
 
 test('Gamma live markets infer official result source from resolution text', async () => {
   await withMockedFetch(async (url) => {
@@ -183,6 +188,193 @@ test('Gamma discovery flattens sports-tagged events into market candidates', asy
     assert.equal(result.accepted[0].competition, 'BRASILEIRAO');
     assert.equal(result.accepted[0].eventType, 'MATCH');
     assert.equal(result.accepted[0].binaryMarketType, 'FOOTBALL_MATCH_TEAM_WIN_YES_NO');
+  });
+});
+
+test('Gamma parses resolvedBy and validates non-negative-risk tennis CTF oracle metadata', async () => {
+  const questionId = `0x${'12'.repeat(32)}` as const;
+  const conditionId = ctfConditionIdFor(tennisResolvedByOracle, questionId, 2);
+
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
+      return jsonResponse([
+        tennisEvent({
+          id: 'event-tennis-oracle',
+          title: 'Hamburg European Open: Ignacio Buse vs Tommy Paul',
+          markets: [
+            tennisMarket({
+              id: '2334314',
+              question: 'Hamburg European Open: Ignacio Buse vs Tommy Paul',
+              conditionId,
+              questionId,
+              resolvedBy: tennisResolvedByOracle,
+              outcomes: ['Ignacio Buse', 'Tommy Paul'],
+            }),
+          ],
+        }),
+      ]);
+    }
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfigWithOracles()).discoverMarkets('tennis');
+    const candidate = candidates.find((item) => item.providerMarketId === '2334314');
+
+    assert.equal(candidate?.resolvedBy, tennisResolvedByOracle);
+    assert.equal(candidate?.ctfOracleAddress, tennisResolvedByOracle);
+    assert.equal(candidate?.ctfOracleSource, 'gamma-resolved-by');
+    assert.equal(candidate?.ctfOracleValidationStatus, 'validated');
+
+    const result = new TemplateFilterService().filter(candidates, {
+      now: filterNow,
+      minBettingCloseBufferSeconds: 0,
+    });
+    assert.equal(result.accepted[0].ctfOracleAddress, tennisResolvedByOracle);
+    assert.equal(result.accepted[0].templateHash.length, 66);
+  });
+});
+
+test('Gamma still validates existing non-negative-risk markets that use the legacy default oracle', async () => {
+  const questionId = `0x${'13'.repeat(32)}` as const;
+  const conditionId = ctfConditionIdFor(oldDefaultOracle, questionId, 2);
+
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
+      return jsonResponse([
+        tennisEvent({
+          id: 'event-tennis-legacy-oracle',
+          title: 'Geneva Open: Player A vs Player B',
+          markets: [
+            tennisMarket({
+              id: 'legacy-oracle',
+              question: 'Geneva Open: Player A vs Player B',
+              conditionId,
+              questionId,
+              resolvedBy: oldDefaultOracle,
+              outcomes: ['Player A', 'Player B'],
+            }),
+          ],
+        }),
+      ]);
+    }
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfigWithOracles()).discoverMarkets('tennis');
+    const candidate = candidates.find((item) => item.providerMarketId === 'legacy-oracle');
+
+    assert.equal(candidate?.ctfOracleAddress, oldDefaultOracle);
+    assert.equal(candidate?.ctfOracleSource, 'gamma-resolved-by');
+    assert.equal(candidate?.ctfOracleValidationStatus, 'validated');
+  });
+});
+
+test('Gamma negative-risk validation prefers configured neg-risk oracle over resolvedBy', async () => {
+  const questionId = `0x${'14'.repeat(32)}` as const;
+  const conditionId = ctfConditionIdFor(negRiskOracle, questionId, 2);
+
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events') {
+      return jsonResponse([
+        gammaEvent({
+          id: 'event-neg-risk-oracle',
+          title: 'Cruzeiro EC vs. Chapecoense',
+          tags: [{ slug: 'soccer', label: 'Soccer' }, { slug: 'brasileirao', label: 'Brasileirão' }],
+          negRisk: true,
+          markets: [
+            footballMarket({
+              id: 'neg-risk-oracle',
+              question: 'Will Cruzeiro EC win on 2026-05-24?',
+              conditionId,
+              questionId,
+              resolvedBy: unrelatedResolvedBy,
+              negRisk: true,
+            }),
+          ],
+        }),
+      ]);
+    }
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfigWithOracles()).discoverMarkets('football');
+    const candidate = candidates.find((item) => item.providerMarketId === 'neg-risk-oracle');
+
+    assert.equal(candidate?.resolvedBy, unrelatedResolvedBy);
+    assert.equal(candidate?.ctfOracleAddress, negRiskOracle);
+    assert.equal(candidate?.ctfOracleSource, 'configured-neg-risk');
+    assert.equal(candidate?.ctfOracleValidationStatus, 'validated');
+  });
+});
+
+test('Gamma keeps otherwise valid templates when no CTF oracle candidate validates', async () => {
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
+      return jsonResponse([
+        tennisEvent({
+          id: 'event-tennis-unvalidated-oracle',
+          title: 'ATP 250: Player A vs Player B',
+          markets: [
+            tennisMarket({
+              id: 'unvalidated-oracle',
+              question: 'ATP 250: Player A vs Player B',
+              conditionSeed: 'unvalidated-oracle-condition',
+              questionSeed: 'unvalidated-oracle-question',
+              resolvedBy: oldDefaultOracle,
+              outcomes: ['Player A', 'Player B'],
+            }),
+          ],
+        }),
+      ]);
+    }
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfigWithOracles()).discoverMarkets('tennis');
+    const result = new TemplateFilterService().filter(candidates, {
+      now: filterNow,
+      minBettingCloseBufferSeconds: 0,
+    });
+
+    assert.equal(candidates[0].ctfOracleValidationStatus, 'unvalidated');
+    assert.equal(candidates[0].ctfOracleAddress, undefined);
+    assert.equal(result.accepted.length, 1);
+    assert.equal(result.accepted[0].ctfOracleValidationStatus, 'unvalidated');
+  });
+});
+
+test('Gamma does not validate resolvedBy unless it is configured as an allowed CTF oracle', async () => {
+  const questionId = `0x${'15'.repeat(32)}` as const;
+  const conditionId = ctfConditionIdFor(unrelatedResolvedBy, questionId, 2);
+
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
+      return jsonResponse([
+        tennisEvent({
+          id: 'event-tennis-unallowlisted-resolved-by',
+          title: 'Geneva Open: Player C vs Player D',
+          markets: [
+            tennisMarket({
+              id: 'unallowlisted-resolved-by',
+              question: 'Geneva Open: Player C vs Player D',
+              conditionId,
+              questionId,
+              resolvedBy: unrelatedResolvedBy,
+              outcomes: ['Player C', 'Player D'],
+            }),
+          ],
+        }),
+      ]);
+    }
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfigWithOracles()).discoverMarkets('tennis');
+    const result = new TemplateFilterService().filter(candidates, {
+      now: filterNow,
+      minBettingCloseBufferSeconds: 0,
+    });
+
+    assert.equal(candidates[0].resolvedBy, unrelatedResolvedBy);
+    assert.equal(candidates[0].ctfOracleValidationStatus, 'unvalidated');
+    assert.equal(candidates[0].ctfOracleAddress, undefined);
+    assert.equal(result.accepted.length, 1);
+    assert.equal(result.accepted[0].ctfOracleValidationStatus, 'unvalidated');
   });
 });
 
@@ -570,6 +762,20 @@ function testConfig(overrides: Partial<AppConfig['polymarket']> = {}): AppConfig
   };
 }
 
+function testConfigWithOracles(overrides: Partial<AppConfig['polymarket']> = {}): AppConfig {
+  const config = testConfig(overrides);
+  return {
+    ...config,
+    polymarketResolutionMirror: {
+      ...config.polymarketResolutionMirror,
+      oracleAddress: oldDefaultOracle,
+      oracleAddresses: [tennisResolvedByOracle, oldDefaultOracle],
+      negRiskOracleAddress: negRiskOracle,
+      outcomeSlotCount: 2,
+    },
+  };
+}
+
 function jsonResponse(value: unknown): Response {
   return new Response(JSON.stringify(value), { status: 200 });
 }
@@ -608,8 +814,8 @@ function gammaMarket(input: {
   slug: string;
   question: string;
   rules: string;
-  conditionSeed: string;
-  questionSeed: string;
+  conditionSeed?: string;
+  questionSeed?: string;
   outcomes: string[];
   tags?: unknown[];
   series?: unknown[];
@@ -618,14 +824,18 @@ function gammaMarket(input: {
   startDate?: string;
   closed?: boolean;
   acceptingOrders?: boolean;
+  conditionId?: string;
+  questionId?: string;
+  resolvedBy?: string;
 }) {
   return {
     id: input.id,
     slug: input.slug,
     question: input.question,
     rules: input.rules,
-    conditionId: bytes32(input.conditionSeed),
-    questionID: bytes32(input.questionSeed),
+    conditionId: input.conditionId ?? bytes32(input.conditionSeed ?? input.id),
+    questionID: input.questionId ?? bytes32(input.questionSeed ?? `${input.id}-question`),
+    resolvedBy: input.resolvedBy,
     outcomes: input.outcomes,
     clobTokenIds: ['100', '200'],
     tags: input.tags ?? [],
@@ -659,20 +869,26 @@ function tennisEvent(input: {
 function tennisMarket(input: {
   id: string;
   question: string;
-  conditionSeed: string;
-  questionSeed: string;
+  conditionSeed?: string;
+  questionSeed?: string;
   outcomes?: string[];
   endDate?: string;
   closed?: boolean;
   acceptingOrders?: boolean;
+  conditionId?: string;
+  questionId?: string;
+  resolvedBy?: string;
 }) {
   return gammaMarket({
     id: input.id,
     slug: input.id,
     question: input.question,
     rules: 'This market resolves to the official match winner. If there is a retirement, walkover, cancellation, or no contest, this market resolves 50-50.',
-    conditionSeed: input.conditionSeed,
-    questionSeed: input.questionSeed,
+    conditionSeed: input.conditionSeed ?? input.id,
+    questionSeed: input.questionSeed ?? `${input.id}-question`,
+    conditionId: input.conditionId,
+    questionId: input.questionId,
+    resolvedBy: input.resolvedBy,
     outcomes: input.outcomes ?? ['Learner Tien', 'Alexander Bublik'],
     tags: [{ slug: 'tennis', label: 'Tennis' }],
     series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
@@ -700,8 +916,8 @@ function ufcEvent(input: {
 function ufcMarket(input: {
   id: string;
   question: string;
-  conditionSeed: string;
-  questionSeed: string;
+  conditionSeed?: string;
+  questionSeed?: string;
   outcomes?: string[];
   endDate?: string;
 }) {
@@ -721,19 +937,25 @@ function ufcMarket(input: {
 function footballMarket(input: {
   id: string;
   question: string;
-  conditionSeed: string;
-  questionSeed: string;
+  conditionSeed?: string;
+  questionSeed?: string;
   rules?: string;
   outcomes?: string[];
   negRisk?: boolean;
+  conditionId?: string;
+  questionId?: string;
+  resolvedBy?: string;
 }) {
   return gammaMarket({
     id: input.id,
     slug: input.id,
     question: input.question,
     rules: input.rules ?? 'This market resolves based on the official full-time match result.',
-    conditionSeed: input.conditionSeed,
-    questionSeed: input.questionSeed,
+    conditionSeed: input.conditionSeed ?? input.id,
+    questionSeed: input.questionSeed ?? `${input.id}-question`,
+    conditionId: input.conditionId,
+    questionId: input.questionId,
+    resolvedBy: input.resolvedBy,
     outcomes: input.outcomes ?? ['Yes', 'No'],
     tags: [{ slug: 'soccer', label: 'Soccer' }, { slug: 'brasileirao', label: 'Brasileirão' }],
     negRisk: input.negRisk ?? true,

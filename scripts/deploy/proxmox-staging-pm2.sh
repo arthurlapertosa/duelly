@@ -67,6 +67,34 @@ set +a
 export PATH="$(dirname "$NODE_BIN"):/root/.foundry/bin:$PATH"
 export DEPLOYMENT_ENV
 
+redacted_url_host() {
+  local value="${1:-}"
+  if [[ -z "$value" ]]; then
+    printf '<missing>'
+    return
+  fi
+  node -e '
+try {
+  const url = new URL(process.argv[1]);
+  console.log(`${url.protocol}//${url.host}/<redacted>`);
+} catch {
+  console.log("<invalid>");
+}
+' "$value"
+}
+
+oracle_count() {
+  printf '%s,%s,%s' \
+    "${POLYMARKET_CTF_ORACLE_ADDRESS:-}" \
+    "${POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS:-}" \
+    "${POLYMARKET_CTF_ORACLE_ADDRESSES:-}" \
+    | tr ',' '\n' \
+    | awk 'NF { print tolower($0) }' \
+    | sort -u \
+    | wc -l \
+    | tr -d '[:space:]'
+}
+
 echo "[deploy] writing frontend staging env"
 "$APP_DIR/scripts/dev/write-staging-frontend-env.sh"
 chmod 600 "$APP_DIR/frontend/.env"
@@ -132,4 +160,11 @@ curl -fsS http://127.0.0.1:5173 >/dev/null
 
 echo "[deploy] pm2 status"
 pm2 status
+echo "[deploy] effective backend config"
+echo "[deploy] ctf oracle candidates: $(oracle_count)"
+echo "[deploy] resolution source rpc: $(redacted_url_host "${POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL:-${POLYGON_RPC_URL:-}}")"
+echo "[deploy] template sync source rpc: $(redacted_url_host "${POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL:-${POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL:-${POLYGON_RPC_URL:-}}}")"
+echo "[deploy] template sync enabled: ${POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED:-${POLYMARKET_RESOLUTION_MIRROR_ENABLED:-false}}"
+echo "[deploy] template sync batch: ${POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE:-50}"
+echo "[deploy] template sync concurrency: ${POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY:-2}"
 echo "[deploy] complete"

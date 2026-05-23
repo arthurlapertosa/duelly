@@ -34,6 +34,9 @@ Required root `.env` values:
 POLYGON_RPC_URL=
 BRL1_ADDRESS_POLYGON=
 POLYMARKET_CTF_ADDRESS=0x4D97DCd97eC945f40cF65F87097ACe5EA0476045
+POLYMARKET_CTF_ORACLE_ADDRESSES=0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7,0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74
+POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS=0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296
+POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL=
 RELAYER_PRIVATE_KEY=
 TREASURY_ADDRESS=
 QA_MAKER_PRIVATE_KEY=
@@ -75,9 +78,14 @@ POLYMARKET_LIVE_DISCOVERY_ENABLED=true
 POLYMARKET_ALLOW_NEG_RISK=true
 POLYMARKET_TEMPLATE_DISCOVERY_REFRESH_INTERVAL_MS=900000
 RESOLUTION_WORKER_ENABLED=true
+POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED=true
+POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE=50
+POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY=2
 ```
 
 `POLYMARKET_ALLOW_NEG_RISK=true` is for fork staging only. Current live sports markets can be negative-risk; keep the default `false` outside staging until negative-risk support is explicitly approved for production.
+
+Template CTF sync validates the correct fork-write oracle per template from Gamma `resolvedBy` only when that address is also present in configured oracle candidates. Keep `POLYMARKET_CTF_ORACLE_ADDRESSES` populated with the current non-negative-risk Polymarket CTF oracles, and keep `POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS` set for negative-risk markets. `POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL` may be set separately for proactive template sync; when unset, it falls back to `POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL`.
 
 ## Proxmox PM2 Deploy
 
@@ -89,6 +97,8 @@ APP_DIR=/opt/duelly/app BRANCH=codex/staging-fork-web3-e2e \
 ```
 
 The script pulls the selected branch, installs workspace dependencies, regenerates `frontend/.env`, builds the backend, runs migrations, starts `duelly-backend` and `duelly-frontend` under PM2, configures the `pm2-root` systemd startup unit, and saves the PM2 process list. It requires the host-local `.env` and `cache/staging-fork/deployment.env` to already exist.
+
+At the end of the restart, the script prints non-secret effective backend config: CTF oracle candidate count, resolution source RPC hostname, template-sync source RPC hostname, and template sync enabled/batch/concurrency values.
 
 Useful operator commands:
 
@@ -121,6 +131,8 @@ The staging-fork E2E creates or reuses the local maker/taker accounts, verifies 
 ## Mirror Resolved CTF Payouts
 
 Persistent Anvil forks preserve Duelly's local escrow bets and fake BRL1 balances, but they do not automatically sync future writes from Polygon. When a real Polymarket condition resolves after the fork was started, mirror only that condition's deterministic CTF payout state into the fork-local CTF contract instead of restarting the fork.
+
+Funded-bet resolution mirror reads from `POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL`. Proactive template CTF sync reads from `POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL` when set, otherwise from the resolution mirror source RPC. Both paths still write only to the configured local/staging fork RPC and refuse unsafe non-local fork writes by default.
 
 Use a dry run first:
 
@@ -168,9 +180,9 @@ node scripts/qa/explore-template-ctf-sync.mjs \
 
 Expected evidence:
 
-- JSON output with `ok: true`, the target `templateId`, target `conditionId`, first and second sync statuses, source/fork denominator, fork outcome slot count, and backend log path.
+- JSON output with `ok: true`, the target `templateId`, target `conditionId`, per-template CTF oracle validation metadata when exposed by the API, first and second sync statuses, source/fork denominator, fork outcome slot count, and backend log path.
 - Backend log lines containing the target `conditionId` and `template CTF sync prepared`, `template CTF sync source-unresolved`, `template CTF sync mirrored`, or `template CTF sync already-resolved`.
-- Current staging live football templates are negative-risk markets. Keep `POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS` set to Polymarket's negative-risk adapter oracle so `conditionId` validation uses the correct oracle fallback.
+- Non-negative-risk live templates can use different Polymarket CTF oracle addresses over time. Keep `POLYMARKET_CTF_ORACLE_ADDRESSES` updated, and keep `POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS` set to Polymarket's negative-risk adapter oracle so `conditionId` validation uses the correct oracle fallback.
 
 ## Resolution Worker
 

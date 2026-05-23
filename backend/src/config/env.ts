@@ -64,12 +64,14 @@ export interface AppConfig {
     enabled: boolean;
     sourceRpcUrl?: string;
     oracleAddress?: Address;
+    oracleAddresses: Address[];
     negRiskOracleAddress?: Address;
     outcomeSlotCount: number;
     allowNonLocalForkRpc: boolean;
   };
   templateCtfSync: {
     enabled: boolean;
+    sourceRpcUrl?: string;
     batchSize: number;
     concurrency: number;
   };
@@ -164,6 +166,24 @@ function readAddress(name: string): Address | undefined {
   return getAddress(raw);
 }
 
+function readAddressList(name: string): Address[] {
+  const raw = process.env[name];
+  if (!raw) return [];
+  const addresses: Address[] = [];
+  const seen = new Set<string>();
+  for (const entry of raw.split(',')) {
+    const trimmed = entry.trim();
+    if (!trimmed) continue;
+    if (!isAddress(trimmed)) throw new Error(`${name} must contain comma-separated EVM addresses`);
+    const address = getAddress(trimmed);
+    const key = address.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    addresses.push(address);
+  }
+  return addresses;
+}
+
 function readPrivateKey(name: string): Hex | undefined {
   const raw = process.env[name];
   if (!raw) return undefined;
@@ -205,6 +225,8 @@ export function loadAppConfig(): AppConfig {
   const dbDatabase = process.env.DB_DATABASE;
   const explicitDbConfigEnabled = Boolean(dbHost && dbUsername && dbDatabase);
   const resolutionMirrorEnabled = readBoolean('POLYMARKET_RESOLUTION_MIRROR_ENABLED', false);
+  const resolutionMirrorSourceRpcUrl = readOptionalString('POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL') ?? readOptionalString('POLYGON_RPC_URL');
+  const templateCtfSyncSourceRpcUrl = readOptionalString('POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL') ?? resolutionMirrorSourceRpcUrl;
 
   return {
     nodeEnv,
@@ -264,14 +286,16 @@ export function loadAppConfig(): AppConfig {
     },
     polymarketResolutionMirror: {
       enabled: resolutionMirrorEnabled,
-      sourceRpcUrl: readOptionalString('POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL') ?? readOptionalString('POLYGON_RPC_URL'),
+      sourceRpcUrl: resolutionMirrorSourceRpcUrl,
       oracleAddress: readAddress('POLYMARKET_CTF_ORACLE_ADDRESS'),
+      oracleAddresses: readAddressList('POLYMARKET_CTF_ORACLE_ADDRESSES'),
       negRiskOracleAddress: readAddress('POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS'),
       outcomeSlotCount: readInteger('POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT', 2),
       allowNonLocalForkRpc: readBoolean('POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC', false),
     },
     templateCtfSync: {
       enabled: readBoolean('POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED', resolutionMirrorEnabled),
+      sourceRpcUrl: templateCtfSyncSourceRpcUrl,
       batchSize: readInteger('POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE', 50),
       concurrency: readInteger('POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY', 2),
     },

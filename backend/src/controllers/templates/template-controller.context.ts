@@ -443,7 +443,9 @@ export class TemplateControllerContext {
 
   private async syncOneTemplateCtf(template: CanonicalSportsTemplate): Promise<TemplateCtfSyncResult> {
     try {
-      const mirror = await this.ctfMirror.syncTemplate(template);
+      const mirror = await this.ctfMirror.syncTemplate(template, {
+        sourceRpcUrl: this.config.templateCtfSync.sourceRpcUrl,
+      });
       const result = syncResultFromMirror(mirror);
       await this.saveTemplateCtfSyncStatus(result);
       this.logger?.info({

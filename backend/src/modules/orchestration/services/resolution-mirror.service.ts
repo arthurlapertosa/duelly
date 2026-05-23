@@ -1,8 +1,14 @@
 import type { AppConfig } from '../../../config/env.js';
+import {
+  configuredCtfOracleAddressKeys,
+  ctfConditionIdFor,
+  isBytes32,
+  resolveTemplateCtfOracle,
+} from '../../templates/domain/ctf-oracle.js';
 import type { CanonicalSportsTemplate } from '../../templates/domain/types.js';
 import type { ChainService } from '../chain.js';
 import type { IndexedBet } from '../domain.js';
-import type { Address, Hex } from 'viem';
+import { getAddress, isAddress, type Address, type Hex } from 'viem';
 
 export type ResolutionMirrorStatus =
   | 'disabled'
@@ -45,6 +51,15 @@ interface MirrorLogger {
   warn?(input: unknown, message?: string): void;
 }
 
+export interface SyncTemplateOptions {
+  sourceRpcUrl?: string;
+}
+
+interface ResolvedOracleAddress {
+  address: Address;
+  source: string;
+}
+
 export class ResolutionMirrorService {
   constructor(
     private readonly config: AppConfig,
@@ -75,15 +90,16 @@ export class ResolutionMirrorService {
     };
   }
 
-  async syncTemplate(template: CanonicalSportsTemplate): Promise<TemplateCtfMirrorResult> {
+  async syncTemplate(
+    template: CanonicalSportsTemplate,
+    options: SyncTemplateOptions = {},
+  ): Promise<TemplateCtfMirrorResult> {
     if (!this.config.polymarketResolutionMirror.enabled) {
       return this.templateResult('disabled', template);
     }
-    if (!this.config.polymarketResolutionMirror.sourceRpcUrl) {
+    const sourceRpcUrl = options.sourceRpcUrl ?? this.config.polymarketResolutionMirror.sourceRpcUrl;
+    if (!sourceRpcUrl) {
       return this.templateResult('missing-source-rpc', template);
-    }
-    if (!this.config.polymarketResolutionMirror.oracleAddress) {
-      return this.templateResult('missing-oracle', template);
     }
     if (!this.isAllowedForkRpc()) {
       this.logger?.warn?.(
@@ -101,7 +117,7 @@ export class ResolutionMirrorService {
 
     const [forkChainId, sourceChainId] = await Promise.all([
       this.chain.readChainId(),
-      this.chain.readChainId({ rpcUrl: this.config.polymarketResolutionMirror.sourceRpcUrl }),
+      this.chain.readChainId({ rpcUrl: sourceRpcUrl }),
     ]);
     if (forkChainId !== 137 || sourceChainId !== 137) {
       this.logger?.warn?.(
@@ -112,16 +128,33 @@ export class ResolutionMirrorService {
     }
 
     const outcomeSlotCount = this.config.polymarketResolutionMirror.outcomeSlotCount;
-    const oracleAddress = await this.resolveOracleAddress(template, outcomeSlotCount);
-    if (!oracleAddress) {
+    const oracle = this.resolveOracleAddress(template, outcomeSlotCount);
+    if (!oracle) {
+      this.logger?.warn?.({
+        templateHash: template.templateHash,
+        templateId: template.templateId,
+        conditionId: template.conditionId,
+        questionId: template.questionId,
+        resolvedBy: template.resolvedBy,
+        ctfOracleAddress: template.ctfOracleAddress,
+        ctfOracleValidationStatus: template.ctfOracleValidationStatus,
+      }, 'resolution mirror could not validate CTF oracle for template');
       return this.templateResult('invalid-template', template, {
         error: 'CTF condition id does not match oracle, question id, and slot count',
       });
     }
-
+    const oracleAddress = oracle.address;
     const conditionId = template.conditionId as Hex;
+    this.logger?.info({
+      templateHash: template.templateHash,
+      templateId: template.templateId,
+      conditionId,
+      oracleAddress,
+      oracleSource: oracle.source,
+    }, 'resolution mirror selected CTF oracle');
+
     const sourceState = await this.chain.readCtfPayoutState(conditionId, {
-      rpcUrl: this.config.polymarketResolutionMirror.sourceRpcUrl,
+      rpcUrl: sourceRpcUrl,
     });
 
     if (
@@ -146,6 +179,8 @@ export class ResolutionMirrorService {
 
     if (sourceState.denominator === 0n) {
       if (localState.outcomeSlotCount === 0) {
+        const writableForkCheck = await this.ensureWritableFork(template);
+        if (writableForkCheck) return writableForkCheck;
         const prepareTransactionHash = await this.chain.writePrepareCondition(
           oracleAddress,
           template.questionId as Hex,
@@ -156,6 +191,7 @@ export class ResolutionMirrorService {
           templateHash: template.templateHash,
           templateId: template.templateId,
           conditionId: template.conditionId,
+          oracleAddress,
           prepareTransactionHash,
         }, 'template CTF condition prepared');
         return this.templateResult('prepared', template, {
@@ -182,6 +218,8 @@ export class ResolutionMirrorService {
       });
     }
 
+    const writableForkCheck = await this.ensureWritableFork(template);
+    if (writableForkCheck) return writableForkCheck;
     const mirrored = await this.chain.mirrorCtfPayout({
       oracleAddress,
       questionId: template.questionId as Hex,
@@ -193,6 +231,7 @@ export class ResolutionMirrorService {
       templateHash: template.templateHash,
       templateId: template.templateId,
       conditionId,
+      oracleAddress,
       mirrorStatus: mirrored.status,
       transactionHash: mirrored.transactionHash,
     }, 'template CTF payout synced');
@@ -266,31 +305,81 @@ export class ResolutionMirrorService {
     }
   }
 
-  private async resolveOracleAddress(
+  private resolveOracleAddress(
     template: CanonicalSportsTemplate,
     outcomeSlotCount: number,
-  ): Promise<Address | null> {
+  ): ResolvedOracleAddress | null {
     const conditionId = template.conditionId.toLowerCase();
     const questionId = template.questionId as Hex;
-    const candidates = [
-      this.config.polymarketResolutionMirror.oracleAddress,
-      this.config.polymarketResolutionMirror.negRiskOracleAddress,
-    ].filter((address, index, values): address is Address => (
-      Boolean(address) && values.indexOf(address) === index
-    ));
 
-    for (const oracleAddress of candidates) {
-      const expectedConditionId = await this.chain.readCtfConditionId(
-        oracleAddress,
-        questionId,
-        outcomeSlotCount,
-      );
-      if (expectedConditionId.toLowerCase() === conditionId) return oracleAddress;
+    if (template.ctfOracleAddress && isAddress(template.ctfOracleAddress)) {
+      const oracleAddress = getAddress(template.ctfOracleAddress);
+      if (!this.isConfiguredOracleAddress(oracleAddress)) {
+        this.logger?.warn?.({
+          templateHash: template.templateHash,
+          templateId: template.templateId,
+          conditionId: template.conditionId,
+          ctfOracleAddress: template.ctfOracleAddress,
+        }, 'template stored CTF oracle is not configured as an allowed mirror oracle');
+      } else if (ctfConditionIdFor(oracleAddress, questionId, outcomeSlotCount).toLowerCase() === conditionId) {
+        return {
+          address: oracleAddress,
+          source: `template:${template.ctfOracleSource ?? 'stored'}`,
+        };
+      } else {
+        this.logger?.warn?.({
+          templateHash: template.templateHash,
+          templateId: template.templateId,
+          conditionId: template.conditionId,
+          ctfOracleAddress: template.ctfOracleAddress,
+        }, 'template stored CTF oracle did not validate against condition id');
+      }
     }
-    return null;
-  }
-}
 
-function isBytes32(value: string): boolean {
-  return /^0x[0-9a-fA-F]{64}$/.test(value);
+    const fallback = resolveTemplateCtfOracle({
+      conditionId: template.conditionId,
+      questionId: template.questionId,
+      resolvedBy: template.resolvedBy,
+      negRisk: false,
+      includeNegRiskOracleFallback: true,
+      outcomeSlotCount,
+      negRiskOracleAddress: this.config.polymarketResolutionMirror.negRiskOracleAddress,
+      oracleAddresses: this.config.polymarketResolutionMirror.oracleAddresses,
+      oracleAddress: this.config.polymarketResolutionMirror.oracleAddress,
+    });
+    if (!fallback.ctfOracleAddress) return null;
+    return {
+      address: fallback.ctfOracleAddress,
+      source: `fallback:${fallback.ctfOracleSource ?? 'unknown'}`,
+    };
+  }
+
+  private isConfiguredOracleAddress(address: Address): boolean {
+    return configuredCtfOracleAddressKeys({
+      outcomeSlotCount: this.config.polymarketResolutionMirror.outcomeSlotCount,
+      negRiskOracleAddress: this.config.polymarketResolutionMirror.negRiskOracleAddress,
+      oracleAddresses: this.config.polymarketResolutionMirror.oracleAddresses,
+      oracleAddress: this.config.polymarketResolutionMirror.oracleAddress,
+    }).has(address.toLowerCase());
+  }
+
+  private async ensureWritableFork(
+    template: CanonicalSportsTemplate,
+  ): Promise<TemplateCtfMirrorResult | null> {
+    try {
+      await this.chain.assertAnvilRpc();
+      return null;
+    } catch (error) {
+      this.logger?.warn?.({
+        templateHash: template.templateHash,
+        templateId: template.templateId,
+        conditionId: template.conditionId,
+        rpcUrl: this.config.chain.rpcUrl,
+        error: error instanceof Error ? error.message : String(error),
+      }, 'resolution mirror refused fork write because target RPC is not Anvil-compatible');
+      return this.templateResult('non-local-fork-rpc', template, {
+        error: 'Fork write RPC did not expose Anvil methods',
+      });
+    }
+  }
 }

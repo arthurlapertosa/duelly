@@ -34,10 +34,12 @@ const keys = [
   'POLYMARKET_RESOLUTION_MIRROR_ENABLED',
   'POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL',
   'POLYMARKET_CTF_ORACLE_ADDRESS',
+  'POLYMARKET_CTF_ORACLE_ADDRESSES',
   'POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS',
   'POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT',
   'POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC',
   'POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED',
+  'POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL',
   'POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE',
   'POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY',
   'NODE_ENV',
@@ -76,10 +78,12 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.polymarketResolutionMirror.enabled, false);
     assert.equal(config.polymarketResolutionMirror.sourceRpcUrl, undefined);
     assert.equal(config.polymarketResolutionMirror.oracleAddress, undefined);
+    assert.deepEqual(config.polymarketResolutionMirror.oracleAddresses, []);
     assert.equal(config.polymarketResolutionMirror.negRiskOracleAddress, undefined);
     assert.equal(config.polymarketResolutionMirror.outcomeSlotCount, 2);
     assert.equal(config.polymarketResolutionMirror.allowNonLocalForkRpc, false);
     assert.equal(config.templateCtfSync.enabled, false);
+    assert.equal(config.templateCtfSync.sourceRpcUrl, undefined);
     assert.equal(config.templateCtfSync.batchSize, 50);
     assert.equal(config.templateCtfSync.concurrency, 2);
     assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
@@ -203,6 +207,7 @@ test('loadAppConfig supports Polymarket resolution mirror settings', () => {
     process.env.POLYMARKET_RESOLUTION_MIRROR_ENABLED = 'true';
     process.env.POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL = 'https://polygon-rpc.example';
     process.env.POLYMARKET_CTF_ORACLE_ADDRESS = '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74';
+    process.env.POLYMARKET_CTF_ORACLE_ADDRESSES = '0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7, 0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74';
     process.env.POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS = '0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296';
     process.env.POLYMARKET_RESOLUTION_MIRROR_OUTCOME_SLOT_COUNT = '2';
     process.env.POLYMARKET_RESOLUTION_MIRROR_ALLOW_NON_LOCAL_FORK_RPC = 'true';
@@ -212,6 +217,10 @@ test('loadAppConfig supports Polymarket resolution mirror settings', () => {
     assert.equal(config.polymarketResolutionMirror.enabled, true);
     assert.equal(config.polymarketResolutionMirror.sourceRpcUrl, 'https://polygon-rpc.example');
     assert.equal(config.polymarketResolutionMirror.oracleAddress, '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74');
+    assert.deepEqual(config.polymarketResolutionMirror.oracleAddresses, [
+      '0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7',
+      '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74',
+    ]);
     assert.equal(config.polymarketResolutionMirror.negRiskOracleAddress, '0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296');
     assert.equal(config.polymarketResolutionMirror.outcomeSlotCount, 2);
     assert.equal(config.polymarketResolutionMirror.allowNonLocalForkRpc, true);
@@ -225,18 +234,22 @@ test('loadAppConfig supports template CTF sync settings', () => {
   try {
     for (const key of keys) delete process.env[key];
     process.env.POLYMARKET_RESOLUTION_MIRROR_ENABLED = 'true';
+    process.env.POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL = 'https://resolution-rpc.example';
 
     let config = loadAppConfig();
     assert.equal(config.templateCtfSync.enabled, true);
+    assert.equal(config.templateCtfSync.sourceRpcUrl, 'https://resolution-rpc.example');
     assert.equal(config.templateCtfSync.batchSize, 50);
     assert.equal(config.templateCtfSync.concurrency, 2);
 
     process.env.POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED = 'false';
+    process.env.POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL = 'https://template-rpc.example';
     process.env.POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE = '7';
     process.env.POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY = '3';
     config = loadAppConfig();
 
     assert.equal(config.templateCtfSync.enabled, false);
+    assert.equal(config.templateCtfSync.sourceRpcUrl, 'https://template-rpc.example');
     assert.equal(config.templateCtfSync.batchSize, 7);
     assert.equal(config.templateCtfSync.concurrency, 3);
   } finally {

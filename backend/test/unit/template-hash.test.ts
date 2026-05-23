@@ -26,4 +26,11 @@ test('critical template field changes alter hash while active does not alter ide
   assert.notEqual(hashCanonicalInputs({ ...withoutHash, conditionId: '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff' }), template.templateHash);
   assert.notEqual(hashCanonicalInputs({ ...withoutHash, loserFeeBps: template.loserFeeBps + 1 }), template.templateHash);
   assert.equal(hashCanonicalInputs({ ...withoutHash, active: false }), template.templateHash);
+  assert.equal(hashCanonicalInputs({
+    ...withoutHash,
+    resolvedBy: '0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7',
+    ctfOracleAddress: '0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7',
+    ctfOracleSource: 'gamma-resolved-by',
+    ctfOracleValidationStatus: 'validated',
+  }), template.templateHash);
 });

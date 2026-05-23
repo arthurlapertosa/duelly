@@ -42,7 +42,13 @@ The host-local `/opt/duelly/app/.env` must include these public staging values:
 CORS_ORIGINS=https://duelly-hml.typewith.ai
 VITE_API_BASE_URL=https://api-duelly-hml.typewith.ai
 VITE_ALLOWED_HOSTS=duelly-hml.typewith.ai
+POLYMARKET_CTF_ORACLE_ADDRESSES=0x65070BE91477460D8A7AeEb94ef92fe056C2f2A7,0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74
+POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS=0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296
+POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL=
 ```
+
+`POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL` is optional. When it is not set, proactive template CTF sync uses `POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL`.
+Gamma `resolvedBy` is treated as fork-write oracle metadata only when it matches one of the configured CTF oracle candidates above.
 
 ## Inspect Staging
 
@@ -102,6 +108,8 @@ pm2 status
 curl -fsS http://127.0.0.1:3000/ready
 curl -fsS -I http://127.0.0.1:5173 | head
 ```
+
+The deploy script also prints non-secret effective backend config after restart: CTF oracle candidate count, source RPC hostnames for funded-bet mirror and template CTF sync, and template sync enabled/batch/concurrency values.
 
 ## Redeploy Contract On Existing Fork
 

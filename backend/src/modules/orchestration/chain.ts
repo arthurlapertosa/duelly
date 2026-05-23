@@ -396,6 +396,7 @@ export class ChainService {
   }
 
   async mirrorCtfPayout(input: MirrorCtfPayoutInput): Promise<MirrorCtfPayoutResult> {
+    await this.assertAnvilRpc();
     const { polymarketCtfAddress } = this.requireAddresses();
     const expectedConditionId = await this.readCtfConditionId(
       input.oracleAddress,
@@ -457,7 +458,12 @@ export class ChainService {
     }
   }
 
+  async assertAnvilRpc(): Promise<void> {
+    await this.anvilRpc('anvil_nodeInfo', []);
+  }
+
   async writePrepareCondition(oracleAddress: Address, questionId: Hex, outcomeSlotCount: number): Promise<Hex> {
+    await this.assertAnvilRpc();
     const { polymarketCtfAddress } = this.requireAddresses();
     const { walletClient, account } = this.requireWalletClient();
     return await walletClient.writeContract({

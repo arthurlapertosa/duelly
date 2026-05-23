@@ -1,4 +1,5 @@
 import type { AppConfig } from '../../../config/env.js';
+import { resolveTemplateCtfOracle } from '../domain/ctf-oracle.js';
 import type { BinaryMarketType, Competition, CompetitionLevel, EventType, NormalizedMarketCandidate, Outcome, Sport } from '../domain/types.js';
 import { hashJson } from '../hashing/template-hash.service.js';
 
@@ -149,6 +150,10 @@ export class GammaClient {
     const slug = stringField(market.slug) ?? stringField(event?.slug) ?? providerMarketId;
     const endDate = optionalString(market.endDate ?? market.endDateIso ?? event?.endDate);
     const eventStartAt = resolveEventStartAt(market, event);
+    const conditionId = optionalString(market.conditionId);
+    const questionId = optionalString(market.questionID ?? market.questionId);
+    const resolvedBy = optionalString(market.resolvedBy);
+    const negRisk = booleanField(market.negRisk, booleanField(event?.negRisk, false));
     const sportMetadata = collectSportMetadataText(market, event);
     const marketIdentityText = [
       question,
@@ -172,15 +177,26 @@ export class GammaClient {
       providerMarketId,
       slug,
       question,
-      conditionId: optionalString(market.conditionId),
-      questionId: optionalString(market.questionID ?? market.questionId),
+      conditionId,
+      questionId,
+      resolvedBy,
+      ...resolveTemplateCtfOracle({
+        conditionId,
+        questionId,
+        resolvedBy,
+        negRisk,
+        outcomeSlotCount: this.config.polymarketResolutionMirror.outcomeSlotCount,
+        negRiskOracleAddress: this.config.polymarketResolutionMirror.negRiskOracleAddress,
+        oracleAddresses: this.config.polymarketResolutionMirror.oracleAddresses,
+        oracleAddress: this.config.polymarketResolutionMirror.oracleAddress,
+      }),
       outcomes,
       outcomeTokenIds: parseStringArray(market.clobTokenIds),
       active: booleanField(market.active, booleanField(event?.active, false)),
       closed: booleanField(market.closed, booleanField(event?.closed, false)),
       archived: booleanField(market.archived, booleanField(event?.archived, false)),
       acceptingOrders: market.acceptingOrders === undefined ? undefined : Boolean(market.acceptingOrders),
-      negRisk: booleanField(market.negRisk, booleanField(event?.negRisk, false)),
+      negRisk,
       endDate,
       eventStartAt,
       rulesText,

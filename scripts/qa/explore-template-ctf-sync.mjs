@@ -40,7 +40,7 @@ CTF sync, reverts fork state, and proves sync can recreate the condition.
 `);
 }
 
-function loadEnvFile(filePath) {
+function loadEnvFile(filePath, options = {}) {
   if (!filePath || !fs.existsSync(filePath)) return;
   const contents = fs.readFileSync(filePath, 'utf8');
   for (const line of contents.split(/\r?\n/)) {
@@ -55,8 +55,18 @@ function loadEnvFile(filePath) {
     ) {
       value = value.slice(1, -1);
     }
-    if (process.env[key] === undefined) process.env[key] = value;
+    if (
+      process.env[key] === undefined
+      || (options.overrideBlank === true && process.env[key]?.trim() === '')
+    ) {
+      process.env[key] = value;
+    }
   }
+}
+
+function optionalEnv(name) {
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }
 
 async function rpc(rpcUrl, method, params = []) {
@@ -101,17 +111,19 @@ async function main() {
 
   loadEnvFile(path.join(repoRoot, '.env'));
   const deploymentEnv = path.resolve(repoRoot, args.deploymentEnv ?? 'cache/staging-fork/deployment.env');
-  loadEnvFile(deploymentEnv);
+  loadEnvFile(deploymentEnv, { overrideBlank: true });
 
-  const forkRpcUrl = process.env.LOCAL_FORK_RPC_URL ?? process.env.CHAIN_RPC_URL ?? 'http://127.0.0.1:8545';
-  const sourceRpcUrl = process.env.POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL ?? process.env.POLYGON_RPC_URL;
-  const ctf = process.env.POLYMARKET_CTF_ADDRESS;
+  const forkRpcUrl = optionalEnv('LOCAL_FORK_RPC_URL') ?? optionalEnv('CHAIN_RPC_URL') ?? 'http://127.0.0.1:8545';
+  const resolutionSourceRpcUrl = optionalEnv('POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL') ?? optionalEnv('POLYGON_RPC_URL');
+  const templateSourceRpcUrl = optionalEnv('POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL') ?? resolutionSourceRpcUrl;
+  const ctf = optionalEnv('POLYMARKET_CTF_ADDRESS');
   const port = Number.parseInt(String(args.port ?? '3091'), 10);
   const apiBaseUrl = `http://127.0.0.1:${port}`;
 
-  if (!sourceRpcUrl) throw new Error('Missing POLYGON_RPC_URL or POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL');
+  if (!resolutionSourceRpcUrl) throw new Error('Missing POLYGON_RPC_URL or POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL');
+  if (!templateSourceRpcUrl) throw new Error('Missing POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL or resolution source RPC fallback');
   if (!ctf) throw new Error('Missing POLYMARKET_CTF_ADDRESS');
-  if (!process.env.DATABASE_URL && !(process.env.DB_HOST && process.env.DB_USERNAME && process.env.DB_DATABASE)) {
+  if (!optionalEnv('DATABASE_URL') && !(optionalEnv('DB_HOST') && optionalEnv('DB_USERNAME') && optionalEnv('DB_DATABASE'))) {
     throw new Error('Missing backend database configuration');
   }
 
@@ -134,8 +146,9 @@ async function main() {
     POLYMARKET_LIVE_DISCOVERY_ENABLED: 'true',
     POLYMARKET_ALLOW_NEG_RISK: process.env.POLYMARKET_ALLOW_NEG_RISK ?? 'true',
     POLYMARKET_RESOLUTION_MIRROR_ENABLED: 'true',
-    POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL: sourceRpcUrl,
+    POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL: resolutionSourceRpcUrl,
     POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED: 'true',
+    POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL: templateSourceRpcUrl,
     POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE: '5',
     POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY: '1',
     RESOLUTION_WORKER_ENABLED: 'false',
@@ -178,7 +191,7 @@ async function main() {
     const firstResult = firstSync.results?.[0];
     if (!firstResult) throw new Error(`No CTF sync result returned: ${JSON.stringify(firstSync)}`);
 
-    const source = await inspectCondition({ rpcUrl: sourceRpcUrl, ctf, conditionId: target.conditionId, outcomes: 2 });
+    const source = await inspectCondition({ rpcUrl: templateSourceRpcUrl, ctf, conditionId: target.conditionId, outcomes: 2 });
     const forkAfterFirst = await inspectCondition({ rpcUrl: forkRpcUrl, ctf, conditionId: target.conditionId, outcomes: 2 });
     if (BigInt(source.payoutDenominator) > 0n) {
       if (forkAfterFirst.payoutDenominator !== source.payoutDenominator) {
@@ -219,6 +232,8 @@ async function main() {
       ok: true,
       templateId: target.templateId,
       conditionId: target.conditionId,
+      ctfOracleAddress: target.ctfOracleAddress ?? null,
+      ctfOracleValidationStatus: target.ctfOracleValidationStatus ?? null,
       firstStatus: firstResult.status,
       secondStatus: secondResult.status,
       sourceDenominator: source.payoutDenominator,

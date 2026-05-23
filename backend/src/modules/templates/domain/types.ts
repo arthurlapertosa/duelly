@@ -4,6 +4,12 @@ export type Sport = typeof sports[number];
 export type Provider = 'polymarket';
 export type DiscoveryMode = 'fixture' | 'live';
 export type ResultSource = 'official_result' | 'odds_or_probability' | 'ambiguous' | 'unknown';
+export type CtfOracleSource =
+  | 'gamma-resolved-by'
+  | 'configured-default'
+  | 'configured-neg-risk'
+  | 'configured-allowlist';
+export type CtfOracleValidationStatus = 'validated' | 'unvalidated' | 'missing-input';
 
 export type Competition =
   | 'FIFA_WORLD_CUP'
@@ -75,6 +81,10 @@ export interface NormalizedMarketCandidate {
   question: string;
   conditionId?: string;
   questionId?: string;
+  resolvedBy?: string;
+  ctfOracleAddress?: string;
+  ctfOracleSource?: CtfOracleSource;
+  ctfOracleValidationStatus?: CtfOracleValidationStatus;
   outcomes: Outcome[];
   outcomeTokenIds?: string[];
   active: boolean;
@@ -110,6 +120,10 @@ export interface CanonicalSportsTemplate {
   providerMarketIdHash: string;
   conditionId: string;
   questionId: string;
+  resolvedBy?: string;
+  ctfOracleAddress?: string;
+  ctfOracleSource?: CtfOracleSource;
+  ctfOracleValidationStatus: CtfOracleValidationStatus;
   questionIdHash: string;
   sport: Sport;
   sportCode: number;
