@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FlaskConical, Frown, Handshake, Trophy } from 'lucide-react';
+import { FlaskConical, Frown, Handshake, Loader2, Trophy } from 'lucide-react';
 import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { formatBRL } from '../lib/format';
@@ -47,6 +47,7 @@ export function BetDetailScreen() {
   const bet = summary?.bet ?? remoteBet;
   const template = summary?.template;
   const status = summary ? deriveBetStatus(summary) : bet?.status;
+  const activatingInviteId = summary?.invite.status === 'funding_submitted' && !bet ? summary.invite.id : null;
 
   useEffect(() => {
     if (!id || !token || summary) return;
@@ -65,6 +66,29 @@ export function BetDetailScreen() {
     if (id.startsWith('invite-')) return;
     void api.getBet(id).then(setRemoteBet).catch(() => undefined);
   }, [id, summary]);
+
+  useEffect(() => {
+    if (!id || !summary?.bet || id === summary.bet.betId) return;
+    navigate(`/bets/${summary.bet.betId}`, { replace: true });
+  }, [id, navigate, summary?.bet]);
+
+  useEffect(() => {
+    if (!token || !activatingInviteId) return;
+    let active = true;
+    const poll = async () => {
+      await refreshBets();
+      const funded = await api.getBetByInvite(activatingInviteId).catch(() => null);
+      if (!active || !funded) return;
+      setRemoteBet(funded);
+      navigate(`/bets/${funded.betId}`, { replace: true });
+    };
+    void poll();
+    const timer = window.setInterval(() => void poll(), 3000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [activatingInviteId, navigate, refreshBets, token]);
 
   if (!status || !template) {
     return (
@@ -85,6 +109,7 @@ export function BetDetailScreen() {
   const isInviteExpired = summary ? inviteHasExpired(summary.invite) : false;
   const showFinishAcceptance =
     summary?.role === 'taker' && summary.invite.status === 'accepted' && !bet;
+  const showActivating = Boolean(activatingInviteId);
   const canFinishAcceptance = showFinishAcceptance && !isInviteExpired;
   // Maker can cancel their own still-open invite before anyone accepts.
   const canCancelInvite =
@@ -135,6 +160,7 @@ export function BetDetailScreen() {
       );
       await Promise.all([refreshBets(), refreshPendingInvites()]);
       if (authorized.funding.betId) navigate(`/bets/${authorized.funding.betId}`, { replace: true });
+      else navigate(`/bets/${summary.invite.id}`, { replace: true });
     } catch (cause) {
       setActionError(cause);
     } finally {
@@ -194,6 +220,16 @@ export function BetDetailScreen() {
       />
 
       {status === 'InviteCreated' && summary ? <InviteLink inviteId={summary.invite.id} /> : null}
+
+      {showActivating ? (
+        <Card padding="md" className="flex items-start gap-3 border-brand-100 bg-brand-50">
+          <Loader2 size={20} className="mt-0.5 shrink-0 animate-spin text-brand-600" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-semibold text-brand-800">{t('invite.activatingTitle')}</p>
+            <p className="mt-1 text-sm leading-relaxed text-brand-700">{t('invite.activatingBody')}</p>
+          </div>
+        </Card>
+      ) : null}
 
       {canCancelInvite ? (
         <Button

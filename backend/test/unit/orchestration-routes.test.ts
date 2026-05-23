@@ -14,7 +14,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
 import { betAcceptanceTypes, betOfferTypes } from '../../src/modules/orchestration/chain.js';
-import type { BetInvite, IndexedBet } from '../../src/modules/orchestration/domain.js';
+import type { BetInvite, IndexedBet, RelayerAttempt } from '../../src/modules/orchestration/domain.js';
 import { inviteToAcceptance, inviteToOffer } from '../../src/modules/orchestration/services/invite-payloads.js';
 import { RelayerService, relayerErrorCode } from '../../src/modules/orchestration/services/relayer.service.js';
 
@@ -28,34 +28,278 @@ test('relayer maps local contract reverts to stable API error codes', () => {
   assert.equal(relayerErrorCode({ cause: { data: { errorName: 'ConditionResolved' } } }), 'CONDITION_RESOLVED');
 });
 
-test('relayer registers missing accepted templates before funding', async () => {
-  const attempts: Array<{ action: string; status: string; transactionHash: string | null }> = [];
+test('relayer queues missing accepted template registration before funding', async () => {
+  const attempts: RelayerAttempt[] = [];
   let registeredTemplateHash: string | null = null;
   const templateHash = `0x${'01'.repeat(32)}` as const;
+  const invite = {
+    id: 'invite-test',
+    templateHash,
+  } as BetInvite;
+  const fundingAttempt = {
+    id: 'attempt-funding',
+    requestId: 'relayer-test',
+    deploymentKey: 'test-deployment',
+    inviteId: invite.id,
+    action: 'acceptBetWithPermits',
+    status: 'submitted',
+    transactionHash: null,
+    betId: null,
+    error: null,
+    payload: { inviteId: invite.id },
+    createdAt: new Date(),
+  } satisfies RelayerAttempt;
   const service = new RelayerService(
-    { saveRelayerAttempt: async (attempt: { action: string; status: string; transactionHash: string | null }) => {
-      attempts.push(attempt);
-      return attempt;
-    } } as never,
+    {
+      findLatestRelayerAttemptForInviteAction: async () => undefined,
+      saveRelayerAttempt: async (attempt: RelayerAttempt) => {
+        attempts.push(attempt);
+        return attempt;
+      },
+    } as never,
     {
       readTemplate: async () => ({ registered: false, active: false }),
       writeRegisterTemplate: async (template: { templateHash: string }) => {
         registeredTemplateHash = template.templateHash;
         return `0x${'02'.repeat(32)}`;
       },
-      wait: async () => ({ status: 'success', blockNumber: 1n }),
     } as never,
     async () => ({ templateHash }) as never,
   );
 
-  await (service as unknown as {
-    ensureTemplateRegistered(hash: typeof templateHash, requestId: string, inviteId: string): Promise<void>;
-  }).ensureTemplateRegistered(templateHash, 'relayer-test', 'invite-test');
+  const templateReady = await (service as unknown as {
+    ensureTemplateRegistered(invite: BetInvite, fundingAttempt: RelayerAttempt): Promise<boolean>;
+  }).ensureTemplateRegistered(invite, fundingAttempt);
 
+  assert.equal(templateReady, false);
   assert.equal(registeredTemplateHash, templateHash);
   assert.equal(attempts.length, 1);
   assert.equal(attempts[0].action, 'registerTemplate');
+  assert.equal(attempts[0].status, 'submitted');
+  assert.equal(attempts[0].transactionHash, `0x${'02'.repeat(32)}`);
+});
+
+test('relayer enqueues funding without submitting the transaction inline', async () => {
+  const escrowAddress = '0x0000000000000000000000000000000000001002' as Address;
+  const templateHash = `0x${'11'.repeat(32)}` as Hex;
+  const conditionId = `0x${'22'.repeat(32)}` as Hex;
+  const offerHash = `0x${'33'.repeat(32)}` as Hex;
+  const expiresAt = new Date('2026-06-01T00:00:00.000Z');
+  const invite: BetInvite = {
+    id: 'invite-queue',
+    makerUserId: 'maker-user',
+    takerUserId: 'taker-user',
+    recipientEmail: null,
+    templateHash,
+    conditionId,
+    makerAddress: maker.address,
+    takerAddress: taker.address,
+    makerOutcomeIndex: 0,
+    takerOutcomeIndex: 1,
+    stake: '50000000000000000000',
+    loserFee: '3000000000000000000',
+    offerNonce: '1',
+    acceptanceNonce: '2',
+    offerHash,
+    offerPayload: {},
+    offerSignature: null,
+    makerPermit: {
+      value: '53000000000000000000',
+      nonce: '0',
+      deadline: '9999999999',
+      v: 27,
+      r: `0x${'55'.repeat(32)}` as Hex,
+      s: `0x${'66'.repeat(32)}` as Hex,
+    },
+    makerAuthorizedAt: new Date(),
+    acceptancePayload: {},
+    acceptanceSignature: null,
+    takerPermit: {
+      value: '53000000000000000000',
+      nonce: '0',
+      deadline: '9999999999',
+      v: 27,
+      r: `0x${'77'.repeat(32)}` as Hex,
+      s: `0x${'88'.repeat(32)}` as Hex,
+    },
+    takerAuthorizedAt: new Date(),
+    status: 'accepted',
+    betId: null,
+    deploymentKey: null,
+    expiresAt,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  const domain = {
+    name: 'DuellyBetEscrowBRL1',
+    version: '1',
+    chainId: 137,
+    verifyingContract: escrowAddress,
+  } as const;
+  invite.offerSignature = await maker.signTypedData({
+    domain,
+    types: betOfferTypes,
+    primaryType: 'BetOffer',
+    message: inviteToOffer(invite),
+  });
+  invite.acceptanceSignature = await taker.signTypedData({
+    domain,
+    types: betAcceptanceTypes,
+    primaryType: 'BetAcceptance',
+    message: inviteToAcceptance(invite),
+  });
+
+  let savedInvite: BetInvite | undefined;
+  let savedAttempt: RelayerAttempt | undefined;
+  let submittedInline = false;
+  const service = new RelayerService(
+    {
+      findInvite: async () => invite,
+      saveInvite: async (next: BetInvite) => {
+        savedInvite = next;
+        return next;
+      },
+      findLatestRelayerAttemptForInviteAction: async () => undefined,
+      saveRelayerAttempt: async (attempt: RelayerAttempt) => {
+        savedAttempt = attempt;
+        return attempt;
+      },
+    } as never,
+    {
+      deploymentKey: () => 'test-deployment',
+      domain: () => domain,
+      requireWalletClient: () => ({
+        account: '0x0000000000000000000000000000000000001004' as Address,
+        walletClient: {
+          writeContract: async () => {
+            submittedInline = true;
+            return `0x${'99'.repeat(32)}` as Hex;
+          },
+        },
+      }),
+    } as never,
+  );
+
+  const result = await service.fund({ inviteId: invite.id });
+
+  assert.equal(result.status, 'submitted');
+  assert.equal(result.transactionHash, null);
+  assert.equal(result.betId, null);
+  assert.equal(savedInvite?.status, 'funding_submitted');
+  assert.equal(savedInvite?.deploymentKey, 'test-deployment');
+  assert.equal(savedAttempt?.action, 'acceptBetWithPermits');
+  assert.equal(savedAttempt?.deploymentKey, 'test-deployment');
+  assert.equal(submittedInline, false);
+});
+
+test('relayer resumes template registration once its receipt lands', async () => {
+  const attempts: RelayerAttempt[] = [];
+  const existingAttempt = {
+    id: 'attempt-template',
+    requestId: 'relayer-test',
+    deploymentKey: 'test-deployment',
+    inviteId: 'invite-test',
+    action: 'registerTemplate',
+    status: 'submitted',
+    transactionHash: `0x${'02'.repeat(32)}` as Hex,
+    betId: null,
+    error: null,
+    payload: {},
+    createdAt: new Date(),
+  } satisfies RelayerAttempt;
+  const service = new RelayerService(
+    {
+      findLatestRelayerAttemptForInviteAction: async () => existingAttempt,
+      saveRelayerAttempt: async (attempt: RelayerAttempt) => {
+        attempts.push(attempt);
+      return attempt;
+      },
+    } as never,
+    {
+      readTemplate: async () => ({ registered: false, active: false }),
+      receipt: async () => ({ status: 'success', blockNumber: 1n }),
+    } as never,
+  );
+
+  const templateReady = await (service as unknown as {
+    ensureTemplateRegistered(invite: BetInvite, fundingAttempt: RelayerAttempt): Promise<boolean>;
+  }).ensureTemplateRegistered({ id: 'invite-test', templateHash: `0x${'01'.repeat(32)}` as Hex } as BetInvite, {
+    id: 'attempt-funding',
+    requestId: 'relayer-test',
+    deploymentKey: 'test-deployment',
+    inviteId: 'invite-test',
+    action: 'acceptBetWithPermits',
+    status: 'submitted',
+    transactionHash: null,
+    betId: null,
+    error: null,
+    payload: {},
+    createdAt: new Date(),
+  });
+
+  assert.equal(templateReady, true);
+  assert.equal(attempts.length, 1);
+  assert.equal(attempts[0].action, 'registerTemplate');
   assert.equal(attempts[0].status, 'succeeded');
+});
+
+test('relayer fails expired queued funding without submitting a transaction', async () => {
+  let wroteContract = false;
+  let savedAttempt: RelayerAttempt | undefined;
+  let savedInvite: BetInvite | undefined;
+  const invite = {
+    id: 'invite-expired',
+    status: 'funding_submitted',
+    expiresAt: new Date('2026-05-21T00:00:00.000Z'),
+    takerAddress: taker.address,
+    takerOutcomeIndex: 1,
+    acceptancePayload: {},
+  } as BetInvite;
+  const service = new RelayerService(
+    {
+      findInvite: async () => invite,
+      saveRelayerAttempt: async (attempt: RelayerAttempt) => {
+        savedAttempt = attempt;
+        return attempt;
+      },
+      saveInvite: async (next: BetInvite) => {
+        savedInvite = next;
+        return next;
+      },
+    } as never,
+    {
+      requireWalletClient: () => ({
+        account: '0x0000000000000000000000000000000000001004' as Address,
+        walletClient: {
+          writeContract: async () => {
+            wroteContract = true;
+            return `0x${'99'.repeat(32)}` as Hex;
+          },
+        },
+      }),
+    } as never,
+  );
+
+  const result = await service.processFundingAttempt({
+    id: 'attempt-expired',
+    requestId: 'relayer-expired',
+    deploymentKey: 'test-deployment',
+    inviteId: invite.id,
+    action: 'acceptBetWithPermits',
+    status: 'processing',
+    transactionHash: null,
+    betId: null,
+    error: null,
+    payload: { inviteId: invite.id },
+    createdAt: new Date(),
+    lockedAt: new Date(),
+  });
+
+  assert.equal(result.status, 'failed');
+  assert.equal(savedAttempt?.error, 'INVITE_EXPIRED');
+  assert.equal(savedAttempt?.lockedAt, null);
+  assert.equal(savedInvite?.status, 'accepted');
+  assert.equal(wroteContract, false);
 });
 
 test('relayer persists funded bet from receipt before the indexer catches up', async () => {
@@ -103,8 +347,9 @@ test('relayer persists funded bet from receipt before the indexer catches up', a
       s: `0x${'88'.repeat(32)}` as Hex,
     },
     takerAuthorizedAt: new Date(),
-    status: 'accepted',
+    status: 'funding_submitted',
     betId: null,
+    deploymentKey: 'test-deployment',
     expiresAt,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -153,9 +398,10 @@ test('relayer persists funded bet from receipt before the indexer catches up', a
         savedIndexedBet = bet;
         return bet;
       },
-      saveRelayerAttempt: async (attempt: unknown) => attempt,
+      saveRelayerAttempt: async (attempt: RelayerAttempt) => attempt,
     } as never,
     {
+      deploymentKey: () => 'test-deployment',
       domain: () => domain,
       readTemplate: async () => ({ registered: true, active: true }),
       requireAddresses: () => ({
@@ -163,13 +409,7 @@ test('relayer persists funded bet from receipt before the indexer catches up', a
         escrowAddress,
         polymarketCtfAddress: '0x0000000000000000000000000000000000001003' as Address,
       }),
-      requireWalletClient: () => ({
-        account: '0x0000000000000000000000000000000000001004' as Address,
-        walletClient: {
-          writeContract: async () => tx,
-        },
-      }),
-      wait: async () => ({
+      receipt: async () => ({
         status: 'success',
         blockNumber: 123n,
         logs: [{ address: escrowAddress, data: fundedLog.data, topics: fundedLog.topics }],
@@ -177,9 +417,22 @@ test('relayer persists funded bet from receipt before the indexer catches up', a
     } as never,
   );
 
-  const result = await service.fund({ inviteId: invite.id });
+  const result = await service.processFundingAttempt({
+    id: 'attempt-funding',
+    requestId: 'relayer-funding',
+    deploymentKey: 'test-deployment',
+    inviteId: invite.id,
+    action: 'acceptBetWithPermits',
+    status: 'submitted',
+    transactionHash: tx,
+    betId: null,
+    error: null,
+    payload: { inviteId: invite.id },
+    createdAt: new Date(),
+  });
 
   assert.equal(result.betId, '1');
+  assert.equal(result.status, 'succeeded');
   assert.equal(savedInvite?.status, 'funded');
   assert.equal(savedInvite?.betId, '1');
   assert.equal(savedIndexedBet?.betId, '1');
@@ -207,6 +460,12 @@ function testConfig(options: { inviteTtlSeconds?: number } = {}) {
       intervalMs: 60_000,
       batchSize: 10,
       pendingRetrySeconds: 900,
+    },
+    relayerWorker: {
+      enabled: false,
+      intervalMs: 3000,
+      batchSize: 5,
+      processingTimeoutMs: 120000,
     },
     polymarketResolutionMirror: {
       enabled: false,

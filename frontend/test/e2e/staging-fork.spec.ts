@@ -50,8 +50,7 @@ test.describe('staging fork real-data flow', () => {
     await takerPage.goto(inviteUrl!);
     await expect(takerPage.getByRole('button', { name: 'Accept bet' })).toBeEnabled({ timeout: 30_000 });
     await takerPage.getByRole('button', { name: 'Accept bet' }).click();
-    await expect(takerPage.getByText('Bet accepted')).toBeVisible({ timeout: 90_000 });
-    await takerPage.getByRole('button', { name: 'View bet' }).click();
+    await expect(takerPage.getByText('Activating bet')).toBeVisible({ timeout: 90_000 });
     await expect(takerPage.getByText('Waiting for result')).toBeVisible({ timeout: 60_000 });
 
     const betId = takerPage.url().split('/').pop();

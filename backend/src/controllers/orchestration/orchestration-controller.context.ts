@@ -23,6 +23,8 @@ export interface OrchestrationControllerOptions {
   templates?: TemplateControllerContext;
   logger?: {
     info(input: unknown, message?: string): void;
+    warn?(input: unknown, message?: string): void;
+    error?(input: unknown, message?: string): void;
   };
 }
 
@@ -58,6 +60,11 @@ export class OrchestrationControllerContext {
       this.repository,
       this.chain,
       (templateHash) => this.templates.findAcceptedTemplate(templateHash),
+      {
+        info: (...args) => options.logger?.info(...args),
+        warn: (...args) => options.logger?.warn?.(...args),
+        error: (...args) => options.logger?.error?.(...args),
+      },
     );
     this.indexer = new IndexerService(this.repository, this.chain);
     this.resolution = new ResolutionService(this.repository, this.chain);

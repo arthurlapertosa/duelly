@@ -14,11 +14,14 @@ export class BetsController {
 
   mine = async (request: AuthedRequest, reply: FastifyReply) => wrap(reply, async () => {
     const user = request.user!;
-    const invites = await this.context.repository.findInvitesByUserId(user.id);
+    const deploymentKey = this.context.chain.deploymentKey();
+    const invites = await this.context.repository.findInvitesByUserId(user.id, deploymentKey);
     const bets = await Promise.all(invites.map(async (invite) => {
       const [template, bet] = await Promise.all([
         findTemplate(this.context, invite.templateHash, {}),
-        invite.betId ? this.context.repository.findIndexedBet(invite.betId) : this.context.repository.findIndexedBetByInviteId(invite.id),
+        invite.betId
+          ? this.context.repository.findIndexedBet(invite.betId, deploymentKey)
+          : this.context.repository.findIndexedBetByInviteId(invite.id, deploymentKey),
       ]);
       return {
         role: invite.makerUserId === user.id ? 'maker' : 'taker',
@@ -33,14 +36,14 @@ export class BetsController {
 
   get = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const params = objectBody(request.params);
-    const bet = await this.context.repository.findIndexedBet(stringField(params, 'betId'));
+    const bet = await this.context.repository.findIndexedBet(stringField(params, 'betId'), this.context.chain.deploymentKey());
     if (!bet) throw httpError(404, 'BET_NOT_FOUND');
     return { bet };
   });
 
   getByInvite = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
     const params = objectBody(request.params);
-    const bet = await this.context.repository.findIndexedBetByInviteId(stringField(params, 'inviteId'));
+    const bet = await this.context.repository.findIndexedBetByInviteId(stringField(params, 'inviteId'), this.context.chain.deploymentKey());
     if (!bet) throw httpError(404, 'BET_NOT_FOUND');
     return { bet };
   });

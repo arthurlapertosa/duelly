@@ -224,6 +224,15 @@ export class ChainService {
     } as const;
   }
 
+  deploymentKey(): string {
+    const { escrowAddress } = this.requireAddresses();
+    return [
+      `chain:${this.config.chain.chainId}`,
+      `escrow:${escrowAddress.toLowerCase()}`,
+      `block:${this.config.chain.deploymentBlock.toString()}`,
+    ].join(':');
+  }
+
   hashOffer(message: BetOfferMessage): Hex {
     return hashTypedData({
       domain: this.domain(),
@@ -503,6 +512,14 @@ export class ChainService {
 
   async wait(hash: Hex) {
     return await this.requirePublicClient().waitForTransactionReceipt({ hash });
+  }
+
+  async receipt(hash: Hex) {
+    try {
+      return await this.requirePublicClient().getTransactionReceipt({ hash });
+    } catch {
+      return undefined;
+    }
   }
 
   decodeEscrowLog(log: { topics: Hex[]; data: Hex }) {
