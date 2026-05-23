@@ -28,7 +28,8 @@ export const allowedTennisLevels = new Set<CompetitionLevel>([
 
 export const allowedFootballMarketTypes = new Set<BinaryMarketType>([
   'FOOTBALL_TOURNAMENT_WINNER_YES_NO',
-  'FOOTBALL_BINARY_MATCH_CONDITION',
+  'FOOTBALL_MATCH_TEAM_WIN_YES_NO',
+  'FOOTBALL_MATCH_DRAW_YES_NO',
 ]);
 
 export const allowedTennisMarketTypes = new Set<BinaryMarketType>([

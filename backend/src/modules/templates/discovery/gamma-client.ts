@@ -13,13 +13,13 @@ interface SportFeedDefinition {
   tagId?: number;
   tagSlug?: string;
   seriesSlug?: string;
+  maxPages?: number;
+  minPageSize?: number;
 }
 
 const eventFeedsBySport: Partial<Record<Sport, SportFeedDefinition[]>> = {
   football: [
-    { tagId: 102648 },
-    { tagId: 102562 },
-    { tagId: 102539 },
+    { tagSlug: 'soccer', maxPages: 8, minPageSize: 100 },
   ],
   tennis: [
     { seriesSlug: 'atp' },
@@ -55,7 +55,7 @@ export class GammaClient {
       }
     }
 
-    return sortBySoonestStartDate(dedupeCandidates(candidates));
+    return sortBySoonestCloseDate(dedupeCandidates(candidates));
   }
 
   private async discoverFeedMarkets(sport: Sport): Promise<NormalizedMarketCandidate[]> {
@@ -95,31 +95,38 @@ export class GammaClient {
   }
 
   private async fetchEvents(feed: SportFeedDefinition): Promise<GammaEvent[]> {
-    const url = new URL('/events', this.config.polymarket.gammaBaseUrl);
-    if (feed.tagId !== undefined) url.searchParams.set('tag_id', String(feed.tagId));
-    if (feed.tagSlug) url.searchParams.set('tag_slug', feed.tagSlug);
-    if (feed.seriesSlug) url.searchParams.set('series_slug', feed.seriesSlug);
-    url.searchParams.set('active', 'true');
-    url.searchParams.set('closed', 'false');
-    url.searchParams.set('end_date_min', new Date().toISOString());
-    url.searchParams.set('limit', String(this.config.polymarket.maxResults));
-    url.searchParams.set('order', 'startTime');
-    url.searchParams.set('ascending', 'true');
+    const events: GammaEvent[] = [];
+    const maxPages = feed.maxPages ?? 1;
+    const pageSize = Math.max(this.config.polymarket.maxResults, feed.minPageSize ?? this.config.polymarket.maxResults);
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), this.config.polymarket.timeoutMs);
-    try {
-      const response = await fetch(url, { signal: controller.signal });
-      if (!response.ok) throw new Error(`Gamma API returned ${response.status}`);
-      const json = await response.json() as unknown;
-      if (Array.isArray(json)) return json as GammaEvent[];
-      if (json && typeof json === 'object' && Array.isArray((json as { events?: unknown }).events)) {
-        return (json as { events: GammaEvent[] }).events;
+    for (let page = 0; page < maxPages; page += 1) {
+      const url = new URL('/events', this.config.polymarket.gammaBaseUrl);
+      if (feed.tagId !== undefined) url.searchParams.set('tag_id', String(feed.tagId));
+      if (feed.tagSlug) url.searchParams.set('tag_slug', feed.tagSlug);
+      if (feed.seriesSlug) url.searchParams.set('series_slug', feed.seriesSlug);
+      url.searchParams.set('active', 'true');
+      url.searchParams.set('closed', 'false');
+      url.searchParams.set('end_date_min', new Date().toISOString());
+      url.searchParams.set('limit', String(pageSize));
+      if (page > 0) url.searchParams.set('offset', String(page * pageSize));
+      url.searchParams.set('order', 'startTime');
+      url.searchParams.set('ascending', 'true');
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), this.config.polymarket.timeoutMs);
+      try {
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) throw new Error(`Gamma API returned ${response.status}`);
+        const json = await response.json() as unknown;
+        const pageEvents = normalizeEventsResponse(json);
+        events.push(...pageEvents);
+        if (pageEvents.length < pageSize) break;
+      } finally {
+        clearTimeout(timeout);
       }
-      return [];
-    } finally {
-      clearTimeout(timeout);
     }
+
+    return events;
   }
 
   private normalizeMarket(market: GammaMarket, sport: Sport, event?: GammaEvent): NormalizedMarketCandidate {
@@ -226,14 +233,21 @@ function classifyLiveMarket(input: { sport: Sport; marketText: string; rulesText
           : text.includes('brasileir') || text.includes('brazil serie a') || text.includes('brazilian serie a') ? 'BRASILEIRAO'
             : text.includes('libertadores') ? 'COPA_LIBERTADORES'
               : 'UNSUPPORTED';
+    const fullTimeTeamWin = isFootballFullTimeTeamWinText(text, input.outcomeLabels);
+    const fullTimeDraw = isFootballFullTimeDrawText(text, input.outcomeLabels);
+    const matchText = fullTimeTeamWin || fullTimeDraw || isMatchText(text);
     return {
       competition,
-      eventType: isMatchText(text) ? 'MATCH' : 'TOURNAMENT',
-      binaryMarketType: isDisallowedPropText(text)
+      eventType: matchText ? 'MATCH' : 'TOURNAMENT',
+      binaryMarketType: isDisallowedFootballText(text)
         ? 'DISALLOWED_PROP'
-        : isMatchText(text)
-          ? 'FOOTBALL_BINARY_MATCH_CONDITION'
-          : 'FOOTBALL_TOURNAMENT_WINNER_YES_NO',
+        : fullTimeTeamWin
+          ? 'FOOTBALL_MATCH_TEAM_WIN_YES_NO'
+          : fullTimeDraw
+            ? 'FOOTBALL_MATCH_DRAW_YES_NO'
+            : matchText
+              ? 'DISALLOWED_PROP'
+              : 'FOOTBALL_TOURNAMENT_WINNER_YES_NO',
     };
   }
 
@@ -300,6 +314,27 @@ function classifyTennisCompetition(text: string): {
 
 function isDisallowedPropText(text: string): boolean {
   return /\b(spread|handicap|total|corner|card|prop)\b/.test(text);
+}
+
+function isDisallowedFootballText(text: string): boolean {
+  return isDisallowedPropText(text)
+    || /\b(btts|both teams? to score|both teams? score)\b/.test(text)
+    || /\b(half[- ]?time|first half|1st half|second half|2nd half|leading at halftime|draw at halftime)\b/.test(text)
+    || /\b(exact score|correct score)\b/.test(text)
+    || /\b(over\/under|o\/u|o-u|over \d+(?:\.\d+)?|under \d+(?:\.\d+)?|totals?)\b/.test(text)
+    || /\b(corners?|cards?|yellow cards?|red cards?|bookings?)\b/.test(text)
+    || /\b(player prop|goalscorer|goal scorer|anytime scorer|first goal|last goal|shots?|assists?|clean sheet)\b/.test(text)
+    || /\b(three[- ]?way|3[- ]?way|moneyline)\b/.test(text);
+}
+
+function isFootballFullTimeTeamWinText(text: string, outcomeLabels: string[]): boolean {
+  return hasYesNoOutcomes(outcomeLabels)
+    && /\bwill\s+.+?\s+win\s+on\s+\d{4}-\d{2}-\d{2}\b/.test(text);
+}
+
+function isFootballFullTimeDrawText(text: string, outcomeLabels: string[]): boolean {
+  return hasYesNoOutcomes(outcomeLabels)
+    && /\bwill\s+.+?\s+vs\.?\s+.+?\s+end\s+in\s+a\s+draw\b/.test(text);
 }
 
 function isDisallowedTennisText(text: string): boolean {
@@ -383,6 +418,10 @@ function isYesNoOutcome(label: string): boolean {
   return /^(yes|no)$/i.test(label.trim());
 }
 
+function hasYesNoOutcomes(labels: string[]): boolean {
+  return labels.length === 2 && labels.every((label) => isYesNoOutcome(label));
+}
+
 function participantLabels(labels: string[]): string[] {
   return labels.filter((label) => !isYesNoOutcome(label));
 }
@@ -401,6 +440,14 @@ function parseStringArray(value: unknown): string[] {
     } catch {
       return value.split(',').map((item) => item.trim()).filter(Boolean);
     }
+  }
+  return [];
+}
+
+function normalizeEventsResponse(value: unknown): GammaEvent[] {
+  if (Array.isArray(value)) return value as GammaEvent[];
+  if (value && typeof value === 'object' && Array.isArray((value as { events?: unknown }).events)) {
+    return (value as { events: GammaEvent[] }).events;
   }
   return [];
 }
@@ -515,16 +562,16 @@ function dedupeCandidates(candidates: NormalizedMarketCandidate[]): NormalizedMa
   return [...byConditionOrMarket.values()];
 }
 
-function sortBySoonestStartDate(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
+function sortBySoonestCloseDate(candidates: NormalizedMarketCandidate[]): NormalizedMarketCandidate[] {
   return [...candidates].sort((left, right) => {
-    const leftStartTime = Date.parse(left.eventStartAt ?? '');
-    const rightStartTime = Date.parse(right.eventStartAt ?? '');
-    const startComparison = comparableTime(leftStartTime) - comparableTime(rightStartTime);
-    if (startComparison !== 0) return startComparison;
-
     const leftTime = Date.parse(left.endDate ?? '');
     const rightTime = Date.parse(right.endDate ?? '');
-    return comparableTime(leftTime) - comparableTime(rightTime);
+    const closeComparison = comparableTime(leftTime) - comparableTime(rightTime);
+    if (closeComparison !== 0) return closeComparison;
+
+    const leftStartTime = Date.parse(left.eventStartAt ?? '');
+    const rightStartTime = Date.parse(right.eventStartAt ?? '');
+    return comparableTime(leftStartTime) - comparableTime(rightStartTime);
   });
 }
 
