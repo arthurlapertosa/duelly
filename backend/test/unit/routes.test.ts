@@ -145,6 +145,16 @@ test('template list route supports backend pagination, sport, and text search fi
   assert.equal(searched.statusCode, 200);
   assert.equal(searched.json().count, 1);
   assert.equal(searched.json().templates[0].templateId, 'fixture-f1-sprint-winner');
+
+  const cruzeiro = await app.inject({ method: 'GET', url: '/templates?mode=fixture&sport=football&q=cruzeiro&limit=25' });
+  assert.equal(cruzeiro.statusCode, 200);
+  assert.deepEqual(
+    cruzeiro.json().templates.map((template: { binaryMarketType: string }) => template.binaryMarketType),
+    [
+      'FOOTBALL_MATCH_DRAW_YES_NO',
+      'FOOTBALL_MATCH_TEAM_WIN_YES_NO',
+    ],
+  );
 });
 
 test('backend template search normalization is accent-insensitive', () => {
