@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import type { Address } from 'viem';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
+import { normalizeSearchText } from '../../src/modules/templates/persistence/template-repository.js';
 
 function routeTestConfig() {
   const config = loadAppConfig();
@@ -90,6 +91,10 @@ test('template routes expose fixture candidates, accepted templates, rejected ca
   const accepted = await app.inject({ method: 'GET', url: '/templates?mode=fixture&sport=f1' });
   assert.equal(accepted.statusCode, 200);
   assert.equal(accepted.json().count, 2);
+  assert.equal(accepted.json().pageCount, 2);
+  assert.equal(accepted.json().nextCursor, null);
+  assert.equal(accepted.json().stale, false);
+  assert.match(accepted.json().refreshedAt, /^\d{4}-\d{2}-\d{2}T/);
   assert.match(accepted.json().templates[0].templateHash, /^0x[0-9a-f]{64}$/);
   assert.equal(accepted.json().templates[0].display.ptBR.outcomes[0], 'Sim');
   assert.match(accepted.json().templates[0].display.ptBR.rulesSummary, /classificação oficial/);
@@ -113,6 +118,37 @@ test('template routes expose fixture candidates, accepted templates, rejected ca
   const liveDiscovery = await app.inject({ method: 'GET', url: '/templates/candidates?mode=live' });
   assert.equal(liveDiscovery.statusCode, 403);
   assert.equal(liveDiscovery.json().code, 'LIVE_DISCOVERY_DISABLED');
+});
+
+test('template list route supports backend pagination, sport, and text search filters', async () => {
+  const app = await createApp({
+    config: routeTestConfig(),
+  });
+  test.after(async () => app.close());
+
+  const first = await app.inject({ method: 'GET', url: '/templates?mode=fixture&sport=f1&limit=1' });
+  assert.equal(first.statusCode, 200);
+  assert.equal(first.json().count, 2);
+  assert.equal(first.json().pageCount, 1);
+  assert.equal(typeof first.json().nextCursor, 'string');
+
+  const second = await app.inject({
+    method: 'GET',
+    url: `/templates?mode=fixture&sport=f1&limit=1&cursor=${encodeURIComponent(first.json().nextCursor)}`,
+  });
+  assert.equal(second.statusCode, 200);
+  assert.equal(second.json().count, 2);
+  assert.equal(second.json().pageCount, 1);
+  assert.notEqual(second.json().templates[0].templateId, first.json().templates[0].templateId);
+
+  const searched = await app.inject({ method: 'GET', url: '/templates?mode=fixture&sport=f1&q=austria%20sprint&limit=25' });
+  assert.equal(searched.statusCode, 200);
+  assert.equal(searched.json().count, 1);
+  assert.equal(searched.json().templates[0].templateId, 'fixture-f1-sprint-winner');
+});
+
+test('backend template search normalization is accent-insensitive', () => {
+  assert.equal(normalizeSearchText('São Paulo João'), 'sao paulo joao');
 });
 
 test('template routes honor zero close buffer config', async () => {
@@ -262,7 +298,7 @@ test('template routes return accepted mocked live tennis and UFC templates', asy
   }
 });
 
-test('live template routes hide cached resolved conditions and keep future provider close dates', async () => {
+test('live template routes avoid forced detail refreshes and hide cached resolved conditions', async () => {
   const previousFetch = globalThis.fetch;
   const resolvedConditionId = bytes32('resolved-geneva-market');
   const futureConditionId = bytes32('future-geneva-market');
@@ -334,8 +370,11 @@ test('live template routes hide cached resolved conditions and keep future provi
       method: 'GET',
       url: '/templates/live-resolved-geneva-market?mode=live&sport=tennis',
     });
-    assert.equal(resolvedDetail.statusCode, 410);
-    assert.equal(resolvedDetail.json().code, 'CONDITION_RESOLVED');
+    assert.equal(resolvedDetail.statusCode, 200);
+    assert.equal(resolvedDetail.json().template.templateId, 'live-resolved-geneva-market');
+
+    await app.inject({ method: 'GET', url: '/templates?mode=live&sport=tennis' });
+    await new Promise((resolve) => setImmediate(resolve));
 
     const accepted = await app.inject({ method: 'GET', url: '/templates?mode=live&sport=tennis' });
     assert.equal(accepted.statusCode, 200);

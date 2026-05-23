@@ -6,6 +6,9 @@ export class IndexedChainEventEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
+  @Column({ type: 'text', name: 'deployment_key' })
+  deploymentKey!: string;
+
   @Column({ type: 'text', name: 'event_name' })
   eventName!: string;
 

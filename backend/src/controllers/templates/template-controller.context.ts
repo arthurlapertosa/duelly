@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { DataSource } from 'typeorm';
 import type { AppConfig } from '../../config/env.js';
 import { ChainService } from '../../modules/orchestration/chain.js';
@@ -11,9 +12,15 @@ import {
 } from '../../modules/templates/domain/types.js';
 import { DiscoveryAdapter } from '../../modules/templates/discovery/discovery-adapter.js';
 import { TemplateFilterService } from '../../modules/templates/filtering/template-filter.service.js';
-import { TemplateRepository } from '../../modules/templates/persistence/template-repository.js';
+import {
+  normalizeSearchText,
+  TemplateRepository,
+  type CurrentTemplateListResult,
+  type TemplatePageCursor,
+} from '../../modules/templates/persistence/template-repository.js';
 import { TemplatePublisherService } from '../../modules/templates/publisher/template-publisher.service.js';
 import { ConditionResolutionStatusService } from '../../modules/templates/resolution/condition-resolution-status.service.js';
+import { httpError } from '../../modules/orchestration/services/errors.js';
 
 export interface TemplateControllerOptions {
   config: AppConfig;
@@ -24,6 +31,23 @@ export interface TemplateControllerOptions {
 export interface TemplateQuery {
   mode?: DiscoveryMode;
   sport?: Sport;
+  q?: string;
+  limit?: number | string;
+  cursor?: string;
+}
+
+export interface ParsedTemplateQuery {
+  mode?: DiscoveryMode;
+  sport?: Sport;
+  q?: string;
+  limit: number;
+  cursor?: TemplatePageCursor;
+}
+
+export interface TemplateListResponse extends Omit<CurrentTemplateListResult, 'nextCursor'> {
+  mode: DiscoveryMode;
+  pageCount: number;
+  nextCursor: string | null;
 }
 
 export interface PublishBody {
@@ -37,6 +61,8 @@ export interface TemplatePolicyLogger {
 
 const fixtureNow = new Date('2026-05-19T00:00:00.000Z');
 const DISCOVERY_CACHE_TTL_MS = 60_000;
+const DEFAULT_TEMPLATE_PAGE_SIZE = 25;
+const MAX_TEMPLATE_PAGE_SIZE = 100;
 
 export class TemplateControllerContext {
   readonly adapter: DiscoveryAdapter;
@@ -97,27 +123,130 @@ export class TemplateControllerContext {
     return result.accepted.find((template) => template.templateHash.toLowerCase() === templateHash.toLowerCase());
   }
 
-  async findTemplateForSelection(id: string, query: { mode?: DiscoveryMode; sport?: Sport }) {
-    return await this.findFreshAcceptedTemplateByIdOrHash(id, query);
+  async findTemplateForDisplay(id: string) {
+    const stored = await this.repository.findAcceptedTemplateByIdOrHash(id);
+    if (stored) return stored;
+    if (this.repository.enabled) return undefined;
+    const result = await this.discoverAndFilter({});
+    const normalized = id.toLowerCase();
+    return result.accepted.find((template) => (
+      template.templateId === id
+      || template.templateHash.toLowerCase() === normalized
+    ));
   }
 
-  async isTemplateResolved(template: CanonicalSportsTemplate): Promise<boolean> {
-    const status = await this.conditionResolution.refresh(template.conditionId, { force: true });
-    if (status.status !== 'resolved') return false;
+  async findTemplateForSelection(id: string, query: { mode?: DiscoveryMode; sport?: Sport }) {
+    const mode = this.resolveMode(query);
+    if (this.shouldUseCurrentSnapshot(mode)) {
+      await this.ensureCurrentSnapshot(mode);
+      return await this.repository.findCurrentAcceptedTemplateByIdOrHash(id, mode);
+    }
+
+    const stored = await this.repository.findAcceptedTemplateByIdOrHash(id);
+    if (stored && mode === 'live') return stored;
+    const result = await this.discoverAndFilter(query);
+    const normalized = id.toLowerCase();
+    return result.accepted.find((template) => (
+      template.templateId === id
+      || template.templateHash.toLowerCase() === normalized
+    ));
+  }
+
+  async isTemplateKnownResolved(template: CanonicalSportsTemplate): Promise<boolean> {
+    const status = (await this.conditionResolution.cachedStatuses([template.conditionId]))
+      .get(template.conditionId.toLowerCase());
+    return status?.status === 'resolved';
+  }
+
+  async isTemplateResolved(template: CanonicalSportsTemplate, options: { force?: boolean } = {}): Promise<boolean> {
+    const status = options.force
+      ? await this.conditionResolution.refresh(template.conditionId, { force: true })
+      : (await this.conditionResolution.cachedStatuses([template.conditionId])).get(template.conditionId.toLowerCase());
+    if (!status || status.status !== 'resolved') return false;
     this.discoveryCache.clear();
     return true;
   }
 
+  async assertTemplateAvailableForInvite(template: CanonicalSportsTemplate): Promise<void> {
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (nowSeconds + this.config.polymarket.minBettingCloseBufferSeconds >= template.bettingCloseAt) {
+      throw httpError(410, 'TEMPLATE_CLOSED');
+    }
+    if (await this.isTemplateResolved(template, { force: true })) {
+      throw httpError(410, 'CONDITION_RESOLVED');
+    }
+  }
+
+  async listAcceptedTemplates(query: ParsedTemplateQuery): Promise<TemplateListResponse> {
+    const mode = this.resolveMode(query);
+    const terms = parseSearchTerms(query.q ?? '');
+    if (this.shouldUseCurrentSnapshot(mode)) {
+      await this.ensureCurrentSnapshot(mode);
+      const result = await this.repository.listCurrentAcceptedTemplates({
+        mode,
+        sport: query.sport,
+        searchTerms: terms,
+        limit: query.limit,
+        cursor: query.cursor,
+        staleAfterMs: this.config.polymarket.templateDiscoveryRefreshIntervalMs,
+      });
+      return {
+        ...result,
+        mode,
+        pageCount: result.templates.length,
+        nextCursor: encodeCursor(result.nextCursor),
+      };
+    }
+
+    const result = await this.discoverAndFilter(query);
+    const filtered = applyTemplateFilters(result.accepted, query.sport, terms);
+    const page = paginateTemplates(filtered, query.limit, query.cursor);
+    return {
+      mode,
+      count: filtered.length,
+      templates: page.templates,
+      pageCount: page.templates.length,
+      nextCursor: encodeCursor(page.nextCursor),
+      refreshedAt: new Date(),
+      stale: false,
+    };
+  }
+
+  async refreshCurrentDiscoverySnapshot(query: { mode?: DiscoveryMode; sport?: Sport; persistSnapshots?: boolean } = {}) {
+    const mode = this.resolveMode(query);
+    const startedAt = new Date();
+    const candidates = await this.adapter.discover({ mode, sport: query.sport });
+    const result = await this.filterDiscoveryResult(candidates, mode);
+    const discoveryRunId = `discovery-${randomUUID()}`;
+    await this.repository.saveAcceptedTemplates(result.accepted, discoveryRunId);
+    if (query.persistSnapshots) {
+      await this.repository.saveCandidates(candidates, discoveryRunId);
+      await this.repository.saveRejectedCandidates(result.rejected);
+    }
+    await this.repository.recordDiscoveryRun({
+      id: discoveryRunId,
+      mode,
+      sport: query.sport ?? null,
+      provider: 'polymarket',
+      status: 'succeeded',
+      gammaBaseUrl: this.config.polymarket.gammaBaseUrl,
+      startedAt,
+      finishedAt: new Date(),
+    });
+    const cacheKey = this.cacheKey(mode, query);
+    this.discoveryCache.set(cacheKey, { expiresAt: Date.now() + DISCOVERY_CACHE_TTL_MS, result });
+    return {
+      discoveryRunId,
+      mode,
+      candidates: candidates.length,
+      accepted: result.accepted.length,
+      rejected: result.rejected.length,
+    };
+  }
+
   private async discoverAndFilterFresh(query: { mode?: DiscoveryMode; sport?: Sport }, mode: DiscoveryMode) {
     const candidates = await this.adapter.discover(query);
-    const filtered = this.filter.filter(candidates, {
-      now: mode === 'fixture' ? fixtureNow : new Date(),
-      allowNegativeRisk: this.config.polymarket.allowNegativeRisk,
-      minBettingCloseBufferSeconds: this.config.polymarket.minBettingCloseBufferSeconds,
-    });
-    const result = mode === 'live'
-      ? await this.hideKnownResolvedTemplates(filtered, candidates)
-      : filtered;
+    const result = await this.filterDiscoveryResult(candidates, mode);
     this.logger?.info({
       mode,
       sport: query.sport ?? 'all',
@@ -135,19 +264,15 @@ export class TemplateControllerContext {
     return result;
   }
 
-  private async findFreshAcceptedTemplateByIdOrHash(id: string, query: { mode?: DiscoveryMode; sport?: Sport }) {
-    const mode = this.resolveMode(query);
-    const candidates = await this.adapter.discover(query);
-    const result = this.filter.filter(candidates, {
+  private async filterDiscoveryResult(candidates: NormalizedMarketCandidate[], mode: DiscoveryMode) {
+    const filtered = this.filter.filter(candidates, {
       now: mode === 'fixture' ? fixtureNow : new Date(),
       allowNegativeRisk: this.config.polymarket.allowNegativeRisk,
       minBettingCloseBufferSeconds: this.config.polymarket.minBettingCloseBufferSeconds,
     });
-    const normalized = id.toLowerCase();
-    return result.accepted.find((template) => (
-      template.templateId === id
-      || template.templateHash.toLowerCase() === normalized
-    ));
+    return mode === 'live'
+      ? await this.hideKnownResolvedTemplates(filtered, candidates)
+      : filtered;
   }
 
   private async hideKnownResolvedTemplates(
@@ -218,7 +343,102 @@ export class TemplateControllerContext {
     return { mode, sport };
   }
 
+  parseTemplateListQuery(query: TemplateQuery): ParsedTemplateQuery {
+    const parsed = this.parseTemplateQuery(query);
+    const limit = parseLimit(query.limit);
+    return {
+      ...parsed,
+      q: typeof query.q === 'string' ? query.q.trim() : undefined,
+      limit,
+      cursor: decodeCursor(query.cursor),
+    };
+  }
+
   resolveMode(query: { mode?: DiscoveryMode }): DiscoveryMode {
     return query.mode ?? this.config.polymarket.discoveryMode;
+  }
+
+  private shouldUseCurrentSnapshot(mode: DiscoveryMode): boolean {
+    return mode === 'live' && this.config.polymarket.liveDiscoveryEnabled && this.repository.enabled;
+  }
+
+  private async ensureCurrentSnapshot(mode: DiscoveryMode): Promise<void> {
+    if (!this.shouldUseCurrentSnapshot(mode)) return;
+    const run = await this.repository.findLatestSuccessfulDiscoveryRun(mode);
+    if (run) return;
+    await this.refreshCurrentDiscoverySnapshot({ mode, persistSnapshots: false });
+  }
+}
+
+function parseLimit(value: number | string | undefined): number {
+  const parsed = value === undefined ? DEFAULT_TEMPLATE_PAGE_SIZE : Number.parseInt(String(value), 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_TEMPLATE_PAGE_SIZE;
+  return Math.min(parsed, MAX_TEMPLATE_PAGE_SIZE);
+}
+
+function parseSearchTerms(query: string): string[] {
+  return normalizeSearchText(query).split(/\s+/).filter(Boolean);
+}
+
+function applyTemplateFilters(
+  templates: CanonicalSportsTemplate[],
+  sport: Sport | undefined,
+  terms: string[],
+): CanonicalSportsTemplate[] {
+  return templates.filter((template) => {
+    if (sport && template.sport !== sport) return false;
+    if (terms.length === 0) return true;
+    const searchable = normalizeSearchText([
+      template.display.question,
+      template.display.ptBR?.question,
+      template.display.ptBR?.rulesSummary,
+      ...(template.display.ptBR?.outcomes ?? []),
+      template.sport,
+      template.provider,
+      'Polymarket',
+      template.outcomeA.label,
+      template.outcomeB.label,
+    ].filter(Boolean).join(' '));
+    return terms.every((term) => searchable.includes(term));
+  });
+}
+
+function paginateTemplates(
+  templates: CanonicalSportsTemplate[],
+  limit: number,
+  cursor: TemplatePageCursor | undefined,
+): { templates: CanonicalSportsTemplate[]; nextCursor: TemplatePageCursor | null } {
+  const sorted = [...templates].sort((left, right) => (
+    left.eventStartAt - right.eventStartAt
+    || left.templateId.localeCompare(right.templateId)
+  ));
+  const startIndex = cursor
+    ? sorted.findIndex((template) => (
+      template.eventStartAt > cursor.eventStartAt
+      || (template.eventStartAt === cursor.eventStartAt && template.templateId > cursor.templateId)
+    ))
+    : 0;
+  const page = sorted.slice(Math.max(0, startIndex), Math.max(0, startIndex) + limit + 1);
+  const visible = page.length > limit ? page.slice(0, limit) : page;
+  const last = visible.at(-1);
+  return {
+    templates: visible,
+    nextCursor: page.length > limit && last ? { eventStartAt: last.eventStartAt, templateId: last.templateId } : null,
+  };
+}
+
+function encodeCursor(cursor: TemplatePageCursor | null): string | null {
+  if (!cursor) return null;
+  return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
+}
+
+function decodeCursor(value: string | undefined): TemplatePageCursor | undefined {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as Partial<TemplatePageCursor>;
+    if (typeof parsed.eventStartAt !== 'number' || typeof parsed.templateId !== 'string') return undefined;
+    return { eventStartAt: parsed.eventStartAt, templateId: parsed.templateId };
+  } catch {
+    return undefined;
   }
 }

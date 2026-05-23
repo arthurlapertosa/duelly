@@ -103,7 +103,8 @@ export function AcceptInviteScreen() {
       const takerPermit = await adapter.signPermit(address, accepted.takerPermitPayload);
       const authorized = await api.authorizeTaker(token, invite.id, acceptanceSignature, takerPermit);
       await Promise.all([refreshBets(), refreshPendingInvites()]);
-      setDoneBetId(authorized.funding.betId);
+      if (authorized.funding.betId) setDoneBetId(authorized.funding.betId);
+      else navigate(`/bets/${invite.id}`, { replace: true });
     } catch (cause) {
       setError(cause);
     } finally {

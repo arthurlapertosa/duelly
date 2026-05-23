@@ -3,7 +3,7 @@ export { Brl1Service } from './services/brl1.service.js';
 export { FeeService } from './services/fee.service.js';
 export { IndexerService } from './services/indexer.service.js';
 export { InviteService } from './services/invite.service.js';
-export { RelayerService } from './services/relayer.service.js';
+export { RelayerService, RelayerWorker } from './services/relayer.service.js';
 export { ResolutionMirrorService } from './services/resolution-mirror.service.js';
 export { ResolutionWorker } from './services/resolution-worker.service.js';
 export { ResolutionService } from './services/resolution.service.js';

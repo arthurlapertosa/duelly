@@ -6,6 +6,9 @@ export class ResolutionAttemptEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
+  @Column({ type: 'text', name: 'deployment_key' })
+  deploymentKey!: string;
+
   @Column({ type: 'text', name: 'bet_id' })
   betId!: string;
 

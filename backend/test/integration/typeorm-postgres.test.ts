@@ -199,6 +199,7 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
     takerAuthorizedAt: now,
     status: 'funded',
     betId,
+    deploymentKey: 'integration-deployment',
     expiresAt: now,
     createdAt: now,
     updatedAt: now,
@@ -206,6 +207,7 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
   await repository.saveRelayerAttempt({
     id: attemptId,
     requestId,
+    deploymentKey: 'integration-deployment',
     inviteId,
     action: 'acceptBetWithPermits',
     status: 'succeeded',
@@ -217,6 +219,7 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
   });
   await repository.saveIndexedEvent({
     id: eventId,
+    deploymentKey: 'integration-deployment',
     eventName: 'BetFunded',
     transactionHash: '0x2222222222222222222222222222222222222222222222222222222222222222',
     logIndex: 0,
@@ -225,6 +228,7 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
     createdAt: now,
   });
   await repository.saveIndexedBet({
+    deploymentKey: 'integration-deployment',
     betId,
     inviteId,
     templateHash,
@@ -243,9 +247,10 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
     sourceBlockNumber: '100',
     updatedAt: now,
   });
-  await repository.saveCursor({ id: cursorId, lastBlockNumber: '100', updatedAt: now });
+  await repository.saveCursor({ id: cursorId, deploymentKey: 'integration-deployment', lastBlockNumber: '100', updatedAt: now });
   await repository.saveResolutionAttempt({
     id: resolutionAttemptId,
+    deploymentKey: 'integration-deployment',
     betId,
     status: 'resolved',
     transactionHash: '0x3333333333333333333333333333333333333333333333333333333333333333',
@@ -256,7 +261,7 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
 
   assert.equal((await repository.findInviteByBetId(betId))?.id, inviteId);
   assert.equal((await repository.findRelayerAttemptByRequestId(requestId))?.status, 'succeeded');
-  assert.equal((await repository.findIndexedBetByInviteId(inviteId))?.betId, betId);
-  assert.equal((await repository.findCursor(cursorId))?.lastBlockNumber, '100');
+  assert.equal((await repository.findIndexedBetByInviteId(inviteId, 'integration-deployment'))?.betId, betId);
+  assert.equal((await repository.findCursor(cursorId, 'integration-deployment'))?.lastBlockNumber, '100');
   assert.equal((await repository.findResolutionAttempt(resolutionAttemptId))?.blockNumber, '101');
 });

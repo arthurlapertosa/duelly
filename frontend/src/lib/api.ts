@@ -11,6 +11,8 @@ import type {
   InviteView,
   PendingInviteView,
   PermitSubmission,
+  TemplateListInput,
+  TemplateListResult,
   TemplateView,
   TypedPayload,
   UserView,
@@ -59,7 +61,7 @@ export interface DuellyApi {
   getWallet(token: string): Promise<WalletView | null>;
   getBalance(token: string): Promise<BalanceView | null>;
   getReadiness(token: string, stakeRaw: string, loserFeeRaw: string): Promise<FundingReadinessView>;
-  listTemplates(): Promise<TemplateView[]>;
+  listTemplates(input?: TemplateListInput): Promise<TemplateListResult>;
   getTemplate(id: string): Promise<TemplateView | null>;
   quoteLoserFee(stakeRaw: string, loserFeeBps: number): Promise<FeeQuoteView>;
   createInvite(token: string, input: { templateId: string; stakeRaw: string; loserFeeRaw: string; makerOutcomeIndex: number; recipientEmail?: string }): Promise<InviteCreateResult>;
@@ -71,6 +73,7 @@ export interface DuellyApi {
   listPendingInvites(token: string): Promise<PendingInviteView[]>;
   listMyBets(token: string): Promise<BetSummaryView[]>;
   getBet(betId: string): Promise<IndexedBetView | null>;
+  getBetByInvite(inviteId: string): Promise<IndexedBetView | null>;
   resolveFixtureBet(betId: string, outcome: 'a' | 'b' | 'void'): Promise<IndexedBetView | null>;
 }
 
@@ -139,9 +142,28 @@ function createHttpApi(baseUrl: string): DuellyApi {
       token,
       body: JSON.stringify({ stake: stakeRaw, loserFee: loserFeeRaw }),
     }),
-    listTemplates: async () => {
-      const body = await request<{ templates: unknown[] }>(`/templates?mode=${templateMode}`);
-      return body.templates.map((item) => mapTemplate(item as never));
+    listTemplates: async (input = {}) => {
+      const params = new URLSearchParams({ mode: templateMode, limit: String(input.limit ?? 25) });
+      if (input.category && input.category !== 'all') params.set('sport', input.category);
+      const query = input.query?.trim();
+      if (query) params.set('q', query);
+      if (input.cursor) params.set('cursor', input.cursor);
+      const body = await request<{
+        templates: unknown[];
+        count?: number;
+        pageCount?: number;
+        nextCursor?: string | null;
+        refreshedAt?: string | null;
+        stale?: boolean;
+      }>(`/templates?${params.toString()}`, { signal: input.signal });
+      return {
+        templates: body.templates.map((item) => mapTemplate(item as never)),
+        count: Number(body.count ?? body.templates.length),
+        pageCount: Number(body.pageCount ?? body.templates.length),
+        nextCursor: body.nextCursor ?? null,
+        refreshedAt: body.refreshedAt ?? null,
+        stale: Boolean(body.stale),
+      };
     },
     getTemplate: async (id) => {
       try {
@@ -220,6 +242,15 @@ function createHttpApi(baseUrl: string): DuellyApi {
     getBet: async (betId) => {
       try {
         const body = await request<{ bet: unknown }>(`/bets/${encodeURIComponent(betId)}`);
+        return mapIndexedBet(body.bet as Record<string, unknown>);
+      } catch (error) {
+        if (error instanceof ApiError && error.code === 'BET_NOT_FOUND') return null;
+        throw error;
+      }
+    },
+    getBetByInvite: async (inviteId) => {
+      try {
+        const body = await request<{ bet: unknown }>(`/invites/${encodeURIComponent(inviteId)}/bet`);
         return mapIndexedBet(body.bet as Record<string, unknown>);
       } catch (error) {
         if (error instanceof ApiError && error.code === 'BET_NOT_FOUND') return null;
@@ -335,6 +366,79 @@ const fixtureTemplates: TemplateView[] = [
   },
 ];
 
+function fixtureTemplatePage(input: TemplateListInput): TemplateListResult {
+  const limit = Math.min(Math.max(input.limit ?? 25, 1), 100);
+  const terms = searchTerms(input.query ?? '');
+  const filtered = fixtureTemplates
+    .filter((template) => !input.category || input.category === 'all' || template.category === input.category)
+    .filter((template) => {
+      if (terms.length === 0) return true;
+      const searchable = normalizeTemplateSearchText(template);
+      return terms.every((term) => searchable.includes(term));
+    })
+    .sort((left, right) => (
+      Date.parse(left.eventStartAt) - Date.parse(right.eventStartAt)
+      || left.id.localeCompare(right.id)
+    ));
+  const cursor = decodeTemplateCursor(input.cursor ?? null);
+  const startIndex = cursor
+    ? filtered.findIndex((template) => (
+      Date.parse(template.eventStartAt) > cursor.eventStartAt
+      || (Date.parse(template.eventStartAt) === cursor.eventStartAt && template.id > cursor.templateId)
+    ))
+    : 0;
+  const page = filtered.slice(Math.max(0, startIndex), Math.max(0, startIndex) + limit + 1);
+  const visible = page.length > limit ? page.slice(0, limit) : page;
+  const last = visible.at(-1);
+  return {
+    templates: visible,
+    count: filtered.length,
+    pageCount: visible.length,
+    nextCursor: page.length > limit && last ? encodeTemplateCursor({
+      eventStartAt: Date.parse(last.eventStartAt),
+      templateId: last.id,
+    }) : null,
+    refreshedAt: new Date().toISOString(),
+    stale: false,
+  };
+}
+
+function searchTerms(query: string): string[] {
+  return normalizeSearchText(query).split(/\s+/).filter(Boolean);
+}
+
+function normalizeTemplateSearchText(template: TemplateView): string {
+  return normalizeSearchText([
+    template.title,
+    template.category,
+    template.source,
+    template.rulesSummary,
+    ...template.outcomes,
+    template.display?.ptBR?.question,
+    template.display?.ptBR?.rulesSummary,
+    ...(template.display?.ptBR?.outcomes ?? []),
+  ].filter(Boolean).join(' '));
+}
+
+function normalizeSearchText(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function encodeTemplateCursor(cursor: { eventStartAt: number; templateId: string }): string {
+  return encodeURIComponent(JSON.stringify(cursor));
+}
+
+function decodeTemplateCursor(value: string | null): { eventStartAt: number; templateId: string } | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(decodeURIComponent(value)) as { eventStartAt?: unknown; templateId?: unknown };
+    if (typeof parsed.eventStartAt !== 'number' || typeof parsed.templateId !== 'string') return null;
+    return { eventStartAt: parsed.eventStartAt, templateId: parsed.templateId };
+  } catch {
+    return null;
+  }
+}
+
 function createFixtureApi(): DuellyApi {
   return {
     mode: 'fixture',
@@ -415,7 +519,7 @@ function createFixtureApi(): DuellyApi {
         canAttemptBet: available >= required,
       };
     },
-    listTemplates: async () => fixtureTemplates,
+    listTemplates: async (input = {}) => fixtureTemplatePage(input),
     getTemplate: async (id) => fixtureTemplates.find((template) => template.id === id || template.templateHash === id) ?? null,
     quoteLoserFee: async (stakeRaw, loserFeeBps) => {
       const percentFee = BigInt(stakeRaw) * BigInt(loserFeeBps) / 10_000n;
@@ -545,30 +649,13 @@ function createFixtureApi(): DuellyApi {
       const { state, user } = requireFixtureUser(token);
       const invite = findFixtureInvite(state, inviteId);
       if (invite.takerUserId !== user.id || !invite.takerAddress) throw new ApiError('INVITE_NOT_OWNED_BY_USER');
-      const bet: FixtureBet = {
-        betId: `bet-${state.bets.length + 1}`,
-        inviteId: invite.id,
-        templateHash: invite.templateHash,
-        conditionId: invite.conditionId,
-        playerA: invite.makerAddress,
-        playerB: invite.takerAddress,
-        playerAOutcomeIndex: invite.makerOutcomeIndex,
-        playerBOutcomeIndex: invite.takerOutcomeIndex ?? 1,
-        stakeRaw: invite.stakeRaw,
-        loserFeeRaw: invite.loserFeeRaw,
-        status: 'Funded',
-        winner: null,
-        winnerPayoutRaw: null,
-        treasuryPayoutRaw: null,
-        updatedAt: new Date().toISOString(),
-      };
-      invite.status = 'funded';
-      invite.betId = bet.betId;
-      state.bets.unshift(bet);
-      debitUser(state, invite.makerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
-      debitUser(state, invite.takerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
+      if (invite.betId) {
+        return { invite, funding: { requestId: `relayer-${Date.now()}`, transactionHash: `0x${'ab'.repeat(32)}`, status: 'succeeded', betId: invite.betId } };
+      }
+      invite.status = 'funding_submitted';
       writeFixtureState(state);
-      return { invite, funding: { requestId: `relayer-${Date.now()}`, transactionHash: `0x${'ab'.repeat(32)}`, status: 'success', betId: bet.betId } };
+      window.setTimeout(() => completeFixtureFunding(invite.id), 1500);
+      return { invite, funding: { requestId: `relayer-${Date.now()}`, transactionHash: null, status: 'submitted', betId: null } };
     },
     listPendingInvites: async (token) => {
       const { state, user } = requireFixtureUser(token);
@@ -605,6 +692,7 @@ function createFixtureApi(): DuellyApi {
         });
     },
     getBet: async (betId) => readFixtureState().bets.find((bet) => bet.betId === betId) ?? null,
+    getBetByInvite: async (inviteId) => readFixtureState().bets.find((bet) => bet.inviteId === inviteId) ?? null,
     resolveFixtureBet: async (betId, outcome) => {
       const state = readFixtureState();
       const bet = state.bets.find((item) => item.betId === betId);
@@ -635,6 +723,35 @@ function readFixtureState(): FixtureState {
 
 function writeFixtureState(state: FixtureState): void {
   window.localStorage.setItem(fixtureKey, JSON.stringify(state));
+}
+
+function completeFixtureFunding(inviteId: string): void {
+  const state = readFixtureState();
+  const invite = state.invites.find((item) => item.id === inviteId);
+  if (!invite || invite.status !== 'funding_submitted' || !invite.takerAddress) return;
+  const bet: FixtureBet = {
+    betId: `bet-${state.bets.length + 1}`,
+    inviteId: invite.id,
+    templateHash: invite.templateHash,
+    conditionId: invite.conditionId,
+    playerA: invite.makerAddress,
+    playerB: invite.takerAddress,
+    playerAOutcomeIndex: invite.makerOutcomeIndex,
+    playerBOutcomeIndex: invite.takerOutcomeIndex ?? 1,
+    stakeRaw: invite.stakeRaw,
+    loserFeeRaw: invite.loserFeeRaw,
+    status: 'Funded',
+    winner: null,
+    winnerPayoutRaw: null,
+    treasuryPayoutRaw: null,
+    updatedAt: new Date().toISOString(),
+  };
+  invite.status = 'funded';
+  invite.betId = bet.betId;
+  state.bets.unshift(bet);
+  debitUser(state, invite.makerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
+  debitUser(state, invite.takerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
+  writeFixtureState(state);
 }
 
 function saveSession(state: FixtureState, user: FixtureUser): AuthResult {

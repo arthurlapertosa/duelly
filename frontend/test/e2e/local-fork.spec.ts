@@ -37,8 +37,7 @@ test('local fork HTTP flow funds and resolves one maker-wins bet', async ({ brow
   await registerAndVerify(takerPage, 'local-taker@example.test', taker.address);
   await takerPage.goto(inviteUrl!);
   await takerPage.getByRole('button', { name: 'Accept bet' }).click();
-  await expect(takerPage.getByText('Bet accepted')).toBeVisible({ timeout: 60_000 });
-  await takerPage.getByRole('button', { name: 'View bet' }).click();
+  await expect(takerPage.getByText('Activating bet')).toBeVisible({ timeout: 60_000 });
   await expect(takerPage.getByText('Waiting for result')).toBeVisible();
 
   const betId = takerPage.url().split('/').pop();

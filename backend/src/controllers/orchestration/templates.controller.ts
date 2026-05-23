@@ -13,7 +13,7 @@ export class OrchestrationTemplatesController {
     if (modeCheck) return modeCheck(reply);
     const template = await this.context.templates.findTemplateForSelection(stringField(params, 'templateId'), query);
     if (!template) throw httpError(404, 'TEMPLATE_NOT_FOUND');
-    if (await this.context.templates.isTemplateResolved(template)) {
+    if (await this.context.templates.isTemplateKnownResolved(template)) {
       throw httpError(410, 'CONDITION_RESOLVED');
     }
     return { template };

@@ -2,6 +2,13 @@
 
 Use this for the current staging VM at `root@10.0.1.220`.
 
+Public HML routes:
+
+```text
+frontend: https://duelly-hml.typewith.ai/
+backend:  https://api-duelly-hml.typewith.ai/
+```
+
 The machine is an isolated fork-staging host. It runs live Duelly code and real Polygon contract addresses against an Anvil Polygon fork, not live Polygon state for Duelly escrow writes.
 
 ## Host Layout
@@ -28,6 +35,14 @@ duelly-frontend        PM2 app, cwd /opt/duelly/app/frontend.
 ```
 
 The Anvil unit reads `/opt/duelly/app/.env`, starts from `/opt/duelly/app`, listens on port `8545`, uses chain ID `137`, and persists fork state to `/opt/duelly/anvil/state.json`.
+
+The host-local `/opt/duelly/app/.env` must include these public staging values:
+
+```bash
+CORS_ORIGINS=https://duelly-hml.typewith.ai
+VITE_API_BASE_URL=https://api-duelly-hml.typewith.ai
+VITE_ALLOWED_HOSTS=duelly-hml.typewith.ai
+```
 
 ## Inspect Staging
 
@@ -74,7 +89,7 @@ The script:
 - Fetches and resets `/opt/duelly/app` to `origin/$BRANCH`.
 - Runs `npm ci`.
 - Sources `/opt/duelly/app/.env` and `cache/staging-fork/deployment.env`.
-- Regenerates `frontend/.env`.
+- Regenerates `frontend/.env` with `VITE_QA_WALLET=false` unless explicitly overridden for agent QA.
 - Builds the backend.
 - Runs backend migrations.
 - Restarts `duelly-backend` and `duelly-frontend` in PM2.

@@ -25,8 +25,7 @@ export function TemplateDetailScreen() {
   const token = useAppStore((state) => state.token);
   const wallet = useAppStore((state) => state.wallet);
   const templates = useAppStore((state) => state.templates);
-  const templatesLoaded = useAppStore((state) => state.templatesLoaded);
-  const refreshTemplates = useAppStore((state) => state.refreshTemplates);
+  const upsertTemplate = useAppStore((state) => state.upsertTemplate);
   const storeTemplate = templates.find((item) => item.id === id);
   const [detailTemplate, setDetailTemplate] = useState<TemplateView | null>(null);
   const [detailLoaded, setDetailLoaded] = useState(false);
@@ -36,10 +35,6 @@ export function TemplateDetailScreen() {
   const [customStake, setCustomStake] = useState('');
   const [quote, setQuote] = useState<FeeQuoteView | null>(null);
   const [readiness, setReadiness] = useState<FundingReadinessView | null>(null);
-
-  useEffect(() => {
-    if (!templatesLoaded) void refreshTemplates();
-  }, [templatesLoaded, refreshTemplates]);
 
   useEffect(() => {
     if (!id) return;
@@ -53,17 +48,17 @@ export function TemplateDetailScreen() {
     void api.getTemplate(id).then((item) => {
       if (!active) return;
       setDetailTemplate(item);
+      if (item) upsertTemplate(item);
       setDetailLoaded(true);
     }).catch((error) => {
       if (!active) return;
       setDetailError(errorMessage(locale, error));
       setDetailLoaded(true);
-      void refreshTemplates();
     });
     return () => {
       active = false;
     };
-  }, [id, locale, refreshTemplates]);
+  }, [id, locale, upsertTemplate]);
 
   const template = detailLoaded ? detailTemplate : storeTemplate ?? null;
 

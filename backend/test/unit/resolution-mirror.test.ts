@@ -32,6 +32,7 @@ function config() {
 
 function bet(): IndexedBet {
   return {
+    deploymentKey: 'test-deployment',
     betId: '1',
     inviteId: 'invite-1',
     templateHash: `0x${'01'.repeat(32)}`,

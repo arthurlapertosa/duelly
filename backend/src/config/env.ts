@@ -36,6 +36,7 @@ export interface AppConfig {
     minBettingCloseBufferSeconds: number;
     templateResolutionCacheTtlSeconds: number;
     templateResolutionRefreshConcurrency: number;
+    templateDiscoveryRefreshIntervalMs: number;
     timeoutMs: number;
     maxResults: number;
   };
@@ -52,6 +53,12 @@ export interface AppConfig {
     intervalMs: number;
     batchSize: number;
     pendingRetrySeconds: number;
+  };
+  relayerWorker: {
+    enabled: boolean;
+    intervalMs: number;
+    batchSize: number;
+    processingTimeoutMs: number;
   };
   polymarketResolutionMirror: {
     enabled: boolean;
@@ -159,13 +166,27 @@ function readPrivateKey(name: string): Hex | undefined {
   return normalized as Hex;
 }
 
+function normalizeCorsOrigin(raw: string): string | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  try {
+    const url = new URL(trimmed);
+    if ((url.protocol === 'http:' || url.protocol === 'https:') && !url.search && !url.hash) {
+      return url.origin;
+    }
+  } catch {
+    // Fall through for non-URL values so existing local/test configuration keeps working.
+  }
+  return trimmed.replace(/\/+$/, '');
+}
+
 function readCorsOrigins(nodeEnv: string): string[] {
   const raw = process.env.CORS_ORIGINS;
   if (!raw) {
     if (nodeEnv === 'production') throw new Error('CORS_ORIGINS must be configured in production');
     return ['http://localhost:5173', 'http://127.0.0.1:5173'];
   }
-  const origins = raw.split(',').map((origin) => origin.trim()).filter(Boolean);
+  const origins = raw.split(',').map(normalizeCorsOrigin).filter((origin): origin is string => Boolean(origin));
   if (nodeEnv === 'production' && origins.length === 0) throw new Error('CORS_ORIGINS must include at least one origin in production');
   return origins;
 }
@@ -206,6 +227,7 @@ export function loadAppConfig(): AppConfig {
       minBettingCloseBufferSeconds: readTemplateCloseBufferSeconds(),
       templateResolutionCacheTtlSeconds: readInteger('POLYMARKET_TEMPLATE_RESOLUTION_CACHE_TTL_SECONDS', 60),
       templateResolutionRefreshConcurrency: readInteger('POLYMARKET_TEMPLATE_RESOLUTION_REFRESH_CONCURRENCY', 5),
+      templateDiscoveryRefreshIntervalMs: readInteger('POLYMARKET_TEMPLATE_DISCOVERY_REFRESH_INTERVAL_MS', 15 * 60 * 1000),
       timeoutMs: readInteger('POLYMARKET_DISCOVERY_TIMEOUT_MS', 8000),
       maxResults: readInteger('POLYMARKET_DISCOVERY_MAX_RESULTS', 25),
     },
@@ -222,6 +244,17 @@ export function loadAppConfig(): AppConfig {
       intervalMs: readInteger('RESOLUTION_WORKER_INTERVAL_MS', 60_000),
       batchSize: readInteger('RESOLUTION_WORKER_BATCH_SIZE', 10),
       pendingRetrySeconds: readInteger('RESOLUTION_WORKER_PENDING_RETRY_SECONDS', 15 * 60),
+    },
+    relayerWorker: {
+      enabled: readBoolean('RELAYER_WORKER_ENABLED', Boolean(
+        process.env.NODE_ENV !== 'test'
+        && process.env.RELAYER_PRIVATE_KEY
+        && process.env.DUELLY_ESCROW_ADDRESS
+        && (process.env.CHAIN_RPC_URL || process.env.EVM_RPC_URL || process.env.POLYGON_RPC_URL),
+      )),
+      intervalMs: readInteger('RELAYER_WORKER_INTERVAL_MS', 3_000),
+      batchSize: readInteger('RELAYER_WORKER_BATCH_SIZE', 5),
+      processingTimeoutMs: readInteger('RELAYER_WORKER_PROCESSING_TIMEOUT_MS', 120_000),
     },
     polymarketResolutionMirror: {
       enabled: resolutionMirrorEnabled,

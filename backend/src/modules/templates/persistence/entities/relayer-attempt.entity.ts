@@ -9,6 +9,9 @@ export class RelayerAttemptEntity {
   @Column({ type: 'text', name: 'request_id' })
   requestId!: string;
 
+  @Column({ type: 'text', name: 'deployment_key' })
+  deploymentKey!: string;
+
   @Column({ type: 'text', name: 'invite_id', nullable: true })
   inviteId!: string | null;
 
@@ -32,4 +35,7 @@ export class RelayerAttemptEntity {
 
   @Column({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
+
+  @Column({ type: 'timestamptz', name: 'locked_at', nullable: true })
+  lockedAt!: Date | null;
 }
