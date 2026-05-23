@@ -5,7 +5,7 @@ import { loadAppConfig, type AppConfig } from './config/env.js';
 import { registerHealthRoutes } from './routes/health.routes.js';
 import { registerOrchestrationRoutes } from './routes/orchestration.routes.js';
 import { registerTemplateRoutes } from './routes/template.routes.js';
-import { ResolutionWorker } from './modules/orchestration/services.js';
+import { RelayerWorker, ResolutionWorker } from './modules/orchestration/services.js';
 
 export interface CreateAppOptions {
   config?: AppConfig;
@@ -48,8 +48,15 @@ export async function createApp(options: CreateAppOptions = {}): Promise<Fastify
     orchestration.resolutionMirror,
     app.log,
   );
+  const relayerWorker = new RelayerWorker(
+    config,
+    orchestration.relayer,
+    app.log,
+  );
+  relayerWorker.start();
   resolutionWorker.start();
   app.addHook('onClose', async () => {
+    relayerWorker.stop();
     resolutionWorker.stop();
   });
 

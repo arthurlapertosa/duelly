@@ -44,9 +44,8 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
   await expect(page.getByRole('button', { name: 'Accept bet' })).toBeEnabled();
 
   await page.getByRole('button', { name: 'Accept bet' }).click();
-  await expect(page.getByText('Bet accepted')).toBeVisible();
-  await page.getByRole('button', { name: 'View bet' }).click();
-  await expect(page.getByText('Waiting for result')).toBeVisible();
+  await expect(page.getByText('Activating bet')).toBeVisible();
+  await expect(page.getByText('Waiting for result')).toBeVisible({ timeout: 10_000 });
   await page.getByRole('button', { name: 'Confirm side A winner' }).click();
   await expect(page.getByText('Result confirmed')).toBeVisible();
   // Taker bet on side B, side A won — the loss result card leads with the stake.

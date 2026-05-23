@@ -77,6 +77,7 @@ export interface BetInvite {
   takerAuthorizedAt: Date | null;
   status: InviteStatus;
   betId: string | null;
+  deploymentKey: string | null;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -85,18 +86,21 @@ export interface BetInvite {
 export interface RelayerAttempt {
   id: string;
   requestId: string;
+  deploymentKey: string;
   inviteId: string | null;
   action: 'acceptBetWithPermits' | 'resolveFromPolymarket' | 'registerTemplate';
-  status: 'submitted' | 'succeeded' | 'failed' | 'rejected';
+  status: 'submitted' | 'processing' | 'succeeded' | 'failed' | 'rejected';
   transactionHash: Hex | null;
   betId: string | null;
   error: string | null;
   payload: unknown | null;
   createdAt: Date;
+  lockedAt?: Date | null;
 }
 
 export interface IndexedChainEvent {
   id: string;
+  deploymentKey: string;
   eventName: string;
   transactionHash: Hex;
   logIndex: number;
@@ -106,6 +110,7 @@ export interface IndexedChainEvent {
 }
 
 export interface IndexedBet {
+  deploymentKey: string;
   betId: string;
   inviteId: string | null;
   templateHash: Hex;
@@ -127,12 +132,14 @@ export interface IndexedBet {
 
 export interface IndexerCursor {
   id: string;
+  deploymentKey: string;
   lastBlockNumber: string;
   updatedAt: Date;
 }
 
 export interface ResolutionAttempt {
   id: string;
+  deploymentKey: string;
   betId: string;
   status: 'submitted' | 'resolved' | 'pending' | 'failed' | 'expired';
   transactionHash: Hex | null;

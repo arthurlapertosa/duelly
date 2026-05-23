@@ -9,11 +9,13 @@ export class ResolutionService {
 
   async trigger(betId: string) {
     const attemptId = `resolution-${randomUUID()}`;
+    const deploymentKey = this.chain.deploymentKey();
     try {
       const tx = await this.chain.writeResolveFromPolymarket(betId);
       const receipt = await this.chain.wait(tx);
       const attempt = {
         id: attemptId,
+        deploymentKey,
         betId,
         status: receipt.status === 'success' ? 'resolved' as const : 'failed' as const,
         transactionHash: tx,
@@ -27,6 +29,7 @@ export class ResolutionService {
       const message = error instanceof Error ? error.message : String(error);
       const attempt = {
         id: attemptId,
+        deploymentKey,
         betId,
         status: message.includes('ConditionUnresolved') ? 'pending' as const : 'failed' as const,
         transactionHash: null,
@@ -41,11 +44,13 @@ export class ResolutionService {
 
   async expire(betId: string) {
     const attemptId = `resolution-${randomUUID()}`;
+    const deploymentKey = this.chain.deploymentKey();
     try {
       const tx = await this.chain.writeExpireUnresolvedBet(betId);
       const receipt = await this.chain.wait(tx);
       const attempt = {
         id: attemptId,
+        deploymentKey,
         betId,
         status: receipt.status === 'success' ? 'expired' as const : 'failed' as const,
         transactionHash: tx,
@@ -59,6 +64,7 @@ export class ResolutionService {
       const message = error instanceof Error ? error.message : String(error);
       const attempt = {
         id: attemptId,
+        deploymentKey,
         betId,
         status: 'failed' as const,
         transactionHash: null,
@@ -74,6 +80,7 @@ export class ResolutionService {
   async recordPending(betId: string, error = 'ConditionUnresolved') {
     const attempt = {
       id: `resolution-${randomUUID()}`,
+      deploymentKey: this.chain.deploymentKey(),
       betId,
       status: 'pending' as const,
       transactionHash: null,

@@ -90,10 +90,11 @@ export class ResolutionWorker {
 
     try {
       result.reindex = await this.indexer.reindex();
-      const bets = await this.repository.findIndexedBetsByStatus('Funded', this.config.resolutionWorker.batchSize);
+      const deploymentKey = this.chain.deploymentKey();
+      const bets = await this.repository.findIndexedBetsByStatus('Funded', this.config.resolutionWorker.batchSize, deploymentKey);
       for (const bet of bets) {
         result.checked += 1;
-        if (!await this.shouldRetry(bet.betId, now)) {
+        if (!await this.shouldRetry(bet.betId, deploymentKey, now)) {
           result.skippedRetry += 1;
           continue;
         }
@@ -156,8 +157,8 @@ export class ResolutionWorker {
     }
   }
 
-  private async shouldRetry(betId: string, now: Date): Promise<boolean> {
-    const attempt = await this.repository.findLatestResolutionAttemptForBet(betId);
+  private async shouldRetry(betId: string, deploymentKey: string, now: Date): Promise<boolean> {
+    const attempt = await this.repository.findLatestResolutionAttemptForBet(betId, deploymentKey);
     if (!attempt) return true;
     if (attempt.status === 'resolved' || attempt.status === 'expired') return false;
     const retryAfterMs = this.config.resolutionWorker.pendingRetrySeconds * 1000;

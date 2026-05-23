@@ -20,6 +20,7 @@ function config() {
 
 function fundedBet(overrides: Partial<IndexedBet> = {}): IndexedBet {
   return {
+    deploymentKey: 'test-deployment',
     betId: '1',
     inviteId: 'invite-1',
     templateHash: `0x${'01'.repeat(32)}`,
@@ -45,8 +46,8 @@ test('resolution worker does not start unless enabled', () => {
   const worker = new ResolutionWorker(
     { ...config(), resolutionWorker: { ...config().resolutionWorker, enabled: false } },
     {} as never,
-    {} as never,
-    {} as never,
+    { deploymentKey: () => 'test-deployment' } as never,
+    { deploymentKey: () => 'test-deployment' } as never,
     {} as never,
   );
 
@@ -63,7 +64,7 @@ test('resolution worker reindexes before scanning funded bets', async () => {
         return [];
       },
     } as never,
-    {} as never,
+    { deploymentKey: () => 'test-deployment' } as never,
     {
       reindex: async () => {
         calls.push('reindex');
@@ -93,6 +94,7 @@ test('resolution worker records pending without sending a transaction for unreso
       },
     } as never,
     {
+      deploymentKey: () => 'test-deployment',
       readPayoutDenominator: async () => 0n,
       readEscrowBet: async () => ({ resolutionDeadline: 1_900_000_000n }),
     } as never,
@@ -101,6 +103,7 @@ test('resolution worker records pending without sending a transaction for unreso
       recordPending: async (betId: string) => {
         const attempt = {
           id: 'resolution-test',
+          deploymentKey: 'test-deployment',
           betId,
           status: 'pending',
           transactionHash: null,
@@ -140,6 +143,7 @@ test('resolution worker calls resolveFromPolymarket when CTF denominator is nonz
       findLatestResolutionAttemptForBet: async () => undefined,
     } as never,
     {
+      deploymentKey: () => 'test-deployment',
       readPayoutDenominator: async () => 1n,
     } as never,
     { reindex: async () => ({}) } as never,
@@ -148,6 +152,7 @@ test('resolution worker calls resolveFromPolymarket when CTF denominator is nonz
         resolvedBetId = betId;
         return {
           id: 'resolution-test',
+          deploymentKey: 'test-deployment',
           betId,
           status: 'resolved',
           transactionHash: `0x${'04'.repeat(32)}`,
@@ -190,6 +195,7 @@ test('resolution worker expires unresolved bets after the on-chain deadline', as
       findLatestResolutionAttemptForBet: async () => undefined,
     } as never,
     {
+      deploymentKey: () => 'test-deployment',
       readPayoutDenominator: async () => 0n,
       readEscrowBet: async () => ({ resolutionDeadline: 1n }),
     } as never,
@@ -199,6 +205,7 @@ test('resolution worker expires unresolved bets after the on-chain deadline', as
         expiredBetId = betId;
         return {
           id: 'resolution-test',
+          deploymentKey: 'test-deployment',
           betId,
           status: 'expired',
           transactionHash: `0x${'05'.repeat(32)}`,
@@ -229,6 +236,7 @@ test('resolution worker defers expiry when the mirror saw resolved source data b
       findLatestResolutionAttemptForBet: async () => undefined,
     } as never,
     {
+      deploymentKey: () => 'test-deployment',
       readPayoutDenominator: async () => 0n,
       readEscrowBet: async () => ({ resolutionDeadline: 1n }),
     } as never,
@@ -242,6 +250,7 @@ test('resolution worker defers expiry when the mirror saw resolved source data b
         pendingError = error;
         return {
           id: 'resolution-test',
+          deploymentKey: 'test-deployment',
           betId,
           status: 'pending',
           transactionHash: null,
