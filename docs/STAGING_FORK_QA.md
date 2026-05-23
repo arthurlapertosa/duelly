@@ -18,7 +18,7 @@ From the repository root:
 
 ```bash
 START_ANVIL=1 SEED_QA_BRL1=1 scripts/blockchain/deploy-staging-fork.sh
-scripts/dev/write-staging-frontend-env.sh
+VITE_QA_WALLET=true scripts/dev/write-staging-frontend-env.sh
 ```
 
 `SEED_QA_BRL1=1` always seeds the maker and taker wallets when their private keys or addresses are present. To bootstrap more staging wallets in the same deploy, set `QA_SEED_WALLETS` to a comma-separated list of public addresses:
@@ -46,7 +46,7 @@ The deployment script writes public fork state to:
 cache/staging-fork/deployment.env
 ```
 
-The frontend env helper writes QA private keys to `frontend/.env` only when `VITE_QA_WALLET=true`. The file is gitignored; do not commit or attach it as evidence.
+The frontend env helper defaults to `VITE_QA_WALLET=false` for public staging. For injected-wallet agent QA, run it with `VITE_QA_WALLET=true`; only then does it write QA private keys to `frontend/.env`, which is gitignored. Do not commit or attach it as evidence.
 
 ## Seed More Fake BRL1
 

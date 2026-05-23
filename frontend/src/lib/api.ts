@@ -71,6 +71,7 @@ export interface DuellyApi {
   listPendingInvites(token: string): Promise<PendingInviteView[]>;
   listMyBets(token: string): Promise<BetSummaryView[]>;
   getBet(betId: string): Promise<IndexedBetView | null>;
+  getBetByInvite(inviteId: string): Promise<IndexedBetView | null>;
   resolveFixtureBet(betId: string, outcome: 'a' | 'b' | 'void'): Promise<IndexedBetView | null>;
 }
 
@@ -220,6 +221,15 @@ function createHttpApi(baseUrl: string): DuellyApi {
     getBet: async (betId) => {
       try {
         const body = await request<{ bet: unknown }>(`/bets/${encodeURIComponent(betId)}`);
+        return mapIndexedBet(body.bet as Record<string, unknown>);
+      } catch (error) {
+        if (error instanceof ApiError && error.code === 'BET_NOT_FOUND') return null;
+        throw error;
+      }
+    },
+    getBetByInvite: async (inviteId) => {
+      try {
+        const body = await request<{ bet: unknown }>(`/invites/${encodeURIComponent(inviteId)}/bet`);
         return mapIndexedBet(body.bet as Record<string, unknown>);
       } catch (error) {
         if (error instanceof ApiError && error.code === 'BET_NOT_FOUND') return null;
@@ -545,30 +555,13 @@ function createFixtureApi(): DuellyApi {
       const { state, user } = requireFixtureUser(token);
       const invite = findFixtureInvite(state, inviteId);
       if (invite.takerUserId !== user.id || !invite.takerAddress) throw new ApiError('INVITE_NOT_OWNED_BY_USER');
-      const bet: FixtureBet = {
-        betId: `bet-${state.bets.length + 1}`,
-        inviteId: invite.id,
-        templateHash: invite.templateHash,
-        conditionId: invite.conditionId,
-        playerA: invite.makerAddress,
-        playerB: invite.takerAddress,
-        playerAOutcomeIndex: invite.makerOutcomeIndex,
-        playerBOutcomeIndex: invite.takerOutcomeIndex ?? 1,
-        stakeRaw: invite.stakeRaw,
-        loserFeeRaw: invite.loserFeeRaw,
-        status: 'Funded',
-        winner: null,
-        winnerPayoutRaw: null,
-        treasuryPayoutRaw: null,
-        updatedAt: new Date().toISOString(),
-      };
-      invite.status = 'funded';
-      invite.betId = bet.betId;
-      state.bets.unshift(bet);
-      debitUser(state, invite.makerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
-      debitUser(state, invite.takerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
+      if (invite.betId) {
+        return { invite, funding: { requestId: `relayer-${Date.now()}`, transactionHash: `0x${'ab'.repeat(32)}`, status: 'succeeded', betId: invite.betId } };
+      }
+      invite.status = 'funding_submitted';
       writeFixtureState(state);
-      return { invite, funding: { requestId: `relayer-${Date.now()}`, transactionHash: `0x${'ab'.repeat(32)}`, status: 'success', betId: bet.betId } };
+      window.setTimeout(() => completeFixtureFunding(invite.id), 1500);
+      return { invite, funding: { requestId: `relayer-${Date.now()}`, transactionHash: null, status: 'submitted', betId: null } };
     },
     listPendingInvites: async (token) => {
       const { state, user } = requireFixtureUser(token);
@@ -605,6 +598,7 @@ function createFixtureApi(): DuellyApi {
         });
     },
     getBet: async (betId) => readFixtureState().bets.find((bet) => bet.betId === betId) ?? null,
+    getBetByInvite: async (inviteId) => readFixtureState().bets.find((bet) => bet.inviteId === inviteId) ?? null,
     resolveFixtureBet: async (betId, outcome) => {
       const state = readFixtureState();
       const bet = state.bets.find((item) => item.betId === betId);
@@ -635,6 +629,35 @@ function readFixtureState(): FixtureState {
 
 function writeFixtureState(state: FixtureState): void {
   window.localStorage.setItem(fixtureKey, JSON.stringify(state));
+}
+
+function completeFixtureFunding(inviteId: string): void {
+  const state = readFixtureState();
+  const invite = state.invites.find((item) => item.id === inviteId);
+  if (!invite || invite.status !== 'funding_submitted' || !invite.takerAddress) return;
+  const bet: FixtureBet = {
+    betId: `bet-${state.bets.length + 1}`,
+    inviteId: invite.id,
+    templateHash: invite.templateHash,
+    conditionId: invite.conditionId,
+    playerA: invite.makerAddress,
+    playerB: invite.takerAddress,
+    playerAOutcomeIndex: invite.makerOutcomeIndex,
+    playerBOutcomeIndex: invite.takerOutcomeIndex ?? 1,
+    stakeRaw: invite.stakeRaw,
+    loserFeeRaw: invite.loserFeeRaw,
+    status: 'Funded',
+    winner: null,
+    winnerPayoutRaw: null,
+    treasuryPayoutRaw: null,
+    updatedAt: new Date().toISOString(),
+  };
+  invite.status = 'funded';
+  invite.betId = bet.betId;
+  state.bets.unshift(bet);
+  debitUser(state, invite.makerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
+  debitUser(state, invite.takerUserId, BigInt(invite.stakeRaw) + BigInt(invite.loserFeeRaw));
+  writeFixtureState(state);
 }
 
 function saveSession(state: FixtureState, user: FixtureUser): AuthResult {

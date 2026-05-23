@@ -53,6 +53,12 @@ export interface AppConfig {
     batchSize: number;
     pendingRetrySeconds: number;
   };
+  relayerWorker: {
+    enabled: boolean;
+    intervalMs: number;
+    batchSize: number;
+    processingTimeoutMs: number;
+  };
   polymarketResolutionMirror: {
     enabled: boolean;
     sourceRpcUrl?: string;
@@ -236,6 +242,17 @@ export function loadAppConfig(): AppConfig {
       intervalMs: readInteger('RESOLUTION_WORKER_INTERVAL_MS', 60_000),
       batchSize: readInteger('RESOLUTION_WORKER_BATCH_SIZE', 10),
       pendingRetrySeconds: readInteger('RESOLUTION_WORKER_PENDING_RETRY_SECONDS', 15 * 60),
+    },
+    relayerWorker: {
+      enabled: readBoolean('RELAYER_WORKER_ENABLED', Boolean(
+        process.env.NODE_ENV !== 'test'
+        && process.env.RELAYER_PRIVATE_KEY
+        && process.env.DUELLY_ESCROW_ADDRESS
+        && (process.env.CHAIN_RPC_URL || process.env.EVM_RPC_URL || process.env.POLYGON_RPC_URL),
+      )),
+      intervalMs: readInteger('RELAYER_WORKER_INTERVAL_MS', 3_000),
+      batchSize: readInteger('RELAYER_WORKER_BATCH_SIZE', 5),
+      processingTimeoutMs: readInteger('RELAYER_WORKER_PROCESSING_TIMEOUT_MS', 120_000),
     },
     polymarketResolutionMirror: {
       enabled: resolutionMirrorEnabled,

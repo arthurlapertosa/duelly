@@ -6,6 +6,9 @@ export class IndexerCursorEntity {
   @PrimaryColumn({ type: 'text' })
   id!: string;
 
+  @Column({ type: 'text', name: 'deployment_key' })
+  deploymentKey!: string;
+
   @Column({ type: 'text', name: 'last_block_number' })
   lastBlockNumber!: string;
 

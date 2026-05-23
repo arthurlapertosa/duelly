@@ -82,6 +82,7 @@ export class InviteService {
       takerAuthorizedAt: null,
       status: 'draft',
       betId: null,
+      deploymentKey: null,
       expiresAt: new Date(Number(deadline) * 1000),
       createdAt: now,
       updatedAt: now,
@@ -127,7 +128,7 @@ export class InviteService {
     if (invite.recipientEmail && invite.recipientEmail !== user.email) throw httpError(403, 'INVITE_RECIPIENT_MISMATCH');
     const wallet = await this.walletService.activeWallet(user);
     if (!wallet) throw httpError(404, 'WALLET_NOT_LINKED');
-    if (invite.status === 'accepted') {
+    if (invite.status === 'accepted' || invite.status === 'funding_submitted') {
       if (invite.takerUserId !== user.id) throw httpError(403, 'INVITE_NOT_OWNED_BY_USER');
       if (!invite.takerAddress || invite.takerOutcomeIndex === null || !invite.acceptancePayload || !invite.acceptanceNonce) {
         throw httpError(400, 'INVITE_NOT_READY_FOR_TAKER_AUTHORIZATION');
@@ -180,12 +181,15 @@ export class InviteService {
     const invite = await this.repository.findInvite(inviteId);
     if (!invite) throw httpError(404, 'INVITE_NOT_FOUND');
     if (invite.expiresAt <= new Date()) throw httpError(400, 'INVITE_EXPIRED');
-    if (invite.status !== 'accepted' || !invite.takerAddress || invite.takerOutcomeIndex === null || !invite.acceptancePayload) {
+    if ((invite.status !== 'accepted' && invite.status !== 'funding_submitted') || !invite.takerAddress || invite.takerOutcomeIndex === null || !invite.acceptancePayload) {
       throw httpError(400, 'INVITE_NOT_READY_FOR_TAKER_AUTHORIZATION');
     }
     if (invite.takerUserId !== user.id) throw httpError(403, 'INVITE_NOT_OWNED_BY_USER');
     const wallet = await this.walletService.activeWallet(user);
     if (!wallet || wallet.address !== invite.takerAddress) throw httpError(403, 'TAKER_WALLET_MISMATCH');
+    if (invite.status === 'funding_submitted' && invite.acceptanceSignature && invite.takerPermit && invite.takerAuthorizedAt) {
+      return invite;
+    }
 
     if (!invite.acceptanceNonce) throw httpError(400, 'INVITE_NOT_READY_FOR_TAKER_AUTHORIZATION');
     const acceptance = {

@@ -13,8 +13,10 @@ export class IndexerService {
 
   async reindex(toBlock?: bigint) {
     const { escrowAddress } = this.chain.requireAddresses();
+    const deploymentKey = this.chain.deploymentKey();
     const client = this.chain.requirePublicClient();
-    const cursor = await this.repository.findCursor('escrow');
+    const cursorId = `escrow:${deploymentKey}`;
+    const cursor = await this.repository.findCursor(cursorId, deploymentKey);
     const end = toBlock ?? await client.getBlockNumber();
     const deploymentBlock = this.chain.config.chain.deploymentBlock;
     let fromBlock = cursor ? subtractFloor(BigInt(cursor.lastBlockNumber), INDEXER_RESCAN_DEPTH, deploymentBlock) : deploymentBlock;
@@ -36,7 +38,8 @@ export class IndexerService {
     for (const log of logs) {
       const decoded = decodeEventLog({ abi: escrowAbi, data: log.data, topics: log.topics as [Hex, ...Hex[]] });
       await this.repository.saveIndexedEvent({
-        id: `event-${log.transactionHash}-${log.logIndex}`,
+        id: `event-${deploymentKey}-${log.transactionHash}-${log.logIndex}`,
+        deploymentKey,
         eventName: decoded.eventName,
         transactionHash: log.transactionHash,
         logIndex: log.logIndex,
@@ -44,17 +47,21 @@ export class IndexerService {
         args: stringifyBigints(decoded.args),
         createdAt: new Date(),
       });
-      await this.applyEvent(decoded.eventName, decoded.args as Record<string, unknown>, log.transactionHash, log.blockNumber);
+      await this.applyEvent(decoded.eventName, decoded.args as Record<string, unknown>, log.transactionHash, log.blockNumber, deploymentKey);
     }
-    await this.repository.saveCursor({ id: 'escrow', lastBlockNumber: end.toString(), updatedAt: new Date() });
+    await this.repository.saveCursor({ id: cursorId, deploymentKey, lastBlockNumber: end.toString(), updatedAt: new Date() });
     return { fromBlock: fromBlock.toString(), toBlock: end.toString(), events: logs.length };
   }
 
-  async applyEvent(eventName: string, args: Record<string, unknown>, transactionHash: Hex, blockNumber: bigint) {
+  async applyEvent(eventName: string, args: Record<string, unknown>, transactionHash: Hex, blockNumber: bigint, deploymentKey = this.chain.deploymentKey()) {
     if (eventName === 'BetFunded') {
       const betId = (args.betId as bigint).toString();
-      const invite = await this.repository.findInviteByBetId(betId);
+      const fundingAttempt = await this.repository.findRelayerAttemptByTransactionHash(transactionHash, deploymentKey);
+      const invite = fundingAttempt?.inviteId
+        ? await this.repository.findInvite(fundingAttempt.inviteId)
+        : await this.repository.findInviteByBetId(betId, deploymentKey);
       const bet: IndexedBet = {
+        deploymentKey,
         betId,
         inviteId: invite?.id ?? null,
         templateHash: args.templateHash as Hex,
@@ -76,7 +83,7 @@ export class IndexerService {
       await this.repository.saveIndexedBet(bet);
     } else if (eventName === 'BetSettled') {
       const betId = (args.betId as bigint).toString();
-      const bet = await this.repository.findIndexedBet(betId);
+      const bet = await this.repository.findIndexedBet(betId, deploymentKey);
       if (bet) {
         bet.status = 'Resolved';
         bet.winner = getAddress(args.winner as string);
@@ -89,7 +96,7 @@ export class IndexerService {
       }
     } else if (eventName === 'BetVoided') {
       const betId = (args.betId as bigint).toString();
-      const bet = await this.repository.findIndexedBet(betId);
+      const bet = await this.repository.findIndexedBet(betId, deploymentKey);
       if (bet) {
         const status = typeof args.status === 'number' ? args.status : hexToNumber(args.status as Hex);
         bet.status = status === 4 ? 'Expired' : 'Voided';
