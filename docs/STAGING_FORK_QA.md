@@ -46,7 +46,7 @@ The deployment script writes public fork state to:
 cache/staging-fork/deployment.env
 ```
 
-The frontend env helper writes QA private keys to `frontend/.env`, which is gitignored. Do not commit or attach it as evidence.
+The frontend env helper writes QA private keys to `frontend/.env` only when `VITE_QA_WALLET=true`. The file is gitignored; do not commit or attach it as evidence.
 
 ## Seed More Fake BRL1
 
@@ -106,7 +106,7 @@ source .env
 source cache/staging-fork/deployment.env
 set +a
 
-scripts/dev/write-staging-frontend-env.sh
+VITE_QA_WALLET=true scripts/dev/write-staging-frontend-env.sh
 
 DUELLY_E2E_MODE=staging-fork \
 RESOLUTION_WORKER_INTERVAL_MS="${RESOLUTION_WORKER_INTERVAL_MS:-60000}" \
