@@ -1,0 +1,35 @@
+{
+  "command": "curl -fsS --max-time 60 'http://127.0.0.1:3000/templates?mode=live&sport=football'",
+  "summary": {
+    "totalAcceptedFootballTemplates": 78,
+    "cruzeiroAccepted": [
+      {
+        "providerMarketId": "2088147",
+        "question": "Will Cruzeiro EC win on 2026-05-24?",
+        "binaryMarketType": "FOOTBALL_MATCH_TEAM_WIN_YES_NO",
+        "eventType": "MATCH",
+        "competition": "BRASILEIRAO",
+        "outcomes": ["Yes", "No"],
+        "bettingCloseAt": 1779649200
+      },
+      {
+        "providerMarketId": "2088149",
+        "question": "Will Cruzeiro EC vs. Associação Chapecoense de Futebol end in a draw?",
+        "binaryMarketType": "FOOTBALL_MATCH_DRAW_YES_NO",
+        "eventType": "MATCH",
+        "competition": "BRASILEIRAO",
+        "outcomes": ["Yes", "No"],
+        "bettingCloseAt": 1779649200
+      },
+      {
+        "providerMarketId": "1830537",
+        "question": "Will Cruzeiro win Brazil Série A?",
+        "binaryMarketType": "FOOTBALL_TOURNAMENT_WINNER_YES_NO",
+        "eventType": "TOURNAMENT",
+        "competition": "BRASILEIRAO",
+        "outcomes": ["Yes", "No"],
+        "bettingCloseAt": 1797393540
+      }
+    ]
+  }
+}
