@@ -18,6 +18,7 @@ Environment:
 
 - `VITE_API_BASE_URL`, default `http://127.0.0.1:3000`
 - `VITE_DUELLY_API_MODE`, `fixture` by default or `http` for the M3 backend
+- `VITE_ALLOWED_HOSTS`, comma-separated extra Vite dev-server hosts for staging
 
 ## QA
 
