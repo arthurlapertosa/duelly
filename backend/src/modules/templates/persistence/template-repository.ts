@@ -7,6 +7,7 @@ import {
   DiscoveryRunEntity,
   RejectedCandidateEntity,
   SportsTemplateEntity,
+  TemplateCtfSyncStatusEntity,
   TemplatePublishAuditEntity,
 } from './entities/index.js';
 import type { CanonicalSportsTemplate, NormalizedMarketCandidate, PublishableTemplatePayload, RejectedCandidate } from '../domain/types.js';
@@ -33,9 +34,17 @@ export interface TemplatePageCursor {
   templateId: string;
 }
 
+export interface TemplateCtfSyncTemplateQuery {
+  mode: string;
+  conditionId?: string;
+  templateId?: string;
+  limit: number;
+}
+
 export class TemplateRepository {
   private readonly memoryAcceptedTemplates = new Map<string, CanonicalSportsTemplate>();
   private readonly memoryAcceptedTemplatesById = new Map<string, CanonicalSportsTemplate>();
+  private readonly memoryTemplateCtfSyncStatuses = new Map<string, TemplateCtfSyncStatusEntity>();
 
   constructor(private readonly dataSource?: DataSource) {}
 
@@ -238,6 +247,78 @@ export class TemplateRepository {
     if (!this.enabled) return;
     await this.dataSource!.getRepository(ConditionResolutionStatusEntity).upsert(
       status as QueryDeepPartialEntity<ConditionResolutionStatusEntity>,
+      ['conditionId'],
+    );
+  }
+
+  async findTemplatesForCtfSync(input: TemplateCtfSyncTemplateQuery): Promise<CanonicalSportsTemplate[]> {
+    const limit = Math.max(1, input.limit);
+    if (!this.enabled) {
+      const normalizedConditionId = input.conditionId?.toLowerCase();
+      const normalizedTemplateId = input.templateId?.toLowerCase();
+      const templates = new Map<string, CanonicalSportsTemplate>();
+      for (const template of this.memoryAcceptedTemplates.values()) templates.set(template.templateId, template);
+      for (const template of this.memoryAcceptedTemplatesById.values()) templates.set(template.templateId, template);
+      return [...templates.values()]
+        .filter((template) => !normalizedConditionId || template.conditionId.toLowerCase() === normalizedConditionId)
+        .filter((template) => !normalizedTemplateId || template.templateId.toLowerCase() === normalizedTemplateId || template.templateHash.toLowerCase() === normalizedTemplateId)
+        .slice(0, limit);
+    }
+
+    const run = await this.findLatestSuccessfulDiscoveryRun(input.mode);
+    if (!run) return [];
+    const query = this.dataSource!.getRepository(SportsTemplateEntity)
+      .createQueryBuilder('template')
+      .leftJoin(TemplateCtfSyncStatusEntity, 'ctfSync', 'lower(ctfSync.conditionId) = lower(template.conditionId)')
+      .where('template.lastDiscoveryRunId = :discoveryRunId', { discoveryRunId: run.id })
+      .andWhere('template.active = true')
+      .orderBy(`
+        case
+          when ctfSync.status is null then 0
+          when ctfSync.status in ('failed', 'invalid-chain-id', 'missing-source-rpc', 'missing-oracle', 'non-local-fork-rpc') then 1
+          when ctfSync.status in ('source-unresolved', 'prepared') then 2
+          else 3
+        end
+      `, 'ASC')
+      .addOrderBy('ctfSync.updatedAt', 'ASC', 'NULLS FIRST')
+      .addOrderBy('template.eventStartAt', 'ASC')
+      .take(limit);
+    if (input.conditionId) {
+      query.andWhere('lower(template.conditionId) = :conditionId', { conditionId: input.conditionId.toLowerCase() });
+    }
+    if (input.templateId) {
+      query.andWhere(new Brackets((candidate) => {
+        candidate
+          .where('template.templateId = :templateId', { templateId: input.templateId })
+          .orWhere('lower(template.templateHash) = :templateHash', { templateHash: input.templateId!.toLowerCase() });
+      }));
+    }
+
+    const records = await query.getMany();
+    return records.map((record) => canonicalSportsTemplate(record.template)).filter(isTemplate);
+  }
+
+  async findTemplateCtfSyncStatuses(conditionIds: string[]): Promise<TemplateCtfSyncStatusEntity[]> {
+    const ids = [...new Set(conditionIds.map((id) => id.toLowerCase()).filter(Boolean))];
+    if (ids.length === 0) return [];
+    if (!this.enabled) {
+      return ids
+        .map((conditionId) => this.memoryTemplateCtfSyncStatuses.get(conditionId))
+        .filter((status): status is TemplateCtfSyncStatusEntity => Boolean(status));
+    }
+    return await this.dataSource!.getRepository(TemplateCtfSyncStatusEntity)
+      .createQueryBuilder('status')
+      .where('lower(status.conditionId) IN (:...conditionIds)', { conditionIds: ids })
+      .getMany();
+  }
+
+  async saveTemplateCtfSyncStatus(status: TemplateCtfSyncStatusEntity): Promise<void> {
+    if (!this.enabled) {
+      this.memoryTemplateCtfSyncStatuses.set(status.conditionId.toLowerCase(), status);
+      return;
+    }
+    await this.dataSource!.getRepository(TemplateCtfSyncStatusEntity).upsert(
+      status as QueryDeepPartialEntity<TemplateCtfSyncStatusEntity>,
       ['conditionId'],
     );
   }
