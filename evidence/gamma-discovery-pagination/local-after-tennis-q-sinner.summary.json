@@ -1,0 +1,20 @@
+{
+  "query": "sinner",
+  "mode": "live",
+  "count": 1,
+  "pageCount": 1,
+  "stale": false,
+  "refreshedAt": "2026-05-25T08:12:23.359Z",
+  "templates": [
+    {
+      "templateId": "live-2327931",
+      "providerMarketId": "2327931",
+      "question": "Roland Garros ATP: Jannik Sinner vs Clement Tabur",
+      "eventStartAt": 1779786000,
+      "bettingCloseAt": 1780218000,
+      "competition": "GRAND_SLAM",
+      "competitionLevel": null,
+      "conditionId": "0x9e22211b18e8a3da75cb024b5dace8d3c8f58409d7614f9ddf6de6149d7da236"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "queries": [
+    {
+      "query": "sinner",
+      "mode": "live",
+      "count": 0,
+      "pageCount": 0,
+      "stale": false,
+      "refreshedAt": "2026-05-25T08:08:07.267Z",
+      "templates": []
+    },
+    {
+      "query": "tabur",
+      "mode": "live",
+      "count": 0,
+      "pageCount": 0,
+      "stale": false,
+      "refreshedAt": "2026-05-25T08:08:07.284Z",
+      "templates": []
+    },
+    {
+      "query": "garin",
+      "mode": "live",
+      "count": 0,
+      "pageCount": 0,
+      "stale": false,
+      "refreshedAt": "2026-05-25T08:08:07.514Z",
+      "templates": []
+    },
+    {
+      "query": "tien",
+      "mode": "live",
+      "count": 0,
+      "pageCount": 0,
+      "stale": false,
+      "refreshedAt": "2026-05-25T08:08:07.728Z",
+      "templates": []
+    }
+  ],
+  "counts": {
+    "accepted": {
+      "endpoint": "/templates",
+      "mode": "live",
+      "count": 41,
+      "pageCount": 1,
+      "stale": false,
+      "refreshedAt": "2026-05-25T08:08:07.941Z"
+    },
+    "rejected": {
+      "endpoint": "/templates/rejected",
+      "mode": "live",
+      "count": 523
+    },
+    "candidates": {
+      "endpoint": "/templates/candidates",
+      "mode": "live",
+      "count": 564
+    }
+  }
+}

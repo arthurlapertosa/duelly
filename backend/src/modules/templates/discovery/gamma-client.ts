@@ -14,13 +14,13 @@ interface SportFeedDefinition {
   tagId?: number;
   tagSlug?: string;
   seriesSlug?: string;
-  maxPages?: number;
-  minPageSize?: number;
 }
+
+const EVENT_FEED_PAGE_SIZE = 100;
 
 const eventFeedsBySport: Partial<Record<Sport, SportFeedDefinition[]>> = {
   football: [
-    { tagSlug: 'soccer', maxPages: 8, minPageSize: 100 },
+    { tagSlug: 'soccer' },
   ],
   tennis: [
     { seriesSlug: 'atp' },
@@ -97,10 +97,9 @@ export class GammaClient {
 
   private async fetchEvents(feed: SportFeedDefinition): Promise<GammaEvent[]> {
     const events: GammaEvent[] = [];
-    const maxPages = feed.maxPages ?? 1;
-    const pageSize = Math.max(this.config.polymarket.maxResults, feed.minPageSize ?? this.config.polymarket.maxResults);
+    const seenEventIds = new Set<string>();
 
-    for (let page = 0; page < maxPages; page += 1) {
+    for (let offset = 0; ; offset += EVENT_FEED_PAGE_SIZE) {
       const url = new URL('/events', this.config.polymarket.gammaBaseUrl);
       if (feed.tagId !== undefined) url.searchParams.set('tag_id', String(feed.tagId));
       if (feed.tagSlug) url.searchParams.set('tag_slug', feed.tagSlug);
@@ -108,8 +107,8 @@ export class GammaClient {
       url.searchParams.set('active', 'true');
       url.searchParams.set('closed', 'false');
       url.searchParams.set('end_date_min', new Date().toISOString());
-      url.searchParams.set('limit', String(pageSize));
-      if (page > 0) url.searchParams.set('offset', String(page * pageSize));
+      url.searchParams.set('limit', String(EVENT_FEED_PAGE_SIZE));
+      if (offset > 0) url.searchParams.set('offset', String(offset));
       url.searchParams.set('order', 'startTime');
       url.searchParams.set('ascending', 'true');
 
@@ -120,8 +119,15 @@ export class GammaClient {
         if (!response.ok) throw new Error(`Gamma API returned ${response.status}`);
         const json = await response.json() as unknown;
         const pageEvents = normalizeEventsResponse(json);
-        events.push(...pageEvents);
-        if (pageEvents.length < pageSize) break;
+        let newEvents = 0;
+        for (const event of pageEvents) {
+          const identity = gammaEventIdentity(event);
+          if (seenEventIds.has(identity)) continue;
+          seenEventIds.add(identity);
+          events.push(event);
+          newEvents += 1;
+        }
+        if (pageEvents.length < EVENT_FEED_PAGE_SIZE || newEvents === 0) break;
       } finally {
         clearTimeout(timeout);
       }
@@ -466,6 +472,17 @@ function normalizeEventsResponse(value: unknown): GammaEvent[] {
     return (value as { events: GammaEvent[] }).events;
   }
   return [];
+}
+
+function gammaEventIdentity(event: GammaEvent): string {
+  const id = optionalString(event.id);
+  if (id) return `id:${id}`;
+  const slug = optionalString(event.slug);
+  if (slug) return `slug:${slug}`;
+  const title = optionalString(event.title);
+  const startTime = optionalString(event.startTime ?? event.startDate);
+  if (title || startTime) return `fallback:${title ?? ''}:${startTime ?? ''}`;
+  return `payload:${hashJson(event)}`;
 }
 
 function stringField(value: unknown): string | undefined {

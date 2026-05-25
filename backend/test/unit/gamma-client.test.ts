@@ -484,7 +484,71 @@ test('Gamma football pagination accepts full-time results and rejects derivative
   });
 });
 
-test('Gamma live tennis and UFC discovery use sport feeds with future end-date filters', async () => {
+test('Gamma event feed pagination requests later pages and accepts a later-page ATP match', async () => {
+  const requestedAtpOffsets: string[] = [];
+
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
+      requestedAtpOffsets.push(url.searchParams.get('offset') ?? '0');
+      if (!url.searchParams.has('offset')) return jsonResponse(emptyGammaEvents('atp-filler', 100));
+      if (url.searchParams.get('offset') === '100') {
+        return jsonResponse([
+          tennisEvent({
+            id: 'sinner-tabur-event',
+            title: 'Roland Garros ATP: Jannik Sinner vs Clement Tabur',
+            startTime: '2026-05-26T09:00:00.000Z',
+            markets: [
+              tennisMarket({
+                id: 'sinner-tabur-winner',
+                question: 'Roland Garros ATP: Jannik Sinner vs Clement Tabur',
+                conditionSeed: 'sinner-tabur-winner',
+                questionSeed: 'sinner-tabur-winner-question',
+                outcomes: ['Jannik Sinner', 'Clement Tabur'],
+                endDate: '2026-05-26T09:00:00.000Z',
+              }),
+            ],
+          }),
+        ]);
+      }
+    }
+
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfig({ maxResults: 25 })).discoverMarkets('tennis');
+    const result = new TemplateFilterService().filter(candidates, {
+      now: filterNow,
+      minBettingCloseBufferSeconds: 0,
+    });
+
+    assert.deepEqual(requestedAtpOffsets, ['0', '100']);
+    assert.deepEqual(
+      result.accepted.map((template) => template.providerMarketId),
+      ['sinner-tabur-winner'],
+    );
+    assert.equal(result.accepted[0].display.question, 'Roland Garros ATP: Jannik Sinner vs Clement Tabur');
+    assert.equal(result.accepted[0].competition, 'GRAND_SLAM');
+  });
+});
+
+test('Gamma event feed pagination stops safely when Gamma repeats a full page', async () => {
+  const repeatedPage = emptyGammaEvents('repeated-atp', 100);
+  const requestedAtpOffsets: string[] = [];
+
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events' && url.searchParams.get('series_slug') === 'atp') {
+      requestedAtpOffsets.push(url.searchParams.get('offset') ?? '0');
+      return jsonResponse(repeatedPage);
+    }
+
+    return jsonResponse([]);
+  }, async () => {
+    await new GammaClient(testConfig({ maxResults: 25 })).discoverMarkets('tennis');
+
+    assert.deepEqual(requestedAtpOffsets, ['0', '100']);
+  });
+});
+
+test('Gamma live tennis, UFC, and F1 discovery use sport feeds with future end-date filters', async () => {
   const requestedUrls: URL[] = [];
 
   await withMockedFetch(async (url) => {
@@ -494,18 +558,20 @@ test('Gamma live tennis and UFC discovery use sport feeds with future end-date f
     const client = new GammaClient(testConfig({ maxResults: 25 }));
     await client.discoverMarkets('tennis');
     await client.discoverMarkets('ufc');
+    await client.discoverMarkets('f1');
   });
 
   const eventUrls = requestedUrls.filter((url) => url.pathname === '/events');
   assert.equal(eventUrls.some((url) => url.searchParams.get('series_slug') === 'atp'), true);
   assert.equal(eventUrls.some((url) => url.searchParams.get('series_slug') === 'wta'), true);
   assert.equal(eventUrls.some((url) => url.searchParams.get('tag_slug') === 'ufc'), true);
+  assert.equal(eventUrls.some((url) => url.searchParams.get('tag_id') === '435'), true);
   assert.equal(eventUrls.every((url) => url.searchParams.get('active') === 'true'), true);
   assert.equal(eventUrls.every((url) => url.searchParams.get('closed') === 'false'), true);
   assert.equal(eventUrls.every((url) => url.searchParams.has('end_date_min')), true);
   assert.equal(eventUrls.every((url) => url.searchParams.get('order') === 'startTime'), true);
   assert.equal(eventUrls.every((url) => url.searchParams.get('ascending') === 'true'), true);
-  assert.equal(eventUrls.every((url) => url.searchParams.get('limit') === '25'), true);
+  assert.equal(eventUrls.every((url) => url.searchParams.get('limit') === '100'), true);
 });
 
 test('Gamma search fallback does not force-label unrelated UFC results', async () => {
@@ -778,6 +844,14 @@ function testConfigWithOracles(overrides: Partial<AppConfig['polymarket']> = {})
 
 function jsonResponse(value: unknown): Response {
   return new Response(JSON.stringify(value), { status: 200 });
+}
+
+function emptyGammaEvents(prefix: string, count: number): unknown[] {
+  return Array.from({ length: count }, (_, index) => gammaEvent({
+    id: `${prefix}-${index}`,
+    title: `${prefix} ${index}`,
+    markets: [],
+  }));
 }
 
 function gammaEvent(input: {
