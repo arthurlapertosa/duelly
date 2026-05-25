@@ -97,6 +97,7 @@ The script:
 - Sources `/opt/duelly/app/.env` and `cache/staging-fork/deployment.env`.
 - Regenerates `frontend/.env` with `VITE_QA_WALLET=false` unless explicitly overridden for agent QA.
 - Builds the backend.
+- Builds the frontend and serves the built output through the frontend `npm run start` script on port `5173`.
 - Runs backend migrations.
 - Restarts `duelly-backend` and `duelly-frontend` in PM2.
 - Saves the PM2 process list for `pm2-root.service`.

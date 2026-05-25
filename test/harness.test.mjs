@@ -49,3 +49,12 @@ test('PR template contains HITL guardrail', () => {
   assert.match(template, /Human QA approved/);
   assert.match(template, /\.prototype/);
 });
+
+test('staging deploy serves a built frontend through preview', () => {
+  const script = readFileSync('scripts/deploy/proxmox-staging-pm2.sh', 'utf8');
+  const frontendPackage = JSON.parse(readFileSync('frontend/package.json', 'utf8'));
+  assert.equal(frontendPackage.scripts.start, 'vite preview --host 127.0.0.1');
+  assert.match(script, /npm --workspace frontend run build/);
+  assert.match(script, /run start -- --host 0\.0\.0\.0 --port 5173/);
+  assert.doesNotMatch(script, /run dev -- --host 0\.0\.0\.0/);
+});
