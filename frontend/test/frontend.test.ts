@@ -9,7 +9,7 @@ import { defaultLocale, locales, missingTranslationKeys, translate } from '../sr
 import { deriveBetStatus, inviteHasExpired, mapPendingInvite, mapTemplate } from '../src/lib/mappers.ts';
 import { filterTemplates } from '../src/lib/templateFilters.ts';
 import { templateDisplay } from '../src/lib/templateDisplay.ts';
-import { metaMaskTypedPayload } from '../src/lib/wallet.ts';
+import { ensureInjectedWalletChain, metaMaskTypedPayload, type Eip1193Provider } from '../src/lib/wallet.ts';
 import type { BetSummaryView, TemplateView } from '../src/lib/types.ts';
 
 test('locales are complete and provide both default languages', () => {
@@ -78,6 +78,78 @@ test('injected wallet typed data includes the EIP-712 domain type for MetaMask',
     { name: 'verifyingContract', type: 'address' },
   ]);
   assert.equal(payload.types.BetOffer.length, 2);
+});
+
+test('injected wallet switches to the typed-data chain before requesting signatures', async () => {
+  const calls: Array<{ method: string; params?: unknown[] }> = [];
+  const provider: Eip1193Provider = {
+    async request<T>({ method, params }: { method: string; params?: unknown[] }) {
+      calls.push({ method, params });
+      if (method === 'eth_chainId') return '0x1' as T;
+      if (method === 'wallet_switchEthereumChain') return null as T;
+      throw new Error(`unexpected method ${method}`);
+    },
+  };
+
+  await ensureInjectedWalletChain(provider, typedPayloadForChain(137));
+
+  assert.deepEqual(calls, [
+    { method: 'eth_chainId', params: undefined },
+    { method: 'wallet_switchEthereumChain', params: [{ chainId: '0x89' }] },
+  ]);
+});
+
+test('injected wallet adds Polygon before switching when the chain is missing', async () => {
+  const calls: Array<{ method: string; params?: unknown[] }> = [];
+  let switchAttempts = 0;
+  const provider: Eip1193Provider = {
+    async request<T>({ method, params }: { method: string; params?: unknown[] }) {
+      calls.push({ method, params });
+      if (method === 'eth_chainId') return '0x1' as T;
+      if (method === 'wallet_switchEthereumChain') {
+        switchAttempts += 1;
+        if (switchAttempts === 1) throw { code: 4902, message: 'Unrecognized chain ID' };
+        return null as T;
+      }
+      if (method === 'wallet_addEthereumChain') return null as T;
+      throw new Error(`unexpected method ${method}`);
+    },
+  };
+
+  await ensureInjectedWalletChain(provider, typedPayloadForChain('137'));
+
+  assert.deepEqual(calls.map((call) => call.method), [
+    'eth_chainId',
+    'wallet_switchEthereumChain',
+    'wallet_addEthereumChain',
+    'wallet_switchEthereumChain',
+  ]);
+  assert.deepEqual(calls[1].params, [{ chainId: '0x89' }]);
+  assert.deepEqual(calls[3].params, [{ chainId: '0x89' }]);
+  const addParams = calls[2].params?.[0] as { chainId?: string; rpcUrls?: string[] };
+  assert.equal(addParams.chainId, '0x89');
+  assert.ok(Array.isArray(addParams.rpcUrls));
+  assert.ok(addParams.rpcUrls.length > 0);
+});
+
+test('injected wallet skips network switching when the typed-data chain is already active', async () => {
+  const calls: Array<{ method: string; params?: unknown[] }> = [];
+  const provider: Eip1193Provider = {
+    async request<T>({ method, params }: { method: string; params?: unknown[] }) {
+      calls.push({ method, params });
+      if (method === 'eth_chainId') return '0x89' as T;
+      throw new Error(`unexpected method ${method}`);
+    },
+  };
+
+  await ensureInjectedWalletChain(provider, typedPayloadForChain(137n));
+
+  assert.deepEqual(calls, [{ method: 'eth_chainId', params: undefined }]);
+});
+
+test('injected wallet checks chain before signing typed data', () => {
+  const walletSource = readFileSync(resolve('src/lib/wallet.ts'), 'utf8');
+  assert.match(walletSource, /await ensureInjectedWalletChain\(provider, payload\)/);
 });
 
 test('wallet verification asks the browser wallet to choose an account', () => {
@@ -197,6 +269,28 @@ function filterFixtureTemplates(): TemplateView[] {
       outcomes: ['Yes', 'No'],
     },
   ];
+}
+
+function typedPayloadForChain(chainId: number | bigint | string) {
+  return {
+    domain: {
+      name: 'DuellyBetEscrowBRL1',
+      version: '1',
+      chainId,
+      verifyingContract: '0xBFa43c5A715685Ef5867729E40367CB9eb0434e4',
+    },
+    types: {
+      BetOffer: [
+        { name: 'maker', type: 'address' },
+        { name: 'stake', type: 'uint256' },
+      ],
+    },
+    primaryType: 'BetOffer',
+    message: {
+      maker: '0xB4Dd9A1E85153ad142b89f79244e66B44F574236',
+      stake: '250000000000000000000',
+    },
+  };
 }
 
 function discoverStructuredErrorCodes(): string[] {

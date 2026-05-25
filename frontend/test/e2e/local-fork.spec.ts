@@ -89,6 +89,10 @@ async function walletContext(browser: Browser, privateKey: Hex): Promise<Browser
   const account = privateKeyToAccount(privateKey);
   const context = await browser.newContext();
   await context.exposeBinding('duellyWalletRequest', async (_source, args: { method: string; params?: unknown[] }) => {
+    if (args.method === 'eth_chainId') return '0x89';
+    if (args.method === 'wallet_switchEthereumChain') return null;
+    if (args.method === 'wallet_addEthereumChain') return null;
+    if (args.method === 'wallet_requestPermissions') return [{ parentCapability: 'eth_accounts' }];
     if (args.method === 'eth_requestAccounts') return [account.address];
     if (args.method === 'personal_sign') return await account.signMessage({ message: String(args.params?.[0] ?? '') });
     if (args.method === 'eth_signTypedData_v4') {
