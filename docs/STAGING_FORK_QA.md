@@ -96,7 +96,7 @@ APP_DIR=/opt/duelly/app BRANCH=codex/staging-fork-web3-e2e \
   scripts/deploy/proxmox-staging-pm2.sh
 ```
 
-The script pulls the selected branch, installs workspace dependencies, regenerates `frontend/.env`, builds the backend, runs migrations, starts `duelly-backend` and `duelly-frontend` under PM2, configures the `pm2-root` systemd startup unit, and saves the PM2 process list. It requires the host-local `.env` and `cache/staging-fork/deployment.env` to already exist.
+The script pulls the selected branch, installs workspace dependencies, regenerates `frontend/.env`, builds the backend and frontend, runs migrations, starts `duelly-backend` and the built `duelly-frontend` `npm run start` server under PM2, configures the `pm2-root` systemd startup unit, and saves the PM2 process list. It requires the host-local `.env` and `cache/staging-fork/deployment.env` to already exist.
 
 At the end of the restart, the script prints non-secret effective backend config: CTF oracle candidate count, resolution source RPC hostname, template-sync source RPC hostname, and template sync enabled/batch/concurrency values.
 

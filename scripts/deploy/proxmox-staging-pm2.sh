@@ -102,6 +102,9 @@ chmod 600 "$APP_DIR/frontend/.env"
 echo "[deploy] building backend"
 npm --workspace backend run build
 
+echo "[deploy] building frontend"
+npm --workspace frontend run build
+
 echo "[deploy] running backend migrations"
 npm --workspace backend run db:migration:run:prod
 
@@ -134,7 +137,7 @@ pm2 start "$NPM_BIN" \
   --output /var/log/duelly/frontend-pm2.log \
   --error /var/log/duelly/frontend-pm2-error.log \
   --update-env \
-  -- run dev -- --host 0.0.0.0
+  -- run start -- --host 0.0.0.0 --port 5173
 
 echo "[deploy] configuring pm2 startup"
 pm2 startup systemd -u root --hp /root >/tmp/duelly-pm2-startup.log 2>&1 || true
