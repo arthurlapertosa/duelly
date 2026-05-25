@@ -1,0 +1,20 @@
+{
+  "query": "garin",
+  "mode": "live",
+  "count": 1,
+  "pageCount": 1,
+  "stale": false,
+  "refreshedAt": "2026-05-25T08:12:23.622Z",
+  "templates": [
+    {
+      "templateId": "live-2328088",
+      "providerMarketId": "2328088",
+      "question": "Roland Garros ATP: Cristian Garin vs Learner Tien",
+      "eventStartAt": 1779786000,
+      "bettingCloseAt": 1780218000,
+      "competition": "GRAND_SLAM",
+      "competitionLevel": null,
+      "conditionId": "0x003f361f69afaa5545cceb62f9406d9b49e66c2bbe80b8a37a56f83e396e3333"
+    }
+  ]
+}

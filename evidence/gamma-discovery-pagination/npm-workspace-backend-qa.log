@@ -1,0 +1,592 @@
+
+> @duelly/backend@0.1.0 qa
+> npm run typecheck && npm run test
+
+
+> @duelly/backend@0.1.0 typecheck
+> tsc --noEmit -p tsconfig.json
+
+
+> @duelly/backend@0.1.0 test
+> node --import reflect-metadata --import tsx --test test/unit/*.test.ts test/integration/*.test.ts
+
+TAP version 13
+# Subtest: Auth routes persist users and sessions in PostgreSQL
+ok 1 - Auth routes persist users and sessions in PostgreSQL # SKIP
+  ---
+  duration_ms: 0.980339
+  type: 'test'
+  ...
+# Subtest: TypeORM repositories persist M1 template records in PostgreSQL
+ok 2 - TypeORM repositories persist M1 template records in PostgreSQL # SKIP
+  ---
+  duration_ms: 0.163708
+  type: 'test'
+  ...
+# Subtest: TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL
+ok 3 - TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL # SKIP
+  ---
+  duration_ms: 0.087424
+  type: 'test'
+  ...
+# Subtest: condition resolution service caches unresolved checks until TTL
+ok 4 - condition resolution service caches unresolved checks until TTL
+  ---
+  duration_ms: 10.919228
+  type: 'test'
+  ...
+# Subtest: condition resolution service treats resolved checks as permanent
+ok 5 - condition resolution service treats resolved checks as permanent
+  ---
+  duration_ms: 0.500759
+  type: 'test'
+  ...
+# Subtest: condition resolution service falls back from source RPC to fork RPC
+ok 6 - condition resolution service falls back from source RPC to fork RPC
+  ---
+  duration_ms: 1.084425
+  type: 'test'
+  ...
+# Subtest: condition resolution service handles RPC failures as unknown
+ok 7 - condition resolution service handles RPC failures as unknown
+  ---
+  duration_ms: 0.651317
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports explicit DB variables and fixture mode defaults
+ok 8 - loadAppConfig supports explicit DB variables and fixture mode defaults
+  ---
+  duration_ms: 4.472634
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports template discovery worker interval settings
+ok 9 - loadAppConfig supports template discovery worker interval settings
+  ---
+  duration_ms: 0.680151
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports staging negative-risk template opt-in
+ok 10 - loadAppConfig supports staging negative-risk template opt-in
+  ---
+  duration_ms: 0.760145
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports configurable template close buffer including zero
+ok 11 - loadAppConfig supports configurable template close buffer including zero
+  ---
+  duration_ms: 1.586013
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports resolution worker settings
+ok 12 - loadAppConfig supports resolution worker settings
+  ---
+  duration_ms: 0.669398
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports relayer worker settings
+ok 13 - loadAppConfig supports relayer worker settings
+  ---
+  duration_ms: 0.599052
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports template resolution cache settings
+ok 14 - loadAppConfig supports template resolution cache settings
+  ---
+  duration_ms: 1.297492
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports Polymarket resolution mirror settings
+ok 15 - loadAppConfig supports Polymarket resolution mirror settings
+  ---
+  duration_ms: 5.297799
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports template CTF sync settings
+ok 16 - loadAppConfig supports template CTF sync settings
+  ---
+  duration_ms: 0.908978
+  type: 'test'
+  ...
+# Subtest: loadAppConfig treats a blank mirror source RPC as unset
+ok 17 - loadAppConfig treats a blank mirror source RPC as unset
+  ---
+  duration_ms: 1.16725
+  type: 'test'
+  ...
+# Subtest: loadAppConfig can load Polymarket resolution mirror for production-mode staging
+ok 18 - loadAppConfig can load Polymarket resolution mirror for production-mode staging
+  ---
+  duration_ms: 0.668191
+  type: 'test'
+  ...
+# Subtest: loadAppConfig requires explicit CORS origins in production
+ok 19 - loadAppConfig requires explicit CORS origins in production
+  ---
+  duration_ms: 3.683446
+  type: 'test'
+  ...
+# Subtest: Gamma live markets infer official result source from resolution text
+ok 20 - Gamma live markets infer official result source from resolution text
+  ---
+  duration_ms: 59.302821
+  type: 'test'
+  ...
+# Subtest: Gamma discovery does not starve later sports when max results is small
+ok 21 - Gamma discovery does not starve later sports when max results is small
+  ---
+  duration_ms: 23.487877
+  type: 'test'
+  ...
+# Subtest: Gamma discovery flattens sports-tagged events into market candidates
+ok 22 - Gamma discovery flattens sports-tagged events into market candidates
+  ---
+  duration_ms: 3.19797
+  type: 'test'
+  ...
+# Subtest: Gamma parses resolvedBy and validates non-negative-risk tennis CTF oracle metadata
+ok 23 - Gamma parses resolvedBy and validates non-negative-risk tennis CTF oracle metadata
+  ---
+  duration_ms: 6.734697
+  type: 'test'
+  ...
+# Subtest: Gamma still validates existing non-negative-risk markets that use the legacy default oracle
+ok 24 - Gamma still validates existing non-negative-risk markets that use the legacy default oracle
+  ---
+  duration_ms: 2.966611
+  type: 'test'
+  ...
+# Subtest: Gamma negative-risk validation prefers configured neg-risk oracle over resolvedBy
+ok 25 - Gamma negative-risk validation prefers configured neg-risk oracle over resolvedBy
+  ---
+  duration_ms: 2.038366
+  type: 'test'
+  ...
+# Subtest: Gamma keeps otherwise valid templates when no CTF oracle candidate validates
+ok 26 - Gamma keeps otherwise valid templates when no CTF oracle candidate validates
+  ---
+  duration_ms: 4.535032
+  type: 'test'
+  ...
+# Subtest: Gamma does not validate resolvedBy unless it is configured as an allowed CTF oracle
+ok 27 - Gamma does not validate resolvedBy unless it is configured as an allowed CTF oracle
+  ---
+  duration_ms: 4.096204
+  type: 'test'
+  ...
+# Subtest: Gamma football pagination accepts full-time results and rejects derivative match props
+ok 28 - Gamma football pagination accepts full-time results and rejects derivative match props
+  ---
+  duration_ms: 14.159956
+  type: 'test'
+  ...
+# Subtest: Gamma event feed pagination requests later pages and accepts a later-page ATP match
+ok 29 - Gamma event feed pagination requests later pages and accepts a later-page ATP match
+  ---
+  duration_ms: 4.368113
+  type: 'test'
+  ...
+# Subtest: Gamma event feed pagination stops safely when Gamma repeats a full page
+ok 30 - Gamma event feed pagination stops safely when Gamma repeats a full page
+  ---
+  duration_ms: 2.798186
+  type: 'test'
+  ...
+# Subtest: Gamma live tennis, UFC, and F1 discovery use sport feeds with future end-date filters
+ok 31 - Gamma live tennis, UFC, and F1 discovery use sport feeds with future end-date filters
+  ---
+  duration_ms: 10.653341
+  type: 'test'
+  ...
+# Subtest: Gamma search fallback does not force-label unrelated UFC results
+ok 32 - Gamma search fallback does not force-label unrelated UFC results
+  ---
+  duration_ms: 1.246627
+  type: 'test'
+  ...
+# Subtest: Gamma tennis accepts started ATP match winners independent of Polymarket orderability
+ok 33 - Gamma tennis accepts started ATP match winners independent of Polymarket orderability
+  ---
+  duration_ms: 4.593047
+  type: 'test'
+  ...
+# Subtest: Gamma tennis rejects totals, set winners, completed-match props, and unsupported ITF events
+ok 34 - Gamma tennis rejects totals, set winners, completed-match props, and unsupported ITF events
+  ---
+  duration_ms: 2.924354
+  type: 'test'
+  ...
+# Subtest: Gamma UFC accepts only headline fight winners from live tag events
+ok 35 - Gamma UFC accepts only headline fight winners from live tag events
+  ---
+  duration_ms: 4.714197
+  type: 'test'
+  ...
+# Subtest: repository keeps duplicate bet ids isolated by deployment key
+ok 36 - repository keeps duplicate bet ids isolated by deployment key
+  ---
+  duration_ms: 1.86994
+  type: 'test'
+  ...
+# Subtest: repository hides stale deployed invites while keeping pre-funding invites visible
+ok 37 - repository hides stale deployed invites while keeping pre-funding invites visible
+  ---
+  duration_ms: 0.666373
+  type: 'test'
+  ...
+# Subtest: repository stores duplicate tx/log events under separate deployments
+ok 38 - repository stores duplicate tx/log events under separate deployments
+  ---
+  duration_ms: 0.289174
+  type: 'test'
+  ...
+# Subtest: repository atomically claims submitted relayer attempts and reclaims stale locks
+ok 39 - repository atomically claims submitted relayer attempts and reclaims stale locks
+  ---
+  duration_ms: 0.54974
+  type: 'test'
+  ...
+# Subtest: relayer maps local contract reverts to stable API error codes
+ok 40 - relayer maps local contract reverts to stable API error codes
+  ---
+  duration_ms: 1.656536
+  type: 'test'
+  ...
+# Subtest: relayer queues missing accepted template registration before funding
+ok 41 - relayer queues missing accepted template registration before funding
+  ---
+  duration_ms: 0.964752
+  type: 'test'
+  ...
+# Subtest: relayer enqueues funding without submitting the transaction inline
+ok 42 - relayer enqueues funding without submitting the transaction inline
+  ---
+  duration_ms: 36.466839
+  type: 'test'
+  ...
+# Subtest: relayer resumes template registration once its receipt lands
+ok 43 - relayer resumes template registration once its receipt lands
+  ---
+  duration_ms: 0.650914
+  type: 'test'
+  ...
+# Subtest: relayer fails expired queued funding without submitting a transaction
+ok 44 - relayer fails expired queued funding without submitting a transaction
+  ---
+  duration_ms: 1.06312
+  type: 'test'
+  ...
+# Subtest: relayer persists funded bet from receipt before the indexer catches up
+ok 45 - relayer persists funded bet from receipt before the indexer catches up
+  ---
+  duration_ms: 34.554064
+  type: 'test'
+  ...
+# Subtest: Invite creation returns CONDITION_RESOLVED before building payloads for resolved templates
+ok 46 - Invite creation returns CONDITION_RESOLVED before building payloads for resolved templates
+  ---
+  duration_ms: 287.839139
+  type: 'test'
+  ...
+# Subtest: Auth protects endpoints and supports local email/password sessions
+ok 47 - Auth protects endpoints and supports local email/password sessions
+  ---
+  duration_ms: 97.639379
+  type: 'test'
+  ...
+# Subtest: Wallet challenge links a private wallet without exposing key material
+ok 48 - Wallet challenge links a private wallet without exposing key material
+  ---
+  duration_ms: 97.858654
+  type: 'test'
+  ...
+# Subtest: Fee quote, template detail, invite, and acceptance payloads are exposed
+ok 49 - Fee quote, template detail, invite, and acceptance payloads are exposed
+  ---
+  duration_ms: 257.231333
+  type: 'test'
+  ...
+# Subtest: Email-restricted invites appear in the recipient inbox and block other accounts
+ok 50 - Email-restricted invites appear in the recipient inbox and block other accounts
+  ---
+  duration_ms: 241.902945
+  type: 'test'
+  ...
+# Subtest: resolution mirror is disabled unless explicitly configured
+ok 51 - resolution mirror is disabled unless explicitly configured
+  ---
+  duration_ms: 3.668808
+  type: 'test'
+  ...
+# Subtest: resolution mirror reads source CTF payout and writes it to the fork as the configured oracle
+ok 52 - resolution mirror reads source CTF payout and writes it to the fork as the configured oracle
+  ---
+  duration_ms: 4.237514
+  type: 'test'
+  ...
+# Subtest: resolution mirror prefers the validated template CTF oracle over configured fallback
+ok 53 - resolution mirror prefers the validated template CTF oracle over configured fallback
+  ---
+  duration_ms: 1.637935
+  type: 'test'
+  ...
+# Subtest: resolution mirror rejects stored template CTF oracle when it is not configured
+ok 54 - resolution mirror rejects stored template CTF oracle when it is not configured
+  ---
+  duration_ms: 1.404216
+  type: 'test'
+  ...
+# Subtest: resolution mirror leaves fork untouched when source CTF is unresolved
+ok 55 - resolution mirror leaves fork untouched when source CTF is unresolved
+  ---
+  duration_ms: 1.240182
+  type: 'test'
+  ...
+# Subtest: resolution mirror prepares missing fork CTF condition when source is unresolved
+ok 56 - resolution mirror prepares missing fork CTF condition when source is unresolved
+  ---
+  duration_ms: 1.391281
+  type: 'test'
+  ...
+# Subtest: resolution mirror falls back to negative-risk oracle when condition id matches it
+ok 57 - resolution mirror falls back to negative-risk oracle when condition id matches it
+  ---
+  duration_ms: 1.665507
+  type: 'test'
+  ...
+# Subtest: resolution mirror no-ops when fork condition is already resolved
+ok 58 - resolution mirror no-ops when fork condition is already resolved
+  ---
+  duration_ms: 1.24329
+  type: 'test'
+  ...
+# Subtest: resolution mirror rejects templates whose conditionId does not match questionId
+ok 59 - resolution mirror rejects templates whose conditionId does not match questionId
+  ---
+  duration_ms: 1.540376
+  type: 'test'
+  ...
+# Subtest: resolution mirror refuses fork CTF writes when the target RPC is not Anvil-compatible
+ok 60 - resolution mirror refuses fork CTF writes when the target RPC is not Anvil-compatible
+  ---
+  duration_ms: 1.64766
+  type: 'test'
+  ...
+# Subtest: resolution mirror refuses to write when source or fork chain id is not Polygon
+ok 61 - resolution mirror refuses to write when source or fork chain id is not Polygon
+  ---
+  duration_ms: 0.52529
+  type: 'test'
+  ...
+# Subtest: resolution worker does not start unless enabled
+ok 62 - resolution worker does not start unless enabled
+  ---
+  duration_ms: 1.828037
+  type: 'test'
+  ...
+# Subtest: resolution worker reindexes before scanning funded bets
+ok 63 - resolution worker reindexes before scanning funded bets
+  ---
+  duration_ms: 5.32068
+  type: 'test'
+  ...
+# Subtest: resolution worker records pending without sending a transaction for unresolved CTF data
+ok 64 - resolution worker records pending without sending a transaction for unresolved CTF data
+  ---
+  duration_ms: 0.933269
+  type: 'test'
+  ...
+# Subtest: resolution worker calls resolveFromPolymarket when CTF denominator is nonzero
+ok 65 - resolution worker calls resolveFromPolymarket when CTF denominator is nonzero
+  ---
+  duration_ms: 7.471872
+  type: 'test'
+  ...
+# Subtest: resolution worker expires unresolved bets after the on-chain deadline
+ok 66 - resolution worker expires unresolved bets after the on-chain deadline
+  ---
+  duration_ms: 0.551159
+  type: 'test'
+  ...
+# Subtest: resolution worker defers expiry when the mirror saw resolved source data but fork CTF is still unresolved
+ok 67 - resolution worker defers expiry when the mirror saw resolved source data but fork CTF is still unresolved
+  ---
+  duration_ms: 0.511454
+  type: 'test'
+  ...
+# Subtest: health and readiness routes work without database configuration
+ok 68 - health and readiness routes work without database configuration
+  ---
+  duration_ms: 128.379412
+  type: 'test'
+  ...
+# Subtest: CORS allows configured frontend origins and preflight requests
+ok 69 - CORS allows configured frontend origins and preflight requests
+  ---
+  duration_ms: 17.856676
+  type: 'test'
+  ...
+# Subtest: template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
+ok 70 - template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
+  ---
+  duration_ms: 117.398192
+  type: 'test'
+  ...
+# Subtest: template list route supports backend pagination, sport, and text search filters
+ok 71 - template list route supports backend pagination, sport, and text search filters
+  ---
+  duration_ms: 33.387731
+  type: 'test'
+  ...
+# Subtest: backend template search normalization is accent-insensitive
+ok 72 - backend template search normalization is accent-insensitive
+  ---
+  duration_ms: 0.439493
+  type: 'test'
+  ...
+# Subtest: template routes honor zero close buffer config
+ok 73 - template routes honor zero close buffer config
+  ---
+  duration_ms: 24.660934
+  type: 'test'
+  ...
+# Subtest: template CTF sync endpoint returns disabled when live DB-backed sync is unavailable
+ok 74 - template CTF sync endpoint returns disabled when live DB-backed sync is unavailable
+  ---
+  duration_ms: 11.840879
+  type: 'test'
+  ...
+# Subtest: template routes return accepted mocked live tennis and UFC templates
+ok 75 - template routes return accepted mocked live tennis and UFC templates
+  ---
+  duration_ms: 48.900492
+  type: 'test'
+  ...
+# Subtest: live template routes avoid forced detail refreshes and hide cached resolved conditions
+ok 76 - live template routes avoid forced detail refreshes and hide cached resolved conditions
+  ---
+  duration_ms: 35.482102
+  type: 'test'
+  ...
+# Subtest: template discovery worker starts only for live database-backed discovery
+ok 77 - template discovery worker starts only for live database-backed discovery
+  ---
+  duration_ms: 1.85137
+  type: 'test'
+  ...
+# Subtest: template discovery worker skips overlapping ticks
+ok 78 - template discovery worker skips overlapping ticks
+  ---
+  duration_ms: 1.290309
+  type: 'test'
+  ...
+# Subtest: template discovery worker runs CTF sync after refreshing discovery
+ok 79 - template discovery worker runs CTF sync after refreshing discovery
+  ---
+  duration_ms: 0.381253
+  type: 'test'
+  ...
+# Subtest: template discovery worker logs CTF sync failures without failing discovery
+ok 80 - template discovery worker logs CTF sync failures without failing discovery
+  ---
+  duration_ms: 0.563765
+  type: 'test'
+  ...
+# Subtest: PT display localizes live tennis match titles structurally
+ok 81 - PT display localizes live tennis match titles structurally
+  ---
+  duration_ms: 3.215606
+  type: 'test'
+  ...
+# Subtest: PT display generates deterministic yes/no winner titles and outcomes
+ok 82 - PT display generates deterministic yes/no winner titles and outcomes
+  ---
+  duration_ms: 9.435856
+  type: 'test'
+  ...
+# Subtest: PT display localizes UFC fight titles and falls back safely for unknown patterns
+ok 83 - PT display localizes UFC fight titles and falls back safely for unknown patterns
+  ---
+  duration_ms: 7.074413
+  type: 'test'
+  ...
+# Subtest: PT display localizes accepted live F1 and football result titles
+ok 84 - PT display localizes accepted live F1 and football result titles
+  ---
+  duration_ms: 0.734657
+  type: 'test'
+  ...
+# Subtest: fixture filter accepts only approved M1 sports templates
+ok 85 - fixture filter accepts only approved M1 sports templates
+  ---
+  duration_ms: 65.750045
+  type: 'test'
+  ...
+# Subtest: fixture rejection matrix covers every required M1 reason code
+ok 86 - fixture rejection matrix covers every required M1 reason code
+  ---
+  duration_ms: 23.550742
+  type: 'test'
+  ...
+# Subtest: negative-risk markets remain rejected unless staging explicitly opts in
+ok 87 - negative-risk markets remain rejected unless staging explicitly opts in
+  ---
+  duration_ms: 20.615019
+  type: 'test'
+  ...
+# Subtest: near-expiry rejection uses configurable close buffer and allows zero
+ok 88 - near-expiry rejection uses configurable close buffer and allows zero
+  ---
+  duration_ms: 11.947675
+  type: 'test'
+  ...
+# Subtest: tennis match filtering ignores event start age and Polymarket orderability
+ok 89 - tennis match filtering ignores event start age and Polymarket orderability
+  ---
+  duration_ms: 16.17255
+  type: 'test'
+  ...
+# Subtest: template hash vectors are deterministic
+ok 90 - template hash vectors are deterministic
+  ---
+  duration_ms: 38.621218
+  type: 'test'
+  ...
+# Subtest: critical template field changes alter hash while active does not alter identity
+ok 91 - critical template field changes alter hash while active does not alter identity
+  ---
+  duration_ms: 12.949569
+  type: 'test'
+  ...
+# Subtest: publisher builds compact on-chain payload from accepted templates
+ok 92 - publisher builds compact on-chain payload from accepted templates
+  ---
+  duration_ms: 28.084546
+  type: 'test'
+  ...
+# Subtest: template repository stores template CTF sync statuses by condition id
+ok 93 - template repository stores template CTF sync statuses by condition id
+  ---
+  duration_ms: 1.108168
+  type: 'test'
+  ...
+# Subtest: template repository finds in-memory templates for CTF sync by template or condition
+ok 94 - template repository finds in-memory templates for CTF sync by template or condition
+  ---
+  duration_ms: 1.063466
+  type: 'test'
+  ...
+# Subtest: template repository exact CTF sync lookup bypasses latest discovery run in SQL path
+ok 95 - template repository exact CTF sync lookup bypasses latest discovery run in SQL path
+  ---
+  duration_ms: 0.510732
+  type: 'test'
+  ...
+1..95
+# tests 95
+# suites 0
+# pass 92
+# fail 0
+# cancelled 0
+# skipped 3
+# todo 0
+# duration_ms 5410.535533

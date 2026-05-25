@@ -1,0 +1,1134 @@
+
+> duelly@0.1.0 qa
+> bash scripts/harness/qa-check.sh
+
+[qa] validate harness
+{
+  "ok": true,
+  "project": "duelly",
+  "checks": [
+    "files",
+    "root-package",
+    "repository-config",
+    "workspaces",
+    "agents-md",
+    "frontend-reference",
+    "codex-agents",
+    "claude-agents",
+    "pr-template",
+    "scripts",
+    "backlog-status",
+    "self-tests"
+  ]
+}
+[qa] blockchain erc20 self-test
+{
+  "ok": true,
+  "script": "erc20-inspect",
+  "selectors": "validated"
+}
+[qa] polymarket condition self-test
+{
+  "ok": true,
+  "script": "polymarket-condition-inspect",
+  "selectors": {
+    "payoutDenominator": "0xdd34de67",
+    "payoutNumerators": "0x0504c814",
+    "getOutcomeSlotCount": "0xd42dc0c2"
+  }
+}
+[qa] render PR body self-test
+{
+  "ok": true,
+  "script": "render-pr-body"
+}
+[qa] root tests
+
+> duelly@0.1.0 test:root
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: backlog status manifest maps all current milestones and tasks
+ok 1 - backlog status manifest maps all current milestones and tasks
+  ---
+  duration_ms: 14.744554
+  type: 'test'
+  ...
+# Subtest: backlog status relationships and markdown paths are valid
+ok 2 - backlog status relationships and markdown paths are valid
+  ---
+  duration_ms: 1.00552
+  type: 'test'
+  ...
+# Subtest: backlog status manifest is generated from markdown
+ok 3 - backlog status manifest is generated from markdown
+  ---
+  duration_ms: 22.172185
+  type: 'test'
+  ...
+# Subtest: backlog status generator supports dotted milestone ids
+ok 4 - backlog status generator supports dotted milestone ids
+  ---
+  duration_ms: 3.969742
+  type: 'test'
+  ...
+# Subtest: backlog status generator rejects unsupported markdown status values
+ok 5 - backlog status generator rejects unsupported markdown status values
+  ---
+  duration_ms: 2.575936
+  type: 'test'
+  ...
+# Subtest: backlog status generator rejects duplicate task ids
+ok 6 - backlog status generator rejects duplicate task ids
+  ---
+  duration_ms: 2.362858
+  type: 'test'
+  ...
+# Subtest: backlog status generator only writes the canonical status path
+ok 7 - backlog status generator only writes the canonical status path
+  ---
+  duration_ms: 0.235683
+  type: 'test'
+  ...
+# Subtest: backlog status validator rejects invalid status values
+ok 8 - backlog status validator rejects invalid status values
+  ---
+  duration_ms: 2.596431
+  type: 'test'
+  ...
+# Subtest: backlog server serves the status page and mapped markdown
+ok 9 - backlog server serves the status page and mapped markdown
+  ---
+  duration_ms: 65.438098
+  type: 'test'
+  ...
+# Subtest: sync planner creates missing M1.T00 and updates stale M1 metadata
+ok 10 - sync planner creates missing M1.T00 and updates stale M1 metadata
+  ---
+  duration_ms: 40.278586
+  type: 'test'
+  ...
+# Subtest: sync planner extracts dotted backlog task ids
+ok 11 - sync planner extracts dotted backlog task ids
+  ---
+  duration_ms: 0.441228
+  type: 'test'
+  ...
+# Subtest: sync planner preserves issue state and human labels while replacing generated labels
+ok 12 - sync planner preserves issue state and human labels while replacing generated labels
+  ---
+  duration_ms: 1.660129
+  type: 'test'
+  ...
+# Subtest: sync planner rejects duplicate GitHub task ids
+ok 13 - sync planner rejects duplicate GitHub task ids
+  ---
+  duration_ms: 0.468955
+  type: 'test'
+  ...
+# Subtest: sync planner rejects orphan GitHub task ids
+ok 14 - sync planner rejects orphan GitHub task ids
+  ---
+  duration_ms: 0.382055
+  type: 'test'
+  ...
+# Subtest: sync planner ignores unmanaged issues with task-like text
+ok 15 - sync planner ignores unmanaged issues with task-like text
+  ---
+  duration_ms: 0.369196
+  type: 'test'
+  ...
+# Subtest: sync planner trusts repo-tracked issue map for legacy imported issues
+ok 16 - sync planner trusts repo-tracked issue map for legacy imported issues
+  ---
+  duration_ms: 1.517573
+  type: 'test'
+  ...
+# Subtest: sync planner updates mapped issues after backlog source renames
+ok 17 - sync planner updates mapped issues after backlog source renames
+  ---
+  duration_ms: 0.62005
+  type: 'test'
+  ...
+# Subtest: sync planner rejects mapped issues without matching body metadata
+ok 18 - sync planner rejects mapped issues without matching body metadata
+  ---
+  duration_ms: 1.065396
+  type: 'test'
+  ...
+# Subtest: sync planner rejects duplicate issue numbers in github map
+ok 19 - sync planner rejects duplicate issue numbers in github map
+  ---
+  duration_ms: 0.858545
+  type: 'test'
+  ...
+# Subtest: sync planner rejects milestone title collisions without source mapping
+ok 20 - sync planner rejects milestone title collisions without source mapping
+  ---
+  duration_ms: 0.443438
+  type: 'test'
+  ...
+# Subtest: sync CLI apply mode requires an explicit token
+ok 21 - sync CLI apply mode requires an explicit token
+  ---
+  duration_ms: 62.963426
+  type: 'test'
+  ...
+# Subtest: sync CLI rejects github map repository drift before reading GitHub
+ok 22 - sync CLI rejects github map repository drift before reading GitHub
+  ---
+  duration_ms: 62.110508
+  type: 'test'
+  ...
+# Subtest: apply plan mutates labels, milestones, and issues through GitHub requests
+ok 23 - apply plan mutates labels, milestones, and issues through GitHub requests
+  ---
+  duration_ms: 1.88677
+  type: 'test'
+  ...
+# Subtest: apply plan refuses stale issue updates
+ok 24 - apply plan refuses stale issue updates
+  ---
+  duration_ms: 0.736987
+  type: 'test'
+  ...
+# Subtest: harness validator passes
+ok 25 - harness validator passes
+  ---
+  duration_ms: 576.926761
+  type: 'test'
+  ...
+# Subtest: PR body renderer includes mandatory sections
+ok 26 - PR body renderer includes mandatory sections
+  ---
+  duration_ms: 50.400877
+  type: 'test'
+  ...
+# Subtest: PR body renderer can link evidence paths
+ok 27 - PR body renderer can link evidence paths
+  ---
+  duration_ms: 45.608743
+  type: 'test'
+  ...
+# Subtest: PR template contains HITL guardrail
+ok 28 - PR template contains HITL guardrail
+  ---
+  duration_ms: 0.370061
+  type: 'test'
+  ...
+# Subtest: issue import dry run preserves backlog task metadata
+ok 29 - issue import dry run preserves backlog task metadata
+  ---
+  duration_ms: 85.40083
+  type: 'test'
+  ...
+# Subtest: issue import dry run emits required labels and milestone names
+ok 30 - issue import dry run emits required labels and milestone names
+  ---
+  duration_ms: 67.464509
+  type: 'test'
+  ...
+# Subtest: issue import committed metadata check detects no drift
+ok 31 - issue import committed metadata check detects no drift
+  ---
+  duration_ms: 62.146272
+  type: 'test'
+  ...
+# Subtest: keccak256 matches Ethereum empty hash
+ok 32 - keccak256 matches Ethereum empty hash
+  ---
+  duration_ms: 3.55805
+  type: 'test'
+  ...
+# Subtest: known ERC selectors are stable
+ok 33 - known ERC selectors are stable
+  ---
+  duration_ms: 10.629846
+  type: 'test'
+  ...
+# Subtest: calldata encoding pads values correctly
+ok 34 - calldata encoding pads values correctly
+  ---
+  duration_ms: 0.908776
+  type: 'test'
+  ...
+# Subtest: rpc url redaction hides path and query credentials
+ok 35 - rpc url redaction hides path and query credentials
+  ---
+  duration_ms: 0.731361
+  type: 'test'
+  ...
+# Subtest: monorepo folders exist
+ok 36 - monorepo folders exist
+  ---
+  duration_ms: 1.24924
+  type: 'test'
+  ...
+# Subtest: repository config points to final repo
+ok 37 - repository config points to final repo
+  ---
+  duration_ms: 0.881652
+  type: 'test'
+  ...
+# Subtest: frontend reference app exists outside workspaces
+ok 38 - frontend reference app exists outside workspaces
+  ---
+  duration_ms: 0.314947
+  type: 'test'
+  ...
+# Subtest: seed-fork-brl1 parses repeated wallets and default source holder is an address
+ok 39 - seed-fork-brl1 parses repeated wallets and default source holder is an address
+  ---
+  duration_ms: 3.245815
+  type: 'test'
+  ...
+# Subtest: seed-fork-brl1 identifies local and non-local RPC URLs
+ok 40 - seed-fork-brl1 identifies local and non-local RPC URLs
+  ---
+  duration_ms: 0.383261
+  type: 'test'
+  ...
+# Subtest: seed-fork-brl1 converts BRL1 decimals to raw token units
+ok 41 - seed-fork-brl1 converts BRL1 decimals to raw token units
+  ---
+  duration_ms: 0.820068
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 761.325942
+[qa] workspace tests
+
+> duelly@0.1.0 test:workspaces
+> npm run test --workspaces --if-present
+
+
+> @duelly/frontend@0.1.0 test
+> node --import tsx --test test/*.test.ts
+
+TAP version 13
+# Subtest: locales are complete and provide both default languages
+ok 1 - locales are complete and provide both default languages
+  ---
+  duration_ms: 2.303153
+  type: 'test'
+  ...
+# Subtest: onboarding defaults to sign in with empty credentials
+ok 2 - onboarding defaults to sign in with empty credentials
+  ---
+  duration_ms: 0.432424
+  type: 'test'
+  ...
+# Subtest: known API and wallet errors have localized messages and fallbacks
+ok 3 - known API and wallet errors have localized messages and fallbacks
+  ---
+  duration_ms: 1.117145
+  type: 'test'
+  ...
+# Subtest: HTTP requests only send JSON content type when a body is present
+ok 4 - HTTP requests only send JSON content type when a body is present
+  ---
+  duration_ms: 0.275051
+  type: 'test'
+  ...
+# Subtest: injected wallet typed data includes the EIP-712 domain type for MetaMask
+ok 5 - injected wallet typed data includes the EIP-712 domain type for MetaMask
+  ---
+  duration_ms: 0.399045
+  type: 'test'
+  ...
+# Subtest: wallet verification asks the browser wallet to choose an account
+ok 6 - wallet verification asks the browser wallet to choose an account
+  ---
+  duration_ms: 0.323766
+  type: 'test'
+  ...
+# Subtest: structured backend and frontend error codes are registered for translation
+ok 7 - structured backend and frontend error codes are registered for translation
+  ---
+  duration_ms: 8.465641
+  type: 'test'
+  ...
+# Subtest: BRL1 raw values format per active locale
+ok 8 - BRL1 raw values format per active locale
+  ---
+  duration_ms: 16.859712
+  type: 'test'
+  ...
+# Subtest: template text filter combines category tabs with searchable template text
+ok 9 - template text filter combines category tabs with searchable template text
+  ---
+  duration_ms: 1.074344
+  type: 'test'
+  ...
+# Subtest: explore screen requests backend paginated template filters
+ok 10 - explore screen requests backend paginated template filters
+  ---
+  duration_ms: 0.723412
+  type: 'test'
+  ...
+# Subtest: create invite screen fetches a missing template by id
+ok 11 - create invite screen fetches a missing template by id
+  ---
+  duration_ms: 0.38451
+  type: 'test'
+  ...
+# Subtest: invite-only summaries derive non-funded UI statuses
+ok 12 - invite-only summaries derive non-funded UI statuses
+  ---
+  duration_ms: 0.471617
+  type: 'test'
+  ...
+# Subtest: pending invite mapper preserves recipient access metadata
+ok 13 - pending invite mapper preserves recipient access metadata
+  ---
+  duration_ms: 1.279328
+  type: 'test'
+  ...
+# Subtest: template mapper preserves event start separately from provider close
+ok 14 - template mapper preserves event start separately from provider close
+  ---
+  duration_ms: 0.304621
+  type: 'test'
+  ...
+# Subtest: template screens render event start and block resolved detail errors
+ok 15 - template screens render event start and block resolved detail errors
+  ---
+  duration_ms: 0.32527
+  type: 'test'
+  ...
+# Subtest: template display selects PT backend copy and falls back to localized generic outcomes
+ok 16 - template display selects PT backend copy and falls back to localized generic outcomes
+  ---
+  duration_ms: 0.332186
+  type: 'test'
+  ...
+# Subtest: invite UI includes email/link modes, pending inbox, and login return path
+ok 17 - invite UI includes email/link modes, pending inbox, and login return path
+  ---
+  duration_ms: 4.223999
+  type: 'test'
+  ...
+# Subtest: the floating pending-invite prompt is not rendered alongside the in-page inbox
+ok 18 - the floating pending-invite prompt is not rendered alongside the in-page inbox
+  ---
+  duration_ms: 5.526784
+  type: 'test'
+  ...
+# Subtest: frontend source does not expose M3.5 primary flow labels or raw web3 jargon
+ok 19 - frontend source does not expose M3.5 primary flow labels or raw web3 jargon
+  ---
+  duration_ms: 2.068196
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 847.968618
+
+> @duelly/backend@0.1.0 test
+> node --import reflect-metadata --import tsx --test test/unit/*.test.ts test/integration/*.test.ts
+
+TAP version 13
+# Subtest: Auth routes persist users and sessions in PostgreSQL
+ok 1 - Auth routes persist users and sessions in PostgreSQL # SKIP
+  ---
+  duration_ms: 1.882349
+  type: 'test'
+  ...
+# Subtest: TypeORM repositories persist M1 template records in PostgreSQL
+ok 2 - TypeORM repositories persist M1 template records in PostgreSQL # SKIP
+  ---
+  duration_ms: 0.288561
+  type: 'test'
+  ...
+# Subtest: TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL
+ok 3 - TypeORM repositories persist Wallet, invite, relayer, indexer, and resolution records in PostgreSQL # SKIP
+  ---
+  duration_ms: 0.157888
+  type: 'test'
+  ...
+# Subtest: condition resolution service caches unresolved checks until TTL
+ok 4 - condition resolution service caches unresolved checks until TTL
+  ---
+  duration_ms: 3.55208
+  type: 'test'
+  ...
+# Subtest: condition resolution service treats resolved checks as permanent
+ok 5 - condition resolution service treats resolved checks as permanent
+  ---
+  duration_ms: 0.702091
+  type: 'test'
+  ...
+# Subtest: condition resolution service falls back from source RPC to fork RPC
+ok 6 - condition resolution service falls back from source RPC to fork RPC
+  ---
+  duration_ms: 6.390163
+  type: 'test'
+  ...
+# Subtest: condition resolution service handles RPC failures as unknown
+ok 7 - condition resolution service handles RPC failures as unknown
+  ---
+  duration_ms: 1.20167
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports explicit DB variables and fixture mode defaults
+ok 8 - loadAppConfig supports explicit DB variables and fixture mode defaults
+  ---
+  duration_ms: 3.086722
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports template discovery worker interval settings
+ok 9 - loadAppConfig supports template discovery worker interval settings
+  ---
+  duration_ms: 0.476913
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports staging negative-risk template opt-in
+ok 10 - loadAppConfig supports staging negative-risk template opt-in
+  ---
+  duration_ms: 0.545457
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports configurable template close buffer including zero
+ok 11 - loadAppConfig supports configurable template close buffer including zero
+  ---
+  duration_ms: 1.080707
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports resolution worker settings
+ok 12 - loadAppConfig supports resolution worker settings
+  ---
+  duration_ms: 0.478413
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports relayer worker settings
+ok 13 - loadAppConfig supports relayer worker settings
+  ---
+  duration_ms: 0.561068
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports template resolution cache settings
+ok 14 - loadAppConfig supports template resolution cache settings
+  ---
+  duration_ms: 1.151354
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports Polymarket resolution mirror settings
+ok 15 - loadAppConfig supports Polymarket resolution mirror settings
+  ---
+  duration_ms: 5.678818
+  type: 'test'
+  ...
+# Subtest: loadAppConfig supports template CTF sync settings
+ok 16 - loadAppConfig supports template CTF sync settings
+  ---
+  duration_ms: 0.907294
+  type: 'test'
+  ...
+# Subtest: loadAppConfig treats a blank mirror source RPC as unset
+ok 17 - loadAppConfig treats a blank mirror source RPC as unset
+  ---
+  duration_ms: 3.759262
+  type: 'test'
+  ...
+# Subtest: loadAppConfig can load Polymarket resolution mirror for production-mode staging
+ok 18 - loadAppConfig can load Polymarket resolution mirror for production-mode staging
+  ---
+  duration_ms: 1.100121
+  type: 'test'
+  ...
+# Subtest: loadAppConfig requires explicit CORS origins in production
+ok 19 - loadAppConfig requires explicit CORS origins in production
+  ---
+  duration_ms: 0.67184
+  type: 'test'
+  ...
+# Subtest: Gamma live markets infer official result source from resolution text
+ok 20 - Gamma live markets infer official result source from resolution text
+  ---
+  duration_ms: 71.977333
+  type: 'test'
+  ...
+# Subtest: Gamma discovery does not starve later sports when max results is small
+ok 21 - Gamma discovery does not starve later sports when max results is small
+  ---
+  duration_ms: 18.338309
+  type: 'test'
+  ...
+# Subtest: Gamma discovery flattens sports-tagged events into market candidates
+ok 22 - Gamma discovery flattens sports-tagged events into market candidates
+  ---
+  duration_ms: 3.415837
+  type: 'test'
+  ...
+# Subtest: Gamma parses resolvedBy and validates non-negative-risk tennis CTF oracle metadata
+ok 23 - Gamma parses resolvedBy and validates non-negative-risk tennis CTF oracle metadata
+  ---
+  duration_ms: 5.442164
+  type: 'test'
+  ...
+# Subtest: Gamma still validates existing non-negative-risk markets that use the legacy default oracle
+ok 24 - Gamma still validates existing non-negative-risk markets that use the legacy default oracle
+  ---
+  duration_ms: 2.890893
+  type: 'test'
+  ...
+# Subtest: Gamma negative-risk validation prefers configured neg-risk oracle over resolvedBy
+ok 25 - Gamma negative-risk validation prefers configured neg-risk oracle over resolvedBy
+  ---
+  duration_ms: 1.995607
+  type: 'test'
+  ...
+# Subtest: Gamma keeps otherwise valid templates when no CTF oracle candidate validates
+ok 26 - Gamma keeps otherwise valid templates when no CTF oracle candidate validates
+  ---
+  duration_ms: 3.691718
+  type: 'test'
+  ...
+# Subtest: Gamma does not validate resolvedBy unless it is configured as an allowed CTF oracle
+ok 27 - Gamma does not validate resolvedBy unless it is configured as an allowed CTF oracle
+  ---
+  duration_ms: 3.676107
+  type: 'test'
+  ...
+# Subtest: Gamma football pagination accepts full-time results and rejects derivative match props
+ok 28 - Gamma football pagination accepts full-time results and rejects derivative match props
+  ---
+  duration_ms: 16.069723
+  type: 'test'
+  ...
+# Subtest: Gamma event feed pagination requests later pages and accepts a later-page ATP match
+ok 29 - Gamma event feed pagination requests later pages and accepts a later-page ATP match
+  ---
+  duration_ms: 3.778174
+  type: 'test'
+  ...
+# Subtest: Gamma event feed pagination stops safely when Gamma repeats a full page
+ok 30 - Gamma event feed pagination stops safely when Gamma repeats a full page
+  ---
+  duration_ms: 2.341333
+  type: 'test'
+  ...
+# Subtest: Gamma live tennis, UFC, and F1 discovery use sport feeds with future end-date filters
+ok 31 - Gamma live tennis, UFC, and F1 discovery use sport feeds with future end-date filters
+  ---
+  duration_ms: 5.123455
+  type: 'test'
+  ...
+# Subtest: Gamma search fallback does not force-label unrelated UFC results
+ok 32 - Gamma search fallback does not force-label unrelated UFC results
+  ---
+  duration_ms: 1.688305
+  type: 'test'
+  ...
+# Subtest: Gamma tennis accepts started ATP match winners independent of Polymarket orderability
+ok 33 - Gamma tennis accepts started ATP match winners independent of Polymarket orderability
+  ---
+  duration_ms: 11.240761
+  type: 'test'
+  ...
+# Subtest: Gamma tennis rejects totals, set winners, completed-match props, and unsupported ITF events
+ok 34 - Gamma tennis rejects totals, set winners, completed-match props, and unsupported ITF events
+  ---
+  duration_ms: 3.274444
+  type: 'test'
+  ...
+# Subtest: Gamma UFC accepts only headline fight winners from live tag events
+ok 35 - Gamma UFC accepts only headline fight winners from live tag events
+  ---
+  duration_ms: 4.824359
+  type: 'test'
+  ...
+# Subtest: repository keeps duplicate bet ids isolated by deployment key
+ok 36 - repository keeps duplicate bet ids isolated by deployment key
+  ---
+  duration_ms: 2.189286
+  type: 'test'
+  ...
+# Subtest: repository hides stale deployed invites while keeping pre-funding invites visible
+ok 37 - repository hides stale deployed invites while keeping pre-funding invites visible
+  ---
+  duration_ms: 1.343407
+  type: 'test'
+  ...
+# Subtest: repository stores duplicate tx/log events under separate deployments
+ok 38 - repository stores duplicate tx/log events under separate deployments
+  ---
+  duration_ms: 0.618211
+  type: 'test'
+  ...
+# Subtest: repository atomically claims submitted relayer attempts and reclaims stale locks
+ok 39 - repository atomically claims submitted relayer attempts and reclaims stale locks
+  ---
+  duration_ms: 0.999157
+  type: 'test'
+  ...
+# Subtest: relayer maps local contract reverts to stable API error codes
+ok 40 - relayer maps local contract reverts to stable API error codes
+  ---
+  duration_ms: 1.475782
+  type: 'test'
+  ...
+# Subtest: relayer queues missing accepted template registration before funding
+ok 41 - relayer queues missing accepted template registration before funding
+  ---
+  duration_ms: 0.946483
+  type: 'test'
+  ...
+# Subtest: relayer enqueues funding without submitting the transaction inline
+ok 42 - relayer enqueues funding without submitting the transaction inline
+  ---
+  duration_ms: 57.942088
+  type: 'test'
+  ...
+# Subtest: relayer resumes template registration once its receipt lands
+ok 43 - relayer resumes template registration once its receipt lands
+  ---
+  duration_ms: 0.447361
+  type: 'test'
+  ...
+# Subtest: relayer fails expired queued funding without submitting a transaction
+ok 44 - relayer fails expired queued funding without submitting a transaction
+  ---
+  duration_ms: 0.711261
+  type: 'test'
+  ...
+# Subtest: relayer persists funded bet from receipt before the indexer catches up
+ok 45 - relayer persists funded bet from receipt before the indexer catches up
+  ---
+  duration_ms: 29.17449
+  type: 'test'
+  ...
+# Subtest: Invite creation returns CONDITION_RESOLVED before building payloads for resolved templates
+ok 46 - Invite creation returns CONDITION_RESOLVED before building payloads for resolved templates
+  ---
+  duration_ms: 258.814906
+  type: 'test'
+  ...
+# Subtest: Auth protects endpoints and supports local email/password sessions
+ok 47 - Auth protects endpoints and supports local email/password sessions
+  ---
+  duration_ms: 85.194792
+  type: 'test'
+  ...
+# Subtest: Wallet challenge links a private wallet without exposing key material
+ok 48 - Wallet challenge links a private wallet without exposing key material
+  ---
+  duration_ms: 151.324092
+  type: 'test'
+  ...
+# Subtest: Fee quote, template detail, invite, and acceptance payloads are exposed
+ok 49 - Fee quote, template detail, invite, and acceptance payloads are exposed
+  ---
+  duration_ms: 276.7082
+  type: 'test'
+  ...
+# Subtest: Email-restricted invites appear in the recipient inbox and block other accounts
+ok 50 - Email-restricted invites appear in the recipient inbox and block other accounts
+  ---
+  duration_ms: 241.696873
+  type: 'test'
+  ...
+# Subtest: resolution mirror is disabled unless explicitly configured
+ok 51 - resolution mirror is disabled unless explicitly configured
+  ---
+  duration_ms: 5.361837
+  type: 'test'
+  ...
+# Subtest: resolution mirror reads source CTF payout and writes it to the fork as the configured oracle
+ok 52 - resolution mirror reads source CTF payout and writes it to the fork as the configured oracle
+  ---
+  duration_ms: 4.115481
+  type: 'test'
+  ...
+# Subtest: resolution mirror prefers the validated template CTF oracle over configured fallback
+ok 53 - resolution mirror prefers the validated template CTF oracle over configured fallback
+  ---
+  duration_ms: 1.718497
+  type: 'test'
+  ...
+# Subtest: resolution mirror rejects stored template CTF oracle when it is not configured
+ok 54 - resolution mirror rejects stored template CTF oracle when it is not configured
+  ---
+  duration_ms: 1.273235
+  type: 'test'
+  ...
+# Subtest: resolution mirror leaves fork untouched when source CTF is unresolved
+ok 55 - resolution mirror leaves fork untouched when source CTF is unresolved
+  ---
+  duration_ms: 1.537334
+  type: 'test'
+  ...
+# Subtest: resolution mirror prepares missing fork CTF condition when source is unresolved
+ok 56 - resolution mirror prepares missing fork CTF condition when source is unresolved
+  ---
+  duration_ms: 2.693259
+  type: 'test'
+  ...
+# Subtest: resolution mirror falls back to negative-risk oracle when condition id matches it
+ok 57 - resolution mirror falls back to negative-risk oracle when condition id matches it
+  ---
+  duration_ms: 1.869583
+  type: 'test'
+  ...
+# Subtest: resolution mirror no-ops when fork condition is already resolved
+ok 58 - resolution mirror no-ops when fork condition is already resolved
+  ---
+  duration_ms: 0.904614
+  type: 'test'
+  ...
+# Subtest: resolution mirror rejects templates whose conditionId does not match questionId
+ok 59 - resolution mirror rejects templates whose conditionId does not match questionId
+  ---
+  duration_ms: 1.007836
+  type: 'test'
+  ...
+# Subtest: resolution mirror refuses fork CTF writes when the target RPC is not Anvil-compatible
+ok 60 - resolution mirror refuses fork CTF writes when the target RPC is not Anvil-compatible
+  ---
+  duration_ms: 1.326295
+  type: 'test'
+  ...
+# Subtest: resolution mirror refuses to write when source or fork chain id is not Polygon
+ok 61 - resolution mirror refuses to write when source or fork chain id is not Polygon
+  ---
+  duration_ms: 0.437668
+  type: 'test'
+  ...
+# Subtest: resolution worker does not start unless enabled
+ok 62 - resolution worker does not start unless enabled
+  ---
+  duration_ms: 2.681068
+  type: 'test'
+  ...
+# Subtest: resolution worker reindexes before scanning funded bets
+ok 63 - resolution worker reindexes before scanning funded bets
+  ---
+  duration_ms: 1.3205
+  type: 'test'
+  ...
+# Subtest: resolution worker records pending without sending a transaction for unresolved CTF data
+ok 64 - resolution worker records pending without sending a transaction for unresolved CTF data
+  ---
+  duration_ms: 1.127545
+  type: 'test'
+  ...
+# Subtest: resolution worker calls resolveFromPolymarket when CTF denominator is nonzero
+ok 65 - resolution worker calls resolveFromPolymarket when CTF denominator is nonzero
+  ---
+  duration_ms: 1.463891
+  type: 'test'
+  ...
+# Subtest: resolution worker expires unresolved bets after the on-chain deadline
+ok 66 - resolution worker expires unresolved bets after the on-chain deadline
+  ---
+  duration_ms: 0.594549
+  type: 'test'
+  ...
+# Subtest: resolution worker defers expiry when the mirror saw resolved source data but fork CTF is still unresolved
+ok 67 - resolution worker defers expiry when the mirror saw resolved source data but fork CTF is still unresolved
+  ---
+  duration_ms: 0.574764
+  type: 'test'
+  ...
+# Subtest: health and readiness routes work without database configuration
+ok 68 - health and readiness routes work without database configuration
+  ---
+  duration_ms: 142.056102
+  type: 'test'
+  ...
+# Subtest: CORS allows configured frontend origins and preflight requests
+ok 69 - CORS allows configured frontend origins and preflight requests
+  ---
+  duration_ms: 22.660533
+  type: 'test'
+  ...
+# Subtest: template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
+ok 70 - template routes expose fixture candidates, accepted templates, rejected candidates, and publisher payloads
+  ---
+  duration_ms: 108.177807
+  type: 'test'
+  ...
+# Subtest: template list route supports backend pagination, sport, and text search filters
+ok 71 - template list route supports backend pagination, sport, and text search filters
+  ---
+  duration_ms: 29.42307
+  type: 'test'
+  ...
+# Subtest: backend template search normalization is accent-insensitive
+ok 72 - backend template search normalization is accent-insensitive
+  ---
+  duration_ms: 0.325178
+  type: 'test'
+  ...
+# Subtest: template routes honor zero close buffer config
+ok 73 - template routes honor zero close buffer config
+  ---
+  duration_ms: 32.356667
+  type: 'test'
+  ...
+# Subtest: template CTF sync endpoint returns disabled when live DB-backed sync is unavailable
+ok 74 - template CTF sync endpoint returns disabled when live DB-backed sync is unavailable
+  ---
+  duration_ms: 26.254375
+  type: 'test'
+  ...
+# Subtest: template routes return accepted mocked live tennis and UFC templates
+ok 75 - template routes return accepted mocked live tennis and UFC templates
+  ---
+  duration_ms: 61.643849
+  type: 'test'
+  ...
+# Subtest: live template routes avoid forced detail refreshes and hide cached resolved conditions
+ok 76 - live template routes avoid forced detail refreshes and hide cached resolved conditions
+  ---
+  duration_ms: 44.008326
+  type: 'test'
+  ...
+# Subtest: template discovery worker starts only for live database-backed discovery
+ok 77 - template discovery worker starts only for live database-backed discovery
+  ---
+  duration_ms: 2.73915
+  type: 'test'
+  ...
+# Subtest: template discovery worker skips overlapping ticks
+ok 78 - template discovery worker skips overlapping ticks
+  ---
+  duration_ms: 1.237396
+  type: 'test'
+  ...
+# Subtest: template discovery worker runs CTF sync after refreshing discovery
+ok 79 - template discovery worker runs CTF sync after refreshing discovery
+  ---
+  duration_ms: 0.557577
+  type: 'test'
+  ...
+# Subtest: template discovery worker logs CTF sync failures without failing discovery
+ok 80 - template discovery worker logs CTF sync failures without failing discovery
+  ---
+  duration_ms: 0.752824
+  type: 'test'
+  ...
+# Subtest: PT display localizes live tennis match titles structurally
+ok 81 - PT display localizes live tennis match titles structurally
+  ---
+  duration_ms: 2.117695
+  type: 'test'
+  ...
+# Subtest: PT display generates deterministic yes/no winner titles and outcomes
+ok 82 - PT display generates deterministic yes/no winner titles and outcomes
+  ---
+  duration_ms: 1.117952
+  type: 'test'
+  ...
+# Subtest: PT display localizes UFC fight titles and falls back safely for unknown patterns
+ok 83 - PT display localizes UFC fight titles and falls back safely for unknown patterns
+  ---
+  duration_ms: 0.286084
+  type: 'test'
+  ...
+# Subtest: PT display localizes accepted live F1 and football result titles
+ok 84 - PT display localizes accepted live F1 and football result titles
+  ---
+  duration_ms: 0.566771
+  type: 'test'
+  ...
+# Subtest: fixture filter accepts only approved M1 sports templates
+ok 85 - fixture filter accepts only approved M1 sports templates
+  ---
+  duration_ms: 89.815304
+  type: 'test'
+  ...
+# Subtest: fixture rejection matrix covers every required M1 reason code
+ok 86 - fixture rejection matrix covers every required M1 reason code
+  ---
+  duration_ms: 11.872014
+  type: 'test'
+  ...
+# Subtest: negative-risk markets remain rejected unless staging explicitly opts in
+ok 87 - negative-risk markets remain rejected unless staging explicitly opts in
+  ---
+  duration_ms: 15.430602
+  type: 'test'
+  ...
+# Subtest: near-expiry rejection uses configurable close buffer and allows zero
+ok 88 - near-expiry rejection uses configurable close buffer and allows zero
+  ---
+  duration_ms: 10.574318
+  type: 'test'
+  ...
+# Subtest: tennis match filtering ignores event start age and Polymarket orderability
+ok 89 - tennis match filtering ignores event start age and Polymarket orderability
+  ---
+  duration_ms: 22.987076
+  type: 'test'
+  ...
+# Subtest: template hash vectors are deterministic
+ok 90 - template hash vectors are deterministic
+  ---
+  duration_ms: 51.721794
+  type: 'test'
+  ...
+# Subtest: critical template field changes alter hash while active does not alter identity
+ok 91 - critical template field changes alter hash while active does not alter identity
+  ---
+  duration_ms: 16.736922
+  type: 'test'
+  ...
+# Subtest: publisher builds compact on-chain payload from accepted templates
+ok 92 - publisher builds compact on-chain payload from accepted templates
+  ---
+  duration_ms: 32.379976
+  type: 'test'
+  ...
+# Subtest: template repository stores template CTF sync statuses by condition id
+ok 93 - template repository stores template CTF sync statuses by condition id
+  ---
+  duration_ms: 2.456944
+  type: 'test'
+  ...
+# Subtest: template repository finds in-memory templates for CTF sync by template or condition
+ok 94 - template repository finds in-memory templates for CTF sync by template or condition
+  ---
+  duration_ms: 1.590932
+  type: 'test'
+  ...
+# Subtest: template repository exact CTF sync lookup bypasses latest discovery run in SQL path
+ok 95 - template repository exact CTF sync lookup bypasses latest discovery run in SQL path
+  ---
+  duration_ms: 0.548205
+  type: 'test'
+  ...
+1..95
+# tests 95
+# suites 0
+# pass 92
+# fail 0
+# cancelled 0
+# skipped 3
+# todo 0
+# duration_ms 6319.469379
+
+> @duelly/smartcontract@0.1.0 test
+> npm run test:node && npm run test:forge
+
+
+> @duelly/smartcontract@0.1.0 test:node
+> node --test test/*.test.mjs
+
+TAP version 13
+# Subtest: smartcontract workspace has expected bootstrap files
+ok 1 - smartcontract workspace has expected bootstrap files
+  ---
+  duration_ms: 1.049712
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 59.717915
+
+> @duelly/smartcontract@0.1.0 test:forge
+> PATH="$HOME/.foundry/bin:$PATH" forge test
+
+No files changed, compilation skipped
+
+Ran 1 test for test/PolygonForkCompatibility.t.sol:PolygonForkCompatibilityTest
+[PASS] test_PolygonForkLiveReadCompatibility() (gas: 164)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 377.68µs (79.03µs CPU time)
+
+Ran 7 tests for test/Config.t.sol:ConfigTest
+[PASS] test_ConfigConstructorRejectsZeroAddresses() (gas: 449482)
+[PASS] test_ConfigInitialDefaults() (gas: 34456)
+[PASS] test_ConfigInvalidLimitsFail() (gas: 18572)
+[PASS] test_ConfigOnlyOwnerCanSetRoles() (gas: 46240)
+[PASS] test_ConfigOwnershipTransferRemovesOldOwnerOperationalAccess() (gas: 51610)
+[PASS] test_ConfigRoleProtectedSettersRejectUnauthorized() (gas: 21689)
+[PASS] test_ConfigSettersAreRoleControlledAndEmit() (gas: 77491)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 1.46ms (544.61µs CPU time)
+
+Ran 4 tests for test/Fee.t.sol:FeeTest
+[PASS] test_FeeMaxLoserFeeBpsIsEnforcedAtRegistration() (gas: 40008)
+[PASS] test_FeeRejectsIncorrectSignedLoserFee() (gas: 278293)
+[PASS] test_FeeUsesGasAnchoredMinimumWhenAbovePercentage() (gas: 31945)
+[PASS] test_FeeUsesPercentageWhenAboveMinimum() (gas: 31961)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 1.85ms (1.03ms CPU time)
+
+Ran 1 test for test/Mocks.t.sol:MocksTest
+[PASS] test_MocksSmoke() (gas: 213680)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 1.01ms (337.66µs CPU time)
+
+Ran 7 tests for test/Resolution.t.sol:ResolutionTest
+[PASS] test_ResolutionDenominatorZeroRevertsUnresolved() (gas: 655980)
+[PASS] test_ResolutionEqualPayoutVoids() (gas: 780308)
+[PASS] test_ResolutionInvalidSlotCountVoids() (gas: 761635)
+[PASS] test_ResolutionPartialBothNonZeroVoids() (gas: 780350)
+[PASS] test_ResolutionStrictOutcomeOneWins() (gas: 795895)
+[PASS] test_ResolutionStrictOutcomeZeroWins() (gas: 795891)
+[PASS] test_ResolutionVoidsWhenSlotCountCallUnavailable() (gas: 717725)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 9.74ms (9.96ms CPU time)
+
+Ran 7 tests for test/Funding.t.sol:FundingTest
+[PASS] test_FundingExpiredPermitFailsWithoutBet() (gas: 348661)
+[PASS] test_FundingInsufficientBalanceRevertsAtomically() (gas: 499684)
+[PASS] test_FundingInvalidPermitFailsEvenWithStaleAllowance() (gas: 379166)
+[PASS] test_FundingPermitFrontRunFallsBackToExistingAllowance() (gas: 652428)
+[PASS] test_FundingPermitValueTooLowFails() (gas: 341876)
+[PASS] test_FundingValidPermitsPullExactEscrowAndEmitBet() (gas: 663385)
+[PASS] test_FundingWrongSpenderPermitFails() (gas: 347347)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 7.84ms (7.08ms CPU time)
+
+Ran 4 tests for test/Settlement.t.sol:SettlementTest
+[PASS] test_SettlementDoubleSettlementFails() (gas: 790074)
+[PASS] test_SettlementPlayerAWinsPaysWinnerAndTreasury() (gas: 803030)
+[PASS] test_SettlementPlayerBWinsPaysWinnerAndTreasury() (gas: 796670)
+[PASS] test_SettlementVoidRefundsBothPlayersAndTreasuryZero() (gas: 795138)
+Suite result: ok. 4 passed; 0 failed; 0 skipped; finished in 12.84ms (5.99ms CPU time)
+
+Ran 6 tests for test/Security.t.sol:SecurityTest
+[PASS] test_SecurityExpiryFailsWhenCtfResolutionIsAvailable() (gas: 798837)
+[PASS] test_SecurityExpiryRefundsAfterDeadlineOnly() (gas: 652359)
+[PASS] test_SecurityMinMaxStakeEnforced() (gas: 287373)
+[PASS] test_SecurityPauseBlocksNewFundingButAllowsResolution() (gas: 833427)
+[PASS] test_SecurityReentrantTokenCannotEnterEscrow() (gas: 4662701)
+[PASS] test_SecurityRefundWorksWhilePaused() (gas: 651753)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 17.71ms (23.21ms CPU time)
+
+Ran 6 tests for test/Template.t.sol:TemplateTest
+[PASS] test_TemplateHashMatchesM1BackendVector() (gas: 12527)
+[PASS] test_TemplateRegistersAndReturnsActiveTemplate() (gas: 199092)
+[PASS] test_TemplateRejectsDuplicateInactiveAndMismatchedConditionFunding() (gas: 282309)
+[PASS] test_TemplateRejectsHashMismatch() (gas: 25251)
+[PASS] test_TemplateRejectsResolvedConditionFunding() (gas: 389223)
+[PASS] test_TemplateRejectsUnregisteredClosedAndInvalidOutcomeIndexes() (gas: 375710)
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 8.18ms (5.24ms CPU time)
+
+Ran 7 tests for test/EIP712.t.sol:EIP712Test
+[PASS] test_EIP712CancelledNonceFails() (gas: 276190)
+[PASS] test_EIP712ExpiredOfferFails() (gas: 249889)
+[PASS] test_EIP712ReusedOfferHashAndNonceFail() (gas: 678056)
+[PASS] test_EIP712TamperedStakeInvalidatesSignature() (gas: 265408)
+[PASS] test_EIP712UnauthorizedTakerAndSameOutcomeFail() (gas: 313133)
+[PASS] test_EIP712ValidSignaturesFundBet() (gas: 655961)
+[PASS] test_EIP712WrongMakerSignerFails() (gas: 262196)
+Suite result: ok. 7 passed; 0 failed; 0 skipped; finished in 18.04ms (9.67ms CPU time)
+
+Ran 10 test suites in 19.23ms (79.05ms CPU time): 50 tests passed, 0 failed, 0 skipped (50 total tests)
+[qa] ok
