@@ -1,8 +1,9 @@
 import { parseSignature } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+import { polygon } from 'viem/chains';
 import type { ApiMode, Hex, PermitSubmission, TypedPayload, WalletAdapter } from './types';
 
-interface Eip1193Provider {
+export interface Eip1193Provider {
   request<T = unknown>(args: { method: string; params?: unknown[] }): Promise<T>;
 }
 
@@ -149,6 +150,7 @@ function createInjectedWalletAdapter(): WalletAdapter {
     },
     async signTypedData(address, payload) {
       const provider = requireProvider();
+      await ensureInjectedWalletChain(provider, payload);
       return await provider.request<Hex>({
         method: 'eth_signTypedData_v4',
         params: [address, JSON.stringify(metaMaskTypedPayload(payload))],
@@ -159,6 +161,49 @@ function createInjectedWalletAdapter(): WalletAdapter {
       return permitFromSignature(signature, payload);
     },
   };
+}
+
+export async function ensureInjectedWalletChain(provider: Eip1193Provider, payload: TypedPayload): Promise<void> {
+  const targetChainId = chainIdHex(payload.domain.chainId);
+  if (!targetChainId) return;
+
+  const activeChainId = await provider.request<string>({ method: 'eth_chainId' }).catch(() => null);
+  if (chainIdHex(activeChainId) === targetChainId) return;
+
+  try {
+    await switchInjectedWalletChain(provider, targetChainId);
+  } catch (error) {
+    if (isUnrecognizedChainError(error) && targetChainId === chainIdHex(polygon.id)) {
+      await addPolygonChain(provider).catch((cause) => {
+        throw normalizeChainSwitchError(cause);
+      });
+      await switchInjectedWalletChain(provider, targetChainId).catch((cause) => {
+        throw normalizeChainSwitchError(cause);
+      });
+      return;
+    }
+    throw normalizeChainSwitchError(error);
+  }
+}
+
+function switchInjectedWalletChain(provider: Eip1193Provider, chainId: Hex): Promise<unknown> {
+  return provider.request({
+    method: 'wallet_switchEthereumChain',
+    params: [{ chainId }],
+  });
+}
+
+function addPolygonChain(provider: Eip1193Provider): Promise<unknown> {
+  return provider.request({
+    method: 'wallet_addEthereumChain',
+    params: [{
+      chainId: chainIdHex(polygon.id),
+      chainName: polygon.name,
+      nativeCurrency: polygon.nativeCurrency,
+      rpcUrls: polygon.rpcUrls.default.http,
+      blockExplorerUrls: polygon.blockExplorers?.default ? [polygon.blockExplorers.default.url] : undefined,
+    }],
+  });
 }
 
 async function requestAccount(provider: Eip1193Provider): Promise<Hex> {
@@ -184,6 +229,41 @@ export function metaMaskTypedPayload(payload: TypedPayload): TypedPayload {
 function requireProvider(): Eip1193Provider {
   if (!window.ethereum) throw new Error('WALLET_PROVIDER_NOT_FOUND');
   return window.ethereum;
+}
+
+function chainIdHex(value: unknown): Hex | null {
+  if (typeof value === 'number') {
+    if (!Number.isSafeInteger(value) || value <= 0) return null;
+    return `0x${value.toString(16)}` as Hex;
+  }
+  if (typeof value === 'bigint') {
+    if (value <= 0n) return null;
+    return `0x${value.toString(16)}` as Hex;
+  }
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (/^0x[0-9a-f]+$/i.test(trimmed)) return `0x${BigInt(trimmed).toString(16)}` as Hex;
+  if (/^[1-9]\d*$/.test(trimmed)) return `0x${BigInt(trimmed).toString(16)}` as Hex;
+  return null;
+}
+
+function normalizeChainSwitchError(error: unknown): unknown {
+  if (isWalletRequestRejected(error)) return error;
+  return new Error('WALLET_CHAIN_MISMATCH');
+}
+
+function isUnrecognizedChainError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const code = String((error as { code?: unknown }).code ?? '');
+  const message = String((error as { message?: unknown }).message ?? '');
+  return code === '4902' || /unrecognized chain|unknown chain|not added/i.test(message);
+}
+
+function isWalletRequestRejected(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const code = String((error as { code?: unknown }).code ?? '');
+  const message = String((error as { message?: unknown }).message ?? '');
+  return code === '4001' || /user rejected|user denied|request rejected/i.test(message);
 }
 
 function permitFromSignature(signature: Hex, payload: TypedPayload): PermitSubmission {
