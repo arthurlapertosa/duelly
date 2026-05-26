@@ -1,0 +1,12 @@
+[Unit]
+Description=Back up Duelly staging Anvil state
+After=duelly-anvil.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/duelly/app
+EnvironmentFile=/opt/duelly/app/.env
+ExecStart=/opt/duelly/app/scripts/blockchain/staging-fork-backup.sh
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true

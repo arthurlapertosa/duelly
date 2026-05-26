@@ -1,0 +1,17 @@
+[Unit]
+Description=Recover Duelly staging fork after fresh Anvil start
+After=duelly-anvil.service postgresql.service postgresql@16-main.service
+Wants=duelly-anvil.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/duelly/app
+EnvironmentFile=/opt/duelly/app/.env
+ExecStart=/opt/duelly/app/scripts/blockchain/staging-fork-poststart-recover.sh
+RemainAfterExit=no
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
