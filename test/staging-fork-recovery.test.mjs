@@ -221,7 +221,7 @@ test('staging fork prestart restores backup or marks fresh fork required', async
     writeFileSync(`${backupPath}.meta.json`, JSON.stringify(createBackupMetadata({ statePath: backupPath, deploymentEnvPath })), 'utf8');
     writeFileSync(statePath, '{"block":', 'utf8');
 
-    const restoreOutput = runScript('scripts/blockchain/staging-fork-prestart.sh', {
+    runScript('scripts/blockchain/staging-fork-prestart.sh', {
       APP_DIR: process.cwd(),
       ANVIL_DIR: dir,
       STATE_FILE: statePath,
@@ -231,13 +231,13 @@ test('staging fork prestart restores backup or marks fresh fork required', async
       STATE_SOURCE_FILE: join(dir, 'state-source'),
       REQUIRE_DB_RESTORE_GUARD: '0',
     });
-    assert.match(restoreOutput, /restored state/);
     assert.equal(validateAnvilStateFile(statePath).bestBlockNumber, '200');
+    assert.match(readFileSync(join(dir, 'state-source'), 'utf8'), /^restored:/);
 
     await rm(backupDir, { recursive: true, force: true });
     mkdirSync(backupDir);
     writeFileSync(statePath, '{"block":', 'utf8');
-    const freshOutput = runScript('scripts/blockchain/staging-fork-prestart.sh', {
+    runScript('scripts/blockchain/staging-fork-prestart.sh', {
       APP_DIR: process.cwd(),
       ANVIL_DIR: dir,
       STATE_FILE: statePath,
@@ -247,8 +247,8 @@ test('staging fork prestart restores backup or marks fresh fork required', async
       STATE_SOURCE_FILE: join(dir, 'state-source'),
       REQUIRE_DB_RESTORE_GUARD: '0',
     });
-    assert.match(freshOutput, /fresh fork/);
     assert.equal(readFileSync(join(dir, 'fresh-fork-required'), 'utf8').startsWith('fresh-fork-required:'), true);
+    assert.equal(readFileSync(join(dir, 'state-source'), 'utf8'), 'fresh-fork-required\n');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -273,6 +273,8 @@ test('fork deploy owns Anvil jobs while PM2 deploy remains app-only', () => {
   assert.match(forkPrestart, /indexed_chain_events/);
   assert.match(forkPrestart, /indexed_bets/);
   assert.match(forkPrestart, /indexer_cursors/);
+  assert.ok(forkPrestart.includes(`printf '[staging-fork-prestart] %s\\n' "$*" >&2`));
+  assert.doesNotMatch(forkPrestart, /:'deployment_key'/);
 
   assert.doesNotMatch(pm2Deploy, /duelly-anvil-backup/);
   assert.doesNotMatch(pm2Deploy, /staging-fork-prestart/);

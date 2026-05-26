@@ -16,7 +16,7 @@ REQUIRE_DB_RESTORE_GUARD="${REQUIRE_DB_RESTORE_GUARD:-1}"
 export PATH="${NODE_BIN_DIR:-/root/.nvm/versions/node/v22.21.0/bin}:/root/.foundry/bin:$PATH"
 
 log() {
-  printf '[staging-fork-prestart] %s\n' "$*"
+  printf '[staging-fork-prestart] %s\n' "$*" >&2
 }
 
 load_env_file() {
@@ -67,6 +67,10 @@ current_indexed_max_block() {
     [[ "$REQUIRE_DB_RESTORE_GUARD" == "1" ]] && return 2
     return 0
   fi
+  if [[ ! "$deployment_key" =~ ^[A-Za-z0-9:._-]+$ ]]; then
+    [[ "$REQUIRE_DB_RESTORE_GUARD" == "1" ]] && return 2
+    return 0
+  fi
   local result
   if ! result="$(PGPASSWORD="$DB_PASSWORD" psql \
     -h "$DB_HOST" \
@@ -74,11 +78,10 @@ current_indexed_max_block() {
     -U "$DB_USERNAME" \
     -d "$DB_DATABASE" \
     -XAt \
-    -v deployment_key="$deployment_key" \
     -c "select greatest(
-          coalesce((select max(block_number::numeric) from indexed_chain_events where deployment_key = :'deployment_key'), 0),
-          coalesce((select max(source_block_number::numeric) from indexed_bets where deployment_key = :'deployment_key'), 0),
-          coalesce((select max(last_block_number::numeric) from indexer_cursors where deployment_key = :'deployment_key'), 0)
+          coalesce((select max(block_number::numeric) from indexed_chain_events where deployment_key = '$deployment_key'), 0),
+          coalesce((select max(source_block_number::numeric) from indexed_bets where deployment_key = '$deployment_key'), 0),
+          coalesce((select max(last_block_number::numeric) from indexer_cursors where deployment_key = '$deployment_key'), 0)
         )::text;" \
     2>/dev/null)"; then
     [[ "$REQUIRE_DB_RESTORE_GUARD" == "1" ]] && return 2
