@@ -25,6 +25,9 @@ echo "[qa] blockchain erc20 self-test"
 echo "[qa] polymarket condition self-test"
 "$NODE_BIN" scripts/blockchain/polymarket-condition-inspect.mjs --self-test
 
+echo "[qa] staging fork recovery self-test"
+"$NODE_BIN" scripts/blockchain/lib/staging-fork-recovery.mjs --self-test
+
 echo "[qa] render PR body self-test"
 "$NODE_BIN" scripts/harness/render-pr-body.mjs --self-test
 

@@ -1,0 +1,23 @@
+[Unit]
+Description=Duelly staging Polygon Anvil fork
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/duelly/app
+EnvironmentFile=/opt/duelly/app/.env
+Environment=ANVIL_STATE_FILE=/opt/duelly/anvil/state.json
+ExecStartPre=/opt/duelly/app/scripts/blockchain/staging-fork-prestart.sh
+ExecStart=/usr/bin/bash -lc 'exec /root/.foundry/bin/anvil --fork-url "$POLYGON_RPC_URL" --chain-id 137 --host "${ANVIL_HOST:-0.0.0.0}" --port 8545 --accounts 0 --state "$ANVIL_STATE_FILE" --state-interval "${ANVIL_STATE_INTERVAL_SECONDS:-5}"'
+ExecStartPost=/usr/bin/systemctl --no-block start duelly-staging-fork-recover.service
+Restart=always
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+StandardOutput=append:/var/log/duelly/anvil.log
+StandardError=append:/var/log/duelly/anvil.log
+
+[Install]
+WantedBy=multi-user.target

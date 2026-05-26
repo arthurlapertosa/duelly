@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Duelly staging Anvil state backup every five minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Persistent=true
+Unit=duelly-anvil-backup.service
+
+[Install]
+WantedBy=timers.target

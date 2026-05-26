@@ -34,7 +34,9 @@ duelly-backend         PM2 app, cwd /opt/duelly/app/backend.
 duelly-frontend        PM2 app, cwd /opt/duelly/app/frontend.
 ```
 
-The Anvil unit reads `/opt/duelly/app/.env`, starts from `/opt/duelly/app`, listens on port `8545`, uses chain ID `137`, and persists fork state to `/opt/duelly/anvil/state.json`.
+The Anvil unit reads `/opt/duelly/app/.env`, starts from `/opt/duelly/app`, listens on port `8545`, uses chain ID `137`, and persists fork state to `/opt/duelly/anvil/state.json`. It binds to `0.0.0.0` by default so QA wallets on the private LAN can inspect balances through MetaMask. Keep port `8545` private to the staging LAN/VPN.
+
+The fork deploy script owns Anvil service bootstrap. `scripts/blockchain/deploy-staging-fork.sh` installs or refreshes the Anvil service, recovery service, and backup timer. `scripts/deploy/proxmox-staging-pm2.sh` intentionally remains backend/frontend-only and expects `cache/staging-fork/deployment.env` to already exist.
 
 The host-local `/opt/duelly/app/.env` must include these public staging values:
 
@@ -135,6 +137,17 @@ APP_DIR=/opt/duelly/app BRANCH=main scripts/deploy/proxmox-staging-pm2.sh
 
 `deploy-staging-fork.sh` detects the existing local RPC at `http://127.0.0.1:8545`, deploys `BetEscrowBRL1`, configures roles and fee floor, writes `cache/staging-fork/deployment.env`, and optionally seeds QA wallets with fork-local BRL1.
 
+The fork deploy script also idempotently installs these systemd jobs when it runs from `/opt/duelly/app` as root:
+
+```text
+duelly-anvil.service
+duelly-anvil-backup.service
+duelly-anvil-backup.timer
+duelly-staging-fork-recover.service
+```
+
+`duelly-anvil-backup.timer` saves a validated Anvil state backup every five minutes under `/opt/duelly/anvil/backups/`. The default retention is 24 hours. Backups are written only when the persisted state matches the active deployment block and contains the deployed escrow bytecode.
+
 Verify:
 
 ```bash
@@ -161,6 +174,14 @@ curl -fsS -X POST http://127.0.0.1:8545 \
 
 The service reloads `/opt/duelly/anvil/state.json`. Existing fork-local contracts, balances, and funded bets should remain if the state file is valid.
 
+If `state.json` is corrupt or behind DB state, the prestart hook restores the newest compatible valid backup. A backup is compatible only when it matches the current fork deployment metadata, contains the deployed escrow bytecode, is at or after the deployment block, and is not behind indexed DB events, indexed bets, or the indexer cursor for that deployment. If the DB guard is unavailable or no safe backup exists, the hook starts Anvil from a fresh Polygon fork and marks `/opt/duelly/anvil/fresh-fork-required`.
+
+When `duelly-staging-fork-recover.service` sees that marker after Anvil is reachable, it redeploys the fork escrow, seeds the configured wallets, expires stale pre-funding invites, and writes a new `cache/staging-fork/deployment.env`. Backend/frontend must still be restarted separately with the PM2 deploy script or the optional helper:
+
+```bash
+scripts/blockchain/staging-pm2-restart-current-env.sh
+```
+
 ## Recreate The Fork From Scratch
 
 Use this only for a fresh QA environment. It discards fork-local contracts, fake BRL1 balances, and any local escrow bets.
@@ -183,6 +204,8 @@ APP_DIR=/opt/duelly/app BRANCH=main scripts/deploy/proxmox-staging-pm2.sh
 ```
 
 After a fresh fork, use the new `DUELLY_ESCROW_ADDRESS` and `DUELLY_DEPLOYMENT_BLOCK` from `cache/staging-fork/deployment.env`.
+
+The automatic recovery flow performs the same fork recreation when the persisted state and all backups are unusable. The old indexed bets remain in Postgres under their previous deployment key and are hidden from the current deployment.
 
 ## Logs And Evidence
 
