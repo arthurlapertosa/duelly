@@ -21,7 +21,7 @@ START_ANVIL=1 SEED_QA_BRL1=1 scripts/blockchain/deploy-staging-fork.sh
 VITE_QA_WALLET=true scripts/dev/write-staging-frontend-env.sh
 ```
 
-`SEED_QA_BRL1=1` always seeds the maker and taker wallets when their private keys or addresses are present. To bootstrap more staging wallets in the same deploy, set `QA_SEED_WALLETS` to a comma-separated list of public addresses:
+`SEED_QA_BRL1=1` always seeds the maker and taker wallets when their private keys or addresses are present. The staging fork deploy also defaults `QA_SEED_WALLETS` to the known shared staging wallets unless `STAGING_DEFAULT_SEED_WALLETS_ENABLED=0` is set. To bootstrap a different set of staging wallets in the same deploy, set `QA_SEED_WALLETS` to a comma-separated list of public addresses:
 
 ```bash
 QA_SEED_WALLETS=0x1111111111111111111111111111111111111111,0x2222222222222222222222222222222222222222 \
@@ -48,6 +48,8 @@ The deployment script writes public fork state to:
 ```text
 cache/staging-fork/deployment.env
 ```
+
+On `/opt/duelly/app`, the fork deploy script also installs and starts the Anvil systemd service, a five-minute validated backup timer, and the fresh-fork recovery service. The Anvil unit binds to `127.0.0.1` by default; use `ANVIL_HOST=0.0.0.0` only when the staging network is firewalled and external wallet QA needs direct RPC access. Backend/frontend PM2 deployment stays separate; run `scripts/deploy/proxmox-staging-pm2.sh` after a fresh fork deployment or recovery when the app processes need the latest `deployment.env`.
 
 The frontend env helper defaults to `VITE_QA_WALLET=false` for public staging. For injected-wallet agent QA, run it with `VITE_QA_WALLET=true`; only then does it write QA private keys to `frontend/.env`, which is gitignored. Do not commit or attach it as evidence.
 
