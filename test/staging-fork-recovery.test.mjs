@@ -265,7 +265,7 @@ test('fork deploy owns Anvil jobs while PM2 deploy remains app-only', () => {
   assert.match(forkDeploy, /wait_for_state_file_block/);
 
   const anvilUnit = readFileSync('scripts/blockchain/systemd/duelly-anvil.service', 'utf8');
-  assert.match(anvilUnit, /\$\{ANVIL_HOST:-127\.0\.0\.1\}/);
+  assert.match(anvilUnit, /\$\{ANVIL_HOST:-0\.0\.0\.0\}/);
   assert.match(anvilUnit, /ExecStartPost=.*duelly-staging-fork-recover\.service/);
   assert.match(anvilUnit, /NoNewPrivileges=true/);
 

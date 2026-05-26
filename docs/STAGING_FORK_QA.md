@@ -49,7 +49,7 @@ The deployment script writes public fork state to:
 cache/staging-fork/deployment.env
 ```
 
-On `/opt/duelly/app`, the fork deploy script also installs and starts the Anvil systemd service, a five-minute validated backup timer, and the fresh-fork recovery service. The Anvil unit binds to `127.0.0.1` by default; use `ANVIL_HOST=0.0.0.0` only when the staging network is firewalled and external wallet QA needs direct RPC access. Backend/frontend PM2 deployment stays separate; run `scripts/deploy/proxmox-staging-pm2.sh` after a fresh fork deployment or recovery when the app processes need the latest `deployment.env`.
+On `/opt/duelly/app`, the fork deploy script also installs and starts the Anvil systemd service, a five-minute validated backup timer, and the fresh-fork recovery service. The Anvil unit binds to `0.0.0.0` by default for private-LAN MetaMask QA; keep port `8545` private to the staging LAN/VPN. Backend/frontend PM2 deployment stays separate; run `scripts/deploy/proxmox-staging-pm2.sh` after a fresh fork deployment or recovery when the app processes need the latest `deployment.env`.
 
 The frontend env helper defaults to `VITE_QA_WALLET=false` for public staging. For injected-wallet agent QA, run it with `VITE_QA_WALLET=true`; only then does it write QA private keys to `frontend/.env`, which is gitignored. Do not commit or attach it as evidence.
 

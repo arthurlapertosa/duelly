@@ -34,7 +34,7 @@ duelly-backend         PM2 app, cwd /opt/duelly/app/backend.
 duelly-frontend        PM2 app, cwd /opt/duelly/app/frontend.
 ```
 
-The Anvil unit reads `/opt/duelly/app/.env`, starts from `/opt/duelly/app`, listens on port `8545`, uses chain ID `137`, and persists fork state to `/opt/duelly/anvil/state.json`. It binds to `127.0.0.1` by default; set `ANVIL_HOST=0.0.0.0` only for a firewalled/VPN staging host that must support external wallet QA.
+The Anvil unit reads `/opt/duelly/app/.env`, starts from `/opt/duelly/app`, listens on port `8545`, uses chain ID `137`, and persists fork state to `/opt/duelly/anvil/state.json`. It binds to `0.0.0.0` by default so QA wallets on the private LAN can inspect balances through MetaMask. Keep port `8545` private to the staging LAN/VPN.
 
 The fork deploy script owns Anvil service bootstrap. `scripts/blockchain/deploy-staging-fork.sh` installs or refreshes the Anvil service, recovery service, and backup timer. `scripts/deploy/proxmox-staging-pm2.sh` intentionally remains backend/frontend-only and expects `cache/staging-fork/deployment.env` to already exist.
 
