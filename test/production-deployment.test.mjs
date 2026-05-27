@@ -35,6 +35,7 @@ test('production deploy script self-test writes production-only deployment env',
   assert.match(script, /CHAIN_RPC_URL="\$POLYGON_RPC_URL"/);
   assert.match(script, /PRODUCTION_BRL1_TOKEN_ADDRESS="0x5C067C80C00eCd2345b05E83A3e758eF799C40B5"/);
   assert.match(script, /PRODUCTION_POLYMARKET_CTF_ADDRESS="0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"/);
+  assert.match(script, /POLYMARKET_ALLOW_NEG_RISK="\$\{POLYMARKET_ALLOW_NEG_RISK:-false\}"/);
   assert.match(script, /required_env POLYGONSCAN_API_KEY/);
   assert.match(script, /forge create contracts\/BetEscrowBRL1\.sol:BetEscrowBRL1/);
   assert.match(script, /forge verify-contract "\$DUELLY_ESCROW_ADDRESS" contracts\/BetEscrowBRL1\.sol:BetEscrowBRL1/);
@@ -44,7 +45,8 @@ test('production deploy script self-test writes production-only deployment env',
   assert.match(script, /cast chain-id --rpc-url "\$POLYGON_RPC_URL"/);
   assert.match(script, /CHAIN_ID=137/);
   assert.match(script, /POLYMARKET_DISCOVERY_MODE=live/);
-  assert.match(script, /POLYMARKET_ALLOW_NEG_RISK=false/);
+  assert.match(script, /POLYMARKET_ALLOW_NEG_RISK=\$POLYMARKET_ALLOW_NEG_RISK/);
+  assert.match(script, /assert_boolean POLYMARKET_ALLOW_NEG_RISK/);
   assert.match(script, /POLYMARKET_RESOLUTION_MIRROR_ENABLED=false/);
   assert.match(script, /POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED=false/);
   assert.doesNotMatch(script, /LOCAL_FORK_RPC_URL=/);
@@ -80,6 +82,8 @@ test('production PM2 wrapper uses production paths, names, and checks', () => {
   assert.match(script, /duelly-prod-frontend/);
   assert.match(script, /\/var\/log\/duelly\/production/);
   assert.match(script, /write-production-frontend-env\.sh/);
+  assert.match(script, /APP_POLYMARKET_ALLOW_NEG_RISK="\$\{POLYMARKET_ALLOW_NEG_RISK:-\}"/);
+  assert.match(script, /export POLYMARKET_ALLOW_NEG_RISK="\$APP_POLYMARKET_ALLOW_NEG_RISK"/);
   assert.match(script, /npm --workspace backend run build/);
   assert.match(script, /npm --workspace frontend run build/);
   assert.match(script, /npm --workspace backend run db:migration:run:prod/);
