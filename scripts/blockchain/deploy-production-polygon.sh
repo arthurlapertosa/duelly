@@ -133,6 +133,20 @@ process.stdin.on("end", () => {
 '
 }
 
+verify_contract() {
+  local constructor_args
+  constructor_args="$(cast abi-encode 'constructor(address,address,address)' "$BRL1_ADDRESS_POLYGON" "$POLYMARKET_CTF_ADDRESS" "$TREASURY_ADDRESS")"
+  echo "[prod-deploy] verifying contract on Polygonscan"
+  (
+    cd "$REPO_ROOT/smartcontract"
+    forge verify-contract "$DUELLY_ESCROW_ADDRESS" contracts/BetEscrowBRL1.sol:BetEscrowBRL1 \
+      --chain 137 \
+      --etherscan-api-key "$POLYGONSCAN_API_KEY" \
+      --constructor-args "$constructor_args" \
+      --watch
+  )
+}
+
 write_deployment_env() {
   local path="$1"
   mkdir -p "$(dirname "$path")"
@@ -269,12 +283,11 @@ chmod 0700 "$CACHE_DIR" 2>/dev/null || true
 echo "[prod-deploy] deploying BetEscrowBRL1 to Polygon"
 DEPLOY_JSON="$(
   cd "$REPO_ROOT/smartcontract"
-  ETHERSCAN_API_KEY="$POLYGONSCAN_API_KEY" forge create contracts/BetEscrowBRL1.sol:BetEscrowBRL1 \
+  forge create contracts/BetEscrowBRL1.sol:BetEscrowBRL1 \
     --rpc-url "$POLYGON_RPC_URL" \
     --chain 137 \
     --private-key "$RELAYER_PRIVATE_KEY" \
     --broadcast \
-    --verify \
     --json \
     --constructor-args "$BRL1_ADDRESS_POLYGON" "$POLYMARKET_CTF_ADDRESS" "$TREASURY_ADDRESS"
 )"
@@ -301,7 +314,7 @@ if [[ "$(lower "$OWNER")" != "$(lower "$RELAYER_ADDRESS")" ]]; then
   exit 1
 fi
 
-MIN_FEE="$(cast call "$DUELLY_ESCROW_ADDRESS" 'minLoserFee()(uint256)' --rpc-url "$POLYGON_RPC_URL")"
+MIN_FEE="$(cast call "$DUELLY_ESCROW_ADDRESS" 'minLoserFee()(uint256)' --rpc-url "$POLYGON_RPC_URL" | awk '{print $1}')"
 if [[ "$MIN_FEE" != "$MIN_LOSER_FEE_WEI" ]]; then
   echo "[prod-deploy] unexpected minLoserFee $MIN_FEE" >&2
   exit 1
@@ -315,6 +328,7 @@ if [[ "$HAS_ROLE" != "true" ]]; then
 fi
 
 write_deployment_env "$CACHE_DIR/deployment.env"
+verify_contract
 
 echo "[prod-deploy] deployment written to $CACHE_DIR/deployment.env"
 echo "[prod-deploy] complete"
