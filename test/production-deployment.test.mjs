@@ -29,7 +29,13 @@ test('production deploy script self-test writes production-only deployment env',
 
   const script = readFileSync(productionDeployScript, 'utf8');
   assert.match(script, /EXPECTED_RELAYER_ADDRESS="\$\{EXPECTED_RELAYER_ADDRESS:-0x02Ee8283927d7e3Fd3f3f392a8E7e14E4E986785\}"/);
+  assert.match(script, /RELAYER_ENV="\$\{RELAYER_ENV:-\/etc\/duelly\/production\/relayer\.env\}"/);
+  assert.match(script, /PRODUCTION_POLYGON_RPC_URL="https:\/\/polygon-rpc\.com"/);
+  assert.match(script, /PRODUCTION_BRL1_TOKEN_ADDRESS="0x5C067C80C00eCd2345b05E83A3e758eF799C40B5"/);
+  assert.match(script, /PRODUCTION_POLYMARKET_CTF_ADDRESS="0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"/);
   assert.match(script, /required_env POLYGONSCAN_API_KEY/);
+  assert.match(script, /RELAYER_PRIVATE_KEY must live in \$RELAYER_ENV/);
+  assert.match(script, /chmod 600 \$path/);
   assert.match(script, /cast chain-id --rpc-url "\$POLYGON_RPC_URL"/);
   assert.match(script, /CHAIN_ID=137/);
   assert.match(script, /POLYMARKET_DISCOVERY_MODE=live/);
@@ -39,6 +45,9 @@ test('production deploy script self-test writes production-only deployment env',
   assert.doesNotMatch(script, /LOCAL_FORK_RPC_URL=/);
   assert.doesNotMatch(script, /QA_MAKER_PRIVATE_KEY=/);
   assert.doesNotMatch(script, /QA_TAKER_PRIVATE_KEY=/);
+  assert.doesNotMatch(script, /required_env POLYGON_RPC_URL/);
+  assert.doesNotMatch(script, /required_env BRL1_ADDRESS_POLYGON/);
+  assert.doesNotMatch(script, /required_env POLYMARKET_CTF_ADDRESS/);
 });
 
 test('production frontend env writer self-test rejects QA wallets', () => {
@@ -58,6 +67,9 @@ test('production frontend env writer self-test rejects QA wallets', () => {
 test('production PM2 wrapper uses production paths, names, and checks', () => {
   const script = readFileSync(productionPm2Script, 'utf8');
   assert.match(script, /APP_DIR="\$\{APP_DIR:-\/opt\/duelly\/prod\}"/);
+  assert.match(script, /RELAYER_ENV="\$\{RELAYER_ENV:-\/etc\/duelly\/production\/relayer\.env\}"/);
+  assert.match(script, /RELAYER_PRIVATE_KEY must live in \$RELAYER_ENV/);
+  assert.match(script, /RELAYER_PRIVATE_KEY must be configured in \$RELAYER_ENV/);
   assert.match(script, /cache\/production\/deployment\.env/);
   assert.match(script, /duelly-prod-backend/);
   assert.match(script, /duelly-prod-frontend/);

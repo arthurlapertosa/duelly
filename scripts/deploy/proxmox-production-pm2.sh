@@ -9,6 +9,7 @@ BRANCH="${BRANCH:-main}"
 NODE_VERSION="${NODE_VERSION:-22.21.0}"
 NVM_DIR="${NVM_DIR:-/root/.nvm}"
 DEPLOYMENT_ENV="${DEPLOYMENT_ENV:-$APP_DIR/cache/production/deployment.env}"
+RELAYER_ENV="${RELAYER_ENV:-/etc/duelly/production/relayer.env}"
 PM2_HOME="${PM2_HOME:-/root/.pm2}"
 BACKEND_PM2_NAME="${BACKEND_PM2_NAME:-duelly-prod-backend}"
 FRONTEND_PM2_NAME="${FRONTEND_PM2_NAME:-duelly-prod-frontend}"
@@ -16,6 +17,24 @@ FRONTEND_PORT="${FRONTEND_PORT:-5173}"
 LOG_DIR="${LOG_DIR:-/var/log/duelly/production}"
 
 export NVM_DIR PM2_HOME
+
+assert_relayers_key_not_in_env_file() {
+  local path="$1"
+  if [[ -f "$path" ]] && grep -Eq '^[[:space:]]*(export[[:space:]]+)?RELAYER_PRIVATE_KEY=' "$path"; then
+    echo "[prod-deploy] RELAYER_PRIVATE_KEY must live in $RELAYER_ENV, not $path" >&2
+    exit 1
+  fi
+}
+
+assert_secret_file_permissions() {
+  local path="$1"
+  local mode
+  mode="$(stat -c '%a' "$path" 2>/dev/null || true)"
+  if [[ -n "$mode" ]] && (( (8#$mode & 077) != 0 )); then
+    echo "[prod-deploy] $path must not be group/world-readable; run chmod 600 $path" >&2
+    exit 1
+  fi
+}
 
 if [[ ! -s "$NVM_DIR/nvm.sh" ]]; then
   echo "[prod-deploy] nvm not found at $NVM_DIR/nvm.sh" >&2
@@ -58,12 +77,20 @@ if [[ ! -f "$DEPLOYMENT_ENV" ]]; then
   echo "[prod-deploy] missing deployment env: $DEPLOYMENT_ENV" >&2
   exit 1
 fi
+if [[ ! -f "$RELAYER_ENV" ]]; then
+  echo "[prod-deploy] missing relayer secret env: $RELAYER_ENV" >&2
+  exit 1
+fi
+assert_relayers_key_not_in_env_file "$APP_DIR/.env"
+assert_secret_file_permissions "$RELAYER_ENV"
 
 set -a
 # shellcheck disable=SC1091
 source "$APP_DIR/.env"
 # shellcheck disable=SC1090
 source "$DEPLOYMENT_ENV"
+# shellcheck disable=SC1090
+source "$RELAYER_ENV"
 set +a
 
 if [[ "${NODE_ENV:-}" != "production" ]]; then
@@ -72,6 +99,10 @@ if [[ "${NODE_ENV:-}" != "production" ]]; then
 fi
 if [[ -z "${INTERNAL_API_TOKEN:-}" ]]; then
   echo "[prod-deploy] INTERNAL_API_TOKEN must be configured" >&2
+  exit 1
+fi
+if [[ -z "${RELAYER_PRIVATE_KEY:-}" ]]; then
+  echo "[prod-deploy] RELAYER_PRIVATE_KEY must be configured in $RELAYER_ENV" >&2
   exit 1
 fi
 

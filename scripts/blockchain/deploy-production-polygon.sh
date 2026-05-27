@@ -5,7 +5,11 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CACHE_DIR="${CACHE_DIR:-$REPO_ROOT/cache/production}"
+RELAYER_ENV="${RELAYER_ENV:-/etc/duelly/production/relayer.env}"
 EXPECTED_RELAYER_ADDRESS="${EXPECTED_RELAYER_ADDRESS:-0x02Ee8283927d7e3Fd3f3f392a8E7e14E4E986785}"
+PRODUCTION_POLYGON_RPC_URL="https://polygon-rpc.com"
+PRODUCTION_BRL1_TOKEN_ADDRESS="0x5C067C80C00eCd2345b05E83A3e758eF799C40B5"
+PRODUCTION_POLYMARKET_CTF_ADDRESS="0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"
 CHAIN_ID="${CHAIN_ID:-137}"
 MIN_RELAYER_BALANCE_WEI="${MIN_RELAYER_BALANCE_WEI:-10000000000000000000}"
 MIN_LOSER_FEE_WEI="${MIN_LOSER_FEE_WEI:-3000000000000000000}"
@@ -49,6 +53,40 @@ required_cmd() {
     echo "[prod-deploy] missing required command: $1" >&2
     exit 1
   fi
+}
+
+assert_relayers_key_not_in_env_file() {
+  local path="$1"
+  if [[ -f "$path" ]] && grep -Eq '^[[:space:]]*(export[[:space:]]+)?RELAYER_PRIVATE_KEY=' "$path"; then
+    echo "[prod-deploy] RELAYER_PRIVATE_KEY must live in $RELAYER_ENV, not $path" >&2
+    exit 1
+  fi
+}
+
+assert_secret_file_permissions() {
+  local path="$1"
+  local mode
+  mode="$(stat -c '%a' "$path" 2>/dev/null || true)"
+  if [[ -n "$mode" ]] && (( (8#$mode & 077) != 0 )); then
+    echo "[prod-deploy] $path must not be group/world-readable; run chmod 600 $path" >&2
+    exit 1
+  fi
+}
+
+source_env_file() {
+  local path="$1"
+  set -a
+  # shellcheck disable=SC1090
+  source "$path"
+  set +a
+}
+
+apply_production_constants() {
+  POLYGON_RPC_URL="$PRODUCTION_POLYGON_RPC_URL"
+  CHAIN_RPC_URL="$PRODUCTION_POLYGON_RPC_URL"
+  BRL1_ADDRESS_POLYGON="$PRODUCTION_BRL1_TOKEN_ADDRESS"
+  BRL1_TOKEN_ADDRESS="$PRODUCTION_BRL1_TOKEN_ADDRESS"
+  POLYMARKET_CTF_ADDRESS="$PRODUCTION_POLYMARKET_CTF_ADDRESS"
 }
 
 normalize_key() {
@@ -142,14 +180,12 @@ self_test() {
   tmp_dir="$(mktemp -d)"
   trap "rm -rf '$tmp_dir'" EXIT
 
-  POLYGON_RPC_URL=https://polygon-rpc.example \
-  BRL1_ADDRESS_POLYGON=0x5C067C80C00eCd2345b05E83A3e758eF799C40B5 \
-  POLYMARKET_CTF_ADDRESS=0x4D97DCd97eC945f40cF65F87097ACe5EA0476045 \
-  DUELLY_ESCROW_ADDRESS=0x1111111111111111111111111111111111111111 \
-  DUELLY_DEPLOYMENT_BLOCK=123 \
-  RELAYER_ADDRESS="$EXPECTED_RELAYER_ADDRESS" \
-  TREASURY_ADDRESS=0x2222222222222222222222222222222222222222 \
-    write_deployment_env "$tmp_dir/deployment.env"
+  apply_production_constants
+  DUELLY_ESCROW_ADDRESS=0x1111111111111111111111111111111111111111
+  DUELLY_DEPLOYMENT_BLOCK=123
+  RELAYER_ADDRESS="$EXPECTED_RELAYER_ADDRESS"
+  TREASURY_ADDRESS=0x2222222222222222222222222222222222222222
+  write_deployment_env "$tmp_dir/deployment.env"
 
   grep -q '^CHAIN_ID=137$' "$tmp_dir/deployment.env"
   grep -q '^CHAIN_ENABLED=true$' "$tmp_dir/deployment.env"
@@ -173,20 +209,23 @@ for arg in "$@"; do
   esac
 done
 
+assert_relayers_key_not_in_env_file "$REPO_ROOT/.env"
 if [[ -f "$REPO_ROOT/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "$REPO_ROOT/.env"
-  set +a
+  source_env_file "$REPO_ROOT/.env"
 fi
+
+if [[ ! -f "$RELAYER_ENV" ]]; then
+  echo "[prod-deploy] missing relayer secret env: $RELAYER_ENV" >&2
+  exit 1
+fi
+assert_secret_file_permissions "$RELAYER_ENV"
+source_env_file "$RELAYER_ENV"
+apply_production_constants
 
 required_cmd cast
 required_cmd forge
 required_cmd node
 
-required_env POLYGON_RPC_URL
-required_env BRL1_ADDRESS_POLYGON
-required_env POLYMARKET_CTF_ADDRESS
 required_env RELAYER_PRIVATE_KEY
 required_env TREASURY_ADDRESS
 required_env POLYGONSCAN_API_KEY

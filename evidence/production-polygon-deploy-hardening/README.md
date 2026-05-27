@@ -7,6 +7,8 @@
 - Required `INTERNAL_API_TOKEN` for production backend config.
 - Protected operational mutation endpoints with bearer-token auth.
 - Disabled fork-only mutation endpoints in production.
+- Pinned production Polygon RPC, BRL1, and Polymarket CTF constants in the deploy script.
+- Moved production `RELAYER_PRIVATE_KEY` expectation to `/etc/duelly/production/relayer.env`.
 
 ## Automated QA
 
@@ -31,6 +33,7 @@ Notes:
 - Backend integration tests that require PostgreSQL were skipped by the existing test guards when no test database was configured.
 - Frontend build completed with the existing Vite chunk-size warning.
 - Foundry emitted the existing mutability warning in `test/Config.t.sol`.
+- Production scripts now refuse `RELAYER_PRIVATE_KEY` in the app `.env` and require the separate relayer env file to be non-group/world-readable.
 
 ## Manual Internal Endpoint QA
 
