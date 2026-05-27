@@ -36,7 +36,7 @@ POLYGONSCAN_API_KEY=
 INTERNAL_API_TOKEN=
 POLYMARKET_DISCOVERY_MODE=live
 POLYMARKET_LIVE_DISCOVERY_ENABLED=true
-POLYMARKET_ALLOW_NEG_RISK=false
+POLYMARKET_ALLOW_NEG_RISK=true
 POLYMARKET_RESOLUTION_MIRROR_ENABLED=false
 POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED=false
 ```
@@ -49,6 +49,8 @@ BRL1_ADDRESS_POLYGON=0x5C067C80C00eCd2345b05E83A3e758eF799C40B5
 BRL1_TOKEN_ADDRESS=0x5C067C80C00eCd2345b05E83A3e758eF799C40B5
 POLYMARKET_CTF_ADDRESS=0x4D97DCd97eC945f40cF65F87097ACe5EA0476045
 ```
+
+`POLYMARKET_ALLOW_NEG_RISK` defaults to `false` in generated deployment files, but production can intentionally enable negative-risk markets by setting `POLYMARKET_ALLOW_NEG_RISK=true` in `/opt/duelly/prod/.env`. The PM2 deployment wrapper preserves this host-local `.env` value over the generated `cache/production/deployment.env` value.
 
 Keep the relayer private key outside the app checkout:
 

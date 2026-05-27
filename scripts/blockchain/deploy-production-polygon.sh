@@ -25,6 +25,7 @@ POLYMARKET_CTF_ORACLE_ADDRESSES="${POLYMARKET_CTF_ORACLE_ADDRESSES:-0x65070BE914
 POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS="${POLYMARKET_NEG_RISK_CTF_ORACLE_ADDRESS:-0xd91E80cF2E7be2e162c6513ceD06f1dD0dA35296}"
 POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE="${POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE:-50}"
 POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY="${POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY:-2}"
+POLYMARKET_ALLOW_NEG_RISK="${POLYMARKET_ALLOW_NEG_RISK:-false}"
 POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS="${POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS:-2}"
 DRY_RUN=0
 
@@ -69,6 +70,15 @@ assert_secret_file_permissions() {
   mode="$(stat -c '%a' "$path" 2>/dev/null || true)"
   if [[ -n "$mode" ]] && (( (8#$mode & 077) != 0 )); then
     echo "[prod-deploy] $path must not be group/world-readable; run chmod 600 $path" >&2
+    exit 1
+  fi
+}
+
+assert_boolean() {
+  local name="$1"
+  local value="${!name:-}"
+  if [[ "$value" != "true" && "$value" != "false" ]]; then
+    echo "[prod-deploy] $name must be true or false" >&2
     exit 1
   fi
 }
@@ -182,7 +192,7 @@ POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE=$POLYMARKET_TEMPLATE_CTF_SYNC_BATCH_SIZE
 POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY=$POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY
 POLYMARKET_DISCOVERY_MODE=live
 POLYMARKET_LIVE_DISCOVERY_ENABLED=true
-POLYMARKET_ALLOW_NEG_RISK=false
+POLYMARKET_ALLOW_NEG_RISK=$POLYMARKET_ALLOW_NEG_RISK
 POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS=$POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS
 POLYMARKET_MIN_BETTING_CLOSE_BUFFER_SECONDS=
 EOF
@@ -195,6 +205,7 @@ self_test() {
   trap "rm -rf '$tmp_dir'" EXIT
 
   apply_production_constants
+  POLYMARKET_ALLOW_NEG_RISK=false
   DUELLY_ESCROW_ADDRESS=0x1111111111111111111111111111111111111111
   DUELLY_DEPLOYMENT_BLOCK=123
   RELAYER_ADDRESS="$EXPECTED_RELAYER_ADDRESS"
@@ -207,6 +218,9 @@ self_test() {
   grep -q '^POLYMARKET_ALLOW_NEG_RISK=false$' "$tmp_dir/deployment.env"
   grep -q '^POLYMARKET_RESOLUTION_MIRROR_ENABLED=false$' "$tmp_dir/deployment.env"
   grep -q '^POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED=false$' "$tmp_dir/deployment.env"
+  POLYMARKET_ALLOW_NEG_RISK=true
+  write_deployment_env "$tmp_dir/deployment-override.env"
+  grep -q '^POLYMARKET_ALLOW_NEG_RISK=true$' "$tmp_dir/deployment-override.env"
   if grep -Eq 'LOCAL_FORK_RPC_URL|QA_MAKER|QA_TAKER|QA_SEED' "$tmp_dir/deployment.env"; then
     echo "[prod-deploy] self-test found staging/fork fields" >&2
     exit 1
@@ -235,6 +249,8 @@ fi
 assert_secret_file_permissions "$RELAYER_ENV"
 source_env_file "$RELAYER_ENV"
 apply_production_constants
+POLYMARKET_ALLOW_NEG_RISK="${POLYMARKET_ALLOW_NEG_RISK:-false}"
+assert_boolean POLYMARKET_ALLOW_NEG_RISK
 
 required_cmd cast
 required_cmd forge

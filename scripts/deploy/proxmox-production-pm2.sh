@@ -87,11 +87,20 @@ assert_secret_file_permissions "$RELAYER_ENV"
 set -a
 # shellcheck disable=SC1091
 source "$APP_DIR/.env"
+APP_POLYMARKET_ALLOW_NEG_RISK="${POLYMARKET_ALLOW_NEG_RISK:-}"
 # shellcheck disable=SC1090
 source "$DEPLOYMENT_ENV"
 # shellcheck disable=SC1090
 source "$RELAYER_ENV"
 set +a
+
+if [[ -n "$APP_POLYMARKET_ALLOW_NEG_RISK" ]]; then
+  if [[ "$APP_POLYMARKET_ALLOW_NEG_RISK" != "true" && "$APP_POLYMARKET_ALLOW_NEG_RISK" != "false" ]]; then
+    echo "[prod-deploy] POLYMARKET_ALLOW_NEG_RISK must be true or false" >&2
+    exit 1
+  fi
+  export POLYMARKET_ALLOW_NEG_RISK="$APP_POLYMARKET_ALLOW_NEG_RISK"
+fi
 
 if [[ "${NODE_ENV:-}" != "production" ]]; then
   echo "[prod-deploy] NODE_ENV must be production" >&2
