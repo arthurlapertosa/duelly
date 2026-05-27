@@ -24,6 +24,7 @@ Required host-local `/opt/duelly/prod/.env` values include:
 
 ```bash
 NODE_ENV=production
+HOST=0.0.0.0
 AUTH_MOCK_ENABLED=false
 CORS_ORIGINS=https://duelly.typewith.ai
 VITE_API_BASE_URL=https://api-duelly.typewith.ai
@@ -66,6 +67,8 @@ RELAYER_PRIVATE_KEY=
 Both production scripts refuse `RELAYER_PRIVATE_KEY` in `/opt/duelly/prod/.env` and refuse a relayer env file that is group/world-readable.
 
 Never copy `.env`, `relayer.env`, private keys, API tokens, database passwords, or credentialed RPC URLs into PR evidence.
+
+Use `HOST=0.0.0.0` when the TLS/reverse proxy runs outside the VM, as it does for the current production Caddy proxy. Use `HOST=127.0.0.1` only when the reverse proxy runs on the same machine.
 
 ## Deploy Contract
 
