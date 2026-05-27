@@ -24,6 +24,7 @@ This directory is the project record for Duelly.
 - `LOCAL_FORK_QA.md`: production-like local Polygon fork setup and backend/contract E2E QA flow.
 - `STAGING_FORK_QA.md`: Proxmox-style staging fork with real Polygon contract code, live templates, fake fork BRL1, and Playwright QA.
 - `STAGING_OPERATIONS.md`: current staging VM structure, PM2 deploys, contract redeploys, and Anvil fork operations.
+- `PRODUCTION_OPERATIONS.md`: Polygon mainnet deployment, PM2 production rollout, and internal endpoint QA.
 - `DESIGN.md`: UX, copy, and product design guidance.
 - `SECURITY.md`: security, privacy, keys, and risk areas.
 

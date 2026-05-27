@@ -20,6 +20,14 @@ npm --workspace smartcontract test
 
 When a task touches `frontend/` and/or `backend/`, start the real backend and real frontend as part of QA. Exercise the changed flow through the browser or API against that running stack and record evidence in the PR. Fixture-only or mocked validation is not enough unless a blocker is documented with the attempted command, observed error, risk, and follow-up.
 
+## Internal Endpoint QA
+
+For production-mode backend hardening, run the internal endpoint exploratory checks in `docs/PRODUCTION_OPERATIONS.md`. Record sanitized curl commands and responses showing:
+
+- no `Authorization` header returns `401` with `INTERNAL_API_TOKEN_REQUIRED`;
+- `Authorization: Bearer wrong-token` returns `403` with `INTERNAL_API_TOKEN_INVALID`;
+- `Authorization: Bearer <redacted-valid-token>` reaches endpoint logic and does not fail internal authentication.
+
 ## Fork-backed QA
 
 For fork-backed app QA, agents may use the staging Anvil RPC at `http://10.0.1.220:8545` when it is reachable, returns Polygon chain ID `0x89`, and the task does not change contracts or require conditionId resolution/mirroring writes.
