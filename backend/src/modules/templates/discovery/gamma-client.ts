@@ -258,6 +258,7 @@ function classifyLiveMarket(input: { sport: Sport; marketText: string; rulesText
     const fullTimeTeamWin = isFootballFullTimeTeamWinText(text, input.outcomeLabels);
     const fullTimeDraw = isFootballFullTimeDrawText(text, input.outcomeLabels);
     const matchText = fullTimeTeamWin || fullTimeDraw || isMatchText(text);
+    const tournamentWinner = isFootballTournamentWinnerText(text, input.outcomeLabels);
     return {
       competition,
       eventType: matchText ? 'MATCH' : 'TOURNAMENT',
@@ -269,7 +270,9 @@ function classifyLiveMarket(input: { sport: Sport; marketText: string; rulesText
             ? 'FOOTBALL_MATCH_DRAW_YES_NO'
             : matchText
               ? 'DISALLOWED_PROP'
-              : 'FOOTBALL_TOURNAMENT_WINNER_YES_NO',
+              : tournamentWinner
+                ? 'FOOTBALL_TOURNAMENT_WINNER_YES_NO'
+                : 'DISALLOWED_PROP',
     };
   }
 
@@ -346,7 +349,14 @@ function isDisallowedFootballText(text: string): boolean {
     || /\b(over\/under|o\/u|o-u|over \d+(?:\.\d+)?|under \d+(?:\.\d+)?|totals?)\b/.test(text)
     || /\b(corners?|cards?|yellow cards?|red cards?|bookings?)\b/.test(text)
     || /\b(player prop|goalscorer|goal scorer|anytime scorer|first goal|last goal|shots?|assists?|clean sheet)\b/.test(text)
+    || /\b(golden boot|most valuable player|mvp|squad|roster|lineup|starting xi|starting 11)\b/.test(text)
+    || /\b(play(?:s|ed|ing)? in|be included|called up|selected|qualif(?:y|ies|ied)|relocat(?:e|ed|ion)|host(?:s|ed|ing)?|venue)\b/.test(text)
     || /\b(three[- ]?way|3[- ]?way|moneyline)\b/.test(text);
+}
+
+function isFootballTournamentWinnerText(text: string, outcomeLabels: string[]): boolean {
+  return hasYesNoOutcomes(outcomeLabels)
+    && /\bwill\s+.+?\s+win\s+(?:the\s+)?(?:\d{4}\s+)?(?:fifa\s+)?(?:world cup|brazil(?:ian)? serie a|brasileirao|copa libertadores)\b/.test(text);
 }
 
 function isFootballFullTimeTeamWinText(text: string, outcomeLabels: string[]): boolean {
