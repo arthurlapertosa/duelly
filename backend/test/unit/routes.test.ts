@@ -35,6 +35,20 @@ function liveRouteTestConfig() {
   };
 }
 
+function productionRouteTestConfig() {
+  const config = routeTestConfig();
+  return {
+    ...config,
+    nodeEnv: 'production',
+    internal: {
+      apiToken: 'internal-secret',
+    },
+    cors: {
+      origins: ['https://duelly.typewith.ai'],
+    },
+  };
+}
+
 test('health and readiness routes work without database configuration', async () => {
   const app = await createApp({
     config: routeTestConfig(),
@@ -211,6 +225,65 @@ test('template CTF sync endpoint returns disabled when live DB-backed sync is un
   assert.deepEqual(response.json(), { enabled: false, checked: 0, results: [] });
 });
 
+test('production internal mutation endpoints require the internal API token', async () => {
+  const app = await createApp({
+    config: productionRouteTestConfig(),
+  });
+  test.after(async () => app.close());
+
+  const endpoints = [
+    { method: 'POST' as const, url: '/internal/indexer/reindex', payload: {} },
+    { method: 'POST' as const, url: '/internal/resolution/run', payload: {} },
+    { method: 'POST' as const, url: '/internal/resolution/mirror', payload: {} },
+    { method: 'POST' as const, url: '/internal/resolution/mock-payout', payload: {} },
+    { method: 'POST' as const, url: '/internal/templates/ctf-sync/run', payload: {} },
+    { method: 'POST' as const, url: '/relayer/fund', payload: {} },
+  ];
+
+  for (const endpoint of endpoints) {
+    const missing = await app.inject(endpoint);
+    assert.equal(missing.statusCode, 401, endpoint.url);
+    assert.equal(missing.json().code, 'INTERNAL_API_TOKEN_REQUIRED', endpoint.url);
+
+    const invalid = await app.inject({
+      ...endpoint,
+      headers: { authorization: 'Bearer wrong-token' },
+    });
+    assert.equal(invalid.statusCode, 403, endpoint.url);
+    assert.equal(invalid.json().code, 'INTERNAL_API_TOKEN_INVALID', endpoint.url);
+
+    const valid = await app.inject({
+      ...endpoint,
+      headers: { authorization: 'Bearer internal-secret' },
+    });
+    const body = valid.json();
+    assert.notEqual(body.code, 'INTERNAL_API_TOKEN_REQUIRED', endpoint.url);
+    assert.notEqual(body.code, 'INTERNAL_API_TOKEN_INVALID', endpoint.url);
+  }
+});
+
+test('production fork-only internal endpoints reject valid internal callers', async () => {
+  const app = await createApp({
+    config: productionRouteTestConfig(),
+  });
+  test.after(async () => app.close());
+
+  for (const url of [
+    '/internal/resolution/mirror',
+    '/internal/resolution/mock-payout',
+    '/internal/templates/ctf-sync/run',
+  ]) {
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      headers: { authorization: 'Bearer internal-secret' },
+      payload: {},
+    });
+    assert.equal(response.statusCode, 403, url);
+    assert.equal(response.json().code, 'PRODUCTION_FORK_ENDPOINT_DISABLED', url);
+  }
+});
+
 test('template routes return accepted mocked live tennis and UFC templates', async () => {
   const previousFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
@@ -352,8 +425,8 @@ test('live template routes avoid forced detail refreshes and hide cached resolve
         gammaEvent({
           id: 'resolved-geneva-event',
           title: 'Geneva Open: Cameron Norrie vs Mariano Navone',
-          startTime: '2026-05-20T09:05:00.000Z',
-          endDate: '2026-05-27T08:00:00.000Z',
+          startTime: '2099-05-20T09:05:00.000Z',
+          endDate: '2099-05-27T08:00:00.000Z',
           tags: [{ slug: 'tennis', label: 'Tennis' }],
           series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
           markets: [
@@ -365,16 +438,16 @@ test('live template routes avoid forced detail refreshes and hide cached resolve
               conditionSeed: 'resolved-geneva-market',
               questionSeed: 'resolved-geneva-market-question',
               outcomes: ['Cameron Norrie', 'Mariano Navone'],
-              startDate: '2026-05-20T09:05:00.000Z',
-              endDate: '2026-05-27T08:00:00.000Z',
+              startDate: '2099-05-20T09:05:00.000Z',
+              endDate: '2099-05-27T08:00:00.000Z',
             }),
           ],
         }),
         gammaEvent({
           id: 'future-geneva-event',
           title: 'Geneva Open: Mariano Navone vs Learner Tien',
-          startTime: '2026-05-23T13:00:00.000Z',
-          endDate: '2026-05-30T13:00:00.000Z',
+          startTime: '2099-05-23T13:00:00.000Z',
+          endDate: '2099-05-30T13:00:00.000Z',
           tags: [{ slug: 'tennis', label: 'Tennis' }],
           series: [{ slug: 'atp', ticker: 'ATP', title: 'ATP' }],
           markets: [
@@ -386,8 +459,8 @@ test('live template routes avoid forced detail refreshes and hide cached resolve
               conditionSeed: 'future-geneva-market',
               questionSeed: 'future-geneva-market-question',
               outcomes: ['Mariano Navone', 'Learner Tien'],
-              startDate: '2026-05-23T13:00:00.000Z',
-              endDate: '2026-05-30T13:00:00.000Z',
+              startDate: '2099-05-23T13:00:00.000Z',
+              endDate: '2099-05-30T13:00:00.000Z',
             }),
           ],
         }),
@@ -421,8 +494,8 @@ test('live template routes avoid forced detail refreshes and hide cached resolve
       acceptedBody.templates.map((template: { providerMarketId: string }) => template.providerMarketId),
       ['future-geneva-market'],
     );
-    assert.equal(acceptedBody.templates[0].eventStartAt, 1779541200);
-    assert.equal(acceptedBody.templates[0].bettingCloseAt, 1780146000);
+    assert.equal(acceptedBody.templates[0].eventStartAt, 4083224400);
+    assert.equal(acceptedBody.templates[0].bettingCloseAt, 4083829200);
 
     const rejected = await app.inject({ method: 'GET', url: '/templates/rejected?mode=live&sport=tennis' });
     assert.equal(rejected.statusCode, 200);

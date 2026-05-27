@@ -44,6 +44,7 @@ const keys = [
   'POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY',
   'NODE_ENV',
   'CORS_ORIGINS',
+  'INTERNAL_API_TOKEN',
 ];
 
 test('loadAppConfig supports explicit DB variables and fixture mode defaults', () => {
@@ -86,6 +87,7 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.templateCtfSync.sourceRpcUrl, undefined);
     assert.equal(config.templateCtfSync.batchSize, 50);
     assert.equal(config.templateCtfSync.concurrency, 2);
+    assert.equal(config.internal.apiToken, undefined);
     assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
   } finally {
     restoreEnv(previous);
@@ -278,6 +280,7 @@ test('loadAppConfig can load Polymarket resolution mirror for production-mode st
     for (const key of keys) delete process.env[key];
     process.env.NODE_ENV = 'production';
     process.env.CORS_ORIGINS = 'https://app.duelly.test';
+    process.env.INTERNAL_API_TOKEN = 'internal-secret';
     process.env.POLYMARKET_RESOLUTION_MIRROR_ENABLED = 'true';
     process.env.POLYMARKET_CTF_ORACLE_ADDRESS = '0x6A9D222616C90FcA5754cd1333cFD9b7fb6a4F74';
 
@@ -291,11 +294,28 @@ test('loadAppConfig can load Polymarket resolution mirror for production-mode st
   }
 });
 
+test('loadAppConfig requires internal API token in production', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.NODE_ENV = 'production';
+    process.env.CORS_ORIGINS = 'https://app.duelly.test';
+
+    assert.throws(() => loadAppConfig(), /INTERNAL_API_TOKEN/);
+
+    process.env.INTERNAL_API_TOKEN = 'internal-secret';
+    assert.equal(loadAppConfig().internal.apiToken, 'internal-secret');
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
 test('loadAppConfig requires explicit CORS origins in production', () => {
   const previous = snapshotEnv();
   try {
     for (const key of keys) delete process.env[key];
     process.env.NODE_ENV = 'production';
+    process.env.INTERNAL_API_TOKEN = 'internal-secret';
 
     assert.throws(() => loadAppConfig(), /CORS_ORIGINS/);
 

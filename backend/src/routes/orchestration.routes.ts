@@ -12,6 +12,7 @@ import {
   ResolutionController,
   WalletsController,
 } from '../controllers/orchestration/index.js';
+import { internalAuthPreHandler } from './internal-auth.js';
 
 export async function registerOrchestrationRoutes(
   app: FastifyInstance,
@@ -20,6 +21,7 @@ export async function registerOrchestrationRoutes(
   const context = new OrchestrationControllerContext({ ...options, logger: app.log });
   const middleware = new OrchestrationAuthMiddleware(context);
   const authenticated = { preHandler: middleware.isAuthenticated };
+  const internal = { preHandler: internalAuthPreHandler(options.config) };
   const auth = new AuthController(context);
   const wallets = new WalletsController(context);
   const templates = new OrchestrationTemplatesController(context);
@@ -52,17 +54,17 @@ export async function registerOrchestrationRoutes(
   app.post('/invites/:inviteId/accept', authenticated, invites.accept);
   app.post('/invites/:inviteId/taker-authorizations', authenticated, invites.authorizeTaker);
 
-  app.post('/relayer/fund', relayer.fund);
+  app.post('/relayer/fund', internal, relayer.fund);
   app.get('/relayer/transactions/:requestId', relayer.transaction);
 
-  app.post('/internal/indexer/reindex', indexer.reindex);
+  app.post('/internal/indexer/reindex', internal, indexer.reindex);
   app.get('/me/bets', authenticated, bets.mine);
   app.get('/bets/:betId', bets.get);
   app.get('/invites/:inviteId/bet', bets.getByInvite);
 
-  app.post('/internal/resolution/run', resolution.run);
-  app.post('/internal/resolution/mirror', resolution.mirror);
-  app.post('/internal/resolution/mock-payout', resolution.mockPayout);
+  app.post('/internal/resolution/run', internal, resolution.run);
+  app.post('/internal/resolution/mirror', internal, resolution.mirror);
+  app.post('/internal/resolution/mock-payout', internal, resolution.mockPayout);
   app.get('/resolution/attempts/:attemptId', resolution.attempt);
 
   return context;

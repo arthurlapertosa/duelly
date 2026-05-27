@@ -24,6 +24,9 @@ export interface AppConfig {
   port: number;
   host: string;
   serviceName: 'duelly-backend';
+  internal: {
+    apiToken?: string;
+  };
   cors: {
     origins: string[];
   };
@@ -147,6 +150,14 @@ function readOptionalString(name: string): string | undefined {
   return raw ? raw : undefined;
 }
 
+function readInternalApiToken(nodeEnv: string): string | undefined {
+  const token = readOptionalString('INTERNAL_API_TOKEN');
+  if (nodeEnv === 'production' && !token) {
+    throw new Error('INTERNAL_API_TOKEN must be configured in production');
+  }
+  return token;
+}
+
 function readBigint(name: string, fallback: bigint): bigint {
   const raw = process.env[name];
   if (!raw) return fallback;
@@ -233,6 +244,9 @@ export function loadAppConfig(): AppConfig {
     port: readInteger('PORT', 3000),
     host: process.env.HOST ?? '127.0.0.1',
     serviceName: 'duelly-backend',
+    internal: {
+      apiToken: readInternalApiToken(nodeEnv),
+    },
     cors: {
       origins: readCorsOrigins(nodeEnv),
     },

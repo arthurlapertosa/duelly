@@ -19,6 +19,9 @@ export class ResolutionController {
   });
 
   mirror = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
+    if (this.context.config.nodeEnv === 'production') {
+      throw httpError(403, 'PRODUCTION_FORK_ENDPOINT_DISABLED');
+    }
     const body = objectBody(request.body);
     const betId = stringField(body, 'betId');
     const bet = await this.context.repository.findIndexedBet(betId, this.context.chain.deploymentKey());
@@ -27,6 +30,9 @@ export class ResolutionController {
   });
 
   mockPayout = async (request: FastifyRequest, reply: FastifyReply) => wrap(reply, async () => {
+    if (this.context.config.nodeEnv === 'production') {
+      throw httpError(403, 'PRODUCTION_FORK_ENDPOINT_DISABLED');
+    }
     const body = objectBody(request.body);
     const tx = await this.context.resolution.setMockPayout(
       stringField(body, 'conditionId') as Hex,
