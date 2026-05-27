@@ -11,6 +11,7 @@ import {
   type PublishBody,
   type TemplateQuery,
 } from '../controllers/templates/index.js';
+import { internalAuthPreHandler } from './internal-auth.js';
 
 interface TemplateRouteOptions {
   config: AppConfig;
@@ -27,12 +28,13 @@ export async function registerTemplateRoutes(
   const rejected = new RejectedCandidatesController(context);
   const publisher = new PublishTemplateController(context);
   const ctfSync = new TemplateCtfSyncController(context);
+  const internal = { preHandler: internalAuthPreHandler(options.config) };
 
   app.get<{ Querystring: TemplateQuery }>('/templates/candidates', candidates.list);
   app.get<{ Querystring: TemplateQuery }>('/templates', accepted.list);
   app.get<{ Querystring: TemplateQuery }>('/templates/rejected', rejected.list);
   app.post<{ Querystring: TemplateQuery; Body: PublishBody }>('/templates/publish', publisher.publish);
-  app.post('/internal/templates/ctf-sync/run', ctfSync.run);
+  app.post('/internal/templates/ctf-sync/run', internal, ctfSync.run);
 
   return context;
 }

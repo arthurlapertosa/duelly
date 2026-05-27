@@ -34,6 +34,7 @@ export interface AuthedRequest extends FastifyRequest {
 }
 
 export class OrchestrationControllerContext {
+  readonly config: AppConfig;
   readonly repository: OrchestrationRepository;
   readonly chain: ChainService;
   readonly auth: AuthService;
@@ -48,6 +49,7 @@ export class OrchestrationControllerContext {
   readonly templates: TemplateControllerContext;
 
   constructor(options: OrchestrationControllerOptions) {
+    this.config = options.config;
     this.repository = new OrchestrationRepository(options.dataSource);
     this.chain = new ChainService(options.config);
     this.auth = new AuthService(this.repository, options.config);

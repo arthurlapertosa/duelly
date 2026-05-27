@@ -7,6 +7,13 @@ export class TemplateCtfSyncController {
 
   run = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+      if (this.context.config.nodeEnv === 'production') {
+        reply.code(403);
+        return {
+          status: 'error',
+          code: 'PRODUCTION_FORK_ENDPOINT_DISABLED',
+        };
+      }
       const body = objectBody(request.body);
       return await this.context.syncCurrentTemplateCtf({
         conditionId: optionalString(body.conditionId),
