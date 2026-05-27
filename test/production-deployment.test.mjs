@@ -36,6 +36,9 @@ test('production deploy script self-test writes production-only deployment env',
   assert.match(script, /PRODUCTION_BRL1_TOKEN_ADDRESS="0x5C067C80C00eCd2345b05E83A3e758eF799C40B5"/);
   assert.match(script, /PRODUCTION_POLYMARKET_CTF_ADDRESS="0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"/);
   assert.match(script, /required_env POLYGONSCAN_API_KEY/);
+  assert.match(script, /forge create contracts\/BetEscrowBRL1\.sol:BetEscrowBRL1/);
+  assert.match(script, /forge verify-contract "\$DUELLY_ESCROW_ADDRESS" contracts\/BetEscrowBRL1\.sol:BetEscrowBRL1/);
+  assert.doesNotMatch(script, /forge create[\s\S]*--verify[\s\S]*--json/);
   assert.match(script, /RELAYER_PRIVATE_KEY must live in \$RELAYER_ENV/);
   assert.match(script, /chmod 600 \$path/);
   assert.match(script, /cast chain-id --rpc-url "\$POLYGON_RPC_URL"/);
