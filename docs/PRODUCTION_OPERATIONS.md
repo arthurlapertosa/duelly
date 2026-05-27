@@ -30,6 +30,7 @@ VITE_API_BASE_URL=https://api-duelly.typewith.ai
 VITE_ALLOWED_HOSTS=duelly.typewith.ai
 DATABASE_URL=
 TREASURY_ADDRESS=
+POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com
 POLYGONSCAN_API_KEY=
 INTERNAL_API_TOKEN=
 POLYMARKET_DISCOVERY_MODE=live
@@ -39,10 +40,10 @@ POLYMARKET_RESOLUTION_MIRROR_ENABLED=false
 POLYMARKET_TEMPLATE_CTF_SYNC_ENABLED=false
 ```
 
-Production constants are pinned by `scripts/blockchain/deploy-production-polygon.sh` and emitted into `cache/production/deployment.env`:
+Production addresses are pinned by `scripts/blockchain/deploy-production-polygon.sh` and emitted into `cache/production/deployment.env`. `POLYGON_RPC_URL` comes from `/opt/duelly/prod/.env` when set, with `https://polygon-rpc.com` only as a fallback:
 
 ```bash
-POLYGON_RPC_URL=https://polygon-rpc.com
+POLYGON_RPC_URL=https://polygon-bor-rpc.publicnode.com
 BRL1_ADDRESS_POLYGON=0x5C067C80C00eCd2345b05E83A3e758eF799C40B5
 BRL1_TOKEN_ADDRESS=0x5C067C80C00eCd2345b05E83A3e758eF799C40B5
 POLYMARKET_CTF_ADDRESS=0x4D97DCd97eC945f40cF65F87097ACe5EA0476045

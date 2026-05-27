@@ -30,7 +30,9 @@ test('production deploy script self-test writes production-only deployment env',
   const script = readFileSync(productionDeployScript, 'utf8');
   assert.match(script, /EXPECTED_RELAYER_ADDRESS="\$\{EXPECTED_RELAYER_ADDRESS:-0x02Ee8283927d7e3Fd3f3f392a8E7e14E4E986785\}"/);
   assert.match(script, /RELAYER_ENV="\$\{RELAYER_ENV:-\/etc\/duelly\/production\/relayer\.env\}"/);
-  assert.match(script, /PRODUCTION_POLYGON_RPC_URL="https:\/\/polygon-rpc\.com"/);
+  assert.match(script, /DEFAULT_PRODUCTION_POLYGON_RPC_URL="https:\/\/polygon-rpc\.com"/);
+  assert.match(script, /POLYGON_RPC_URL="\$\{POLYGON_RPC_URL:-\$DEFAULT_PRODUCTION_POLYGON_RPC_URL\}"/);
+  assert.match(script, /CHAIN_RPC_URL="\$POLYGON_RPC_URL"/);
   assert.match(script, /PRODUCTION_BRL1_TOKEN_ADDRESS="0x5C067C80C00eCd2345b05E83A3e758eF799C40B5"/);
   assert.match(script, /PRODUCTION_POLYMARKET_CTF_ADDRESS="0x4D97DCd97eC945f40cF65F87097ACe5EA0476045"/);
   assert.match(script, /required_env POLYGONSCAN_API_KEY/);
