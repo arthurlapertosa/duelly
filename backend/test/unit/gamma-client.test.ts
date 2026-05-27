@@ -484,6 +484,99 @@ test('Gamma football pagination accepts full-time results and rejects derivative
   });
 });
 
+test('Gamma football accepts only explicit tournament winner markets for tournament events', async () => {
+  await withMockedFetch(async (url) => {
+    if (url.pathname === '/events' && url.searchParams.get('tag_slug') === 'soccer') {
+      return jsonResponse([
+        gammaEvent({
+          id: 'world-cup-specials',
+          slug: 'world-cup-specials',
+          title: '2026 FIFA World Cup specials',
+          description: 'FIFA World Cup futures and special props.',
+          tags: [{ slug: 'soccer', label: 'Soccer' }, { slug: 'fifa-world-cup', label: 'FIFA World Cup' }],
+          endDate: '2026-07-20T00:00:00.000Z',
+          startTime: '2026-06-11T00:00:00.000Z',
+          markets: [
+            footballMarket({
+              id: 'spain-world-cup-winner',
+              question: 'Will Spain win the 2026 FIFA World Cup?',
+              rules: 'This market resolves Yes if Spain is officially declared the FIFA World Cup tournament winner.',
+              conditionSeed: 'spain-world-cup-winner',
+              questionSeed: 'spain-world-cup-winner-question',
+              negRisk: false,
+            }),
+            footballMarket({
+              id: 'messi-world-cup-play',
+              question: 'Will Lionel Messi play in the 2026 FIFA World Cup?',
+              rules: 'This market resolves Yes if Lionel Messi appears in any match at the 2026 FIFA World Cup.',
+              conditionSeed: 'messi-world-cup-play',
+              questionSeed: 'messi-world-cup-play-question',
+              negRisk: false,
+            }),
+            footballMarket({
+              id: 'world-cup-relocated',
+              question: 'Will any 2026 FIFA World Cup game scheduled in the U.S. be relocated abroad?',
+              rules: 'This market resolves Yes if any scheduled U.S. game is moved to another country.',
+              conditionSeed: 'world-cup-relocated',
+              questionSeed: 'world-cup-relocated-question',
+              negRisk: false,
+            }),
+            footballMarket({
+              id: 'messi-golden-boot',
+              question: 'Will Lionel Messi win the 2026 World Cup Golden Boot?',
+              rules: 'This market resolves Yes if Lionel Messi wins the Golden Boot award.',
+              conditionSeed: 'messi-golden-boot',
+              questionSeed: 'messi-golden-boot-question',
+              negRisk: false,
+            }),
+          ],
+        }),
+        gammaEvent({
+          id: 'brasileirao-winner',
+          slug: 'brasileirao-winner',
+          title: 'Brazil Série A winner',
+          description: 'Brazil Série A tournament winner market.',
+          tags: [{ slug: 'soccer', label: 'Soccer' }, { slug: 'brasileirao', label: 'Brasileirão' }],
+          endDate: '2026-12-16T00:59:00.000Z',
+          startTime: '2026-02-23T12:00:00.000Z',
+          markets: [
+            footballMarket({
+              id: 'cruzeiro-brasileirao-winner',
+              question: 'Will Cruzeiro win Brazil Série A?',
+              rules: 'This market resolves Yes if Cruzeiro is officially declared the Brazil Série A tournament winner.',
+              conditionSeed: 'cruzeiro-brasileirao-winner',
+              questionSeed: 'cruzeiro-brasileirao-winner-question',
+              negRisk: false,
+            }),
+          ],
+        }),
+      ]);
+    }
+
+    return jsonResponse([]);
+  }, async () => {
+    const candidates = await new GammaClient(testConfig({ maxResults: 25 })).discoverMarkets('football');
+    const result = new TemplateFilterService().filter(candidates, {
+      now: filterNow,
+      minBettingCloseBufferSeconds: 0,
+    });
+
+    assert.deepEqual(
+      result.accepted.map((template) => template.providerMarketId).sort(),
+      ['cruzeiro-brasileirao-winner', 'spain-world-cup-winner'],
+    );
+    assert.equal(result.accepted.every((template) => template.binaryMarketType === 'FOOTBALL_TOURNAMENT_WINNER_YES_NO'), true);
+    assert.equal(result.accepted.every((template) => template.eventType === 'TOURNAMENT'), true);
+    assert.deepEqual(
+      result.accepted.map((template) => template.competition).sort(),
+      ['BRASILEIRAO', 'FIFA_WORLD_CUP'],
+    );
+    assert.equal(reasonSet(result, 'messi-world-cup-play').has('DISALLOWED_FOOTBALL_MARKET_TYPE'), true);
+    assert.equal(reasonSet(result, 'world-cup-relocated').has('DISALLOWED_FOOTBALL_MARKET_TYPE'), true);
+    assert.equal(reasonSet(result, 'messi-golden-boot').has('DISALLOWED_FOOTBALL_MARKET_TYPE'), true);
+  });
+});
+
 test('Gamma event feed pagination requests later pages and accepts a later-page ATP match', async () => {
   const requestedAtpOffsets: string[] = [];
 
