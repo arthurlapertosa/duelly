@@ -34,7 +34,7 @@ export function BetDetailScreen() {
   const token = useAppStore((state) => state.token);
   const wallet = useAppStore((state) => state.wallet);
   const refreshBets = useAppStore((state) => state.refreshBets);
-  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
+  const refreshAccountData = useAppStore((state) => state.refreshAccountData);
   const bets = useAppStore((state) => state.bets);
   const [remoteBet, setRemoteBet] = useState<Awaited<ReturnType<typeof api.getBet>>>(null);
   const [accepting, setAccepting] = useState(false);
@@ -76,10 +76,13 @@ export function BetDetailScreen() {
     if (!token || !activatingInviteId) return;
     let active = true;
     const poll = async () => {
+      if (!active) return;
       await refreshBets();
       const funded = await api.getBetByInvite(activatingInviteId).catch(() => null);
       if (!active || !funded) return;
       setRemoteBet(funded);
+      active = false;
+      await refreshAccountData({ force: true });
       navigate(`/bets/${funded.betId}`, { replace: true });
     };
     void poll();
@@ -88,7 +91,7 @@ export function BetDetailScreen() {
       active = false;
       window.clearInterval(timer);
     };
-  }, [activatingInviteId, navigate, refreshBets, token]);
+  }, [activatingInviteId, navigate, refreshAccountData, refreshBets, token]);
 
   if (!status || !template) {
     return (
@@ -102,7 +105,7 @@ export function BetDetailScreen() {
   const resolve = async (outcome: 'a' | 'b' | 'void') => {
     if (!bet) return;
     await api.resolveFixtureBet(bet.betId, outcome);
-    await refreshBets();
+    await refreshAccountData({ force: true });
     setRemoteBet(await api.getBet(bet.betId));
   };
 
@@ -158,7 +161,7 @@ export function BetDetailScreen() {
         acceptanceSignature,
         takerPermit,
       );
-      await Promise.all([refreshBets(), refreshPendingInvites()]);
+      await refreshAccountData({ force: true });
       if (authorized.funding.betId) navigate(`/bets/${authorized.funding.betId}`, { replace: true });
       else navigate(`/bets/${summary.invite.id}`, { replace: true });
     } catch (cause) {
@@ -174,7 +177,7 @@ export function BetDetailScreen() {
     try {
       setCancelling(true);
       await api.cancelInvite(token, summary.invite.id);
-      await Promise.all([refreshBets(), refreshPendingInvites()]);
+      await refreshAccountData({ force: true });
       setCancelOpen(false);
       navigate('/bets', { replace: true });
     } catch (cause) {

@@ -16,13 +16,12 @@ export function BetsListScreen() {
   const pendingInvites = useAppStore((state) => state.pendingInvites);
   const betsLoaded = useAppStore((state) => state.betsLoaded);
   const pendingInvitesLoaded = useAppStore((state) => state.pendingInvitesLoaded);
-  const refreshBets = useAppStore((state) => state.refreshBets);
-  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
+  const refreshAccountData = useAppStore((state) => state.refreshAccountData);
   const [tab, setTab] = useState<'active' | 'finished'>('active');
 
   useEffect(() => {
-    void Promise.all([refreshBets(), refreshPendingInvites()]);
-  }, [refreshBets, refreshPendingInvites]);
+    void refreshAccountData({ force: true });
+  }, [refreshAccountData]);
 
   const active = bets.filter((bet) => ACTIVE_STATUSES.includes(deriveBetStatus(bet)));
   const finished = bets.filter((bet) => FINISHED_STATUSES.includes(deriveBetStatus(bet)));

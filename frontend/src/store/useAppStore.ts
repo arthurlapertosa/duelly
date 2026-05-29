@@ -1,11 +1,16 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { api } from '../lib/api';
+import { ApiError, api } from '../lib/api';
 import { defaultLocale, normalizeLocale } from '../lib/i18n';
 import type { BalanceView, BetSummaryView, Locale, PendingInviteView, TemplateView, UserView, WalletView } from '../lib/types';
 import { createWalletAdapter } from '../lib/wallet';
 
-interface AppStore {
+export interface RefreshAccountDataOptions {
+  signal?: AbortSignal;
+  force?: boolean;
+}
+
+export interface AppStore {
   locale: Locale;
   token: string | null;
   user: UserView | null;
@@ -17,9 +22,12 @@ interface AppStore {
   loading: boolean;
   /** True once each collection has completed at least one fetch. Lets screens
    *  show a skeleton instead of flashing an empty state before data arrives. */
+  balanceLoaded: boolean;
   templatesLoaded: boolean;
   betsLoaded: boolean;
   pendingInvitesLoaded: boolean;
+  accountRefreshInFlight: boolean;
+  accountLastRefreshedAt: string | null;
   error: string | null;
   setLocale(locale: Locale): void;
   clearError(): void;
@@ -29,12 +37,18 @@ interface AppStore {
   verifyWallet(): Promise<void>;
   unlinkWallet(): Promise<void>;
   refreshBalance(): Promise<void>;
+  refreshAccountData(options?: RefreshAccountDataOptions): Promise<void>;
   refreshTemplates(): Promise<void>;
   upsertTemplate(template: TemplateView): void;
   upsertTemplates(templates: TemplateView[]): void;
   refreshBets(): Promise<void>;
   refreshPendingInvites(): Promise<void>;
 }
+
+let accountRefreshInFlight: Promise<void> | null = null;
+let accountRefreshQueued = false;
+let accountRefreshQueuedDone: Promise<void> | null = null;
+let resolveAccountRefreshQueued: (() => void) | null = null;
 
 export const useAppStore = create<AppStore>()(
   persist(
@@ -48,9 +62,12 @@ export const useAppStore = create<AppStore>()(
       bets: [],
       pendingInvites: [],
       loading: false,
+      balanceLoaded: false,
       templatesLoaded: false,
       betsLoaded: false,
       pendingInvitesLoaded: false,
+      accountRefreshInFlight: false,
+      accountLastRefreshedAt: null,
       error: null,
       setLocale: (locale) => set({ locale }),
       clearError: () => set({ error: null }),
@@ -61,18 +78,9 @@ export const useAppStore = create<AppStore>()(
         try {
           const session = await api.me(token);
           set({ user: session.user, wallet: session.wallet });
-          await refreshSecondaryData(get());
+          await get().refreshAccountData({ force: true });
         } catch {
-          set({
-            token: null,
-            user: null,
-            wallet: null,
-            balance: null,
-            bets: [],
-            pendingInvites: [],
-            betsLoaded: false,
-            pendingInvitesLoaded: false,
-          });
+          set(clearAuthenticatedState());
         }
       },
       login: async (email, password, register) => {
@@ -82,10 +90,20 @@ export const useAppStore = create<AppStore>()(
           const result = register
             ? await api.register(email, password)
             : await api.login(email, password);
-          set({ token: result.token, user: result.user, wallet: null, balance: null });
+          set({
+            token: result.token,
+            user: result.user,
+            wallet: null,
+            balance: null,
+            bets: [],
+            pendingInvites: [],
+            balanceLoaded: false,
+            betsLoaded: false,
+            pendingInvitesLoaded: false,
+          });
           const session = await api.me(result.token);
           set({ user: session.user, wallet: session.wallet });
-          await refreshSecondaryData(get());
+          await get().refreshAccountData({ force: true });
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'AUTH_FAILED' });
           throw error;
@@ -96,16 +114,7 @@ export const useAppStore = create<AppStore>()(
       logout: async () => {
         const token = get().token;
         if (token) await api.logout(token).catch(() => undefined);
-        set({
-          token: null,
-          user: null,
-          wallet: null,
-          balance: null,
-          bets: [],
-          pendingInvites: [],
-          betsLoaded: false,
-          pendingInvitesLoaded: false,
-        });
+        set(clearAuthenticatedState());
       },
       verifyWallet: async () => {
         const token = get().token;
@@ -118,7 +127,7 @@ export const useAppStore = create<AppStore>()(
           const signature = await adapter.signMessage(address, challenge.message);
           const wallet = await api.linkWallet(token, challenge.id, signature);
           set({ wallet });
-          await get().refreshBalance();
+          await get().refreshAccountData({ force: true });
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'WALLET_VERIFICATION_FAILED' });
           throw error;
@@ -132,7 +141,7 @@ export const useAppStore = create<AppStore>()(
         set({ loading: true, error: null });
         try {
           await api.unlinkWallet(token);
-          set({ wallet: null, balance: null });
+          set({ wallet: null, balance: null, balanceLoaded: false });
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'WALLET_NOT_LINKED' });
           throw error;
@@ -144,7 +153,78 @@ export const useAppStore = create<AppStore>()(
         const token = get().token;
         if (!token) return;
         const balance = await api.getBalance(token);
-        set({ balance });
+        if (get().token === token) set({ balance, balanceLoaded: true });
+      },
+      refreshAccountData: async (options = {}) => {
+        if (accountRefreshInFlight) {
+          if (!options.force) return accountRefreshInFlight;
+          accountRefreshQueued = true;
+          accountRefreshQueuedDone ??= new Promise((resolve) => {
+            resolveAccountRefreshQueued = resolve;
+          });
+          await accountRefreshInFlight.catch(() => undefined);
+          await accountRefreshQueuedDone;
+          return;
+        }
+
+        const run = async () => {
+          const token = get().token;
+          if (!token || options.signal?.aborted) return;
+          set({ accountRefreshInFlight: true });
+
+          try {
+            const [balanceResult, betsResult, pendingInvitesResult] = await Promise.allSettled([
+              api.getBalance(token, { signal: options.signal }),
+              api.listMyBets(token, { signal: options.signal }),
+              api.listPendingInvites(token, { signal: options.signal }),
+            ]);
+            if (options.signal?.aborted || get().token !== token) return;
+
+            if ([balanceResult, betsResult, pendingInvitesResult].some(isUnauthenticatedResult)) {
+              set(clearAuthenticatedState());
+              return;
+            }
+
+            const next: Partial<AppStore> = {};
+            if (balanceResult.status === 'fulfilled') {
+              next.balance = balanceResult.value;
+              next.balanceLoaded = true;
+            }
+            if (betsResult.status === 'fulfilled') {
+              next.bets = betsResult.value;
+              next.betsLoaded = true;
+            }
+            if (pendingInvitesResult.status === 'fulfilled') {
+              next.pendingInvites = pendingInvitesResult.value;
+              next.pendingInvitesLoaded = true;
+            }
+            if (Object.keys(next).length > 0) {
+              next.accountLastRefreshedAt = new Date().toISOString();
+              set(next);
+            }
+          } finally {
+            if (get().token === token) set({ accountRefreshInFlight: false });
+          }
+        };
+
+        accountRefreshInFlight = run().finally(async () => {
+          accountRefreshInFlight = null;
+          const resolveQueued = resolveAccountRefreshQueued;
+          const shouldRunQueued = accountRefreshQueued && Boolean(get().token);
+          accountRefreshQueued = false;
+          accountRefreshQueuedDone = null;
+          resolveAccountRefreshQueued = null;
+          if (shouldRunQueued) {
+            try {
+              await get().refreshAccountData({ force: true });
+            } finally {
+              resolveQueued?.();
+            }
+          } else {
+            resolveQueued?.();
+          }
+        });
+        return accountRefreshInFlight;
       },
       refreshTemplates: async () => {
         const result = await api.listTemplates({ limit: 25 });
@@ -163,13 +243,13 @@ export const useAppStore = create<AppStore>()(
         const token = get().token;
         if (!token) return;
         const bets = await api.listMyBets(token);
-        set({ bets, betsLoaded: true });
+        if (get().token === token) set({ bets, betsLoaded: true });
       },
       refreshPendingInvites: async () => {
         const token = get().token;
         if (!token) return;
         const pendingInvites = await api.listPendingInvites(token);
-        set({ pendingInvites, pendingInvitesLoaded: true });
+        if (get().token === token) set({ pendingInvites, pendingInvitesLoaded: true });
       },
     }),
     {
@@ -191,10 +271,22 @@ function upsertTemplatesById(existing: TemplateView[], next: TemplateView[]): Te
   return [...byId.values()];
 }
 
-async function refreshSecondaryData(store: AppStore): Promise<void> {
-  await Promise.allSettled([
-    store.refreshBalance(),
-    store.refreshBets(),
-    store.refreshPendingInvites(),
-  ]);
+function clearAuthenticatedState(): Partial<AppStore> {
+  return {
+    token: null,
+    user: null,
+    wallet: null,
+    balance: null,
+    bets: [],
+    pendingInvites: [],
+    balanceLoaded: false,
+    betsLoaded: false,
+    pendingInvitesLoaded: false,
+    accountRefreshInFlight: false,
+    accountLastRefreshedAt: null,
+  };
+}
+
+function isUnauthenticatedResult(result: PromiseSettledResult<unknown>): boolean {
+  return result.status === 'rejected' && result.reason instanceof ApiError && result.reason.code === 'UNAUTHENTICATED';
 }

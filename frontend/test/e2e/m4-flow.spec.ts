@@ -27,7 +27,7 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
   await page.getByLabel('Opponent email').fill('taker@duelly.test');
   await page.getByRole('button', { name: 'Confirm creation' }).click();
   await expect(page.getByText('Invite created')).toBeVisible();
-  const inviteLink = await page.locator('text=/http:\\/\\/127\\.0\\.0\\.1:5173\\/invite\\//').textContent();
+  const inviteLink = await page.locator('text=/http:\\/\\/127\\.0\\.0\\.1:\\d+\\/invite\\//').textContent();
   const inviteUrl = inviteLink?.trim();
   expect(inviteUrl).toBeTruthy();
 
@@ -53,6 +53,58 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
 
   await page.getByRole('button', { name: 'Português' }).click();
   await expect(page.getByText('Resultado confirmado')).toBeVisible();
+});
+
+test('fixture account data refreshes without navigation after focus', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'Create account' }).click();
+  await page.getByLabel('Email').fill('auto-refresh@duelly.test');
+  await page.getByLabel('Password').fill('password-123');
+  await page.getByRole('button', { name: 'Create account' }).last().click();
+  await page.getByRole('button', { name: 'Connect and verify' }).click();
+  await expect(page.getByText('Wallet ready')).toBeVisible();
+  await expect(page.getByText('R$250.00')).toBeVisible();
+
+  await page.evaluate(() => {
+    const raw = window.localStorage.getItem('duelly-m4-fixture-state');
+    if (!raw) throw new Error('MISSING_FIXTURE_STATE');
+    const state = JSON.parse(raw) as {
+      users: Array<{ id: string; email: string; wallet: { address: string } | null; balanceRaw: string }>;
+      invites: unknown[];
+    };
+    const user = state.users.find((item) => item.email === 'auto-refresh@duelly.test');
+    if (!user?.wallet) throw new Error('MISSING_FIXTURE_USER');
+    user.balanceRaw = '325000000000000000000';
+    state.invites.unshift({
+      id: 'invite-auto-refresh',
+      makerUserId: user.id,
+      takerUserId: null,
+      recipientEmail: null,
+      status: 'created',
+      isRecipientRestricted: false,
+      recipientEmailHint: null,
+      recipientAccess: 'open',
+      templateHash: '0x0b28aa25b6eb1b834a251ba9aa935e2af639b1237c979e9ac2343e15dc5a0d7f',
+      conditionId: '0x0808080808080808080808080808080808080808080808080808080808080808',
+      makerAddress: user.wallet.address,
+      takerAddress: null,
+      makerOutcomeIndex: 0,
+      takerOutcomeIndex: null,
+      stakeRaw: '50000000000000000000',
+      loserFeeRaw: '3000000000000000000',
+      expiresAt: '2026-06-27T10:00:00.000Z',
+      betId: null,
+      offerPayload: { domain: {}, types: {}, primaryType: 'BetOffer', message: {} },
+      makerPermitPayload: { domain: {}, types: {}, primaryType: 'Permit', message: {} },
+      acceptancePayload: null,
+      takerPermitPayload: null,
+    });
+    window.localStorage.setItem('duelly-m4-fixture-state', JSON.stringify(state));
+    window.dispatchEvent(new Event('focus'));
+  });
+
+  await expect(page.getByText('R$325.00')).toBeVisible();
+  await expect(page.getByText(/Will Driver B win/)).toBeVisible();
 });
 
 test('fixture flow shows wallet-already-linked error in both locales', async ({ page }) => {
