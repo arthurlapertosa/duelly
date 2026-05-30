@@ -24,6 +24,7 @@ Short map for agents working in the Duelly monorepo. The detailed source of trut
 
 - Start every task in an independent worktree.
 - Sync the base branch first: run `git pull --ff-only` on `main` before deriving the worktree.
+- Worktrees do not carry local secrets. When real-stack QA needs environment data, look for source env files in the base repository checkout first, for example `/home/arthur/lyth/duelly/.env` and `/home/arthur/lyth/duelly/backend/.env`, copy them into the task worktree locally, and never commit `.env` or secrets.
 - Open every PR as draft.
 - After opening a PR, check merge eligibility; if it is outdated or has conflicts, sync with `main` and resolve before handing off.
 - Use granular and descriptive commits.
