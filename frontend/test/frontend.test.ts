@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { ApiError } from '../src/lib/api.ts';
+import { ApiError, api } from '../src/lib/api.ts';
+import { ACCOUNT_REFRESH_INTERVAL_MS, startAccountDataPolling } from '../src/lib/accountDataPolling.ts';
 import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../src/lib/errors.ts';
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
@@ -10,7 +11,7 @@ import { deriveBetStatus, inviteHasExpired, mapPendingInvite, mapTemplate } from
 import { filterTemplates } from '../src/lib/templateFilters.ts';
 import { templateDisplay } from '../src/lib/templateDisplay.ts';
 import { ensureInjectedWalletChain, metaMaskTypedPayload, type Eip1193Provider } from '../src/lib/wallet.ts';
-import type { BetSummaryView, TemplateView } from '../src/lib/types.ts';
+import type { BalanceView, BetSummaryView, PendingInviteView, TemplateView } from '../src/lib/types.ts';
 
 test('locales are complete and provide both default languages', () => {
   assert.deepEqual(missingTranslationKeys(), []);
@@ -158,6 +159,192 @@ test('wallet verification asks the browser wallet to choose an account', () => {
   assert.match(walletSource, /wallet_requestPermissions/);
   assert.match(walletSource, /eth_accounts/);
   assert.match(storeSource, /adapter\.selectAccount\(\)/);
+});
+
+test('account data poller refreshes only while authenticated, visible, and online', () => {
+  let token: string | null = null;
+  let visibility: DocumentVisibilityState = 'visible';
+  let online = true;
+  const intervals: Array<{ handler: () => void; timeout: number }> = [];
+  const listeners = new Map<string, EventListener>();
+  const signals: AbortSignal[] = [];
+  const stop = startAccountDataPolling({
+    getToken: () => token,
+    refresh: async ({ signal }) => {
+      signals.push(signal);
+    },
+    setInterval: (handler, timeout) => {
+      intervals.push({ handler, timeout });
+      return intervals.length;
+    },
+    clearInterval: () => undefined,
+    addEventListener: (type, listener) => listeners.set(type, listener),
+    removeEventListener: (type) => listeners.delete(type),
+    visibilityState: () => visibility,
+    isOnline: () => online,
+  });
+
+  assert.equal(intervals[0]?.timeout, ACCOUNT_REFRESH_INTERVAL_MS);
+  intervals[0].handler();
+  assert.equal(signals.length, 0);
+
+  token = 'token-a';
+  intervals[0].handler();
+  assert.equal(signals.length, 1);
+
+  visibility = 'hidden';
+  intervals[0].handler();
+  assert.equal(signals.length, 1);
+
+  visibility = 'visible';
+  online = false;
+  listeners.get('focus')?.(new Event('focus'));
+  assert.equal(signals.length, 1);
+
+  online = true;
+  listeners.get('online')?.(new Event('online'));
+  assert.equal(signals.length, 2);
+
+  stop();
+});
+
+test('account data poller cleanup removes listeners and aborts active refreshes', () => {
+  let clearedInterval = 0;
+  const removed = new Set<string>();
+  let activeSignal: AbortSignal | null = null;
+  const intervals: Array<() => void> = [];
+  const stop = startAccountDataPolling({
+    getToken: () => 'token-a',
+    refresh: ({ signal }) => {
+      activeSignal = signal;
+      return new Promise(() => undefined);
+    },
+    setInterval: (handler) => {
+      intervals.push(handler);
+      return 7;
+    },
+    clearInterval: (id) => {
+      clearedInterval = id;
+    },
+    addEventListener: () => undefined,
+    removeEventListener: (type) => {
+      removed.add(type);
+    },
+    visibilityState: () => 'visible',
+    isOnline: () => true,
+  });
+
+  intervals[0]();
+  assert.equal(activeSignal?.aborted, false);
+  stop();
+  assert.equal(clearedInterval, 7);
+  assert.deepEqual([...removed].sort(), ['focus', 'online', 'visibilitychange']);
+  assert.equal(activeSignal?.aborted, true);
+});
+
+test('account data refresh is single-flight and force queues one follow-up refresh', async () => {
+  const { useAppStore } = await loadStoreForTest();
+  resetAppStoreForTest(useAppStore);
+  let balanceCalls = 0;
+  let releaseBalance: (() => void) | null = null;
+  const originals = patchAccountApi({
+    getBalance: async () => {
+      balanceCalls += 1;
+      await new Promise<void>((resolve) => {
+        releaseBalance = resolve;
+      });
+      return balanceForTest(String(balanceCalls));
+    },
+    listMyBets: async () => [],
+    listPendingInvites: async () => [],
+  });
+
+  try {
+    const first = useAppStore.getState().refreshAccountData();
+    const second = useAppStore.getState().refreshAccountData();
+    const forced = useAppStore.getState().refreshAccountData({ force: true });
+    assert.equal(balanceCalls, 1);
+    releaseBalance?.();
+    for (let attempt = 0; attempt < 10 && balanceCalls < 2; attempt += 1) {
+      await new Promise((resolve) => setImmediate(resolve));
+    }
+    assert.equal(balanceCalls, 2);
+    releaseBalance?.();
+    await Promise.all([first, second, forced]);
+    assert.equal(balanceCalls, 2);
+    assert.equal(useAppStore.getState().balance?.balanceRaw, '2');
+  } finally {
+    restoreAccountApi(originals);
+  }
+});
+
+test('account data refresh preserves stale data on partial failure', async () => {
+  const { useAppStore } = await loadStoreForTest();
+  resetAppStoreForTest(useAppStore);
+  const staleBets = [{ invite: { id: 'stale-invite' } } as BetSummaryView];
+  useAppStore.setState({ bets: staleBets, betsLoaded: true });
+  const originals = patchAccountApi({
+    getBalance: async () => balanceForTest('42'),
+    listMyBets: async () => {
+      throw new Error('NETWORK_ERROR');
+    },
+    listPendingInvites: async () => [{ invite: { id: 'pending-invite' } } as PendingInviteView],
+  });
+
+  try {
+    await useAppStore.getState().refreshAccountData({ force: true });
+    const state = useAppStore.getState();
+    assert.equal(state.balance?.balanceRaw, '42');
+    assert.equal(state.balanceLoaded, true);
+    assert.equal(state.bets, staleBets);
+    assert.equal(state.pendingInvites[0]?.invite.id, 'pending-invite');
+    assert.equal(state.pendingInvitesLoaded, true);
+  } finally {
+    restoreAccountApi(originals);
+  }
+});
+
+test('account data refresh clears unauthenticated sessions and ignores stale token results', async () => {
+  const { useAppStore } = await loadStoreForTest();
+  resetAppStoreForTest(useAppStore);
+  const unauthOriginals = patchAccountApi({
+    getBalance: async () => {
+      throw new ApiError('UNAUTHENTICATED');
+    },
+    listMyBets: async () => [],
+    listPendingInvites: async () => [],
+  });
+
+  try {
+    await useAppStore.getState().refreshAccountData({ force: true });
+    assert.equal(useAppStore.getState().token, null);
+  } finally {
+    restoreAccountApi(unauthOriginals);
+  }
+
+  resetAppStoreForTest(useAppStore);
+  let releaseBalance: (() => void) | null = null;
+  const staleOriginals = patchAccountApi({
+    getBalance: async () => {
+      await new Promise<void>((resolve) => {
+        releaseBalance = resolve;
+      });
+      return balanceForTest('99');
+    },
+    listMyBets: async () => [],
+    listPendingInvites: async () => [],
+  });
+
+  try {
+    const refresh = useAppStore.getState().refreshAccountData({ force: true });
+    useAppStore.setState({ token: null, balance: null, balanceLoaded: false });
+    releaseBalance?.();
+    await refresh;
+    assert.equal(useAppStore.getState().balance, null);
+    assert.equal(useAppStore.getState().balanceLoaded, false);
+  } finally {
+    restoreAccountApi(staleOriginals);
+  }
 });
 
 test('structured backend and frontend error codes are registered for translation', () => {
@@ -319,6 +506,85 @@ function walk(path: string): string[] {
     const fullPath = resolve(path, entry);
     return statSync(fullPath).isDirectory() ? walk(fullPath) : [fullPath];
   });
+}
+
+async function loadStoreForTest() {
+  installWindowForStoreTest();
+  return await import('../src/store/useAppStore.ts');
+}
+
+function installWindowForStoreTest() {
+  const storage = new Map<string, string>();
+  const localStorage = {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      storage.set(key, value);
+    },
+    removeItem: (key: string) => {
+      storage.delete(key);
+    },
+  };
+  (globalThis as { window?: unknown }).window = {
+    localStorage,
+    setTimeout,
+    clearTimeout,
+  };
+}
+
+function resetAppStoreForTest(useAppStore: typeof import('../src/store/useAppStore.ts').useAppStore) {
+  useAppStore.setState({
+    locale: 'en-US',
+    token: 'token-a',
+    user: null,
+    wallet: null,
+    balance: null,
+    templates: [],
+    bets: [],
+    pendingInvites: [],
+    loading: false,
+    balanceLoaded: false,
+    templatesLoaded: false,
+    betsLoaded: false,
+    pendingInvitesLoaded: false,
+    accountRefreshInFlight: false,
+    accountLastRefreshedAt: null,
+    error: null,
+  });
+}
+
+function balanceForTest(balanceRaw: string): BalanceView {
+  return {
+    wallet: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    token: '0x0000000000000000000000000000000000001001',
+    symbol: 'BRL1',
+    decimals: 18,
+    balanceRaw,
+    allowanceRaw: '0',
+    permitNonce: '0',
+    spender: '0x0000000000000000000000000000000000001002',
+  };
+}
+
+function patchAccountApi(methods: {
+  getBalance: typeof api.getBalance;
+  listMyBets: typeof api.listMyBets;
+  listPendingInvites: typeof api.listPendingInvites;
+}) {
+  const originals = {
+    getBalance: api.getBalance,
+    listMyBets: api.listMyBets,
+    listPendingInvites: api.listPendingInvites,
+  };
+  api.getBalance = methods.getBalance;
+  api.listMyBets = methods.listMyBets;
+  api.listPendingInvites = methods.listPendingInvites;
+  return originals;
+}
+
+function restoreAccountApi(originals: ReturnType<typeof patchAccountApi>) {
+  api.getBalance = originals.getBalance;
+  api.listMyBets = originals.listMyBets;
+  api.listPendingInvites = originals.listPendingInvites;
 }
 
 test('invite-only summaries derive non-funded UI statuses', () => {

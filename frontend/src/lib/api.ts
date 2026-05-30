@@ -49,6 +49,10 @@ export interface TakerAuthorizationResult {
   funding: { requestId: string; transactionHash: Hex | null; status: string; betId: string | null };
 }
 
+export interface ApiRequestOptions {
+  signal?: AbortSignal;
+}
+
 export interface DuellyApi {
   mode: ApiMode;
   login(email: string, password: string): Promise<AuthResult>;
@@ -59,7 +63,7 @@ export interface DuellyApi {
   linkWallet(token: string, challengeId: string, signature: Hex): Promise<WalletView>;
   unlinkWallet(token: string): Promise<WalletView>;
   getWallet(token: string): Promise<WalletView | null>;
-  getBalance(token: string): Promise<BalanceView | null>;
+  getBalance(token: string, options?: ApiRequestOptions): Promise<BalanceView | null>;
   getReadiness(token: string, stakeRaw: string, loserFeeRaw: string): Promise<FundingReadinessView>;
   listTemplates(input?: TemplateListInput): Promise<TemplateListResult>;
   getTemplate(id: string): Promise<TemplateView | null>;
@@ -70,8 +74,8 @@ export interface DuellyApi {
   getInvite(inviteId: string, token?: string | null): Promise<PublicInviteResult | null>;
   acceptInvite(token: string, inviteId: string, takerOutcomeIndex: number): Promise<InviteAcceptResult>;
   authorizeTaker(token: string, inviteId: string, acceptanceSignature: Hex, takerPermit: PermitSubmission): Promise<TakerAuthorizationResult>;
-  listPendingInvites(token: string): Promise<PendingInviteView[]>;
-  listMyBets(token: string): Promise<BetSummaryView[]>;
+  listPendingInvites(token: string, options?: ApiRequestOptions): Promise<PendingInviteView[]>;
+  listMyBets(token: string, options?: ApiRequestOptions): Promise<BetSummaryView[]>;
   getBet(betId: string): Promise<IndexedBetView | null>;
   getBetByInvite(inviteId: string): Promise<IndexedBetView | null>;
   resolveFixtureBet(betId: string, outcome: 'a' | 'b' | 'void'): Promise<IndexedBetView | null>;
@@ -129,9 +133,9 @@ function createHttpApi(baseUrl: string): DuellyApi {
         throw error;
       }
     },
-    getBalance: async (token) => {
+    getBalance: async (token, options = {}) => {
       try {
-        return await request<BalanceView>('/wallets/me/brl1', { token });
+        return await request<BalanceView>('/wallets/me/brl1', { token, signal: options.signal });
       } catch (error) {
         if (error instanceof ApiError && error.code === 'WALLET_NOT_LINKED') return null;
         throw error;
@@ -231,12 +235,12 @@ function createHttpApi(baseUrl: string): DuellyApi {
       );
       return { invite: mapInvite(body.invite as Record<string, unknown>), funding: body.funding };
     },
-    listPendingInvites: async (token) => {
-      const body = await request<{ invites: unknown[] }>('/me/invites/pending', { token });
+    listPendingInvites: async (token, options = {}) => {
+      const body = await request<{ invites: unknown[] }>('/me/invites/pending', { token, signal: options.signal });
       return body.invites.map((item) => mapPendingInvite(item as Record<string, unknown>));
     },
-    listMyBets: async (token) => {
-      const body = await request<{ bets: unknown[] }>('/me/bets', { token });
+    listMyBets: async (token, options = {}) => {
+      const body = await request<{ bets: unknown[] }>('/me/bets', { token, signal: options.signal });
       return body.bets.map((item) => mapBetSummary(item as Record<string, unknown>));
     },
     getBet: async (betId) => {

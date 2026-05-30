@@ -26,8 +26,7 @@ export function AcceptInviteScreen() {
   const { id } = useParams();
   const token = useAppStore((state) => state.token);
   const wallet = useAppStore((state) => state.wallet);
-  const refreshBets = useAppStore((state) => state.refreshBets);
-  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
+  const refreshAccountData = useAppStore((state) => state.refreshAccountData);
   const [invite, setInvite] = useState<InviteView | null>(null);
   const [template, setTemplate] = useState<TemplateView | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -102,7 +101,7 @@ export function AcceptInviteScreen() {
       const acceptanceSignature = await adapter.signTypedData(address, accepted.acceptancePayload);
       const takerPermit = await adapter.signPermit(address, accepted.takerPermitPayload);
       const authorized = await api.authorizeTaker(token, invite.id, acceptanceSignature, takerPermit);
-      await Promise.all([refreshBets(), refreshPendingInvites()]);
+      await refreshAccountData({ force: true });
       if (authorized.funding.betId) setDoneBetId(authorized.funding.betId);
       else navigate(`/bets/${invite.id}`, { replace: true });
     } catch (cause) {

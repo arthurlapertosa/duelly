@@ -1,0 +1,188 @@
+{
+  "frontendBaseUrl": "http://127.0.0.1:5173",
+  "apiBaseUrl": "http://127.0.0.1:3000",
+  "currentEmail": "real-refresh-current-1780101732105@example.test",
+  "currentWallet": "0xf902...847c",
+  "makerEmail": "real-refresh-maker-1780101732105@example.test",
+  "makerWallet": "0x8d06...86D6",
+  "template": {
+    "id": "fixture-football-libertadores-binary-winner",
+    "question": "Will Flamengo win Copa Libertadores 2026?"
+  },
+  "createdRecords": {
+    "ownInviteId": "invite-d3cff22b-a03e-4d2a-8368-b64265bae13d",
+    "incomingInviteId": "invite-6ec794d0-2bac-4bcd-890d-2de7e3f11a89"
+  },
+  "beforeMutation": {
+    "pendingInviteHeadingVisible": false
+  },
+  "afterFocus": {
+    "pendingInviteHeadingVisible": true
+  },
+  "initialPass": {
+    "label": "post-wallet-verification",
+    "responses": [
+      {
+        "path": "/wallets/me/brl1",
+        "status": 200,
+        "summary": {
+          "wallet": "0xf902...847c",
+          "balanceRaw": "0",
+          "allowanceRaw": "0",
+          "symbol": "BRL1"
+        }
+      },
+      {
+        "path": "/me/bets",
+        "status": 200,
+        "summary": {
+          "count": 0,
+          "inviteIds": [],
+          "statuses": []
+        }
+      },
+      {
+        "path": "/me/invites/pending",
+        "status": 200,
+        "summary": {
+          "count": 0,
+          "inviteIds": [],
+          "recipientAccess": []
+        }
+      }
+    ]
+  },
+  "focusPass": {
+    "label": "focus-after-api-mutations",
+    "responses": [
+      {
+        "path": "/wallets/me/brl1",
+        "status": 200,
+        "summary": {
+          "wallet": "0xf902...847c",
+          "balanceRaw": "0",
+          "allowanceRaw": "0",
+          "symbol": "BRL1"
+        }
+      },
+      {
+        "path": "/me/bets",
+        "status": 200,
+        "summary": {
+          "count": 1,
+          "inviteIds": [
+            "invite-d3cff22b-a03e-4d2a-8368-b64265bae13d"
+          ],
+          "statuses": [
+            "created"
+          ]
+        }
+      },
+      {
+        "path": "/me/invites/pending",
+        "status": 200,
+        "summary": {
+          "count": 1,
+          "inviteIds": [
+            "invite-6ec794d0-2bac-4bcd-890d-2de7e3f11a89"
+          ],
+          "recipientAccess": [
+            "allowed"
+          ]
+        }
+      }
+    ]
+  },
+  "observedAccountResponses": [
+    {
+      "path": "/wallets/me/brl1",
+      "status": 404,
+      "at": "2026-05-30T00:42:13.142Z"
+    },
+    {
+      "path": "/me/bets",
+      "status": 200,
+      "at": "2026-05-30T00:42:13.153Z"
+    },
+    {
+      "path": "/me/invites/pending",
+      "status": 200,
+      "at": "2026-05-30T00:42:13.155Z"
+    },
+    {
+      "path": "/me/invites/pending",
+      "status": 200,
+      "at": "2026-05-30T00:42:13.729Z"
+    },
+    {
+      "path": "/me/bets",
+      "status": 200,
+      "at": "2026-05-30T00:42:13.731Z"
+    },
+    {
+      "path": "/wallets/me/brl1",
+      "status": 200,
+      "at": "2026-05-30T00:42:13.747Z"
+    },
+    {
+      "path": "/me/invites/pending",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.438Z"
+    },
+    {
+      "path": "/me/bets",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.442Z"
+    },
+    {
+      "path": "/wallets/me/brl1",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.444Z"
+    },
+    {
+      "path": "/me/invites/pending",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.891Z"
+    },
+    {
+      "path": "/me/bets",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.895Z"
+    },
+    {
+      "path": "/wallets/me/brl1",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.896Z"
+    },
+    {
+      "path": "/me/invites/pending",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.943Z"
+    },
+    {
+      "path": "/me/bets",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.943Z"
+    },
+    {
+      "path": "/wallets/me/brl1",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.944Z"
+    },
+    {
+      "path": "/me/invites/pending",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.983Z"
+    },
+    {
+      "path": "/wallets/me/brl1",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.983Z"
+    },
+    {
+      "path": "/me/bets",
+      "status": 200,
+      "at": "2026-05-30T00:42:15.983Z"
+    }
+  ]
+}

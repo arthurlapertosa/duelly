@@ -5,7 +5,7 @@ import { errorMessage } from '../lib/errors';
 import { formatBRL, shortAddress } from '../lib/format';
 import { useI18n } from '../lib/useI18n';
 import { useAppStore } from '../store/useAppStore';
-import { Button, Card, ConfirmDialog } from './ui';
+import { Button, Card, ConfirmDialog, Skeleton } from './ui';
 import { ErrorBanner } from './ErrorBanner';
 
 /**
@@ -26,6 +26,7 @@ export function WalletReadinessCard({
   const { locale, t } = useI18n();
   const wallet = useAppStore((state) => state.wallet);
   const balance = useAppStore((state) => state.balance);
+  const balanceLoaded = useAppStore((state) => state.balanceLoaded);
   const loading = useAppStore((state) => state.loading);
   const verifyWallet = useAppStore((state) => state.verifyWallet);
   const unlinkWallet = useAppStore((state) => state.unlinkWallet);
@@ -71,9 +72,13 @@ export function WalletReadinessCard({
             <Wallet size={14} aria-hidden="true" className="shrink-0" />
             {t('wallet.balance')}
           </span>
-          <span className="shrink-0 text-sm font-bold text-slate-950">
-            {balance ? formatBRL(balance.balanceRaw, locale, balance.decimals) : formatBRL('0', locale)}
-          </span>
+          {balanceLoaded ? (
+            <span className="shrink-0 text-sm font-bold text-slate-950">
+              {balance ? formatBRL(balance.balanceRaw, locale, balance.decimals) : formatBRL('0', locale)}
+            </span>
+          ) : (
+            <Skeleton variant="line" width="84px" />
+          )}
         </div>
         {readiness ? (
           <div
@@ -107,11 +112,15 @@ export function WalletReadinessCard({
           {t('wallet.connected')}
         </span>
       </div>
-      <p className="mb-1 text-3xl font-bold tracking-tight">
-        {balance
-          ? formatBRL(balance.balanceRaw, locale, balance.decimals)
-          : formatBRL('0', locale)}
-      </p>
+      {balanceLoaded ? (
+        <p className="mb-1 text-3xl font-bold tracking-tight">
+          {balance
+            ? formatBRL(balance.balanceRaw, locale, balance.decimals)
+            : formatBRL('0', locale)}
+        </p>
+      ) : (
+        <Skeleton variant="line" className="mb-2 h-9 opacity-70" width="150px" />
+      )}
       <p className="mb-4 text-xs text-white/65">{shortAddress(wallet.address)}</p>
       <p className="rounded-2xl bg-white/10 p-3 text-xs leading-relaxed text-white/85">
         {t('home.walletFirstBody')}

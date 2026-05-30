@@ -21,8 +21,7 @@ export function CreateInviteScreen() {
   const [params] = useSearchParams();
   const token = useAppStore((state) => state.token);
   const wallet = useAppStore((state) => state.wallet);
-  const refreshBets = useAppStore((state) => state.refreshBets);
-  const refreshPendingInvites = useAppStore((state) => state.refreshPendingInvites);
+  const refreshAccountData = useAppStore((state) => state.refreshAccountData);
   const upsertTemplate = useAppStore((state) => state.upsertTemplate);
   const templates = useAppStore((state) => state.templates);
   const templateId = params.get('templateId');
@@ -123,12 +122,12 @@ export function CreateInviteScreen() {
       makerAuthorized = true;
       setCreatedInvite(authorized.invite);
       setCreatedRecipientEmail(requiresEmail ? normalizedRecipient : null);
-      await Promise.all([refreshBets(), refreshPendingInvites()]);
+      await refreshAccountData({ force: true });
       setStep('done');
     } catch (cause) {
       if (draftInviteId && !makerAuthorized) {
         await api.cancelInvite(token, draftInviteId).catch(() => undefined);
-        await Promise.all([refreshBets(), refreshPendingInvites()]).catch(() => undefined);
+        await refreshAccountData({ force: true }).catch(() => undefined);
       }
       setError(cause);
     } finally {
