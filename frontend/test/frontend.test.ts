@@ -7,7 +7,7 @@ import { ACCOUNT_REFRESH_INTERVAL_MS, startAccountDataPolling } from '../src/lib
 import { errorCodeFrom, errorKeyFor, errorMessage, knownErrorCodes } from '../src/lib/errors.ts';
 import { brlToRaw, formatBRL, potentialPayoutRaw } from '../src/lib/format.ts';
 import { defaultLocale, locales, missingTranslationKeys, translate } from '../src/lib/i18n.ts';
-import { deriveBetStatus, inviteHasExpired, mapPendingInvite, mapTemplate } from '../src/lib/mappers.ts';
+import { deriveBetStatus, inviteHasExpired, mapIndexedBet, mapPendingInvite, mapTemplate } from '../src/lib/mappers.ts';
 import { filterTemplates } from '../src/lib/templateFilters.ts';
 import { templateDisplay } from '../src/lib/templateDisplay.ts';
 import { ensureInjectedWalletChain, metaMaskTypedPayload, type Eip1193Provider } from '../src/lib/wallet.ts';
@@ -667,6 +667,52 @@ test('pending invite mapper preserves recipient access metadata', () => {
   assert.equal(pending.invite.recipientAccess, 'allowed');
   assert.equal(pending.template?.title, 'Will Driver B win?');
   assert.equal(pending.template?.display?.ptBR?.question, 'Driver B vence?');
+});
+
+test('indexed bet mapper preserves public receipt links and defaults missing receipts', () => {
+  const fundingTx = `0x${'11'.repeat(32)}`;
+  const settlementTx = `0x${'12'.repeat(32)}`;
+  const bet = mapIndexedBet({
+    betId: '1',
+    inviteId: 'invite-1',
+    templateHash: `0x${'01'.repeat(32)}`,
+    conditionId: `0x${'02'.repeat(32)}`,
+    playerA: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    playerB: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    playerAOutcomeIndex: 0,
+    playerBOutcomeIndex: 1,
+    stake: brlToRaw(50),
+    loserFee: brlToRaw(3),
+    status: 'Resolved',
+    winner: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    winnerPayout: brlToRaw(103),
+    treasuryPayout: brlToRaw(3),
+    updatedAt: '2026-06-01T00:00:00.000Z',
+    receipts: {
+      funding: {
+        transactionHash: fundingTx,
+        blockNumber: '100',
+        url: `https://polygonscan.com/tx/${fundingTx}`,
+      },
+      settlement: {
+        transactionHash: settlementTx,
+        blockNumber: '101',
+        url: `https://polygonscan.com/tx/${settlementTx}`,
+      },
+      contract: {
+        address: '0xcccccccccccccccccccccccccccccccccccccccc',
+        url: 'https://polygonscan.com/address/0xcccccccccccccccccccccccccccccccccccccccc',
+      },
+    },
+  });
+
+  assert.equal(bet.receipts.funding?.url, `https://polygonscan.com/tx/${fundingTx}`);
+  assert.equal(bet.receipts.funding?.blockNumber, '100');
+  assert.equal(bet.receipts.settlement?.url, `https://polygonscan.com/tx/${settlementTx}`);
+  assert.equal(bet.receipts.contract?.address, '0xcccccccccccccccccccccccccccccccccccccccc');
+
+  const withoutReceipts = mapIndexedBet({ ...bet, stake: bet.stakeRaw, loserFee: bet.loserFeeRaw, updatedAt: bet.updatedAt, receipts: undefined });
+  assert.deepEqual(withoutReceipts.receipts, { funding: null, settlement: null, contract: null });
 });
 
 test('template mapper preserves event start separately from provider close', () => {

@@ -1,4 +1,14 @@
-import type { BetStatus, BetSummaryView, Hex, IndexedBetView, InviteView, PendingInviteView, TemplateView } from './types';
+import type {
+  BetReceiptsView,
+  BetStatus,
+  BetSummaryView,
+  Hex,
+  IndexedBetView,
+  InviteView,
+  PendingInviteView,
+  TemplateView,
+  TransactionReceiptView,
+} from './types';
 
 interface ApiOutcome {
   label: string;
@@ -101,6 +111,7 @@ export function mapIndexedBet(bet: Record<string, unknown>): IndexedBetView {
     winnerPayoutRaw: bet.winnerPayout ? String(bet.winnerPayout) : null,
     treasuryPayoutRaw: bet.treasuryPayout ? String(bet.treasuryPayout) : null,
     updatedAt: String(bet.updatedAt),
+    receipts: mapReceipts(bet.receipts),
   };
 }
 
@@ -136,4 +147,34 @@ function normalizeOutcome(value: string): string {
   if (value.toLowerCase() === 'yes') return 'Yes';
   if (value.toLowerCase() === 'no') return 'No';
   return value;
+}
+
+function mapReceipts(value: unknown): BetReceiptsView {
+  const receipts = value && typeof value === 'object' ? value as Record<string, unknown> : {};
+  return {
+    funding: mapTransactionReceipt(receipts.funding),
+    settlement: mapTransactionReceipt(receipts.settlement),
+    contract: mapContractReceipt(receipts.contract),
+  };
+}
+
+function mapTransactionReceipt(value: unknown): TransactionReceiptView | null {
+  if (!value || typeof value !== 'object') return null;
+  const receipt = value as Record<string, unknown>;
+  if (!receipt.transactionHash || !receipt.url) return null;
+  return {
+    transactionHash: String(receipt.transactionHash) as Hex,
+    blockNumber: receipt.blockNumber === null || receipt.blockNumber === undefined ? null : String(receipt.blockNumber),
+    url: String(receipt.url),
+  };
+}
+
+function mapContractReceipt(value: unknown): BetReceiptsView['contract'] {
+  if (!value || typeof value !== 'object') return null;
+  const receipt = value as Record<string, unknown>;
+  if (!receipt.address || !receipt.url) return null;
+  return {
+    address: String(receipt.address) as Hex,
+    url: String(receipt.url),
+  };
 }
