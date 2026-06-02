@@ -331,6 +331,26 @@ export class OrchestrationRepository {
     return event;
   }
 
+  async findIndexedEventByTransactionHash(
+    transactionHash: string,
+    deploymentKey: string,
+    eventName?: string,
+  ): Promise<IndexedChainEvent | undefined> {
+    if (this.enabled) {
+      const query = this.repo(IndexedChainEventEntity)
+        .createQueryBuilder('event')
+        .where('event.deploymentKey = :deploymentKey', { deploymentKey })
+        .andWhere('lower(event.transactionHash) = :transactionHash', { transactionHash: transactionHash.toLowerCase() });
+      if (eventName) query.andWhere('event.eventName = :eventName', { eventName });
+      return await query.orderBy('event.logIndex', 'ASC').getOne() as IndexedChainEvent | null ?? undefined;
+    }
+    return [...this.memory.indexedEvents.values()]
+      .filter((event) => event.deploymentKey === deploymentKey)
+      .filter((event) => event.transactionHash.toLowerCase() === transactionHash.toLowerCase())
+      .filter((event) => !eventName || event.eventName === eventName)
+      .sort((left, right) => left.logIndex - right.logIndex)[0];
+  }
+
   async saveIndexedBet(bet: IndexedBet): Promise<IndexedBet> {
     if (this.enabled) await this.repo(IndexedBetEntity).save(bet);
     else this.memory.indexedBets.set(`${bet.deploymentKey}:${bet.betId}`, bet);

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FlaskConical, Frown, Handshake, Loader2, Trophy } from 'lucide-react';
+import { ExternalLink, FlaskConical, Frown, Handshake, Loader2, Trophy } from 'lucide-react';
 import { api } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { formatBRL } from '../lib/format';
+import type { BetReceiptsView, ContractReceiptView, TransactionReceiptView } from '../lib/types';
 import { connectLinkedWallet } from '../lib/betHelpers';
 import { templateDisplay, templateOutcomeLabel } from '../lib/templateDisplay';
 import { deriveBetStatus, inviteHasExpired } from '../lib/mappers';
@@ -222,6 +223,8 @@ export function BetDetailScreen() {
         }}
       />
 
+      {bet?.receipts ? <ReceiptLinksCard receipts={bet.receipts} /> : null}
+
       {status === 'InviteCreated' && summary ? <InviteLink inviteId={summary.invite.id} /> : null}
 
       {showActivating ? (
@@ -313,6 +316,42 @@ export function BetDetailScreen() {
         onCancel={() => setCancelOpen(false)}
       />
     </Page>
+  );
+}
+
+function ReceiptLinksCard({ receipts }: { receipts: BetReceiptsView }) {
+  const { t } = useI18n();
+  type ReceiptLinkItem = { key: string; label: string; receipt: TransactionReceiptView | ContractReceiptView | null };
+  const receiptItems: ReceiptLinkItem[] = [
+    { key: 'funding', label: t('bet.receipts.funding'), receipt: receipts.funding },
+    { key: 'settlement', label: t('bet.receipts.settlement'), receipt: receipts.settlement },
+    { key: 'contract', label: t('bet.receipts.contract'), receipt: receipts.contract },
+  ];
+  const links = receiptItems.filter(
+    (item): item is ReceiptLinkItem & { receipt: TransactionReceiptView | ContractReceiptView } => Boolean(item.receipt),
+  );
+
+  if (links.length === 0) return null;
+
+  return (
+    <Card padding="sm" tone="muted" className="space-y-3">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{t('bet.receipts.title')}</p>
+      <div className="grid gap-2">
+        {links.map((item) => (
+          <a
+            key={item.key}
+            href={item.receipt.url}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={t('bet.receipts.open', { label: item.label })}
+            className="inline-flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+          >
+            <span>{item.label}</span>
+            <ExternalLink size={15} aria-hidden="true" className="shrink-0 text-slate-400" />
+          </a>
+        ))}
+      </div>
+    </Card>
   );
 }
 

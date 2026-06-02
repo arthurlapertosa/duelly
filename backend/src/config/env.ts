@@ -82,6 +82,7 @@ export interface AppConfig {
     enabled: boolean;
     rpcUrl?: string;
     chainId: number;
+    explorerBaseUrl?: string;
     brl1Address?: Address;
     escrowAddress?: Address;
     polymarketCtfAddress?: Address;
@@ -228,6 +229,46 @@ function readCorsOrigins(nodeEnv: string): string[] {
   return origins;
 }
 
+function readExplorerBaseUrl(chainId: number, chainRpcUrl: string | undefined): string | undefined {
+  const explicit = readOptionalString('CHAIN_EXPLORER_BASE_URL');
+  if (explicit) return normalizeExplorerBaseUrl(explicit);
+  if (chainId === 137 && chainRpcUrl && !isLocalOrPrivateRpcUrl(chainRpcUrl)) return 'https://polygonscan.com';
+  return undefined;
+}
+
+function isLocalOrPrivateRpcUrl(raw: string): boolean {
+  try {
+    const hostname = new URL(raw.trim()).hostname.replace(/^\[|\]$/g, '').toLowerCase();
+    if (
+      hostname === 'localhost'
+      || hostname === '0.0.0.0'
+      || hostname === '::1'
+      || hostname === 'host.docker.internal'
+      || hostname.endsWith('.local')
+    ) return true;
+    if (hostname.startsWith('127.') || hostname.startsWith('10.') || hostname.startsWith('169.254.')) return true;
+    if (hostname.startsWith('192.168.')) return true;
+    const octets = hostname.split('.').map((part) => Number(part));
+    if (octets.length === 4 && octets.every((part) => Number.isInteger(part) && part >= 0 && part <= 255)) {
+      return octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31;
+    }
+    return hostname.startsWith('fc') || hostname.startsWith('fd');
+  } catch {
+    return true;
+  }
+}
+
+function normalizeExplorerBaseUrl(raw: string): string {
+  try {
+    const url = new URL(raw.trim());
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error();
+    if (url.search || url.hash) throw new Error();
+    return url.toString().replace(/\/+$/, '');
+  } catch {
+    throw new Error('CHAIN_EXPLORER_BASE_URL must be an http(s) URL without query or hash');
+  }
+}
+
 export function loadAppConfig(): AppConfig {
   const nodeEnv = process.env.NODE_ENV ?? 'development';
   const databaseUrl = process.env.DATABASE_URL;
@@ -238,6 +279,8 @@ export function loadAppConfig(): AppConfig {
   const resolutionMirrorEnabled = readBoolean('POLYMARKET_RESOLUTION_MIRROR_ENABLED', false);
   const resolutionMirrorSourceRpcUrl = readOptionalString('POLYMARKET_RESOLUTION_MIRROR_SOURCE_RPC_URL') ?? readOptionalString('POLYGON_RPC_URL');
   const templateCtfSyncSourceRpcUrl = readOptionalString('POLYMARKET_TEMPLATE_CTF_SYNC_SOURCE_RPC_URL') ?? resolutionMirrorSourceRpcUrl;
+  const chainRpcUrl = process.env.CHAIN_RPC_URL ?? process.env.EVM_RPC_URL ?? process.env.POLYGON_RPC_URL;
+  const chainId = readInteger('CHAIN_ID', readInteger('EVM_CHAIN_ID', 137));
 
   return {
     nodeEnv,
@@ -314,9 +357,10 @@ export function loadAppConfig(): AppConfig {
       concurrency: readInteger('POLYMARKET_TEMPLATE_CTF_SYNC_CONCURRENCY', 2),
     },
     chain: {
-      enabled: readBoolean('CHAIN_ENABLED', Boolean(process.env.CHAIN_RPC_URL || process.env.POLYGON_RPC_URL || process.env.EVM_RPC_URL)),
-      rpcUrl: process.env.CHAIN_RPC_URL ?? process.env.EVM_RPC_URL ?? process.env.POLYGON_RPC_URL,
-      chainId: readInteger('CHAIN_ID', readInteger('EVM_CHAIN_ID', 137)),
+      enabled: readBoolean('CHAIN_ENABLED', Boolean(chainRpcUrl)),
+      rpcUrl: chainRpcUrl,
+      chainId,
+      explorerBaseUrl: readExplorerBaseUrl(chainId, chainRpcUrl),
       brl1Address: readAddress('BRL1_TOKEN_ADDRESS') ?? readAddress('BRL1_ADDRESS_POLYGON'),
       escrowAddress: readAddress('DUELLY_ESCROW_ADDRESS'),
       polymarketCtfAddress: readAddress('POLYMARKET_CTF_ADDRESS'),

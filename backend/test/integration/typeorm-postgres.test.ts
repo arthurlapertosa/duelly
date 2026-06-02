@@ -285,6 +285,11 @@ test('TypeORM repositories persist Wallet, invite, relayer, indexer, and resolut
 
   assert.equal((await repository.findInviteByBetId(betId))?.id, inviteId);
   assert.equal((await repository.findRelayerAttemptByRequestId(requestId))?.status, 'succeeded');
+  assert.equal((await repository.findIndexedEventByTransactionHash(
+    '0x2222222222222222222222222222222222222222222222222222222222222222',
+    'integration-deployment',
+    'BetFunded',
+  ))?.blockNumber, '100');
   assert.equal((await repository.findIndexedBetByInviteId(inviteId, 'integration-deployment'))?.betId, betId);
   assert.equal((await repository.findCursor(cursorId, 'integration-deployment'))?.lastBlockNumber, '100');
   assert.equal((await repository.findResolutionAttempt(resolutionAttemptId))?.blockNumber, '101');

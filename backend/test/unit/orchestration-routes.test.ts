@@ -13,6 +13,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import { createApp } from '../../src/app.js';
 import { loadAppConfig } from '../../src/config/env.js';
+import { BetsController } from '../../src/controllers/orchestration/bets.controller.js';
 import { betAcceptanceTypes, betOfferTypes } from '../../src/modules/orchestration/chain.js';
 import type { BetInvite, IndexedBet, RelayerAttempt } from '../../src/modules/orchestration/domain.js';
 import { inviteToAcceptance, inviteToOffer } from '../../src/modules/orchestration/services/invite-payloads.js';
@@ -84,7 +85,7 @@ test('relayer enqueues funding without submitting the transaction inline', async
   const templateHash = `0x${'11'.repeat(32)}` as Hex;
   const conditionId = `0x${'22'.repeat(32)}` as Hex;
   const offerHash = `0x${'33'.repeat(32)}` as Hex;
-  const expiresAt = new Date('2026-06-01T00:00:00.000Z');
+  const expiresAt = new Date('2026-07-01T00:00:00.000Z');
   const invite: BetInvite = {
     id: 'invite-queue',
     makerUserId: 'maker-user',
@@ -308,7 +309,7 @@ test('relayer persists funded bet from receipt before the indexer catches up', a
   const templateHash = `0x${'11'.repeat(32)}` as Hex;
   const conditionId = `0x${'22'.repeat(32)}` as Hex;
   const offerHash = `0x${'33'.repeat(32)}` as Hex;
-  const expiresAt = new Date('2026-06-01T00:00:00.000Z');
+  const expiresAt = new Date('2026-07-01T00:00:00.000Z');
   const invite: BetInvite = {
     id: 'invite-staging',
     makerUserId: 'maker-user',
@@ -442,6 +443,87 @@ test('relayer persists funded bet from receipt before the indexer catches up', a
   assert.equal(savedIndexedBet?.sourceTransactionHash, tx);
 });
 
+test('bets controller derives explorer receipt links from existing records', async () => {
+  const escrowAddress = '0x0000000000000000000000000000000000001002' as Address;
+  const fundingTx = `0x${'21'.repeat(32)}` as Hex;
+  const settlementTx = `0x${'22'.repeat(32)}` as Hex;
+  const bet = receiptBet({
+    status: 'Resolved',
+    sourceTransactionHash: settlementTx,
+    sourceBlockNumber: '101',
+  });
+  const controller = new BetsController({
+    config: {
+      chain: {
+        explorerBaseUrl: 'https://polygonscan.com',
+        escrowAddress,
+      },
+    },
+    chain: {
+      deploymentKey: () => bet.deploymentKey,
+    },
+    repository: {
+      findIndexedBet: async () => bet,
+      findLatestRelayerAttemptForInviteAction: async () => ({
+        id: 'attempt-funding',
+        requestId: 'relayer-funding',
+        deploymentKey: bet.deploymentKey,
+        inviteId: bet.inviteId,
+        action: 'acceptBetWithPermits',
+        status: 'succeeded',
+        transactionHash: fundingTx,
+        betId: bet.betId,
+        error: null,
+        payload: {},
+        createdAt: new Date(),
+      } satisfies RelayerAttempt),
+      findIndexedEventByTransactionHash: async () => ({
+        id: 'event-funding',
+        deploymentKey: bet.deploymentKey,
+        eventName: 'BetFunded',
+        transactionHash: fundingTx,
+        logIndex: 0,
+        blockNumber: '100',
+        args: {},
+        createdAt: new Date(),
+      }),
+    },
+  } as never);
+
+  const result = await controller.get({ params: { betId: bet.betId } } as never, replyStub());
+  const publicBet = (result as { bet: { receipts: Record<string, { url?: string; blockNumber?: string | null; address?: string }> } }).bet;
+
+  assert.equal(publicBet.receipts.funding.url, `https://polygonscan.com/tx/${fundingTx}`);
+  assert.equal(publicBet.receipts.funding.blockNumber, '100');
+  assert.equal(publicBet.receipts.settlement.url, `https://polygonscan.com/tx/${settlementTx}`);
+  assert.equal(publicBet.receipts.settlement.blockNumber, '101');
+  assert.equal(publicBet.receipts.contract.url, `https://polygonscan.com/address/${escrowAddress}`);
+  assert.equal(publicBet.receipts.contract.address, escrowAddress);
+});
+
+test('bets controller suppresses receipt links when no explorer is configured', async () => {
+  const bet = receiptBet({});
+  const controller = new BetsController({
+    config: {
+      chain: {
+        explorerBaseUrl: undefined,
+        escrowAddress: '0x0000000000000000000000000000000000001002' as Address,
+      },
+    },
+    chain: {
+      deploymentKey: () => bet.deploymentKey,
+    },
+    repository: {
+      findIndexedBet: async () => bet,
+    },
+  } as never);
+
+  const result = await controller.get({ params: { betId: bet.betId } } as never, replyStub());
+  const receipts = (result as { bet: { receipts: Record<string, unknown> } }).bet.receipts;
+
+  assert.deepEqual(receipts, { funding: null, settlement: null, contract: null });
+});
+
 function testConfig(options: { inviteTtlSeconds?: number } = {}) {
   return {
     ...loadAppConfig(),
@@ -490,6 +572,38 @@ function testConfig(options: { inviteTtlSeconds?: number } = {}) {
       gasMultiplier: 3,
     },
   };
+}
+
+function receiptBet(overrides: Partial<IndexedBet>): IndexedBet {
+  return {
+    deploymentKey: 'test-deployment',
+    betId: '1',
+    inviteId: 'invite-receipts',
+    templateHash: `0x${'11'.repeat(32)}` as Hex,
+    conditionId: `0x${'22'.repeat(32)}` as Hex,
+    playerA: maker.address,
+    playerB: taker.address,
+    playerAOutcomeIndex: 0,
+    playerBOutcomeIndex: 1,
+    stake: '50000000000000000000',
+    loserFee: '3000000000000000000',
+    status: 'Funded',
+    winner: null,
+    winnerPayout: null,
+    treasuryPayout: null,
+    sourceTransactionHash: `0x${'20'.repeat(32)}` as Hex,
+    sourceBlockNumber: '99',
+    updatedAt: new Date('2026-05-22T00:00:00.000Z'),
+    ...overrides,
+  };
+}
+
+function replyStub() {
+  return {
+    code() {
+      return this;
+    },
+  } as never;
 }
 
 test('Invite creation returns CONDITION_RESOLVED before building payloads for resolved templates', async () => {

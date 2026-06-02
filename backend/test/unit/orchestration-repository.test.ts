@@ -38,6 +38,14 @@ test('repository stores duplicate tx/log events under separate deployments', asy
   await repository.saveIndexedEvent(indexedEvent({ id: 'event-current', deploymentKey: 'current-deployment' }));
 
   assert.equal((await repository.saveIndexedEvent(indexedEvent({ id: 'event-current', deploymentKey: 'current-deployment', eventName: 'BetSettled' }))).eventName, 'BetSettled');
+  assert.equal(
+    (await repository.findIndexedEventByTransactionHash(`0x${'07'.repeat(32)}`, 'current-deployment', 'BetSettled'))?.id,
+    'event-current',
+  );
+  assert.equal(
+    await repository.findIndexedEventByTransactionHash(`0x${'07'.repeat(32)}`, 'missing-deployment'),
+    undefined,
+  );
 });
 
 test('repository atomically claims submitted relayer attempts and reclaims stale locks', async () => {

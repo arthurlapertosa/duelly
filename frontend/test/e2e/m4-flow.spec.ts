@@ -46,6 +46,34 @@ test('fixture flow supports two users, one funded bet, resolution, and both loca
   await page.getByRole('button', { name: 'Accept bet' }).click();
   await expect(page.getByText('Activating bet')).toBeVisible();
   await expect(page.getByText('Waiting for result')).toBeVisible({ timeout: 10_000 });
+  const fundingTx = `0x${'ab'.repeat(32)}`;
+  await page.evaluate((transactionHash) => {
+    const raw = window.localStorage.getItem('duelly-m4-fixture-state');
+    if (!raw) throw new Error('MISSING_FIXTURE_STATE');
+    const state = JSON.parse(raw) as {
+      bets: Array<{ receipts?: unknown }>;
+    };
+    const bet = state.bets[0];
+    if (!bet) throw new Error('MISSING_FIXTURE_BET');
+    bet.receipts = {
+      funding: {
+        transactionHash,
+        blockNumber: '100',
+        url: `https://polygonscan.com/tx/${transactionHash}`,
+      },
+      settlement: null,
+      contract: {
+        address: '0x0000000000000000000000000000000000001002',
+        url: 'https://polygonscan.com/address/0x0000000000000000000000000000000000001002',
+      },
+    };
+    window.localStorage.setItem('duelly-m4-fixture-state', JSON.stringify(state));
+  }, fundingTx);
+  await page.reload();
+  await expect(page.getByText('Public records')).toBeVisible();
+  const activationLink = page.getByRole('link', { name: 'Open Activation' });
+  await expect(activationLink).toHaveAttribute('href', `https://polygonscan.com/tx/${fundingTx}`);
+  await expect(activationLink).toHaveAttribute('target', '_blank');
   await page.getByRole('button', { name: 'Confirm side A winner' }).click();
   await expect(page.getByText('Result confirmed')).toBeVisible();
   // Taker bet on side B, side A won — the loss result card leads with the stake.

@@ -3,6 +3,7 @@ import { mapBetSummary, mapIndexedBet, mapInvite, mapPendingInvite, mapTemplate 
 import type {
   ApiMode,
   BalanceView,
+  BetReceiptsView,
   BetSummaryView,
   FeeQuoteView,
   FundingReadinessView,
@@ -297,6 +298,7 @@ interface FixtureState {
 const fixtureKey = 'duelly-m4-fixture-state';
 const fixtureTokenAddress = '0x0000000000000000000000000000000000001001';
 const fixtureSpender = '0x0000000000000000000000000000000000001002';
+const emptyReceipts: BetReceiptsView = { funding: null, settlement: null, contract: null };
 
 const fixtureTemplates: TemplateView[] = [
   {
@@ -749,6 +751,7 @@ function completeFixtureFunding(inviteId: string): void {
     winnerPayoutRaw: null,
     treasuryPayoutRaw: null,
     updatedAt: new Date().toISOString(),
+    receipts: emptyReceipts,
   };
   invite.status = 'funded';
   invite.betId = bet.betId;

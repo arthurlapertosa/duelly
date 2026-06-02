@@ -13,6 +13,9 @@ const keys = [
   'POLYMARKET_GAMMA_BASE_URL',
   'POLYMARKET_GAMMA_API_URL',
   'POLYGON_RPC_URL',
+  'CHAIN_RPC_URL',
+  'CHAIN_ID',
+  'CHAIN_EXPLORER_BASE_URL',
   'POLYMARKET_DISCOVERY_MODE',
   'POLYMARKET_ALLOW_NEG_RISK',
   'POLYMARKET_MIN_BETTING_CLOSE_BUFFER_HOURS',
@@ -76,6 +79,7 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.relayerWorker.intervalMs, 3000);
     assert.equal(config.relayerWorker.batchSize, 5);
     assert.equal(config.relayerWorker.processingTimeoutMs, 120000);
+    assert.equal(config.chain.explorerBaseUrl, undefined);
     assert.equal(config.polymarketResolutionMirror.enabled, false);
     assert.equal(config.polymarketResolutionMirror.sourceRpcUrl, undefined);
     assert.equal(config.polymarketResolutionMirror.oracleAddress, undefined);
@@ -89,6 +93,33 @@ test('loadAppConfig supports explicit DB variables and fixture mode defaults', (
     assert.equal(config.templateCtfSync.concurrency, 2);
     assert.equal(config.internal.apiToken, undefined);
     assert.deepEqual(config.cors.origins, ['http://localhost:5173', 'http://127.0.0.1:5173']);
+  } finally {
+    restoreEnv(previous);
+  }
+});
+
+test('loadAppConfig derives PolygonScan URLs only for public Polygon RPCs or explicit config', () => {
+  const previous = snapshotEnv();
+  try {
+    for (const key of keys) delete process.env[key];
+    process.env.CHAIN_ID = '137';
+
+    assert.equal(loadAppConfig().chain.explorerBaseUrl, undefined);
+
+    process.env.CHAIN_EXPLORER_BASE_URL = 'https://polygonscan.com/';
+    assert.equal(loadAppConfig().chain.explorerBaseUrl, 'https://polygonscan.com');
+
+    process.env.CHAIN_EXPLORER_BASE_URL = 'ftp://polygonscan.example';
+    assert.throws(() => loadAppConfig(), /CHAIN_EXPLORER_BASE_URL/);
+
+    delete process.env.CHAIN_EXPLORER_BASE_URL;
+    process.env.CHAIN_RPC_URL = 'http://10.0.1.220:8545';
+    assert.equal(loadAppConfig().chain.explorerBaseUrl, undefined);
+
+    process.env.CHAIN_RPC_URL = 'https://polygon-rpc.example';
+    process.env.CORS_ORIGINS = 'https://app.duelly.test';
+    process.env.INTERNAL_API_TOKEN = 'internal-secret';
+    assert.equal(loadAppConfig().chain.explorerBaseUrl, 'https://polygonscan.com');
   } finally {
     restoreEnv(previous);
   }

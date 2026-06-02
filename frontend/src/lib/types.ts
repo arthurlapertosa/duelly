@@ -107,6 +107,23 @@ export interface InviteView {
 
 export type BetStatus = 'Funded' | 'Resolved' | 'Voided' | 'Expired' | 'InviteCreated' | 'Accepted' | 'FundingSubmitted';
 
+export interface TransactionReceiptView {
+  transactionHash: Hex;
+  blockNumber: string | null;
+  url: string;
+}
+
+export interface ContractReceiptView {
+  address: Hex;
+  url: string;
+}
+
+export interface BetReceiptsView {
+  funding: TransactionReceiptView | null;
+  settlement: TransactionReceiptView | null;
+  contract: ContractReceiptView | null;
+}
+
 export interface IndexedBetView {
   betId: string;
   inviteId: string | null;
@@ -123,6 +140,7 @@ export interface IndexedBetView {
   winnerPayoutRaw: string | null;
   treasuryPayoutRaw: string | null;
   updatedAt: string;
+  receipts: BetReceiptsView;
 }
 
 export interface BetSummaryView {
